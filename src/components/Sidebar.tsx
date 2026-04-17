@@ -22,9 +22,8 @@ const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "#", active: true },
   { label: "Paket dan Tryout SKD", icon: BookOpen, href: "#" },
   { label: "Paket Saya", icon: Library, href: "#" },
-  { label: "Jadwal Ujian", icon: Calendar, href: "#" },
+  { label: "Events", icon: Calendar, href: "#" },
   { label: "Pusat Bantuan", icon: HelpCircle, href: "#" },
-  { label: "Pengaturan", icon: Settings, href: "#" },
 ];
 
 interface SidebarProps {
@@ -65,7 +64,7 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
         <p className="px-3 mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
           Menu Utama
         </p>
-        {navItems.slice(0, 5).map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activePage === item.label;
           return (
@@ -99,34 +98,7 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
           );
         })}
 
-        <div className="pt-4 mt-4 border-t border-white/10">
-          <p className="px-3 mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-            Sistem
-          </p>
-          <button
-            onClick={() => {
-              onPageChange?.("Pengaturan");
-              onClose();
-            }}
-            className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
-              activePage === "Pengaturan"
-                ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
-                : "text-slate-400 hover:bg-white/5 hover:text-white"
-            )}
-          >
-            <Settings
-              className={cn(
-                "flex-shrink-0 transition-colors",
-                activePage === "Pengaturan"
-                  ? "text-white"
-                  : "text-slate-500 group-hover:text-slate-300"
-              )}
-              size={18}
-            />
-            Pengaturan
-          </button>
-        </div>
+
       </nav>
 
       <div className="px-4 py-4 border-t border-white/10">

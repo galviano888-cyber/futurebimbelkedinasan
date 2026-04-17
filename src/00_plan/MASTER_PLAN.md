@@ -131,9 +131,9 @@ Status Terakhir: April 2026
 
 | Langkah | Task                                       | Catatan                            |
 |---------|--------------------------------------------|------------------------------------|
-| 1       | Push kode ke GitHub                        | Repo: galviano888-cyber/futurebimbelkedinasan |
-| 2       | Hubungkan repo ke Vercel                   | Import project dari GitHub         |
-| 3       | Isi Environment Variables di Vercel        | VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY |
-| 4       | Deploy pertama — verifikasi live           | Cek semua halaman berjalan normal  |
+| 1       | ✅ Push kode ke GitHub                     | Repo: galviano888-cyber/futurebimbelkedinasan |
+| 2       | ✅ Hubungkan repo ke Vercel                | Import project dari GitHub         |
+| 3       | ✅ Isi Environment Variables di Vercel     | VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY |
+| 4       | ✅ Deploy pertama — verifikasi live        | Cek semua halaman berjalan normal  |
 | 5       | Sambungkan custom domain                   | Beli domain, setting DNS ke Vercel |
 | 6       | Aktifkan HTTPS otomatis                    | Vercel handle ini otomatis         |

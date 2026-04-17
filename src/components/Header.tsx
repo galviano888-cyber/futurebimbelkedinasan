@@ -6,6 +6,7 @@ import {
   LogOut,
   Menu,
   Settings,
+  Shield,
   User,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -22,11 +23,7 @@ interface HeaderProps {
   isAuthenticated?: boolean;
 }
 
-const MOCK_NOTIFICATIONS = [
-  { id: 1, title: "Tryout Nasional Gelombang II", message: "Pendaftaran telah dibuka. Segera daftar sebelum kuota penuh!", time: "10 menit yang lalu", read: false },
-  { id: 2, title: "Nilai Tryout Keluar", message: "Nilai Tryout SKD Gelombang I kamu sudah bisa dilihat di halaman Dashboard.", time: "2 jam yang lalu", read: false },
-  { id: 3, title: "Materi Baru Ditambahkan", message: "Modul TIU terbaru sudah tersedia di menu Materi Belajar.", time: "1 hari yang lalu", read: true },
-];
+
 
 export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticated }: HeaderProps) {
   const [currentDate, setCurrentDate] = useState<string>("");
@@ -35,8 +32,59 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
 
   const [notificationOpen, setNotificationOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  const markAllAsRead = () => {
+    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  };
+
+  useEffect(() => {
+    async function fetchNotifications() {
+      if (!supabase) return;
+
+      try {
+        // 1. Fetch Latest Package
+        const { data: latestPkgs } = await supabase
+          .from('packages')
+          .select('id, title, created_at')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        const newNotifs: any[] = [];
+        let latestPkgDate = new Date(0);
+
+        if (latestPkgs && latestPkgs.length > 0) {
+          latestPkgDate = new Date(latestPkgs[0].created_at);
+          newNotifs.push({
+            id: `pkg-${latestPkgs[0].id}`,
+            title: "Paket Belajar Baru!",
+            message: `Paket "${latestPkgs[0].title}" kini tersedia di Katalog. Cek sekarang!`,
+            time: latestPkgDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+            read: false
+          });
+        }
+
+        // 3. Fetch Events (Placeholder check for now)
+        // Kita bisa tambahkan tabel events nanti, untuk sekarang kita buat 1 yang "Real" 
+        // tapi hanya muncul jika ada info event mendatang.
+        newNotifs.push({
+          id: 'event-welcome',
+          title: "Selamat Datang!",
+          message: "Pendaftaran Batch 1 FBK resmi dibuka. Mari mulai belajar!",
+          time: "Baru saja",
+          read: false
+        });
+
+        setNotifications(newNotifs);
+      } catch (err) {
+        console.error("Gagal ambil notifikasi:", err);
+      }
+    }
+
+    fetchNotifications();
+  }, []);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,6 +93,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+  const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,7 +239,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
                   <h3 className="font-semibold text-slate-900">Notifikasi</h3>
                   {unreadCount > 0 && (
                     <button 
-                      onClick={() => setNotifications(notifications.map(n => ({ ...n, read: true })))}
+                      onClick={markAllAsRead}
                       className="text-xs text-blue-600 hover:text-blue-700 font-medium"
                     >
                       Tandai sudah dibaca
@@ -286,98 +335,186 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
           ) : (
             <Dialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-blue-500 hover:bg-blue-600 text-white rounded-xl">Masuk</Button>
+                <Button className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-6 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">Masuk</Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-slate-900 border-slate-800 text-white shadow-2xl">
-                <div className="flex flex-col items-center justify-center mb-2 mt-2">
-                  <div className="bg-white/10 rounded-2xl p-4 mb-4 backdrop-blur-sm border border-white/20 shadow-inner">
-                    <GraduationCap className="w-10 h-10 text-blue-400" />
-                  </div>
-                  <h1 className="text-2xl font-bold text-center text-white tracking-tight mb-1">
-                    {isLoginMode ? "Masuk Akun" : "Registrasi"}
-                  </h1>
-                  <p className="text-center text-slate-400 text-sm">
-                    {isLoginMode ? "Selamat datang kembali di Future Bimbel Kedinasan" : "Mendaftar akun baru."}
-                  </p>
-                </div>
+              <DialogContent className="sm:max-w-[440px] bg-slate-900/95 backdrop-blur-2xl border border-slate-700/50 text-white shadow-[0_0_50px_-12px_rgba(59,130,246,0.3)] rounded-[2rem] overflow-hidden p-0 gap-0">
+                <div className="relative p-8 md:p-10">
+                  {/* Decorative Background Elements */}
+                  <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
+                  <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-emerald-500/10 blur-[80px] rounded-full pointer-events-none" />
 
-                <form onSubmit={handleAuthSubmit} className="space-y-4">
-                  {!isLoginMode && (
+                  <div className="flex flex-col items-center justify-center mb-8 relative z-10">
+                    <div className="relative mb-6">
+                      <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full" />
+                      <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-xl shadow-blue-500/20 ring-1 ring-white/20">
+                        <GraduationCap className="w-9 h-9 text-white" strokeWidth={2.5} />
+                      </div>
+                    </div>
+                    <h1 className="text-3xl font-black text-center text-white tracking-tight mb-2">
+                      {isLoginMode ? "Masuk Akun" : "Registrasi"}
+                    </h1>
+                    <p className="text-center text-slate-400 text-sm font-medium">
+                      {isLoginMode ? "Masuk untuk melanjutkan perjuanganmu menuju Kedinasan." : "Jadilah bagian dari angkatan pertama yang sukses bersama FBK."}
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleAuthSubmit} className="space-y-5 relative z-10">
+                    {!isLoginMode && (
+                      <div className="space-y-2">
+                        <Label htmlFor="name" className="text-slate-300 font-semibold text-xs uppercase tracking-wider ml-1">Nama Lengkap</Label>
+                        <Input
+                          id="name"
+                          type="text"
+                          placeholder="Budi Santoso"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="bg-slate-800/50 text-white border-slate-700 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 placeholder:text-slate-500 h-12 rounded-xl backdrop-blur-sm transition-all"
+                        />
+                      </div>
+                    )}
+                    
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-white font-medium text-sm">Nama User :</Label>
+                      <Label htmlFor="email" className="text-slate-300 font-semibold text-xs uppercase tracking-wider ml-1">Email Anda</Label>
                       <Input
-                        id="name"
-                        type="text"
-                        placeholder="Masukan Nama Lengkap anda..."
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="bg-white text-slate-900 border-none focus-visible:ring-2 focus-visible:ring-blue-400 placeholder:text-slate-400 h-11"
+                        id="email"
+                        type="email"
+                        placeholder="siswa@gmail.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="bg-slate-800/50 text-white border-slate-700 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 placeholder:text-slate-500 h-12 rounded-xl backdrop-blur-sm transition-all"
                       />
                     </div>
-                  )}
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-white font-medium text-sm">Email :</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Masukan email anda..."
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="bg-white text-slate-900 border-none focus-visible:ring-2 focus-visible:ring-blue-400 placeholder:text-slate-400 h-11"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-white font-medium text-sm">
-                      {isLoginMode ? "Password :" : "Password (Min : 8) :"}
-                    </Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="bg-white text-slate-900 border-none focus-visible:ring-2 focus-visible:ring-blue-400 placeholder:text-slate-400 h-11"
-                    />
-                  </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-slate-300 font-semibold text-xs uppercase tracking-wider ml-1">
+                        {isLoginMode ? "Kata Sandi" : "Kata Sandi (Min 8 Karakter)"}
+                      </Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="bg-slate-800/50 text-white border-slate-700 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 placeholder:text-slate-500 h-12 rounded-xl backdrop-blur-sm transition-all"
+                      />
+                    </div>
 
-                  <div className="flex items-start gap-2 mt-2">
-                    <input 
-                      type="checkbox" 
-                      id="agreed" 
-                      checked={agreed}
-                      onChange={(e) => setAgreed(e.target.checked)}
-                      className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-500 focus:ring-blue-500"
-                    />
-                    <Label htmlFor="agreed" className="text-slate-300 text-sm leading-snug cursor-pointer">
-                      Saya menyetujui <span className="text-white font-semibold underline decoration-blue-500 underline-offset-2">Kebijakan Layanan & Syarat Ketentuan</span>
-                    </Label>
-                  </div>
+                    <div className="flex items-start gap-3 mt-2 px-1">
+                      <div className="relative flex items-center h-5">
+                        <input 
+                          type="checkbox" 
+                          id="agreed" 
+                          checked={agreed}
+                          onChange={(e) => setAgreed(e.target.checked)}
+                          className="w-4.5 h-4.5 rounded-md border-slate-700 bg-slate-800 text-blue-500 focus:ring-blue-500/30 transition-all cursor-pointer"
+                        />
+                      </div>
+                      <Label htmlFor="agreed" className="text-slate-400 text-[13px] leading-snug cursor-pointer select-none">
+                        Saya menyetujui <button 
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); setIsTermsDialogOpen(true); }}
+                        className="text-blue-400 font-bold hover:text-blue-300 transition-colors underline underline-offset-4 decoration-blue-500/30"
+                      >
+                        Kebijakan Layanan & Syarat Ketentuan
+                      </button>
+                      </Label>
+                    </div>
 
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-base py-6 rounded-lg transition-colors mt-4 shadow-lg shadow-blue-500/20"
-                  >
-                    {isLoading ? "Memproses..." : (isLoginMode ? "Masuk" : "Daftar")}
-                  </Button>
-                </form>
-                
-                <div className="mt-4 pt-4 border-t border-slate-800 text-center">
-                  <p className="text-slate-400 text-sm">
-                    {isLoginMode ? "Belum memiliki akun?" : "Sudah memiliki akun?"}{" "}
-                    <button 
-                      type="button"
-                      onClick={(e) => { e.preventDefault(); setIsLoginMode(!isLoginMode); }} 
-                      className="text-blue-400 font-bold hover:underline"
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-black text-base py-7 rounded-2xl transition-all duration-300 mt-6 shadow-xl shadow-blue-500/25 active:scale-[0.98]"
                     >
-                      {isLoginMode ? "Daftar" : "Login"}
-                    </button>
-                  </p>
+                      {isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Memproses...
+                        </div>
+                      ) : (isLoginMode ? "Masuk Sekarang" : "Buat Akun Eksklusif")}
+                    </Button>
+                  </form>
+                  
+                  <div className="mt-8 pt-6 border-t border-slate-800/50 text-center relative z-10">
+                    <p className="text-slate-400 text-sm font-medium">
+                      {isLoginMode ? "Belum menjadi anggota?" : "Sudah memiliki akun?"}{" "}
+                      <button 
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); setIsLoginMode(!isLoginMode); }} 
+                        className="text-blue-400 font-black hover:text-blue-300 transition-colors"
+                      >
+                        {isLoginMode ? "Daftar Disini" : "Login Sekarang"}
+                      </button>
+                    </p>
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>
           )}
+
+          {/* Dialog Kebijakan Layanan */}
+          <Dialog open={isTermsDialogOpen} onOpenChange={setIsTermsDialogOpen}>
+            <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto bg-white text-slate-900 rounded-3xl p-0 border-none shadow-2xl">
+              <div className="sticky top-0 bg-white px-8 py-5 border-b border-slate-100 flex items-center justify-between z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <h2 className="text-xl font-bold">Kebijakan Layanan</h2>
+                </div>
+              </div>
+              
+              <div className="p-8 space-y-6 text-sm leading-relaxed text-slate-600">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">Selamat datang di Future Bimbel Kedinasan!</h3>
+                  <p>
+                    Syarat dan ketentuan ini menguraikan peraturan dan ketentuan penggunaan Situs Web Future Bimbel Kedinasan (FBK). Dengan mengakses situs web ini, kami menganggap Anda menerima syarat dan ketentuan ini secara penuh.
+                  </p>
+                </div>
+
+                <section>
+                  <h4 className="font-bold text-slate-900 uppercase tracking-wider text-xs mb-2">1. Ketentuan Umum</h4>
+                  <p>
+                    Pengguna wajib memberikan data yang valid saat registrasi. Akun yang telah dibuat bersifat personal dan tidak diperbolehkan untuk dipindahtangankan atau digunakan secara bersama-sama oleh lebih dari satu orang.
+                  </p>
+                </section>
+
+                <section>
+                  <h4 className="font-bold text-slate-900 uppercase tracking-wider text-xs mb-2">2. Akses Materi & Tryout</h4>
+                  <p>
+                    Akses materi, video, dan tryout hanya akan diberikan setelah pembayaran dikonfirmasi oleh sistem. Materi yang ada di platform FBK dilindungi hak cipta dan dilarang keras untuk digandakan atau disebarluaskan tanpa izin tertulis.
+                  </p>
+                </section>
+
+                <section>
+                  <h4 className="font-bold text-slate-900 uppercase tracking-wider text-xs mb-2">3. Kebijakan Pembayaran</h4>
+                  <p>
+                    Semua transaksi dilakukan melalui Payment Gateway resmi kami. Pembelian paket yang sudah berhasil tidak dapat dibatalkan atau di-refund dengan alasan apapun, kecuali terdapat kesalahan sistem fatal dari pihak kami.
+                  </p>
+                </section>
+
+                <section>
+                  <h4 className="font-bold text-slate-900 uppercase tracking-wider text-xs mb-2">4. Etika Pengguna</h4>
+                  <p>
+                    Siswa dilarang melakukan tindakan kecurangan saat tryout, melakukan spam di grup diskusi, atau mencoba meretas sistem keamanan platform kami. Pelanggaran terhadap poin ini dapat berakibat pada pemblokiran akun secara permanen.
+                  </p>
+                </section>
+
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                  <p className="text-blue-800 font-medium italic text-xs">
+                    *Kebijakan ini dapat berubah sewaktu-waktu mengikuti perkembangan layanan kami. Siswa disarankan untuk memeriksa halaman ini secara berkala.
+                  </p>
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 bg-slate-50 px-8 py-5 border-t border-slate-100 flex justify-end">
+                <Button 
+                  onClick={() => setIsTermsDialogOpen(false)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 rounded-xl"
+                >
+                  Saya Mengerti
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </header>

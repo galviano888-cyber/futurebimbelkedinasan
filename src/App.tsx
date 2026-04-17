@@ -109,13 +109,12 @@ export function App() {
       case "Paket dan Tryout SKD":
         return <TryoutView />;
       case "Paket Saya":
-        return <PaketSayaView />;
-      case "Jadwal Ujian":
-        return <EmptyView title="Jadwal Ujian" />;
+        return <PaketSayaView onNavigate={setActivePage} />;
+      case "Events":
+        return <EmptyView title="Events" />;
       case "Pusat Bantuan":
         return <ContactView />;
-      case "Pengaturan":
-        return <EmptyView title="Pengaturan" />;
+
       default:
         return <DashboardView data={data} userName={currentUser || "Siswa FBK"} />;
     }
