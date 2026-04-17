@@ -129,7 +129,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
         }
       } else {
         // Coba register
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -141,6 +141,9 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
         
         if (signUpError) {
           alert("Gagal mendaftar: " + signUpError.message);
+        } else if (!data.user || !data.user.identities || data.user.identities.length === 0) {
+          // Supabase returns a fake user (with empty identities) or null if the email already exists
+          alert("Gagal mendaftar: Email ini sudah terdaftar. Silakan gunakan email lain atau masuk ke akun Anda.");
         } else {
           // Keluar dari sesi otomatis yang dibuat saat daftar
           await supabase.auth.signOut();
@@ -284,7 +287,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
                 {currentUser}
               </span>
               <span className="text-slate-500 text-[10px] leading-tight truncate max-w-[100px]">
-                Siswa Premium
+                Akun Gratis
               </span>
             </div>
             <ChevronDown
@@ -429,7 +432,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
                           <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                           Memproses...
                         </div>
-                      ) : (isLoginMode ? "Masuk Sekarang" : "Buat Akun Eksklusif")}
+                      ) : (isLoginMode ? "Masuk Sekarang" : "Buat Akun")}
                     </Button>
                   </form>
                   

@@ -8,9 +8,10 @@ import { ChartLine as LineChart } from "lucide-react";
 interface DashboardViewProps {
   data: TryoutRecord[];
   userName?: string;
+  onNavigate?: (page: string) => void;
 }
 
-export function DashboardView({ data, userName = "Siswa FBK" }: DashboardViewProps) {
+export function DashboardView({ data, userName = "Siswa FBK", onNavigate }: DashboardViewProps) {
   const isEmpty = data.length === 0;
 
   return (
@@ -42,7 +43,7 @@ export function DashboardView({ data, userName = "Siswa FBK" }: DashboardViewPro
           )}
         </div>
         <div>
-          <ActivePackage packageData={null} />
+          <ActivePackage packageData={null} onNavigate={onNavigate} />
         </div>
       </div>
 

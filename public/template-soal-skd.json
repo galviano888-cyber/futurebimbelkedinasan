@@ -1,0 +1,84 @@
+{
+  "package_name": "NAMA_PAKET_TRYOUT (Contoh: Tryout Akbar SKD 1)",
+  "duration_minutes": 100,
+  "questions": [
+    {
+      "number": 1,
+      "category": "TWK",
+      "question_text": "Teks soal TWK di sini... (Mendukung Markdown/HTML basic)",
+      "question_image_url": "",
+      "options": {
+        "A": "Teks opsi A",
+        "B": "Teks opsi B",
+        "C": "Teks opsi C",
+        "D": "Teks opsi D",
+        "E": "Teks opsi E"
+      },
+      "options_image_url": {
+        "A": "",
+        "B": "",
+        "C": "",
+        "D": "",
+        "E": ""
+      },
+      "correct_answer": "A",
+      "tkp_scores": null,
+      "explanation": "Pembahasan lengkap soal ini. Jawabannya A karena...",
+      "fast_tips": "Tips Cepat: Ingat tahun kejadian!"
+    },
+    {
+      "number": 31,
+      "category": "TIU",
+      "question_text": "Lengkapi deret berikut: 2, 4, 6, 8, ...",
+      "question_image_url": "https://fbk-kedinasan.com/images/soal-31.png (Kosongkan jika tidak ada gambar)",
+      "options": {
+        "A": "10",
+        "B": "12",
+        "C": "14",
+        "D": "16",
+        "E": "18"
+      },
+      "options_image_url": {
+        "A": "",
+        "B": "",
+        "C": "",
+        "D": "",
+        "E": ""
+      },
+      "correct_answer": "A",
+      "tkp_scores": null,
+      "explanation": "Pola deret aritmatika dengan beda +2.",
+      "fast_tips": "Selalu cari beda antar angka yang berdekatan terlebih dahulu."
+    },
+    {
+      "number": 66,
+      "category": "TKP",
+      "question_text": "Saat Anda sedang melayani pelanggan, tiba-tiba pelanggan tersebut marah-marah karena layanan yang lambat. Sikap Anda:",
+      "question_image_url": "",
+      "options": {
+        "A": "Mendengarkan keluhannya dan meminta maaf atas keterlambatan.",
+        "B": "Meminta rekan kerja lain untuk melayaninya.",
+        "C": "Menjelaskan bahwa sistem sedang error.",
+        "D": "Menyuruhnya sabar karena antrean memang panjang.",
+        "E": "Mengabaikan dan tetap bekerja seperti biasa."
+      },
+      "options_image_url": {
+        "A": "",
+        "B": "",
+        "C": "",
+        "D": "",
+        "E": ""
+      },
+      "correct_answer": null,
+      "tkp_scores": {
+        "A": 5,
+        "B": 4,
+        "C": 3,
+        "D": 2,
+        "E": 1
+      },
+      "explanation": "Dalam pelayanan publik, orientasi pada kepuasan pelanggan adalah utama. Meminta maaf dan mendengarkan keluhan (A) menunjukkan empati tingkat tinggi.",
+      "fast_tips": "Pilih jawaban yang paling menunjukkan Orientasi Pelayanan dan Pengendalian Diri."
+    }
+  ]
+}

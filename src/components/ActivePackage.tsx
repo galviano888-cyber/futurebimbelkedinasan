@@ -4,9 +4,10 @@ import type { ActivePackageData } from "@/types";
 
 interface ActivePackageProps {
   packageData: ActivePackageData | null;
+  onNavigate?: (page: string) => void;
 }
 
-export function ActivePackage({ packageData }: ActivePackageProps) {
+export function ActivePackage({ packageData, onNavigate }: ActivePackageProps) {
   if (!packageData) {
     return (
       <motion.div
@@ -25,7 +26,10 @@ export function ActivePackage({ packageData }: ActivePackageProps) {
           <p className="text-slate-400 text-sm mb-6">
             Tingkatkan peluang lulusmu dengan mengikuti program intensif kami.
           </p>
-          <button className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-blue-500 border border-slate-700 hover:border-blue-500/50 font-bold text-sm py-3 rounded-xl transition-all duration-300">
+          <button 
+            onClick={() => onNavigate?.("Paket dan Tryout SKD")}
+            className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-blue-500 border border-slate-700 hover:border-blue-500/50 font-bold text-sm py-3 rounded-xl transition-all duration-300"
+          >
             Lihat Katalog Paket
             <ArrowRight className="w-4 h-4" />
           </button>

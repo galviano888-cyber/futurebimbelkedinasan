@@ -9,10 +9,20 @@ import { PaketSayaView } from "@/components/views/PaketSayaView";
 import { EmptyView } from "@/components/views/EmptyView";
 import { LandingPageView } from "@/components/views/LandingPageView";
 import { ContactView } from "@/components/views/ContactView";
+import { TryoutEngineView } from "@/components/views/TryoutEngineView";
+import { TryoutResultView } from "@/components/views/TryoutResultView";
+import { TryoutPreView } from "@/components/views/TryoutPreView";
+import { TryoutReviewView } from "@/components/views/TryoutReviewView";
+import { AdminPanelView } from "@/components/views/AdminPanelView";
 import { supabase } from "@/lib/supabaseClient";
 import type { TryoutRecord } from "@/types";
+import type { TryoutResult } from "@/data/tryoutQuestions";
 
 export function App() {
+  if (window.location.pathname === '/admin-panel') {
+    return <AdminPanelView />;
+  }
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -20,6 +30,8 @@ export function App() {
   const [data, setData] = useState<TryoutRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
+  const [tryoutResult, setTryoutResult] = useState<TryoutResult | null>(null);
+  const [activePackageId, setActivePackageId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!supabase) return;
@@ -105,18 +117,50 @@ export function App() {
   const renderView = () => {
     switch (activePage) {
       case "Dashboard":
-        return <DashboardView data={data} userName={currentUser || "Siswa FBK"} />;
+        return <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={setActivePage} />;
       case "Paket dan Tryout SKD":
-        return <TryoutView />;
+        return <TryoutView onStartTryout={(id) => {
+          setActivePackageId(id);
+          setActivePage("TryoutPreView");
+        }} />;
+      case "TryoutPreView":
+        return <TryoutPreView 
+          packageId={activePackageId} 
+          onStart={() => setActivePage("TryoutEngine")} 
+          onCancel={() => setActivePage("Paket dan Tryout SKD")} 
+        />;
       case "Paket Saya":
-        return <PaketSayaView onNavigate={setActivePage} />;
+        return <PaketSayaView />;
       case "Events":
         return <EmptyView title="Events" />;
       case "Pusat Bantuan":
         return <ContactView />;
+      case "TryoutEngine":
+        if (!activePackageId) return <TryoutView onStartTryout={(id) => { setActivePackageId(id); setActivePage("TryoutPreView"); }} />;
+        return <TryoutEngineView 
+          packageId={activePackageId}
+          onFinish={(res) => { setTryoutResult(res); setActivePage("TryoutResult"); }} 
+          onExit={() => setActivePage("Paket dan Tryout SKD")} 
+        />;
+      case "TryoutResult":
+        return tryoutResult ? (
+          <TryoutResultView 
+            result={tryoutResult} 
+            onBack={() => { setTryoutResult(null); setActivePage("Dashboard"); }} 
+            onReview={() => setActivePage("TryoutReview")}
+          />
+        ) : (
+          <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={setActivePage} />
+        );
+      case "TryoutReview":
+        return tryoutResult ? (
+          <TryoutReviewView result={tryoutResult} onBack={() => setActivePage("TryoutResult")} />
+        ) : (
+          <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={setActivePage} />
+        );
 
       default:
-        return <DashboardView data={data} userName={currentUser || "Siswa FBK"} />;
+        return <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={setActivePage} />;
     }
   };
 
@@ -134,6 +178,17 @@ export function App() {
 
       {showLanding ? (
         <LandingPageView onEnter={() => setShowLanding(false)} />
+      ) : activePage === "TryoutEngine" ? (
+        <TryoutEngineView
+          packageId={activePackageId}
+          onFinish={(result) => { setTryoutResult(result); setActivePage("TryoutResult"); }}
+          onExit={() => setActivePage("Paket dan Tryout SKD")}
+        />
+      ) : activePage === "TryoutReview" && tryoutResult ? (
+        <TryoutReviewView 
+          result={tryoutResult} 
+          onBack={() => setActivePage("TryoutResult")} 
+        />
       ) : (
         <div className="flex h-screen bg-slate-50 overflow-hidden">
           <Sidebar
