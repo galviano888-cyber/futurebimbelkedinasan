@@ -5,7 +5,6 @@ import {
   GraduationCap,
   HelpCircle,
   LayoutDashboard,
-  Settings,
   X,
   Library,
 } from "lucide-react";
