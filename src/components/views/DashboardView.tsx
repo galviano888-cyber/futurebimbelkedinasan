@@ -2,22 +2,22 @@ import { StatCards } from "@/components/StatCards";
 import { PerformanceChart } from "@/components/PerformanceChart";
 import { ActivePackage } from "@/components/ActivePackage";
 import { HistoryTable } from "@/components/HistoryTable";
-import { mockActivePackage } from "@/data/mockData";
 import type { TryoutRecord } from "@/types";
 import { ChartLine as LineChart } from "lucide-react";
 
 interface DashboardViewProps {
   data: TryoutRecord[];
+  userName?: string;
 }
 
-export function DashboardView({ data }: DashboardViewProps) {
+export function DashboardView({ data, userName = "Siswa FBK" }: DashboardViewProps) {
   const isEmpty = data.length === 0;
 
   return (
     <div className="space-y-6">
       <div className="mb-7">
         <h1 className="text-slate-900 font-bold text-2xl tracking-tight">
-          Selamat Datang, Siswa FBK
+          Selamat Datang, {userName}
         </h1>
         <p className="text-slate-500 text-sm mt-1">
           Pantau perkembangan belajarmu dan raih hasil terbaik di ujian kedinasan.
@@ -42,7 +42,7 @@ export function DashboardView({ data }: DashboardViewProps) {
           )}
         </div>
         <div>
-          <ActivePackage packageData={mockActivePackage} />
+          <ActivePackage packageData={null} />
         </div>
       </div>
 

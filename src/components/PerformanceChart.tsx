@@ -49,7 +49,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 
   return (
     <div className="bg-slate-900 rounded-xl p-4 shadow-2xl border border-slate-700 min-w-[170px]">
-      <p className="text-amber-400 text-xs font-bold uppercase tracking-wider mb-3">
+      <p className="text-blue-400 text-xs font-bold uppercase tracking-wider mb-3">
         {label}
       </p>
       <div className="space-y-2">

@@ -27,7 +27,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-lg shadow-xl p-8">
           <div className="flex items-center justify-center mb-8">
-            <div className="bg-amber-500 rounded-lg p-3">
+            <div className="bg-blue-500 rounded-lg p-3">
               <GraduationCap className="w-8 h-8 text-white" />
             </div>
           </div>
@@ -71,7 +71,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 rounded-lg transition-colors"
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg transition-colors"
             >
               {isLoading ? "Memproses..." : "Masuk"}
             </Button>

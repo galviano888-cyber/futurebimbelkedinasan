@@ -11,7 +11,7 @@ export function LoadingSkeleton() {
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       <div className="hidden lg:flex w-64 flex-col bg-[#0a192f] flex-shrink-0">
         <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-          <div className="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-lg bg-blue-500 flex items-center justify-center">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
           <div className="space-y-1.5">
@@ -117,7 +117,7 @@ export function LoadingSkeleton() {
                 <div className="h-16 bg-white/5 rounded-xl animate-pulse" />
                 <div className="h-16 bg-white/5 rounded-xl animate-pulse" />
               </div>
-              <div className="h-11 bg-amber-500/30 rounded-xl animate-pulse" />
+              <div className="h-11 bg-blue-500/30 rounded-xl animate-pulse" />
             </div>
           </div>
 

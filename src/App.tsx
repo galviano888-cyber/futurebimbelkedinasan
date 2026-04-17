@@ -2,16 +2,15 @@ import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
 import { Header } from "@/components/Header";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
-import { LoginScreen } from "@/components/LoginScreen";
 import { Sidebar } from "@/components/Sidebar";
 import { DashboardView } from "@/components/views/DashboardView";
 import { TryoutView } from "@/components/views/TryoutView";
-import { MateriView } from "@/components/views/MateriView";
+import { PaketSayaView } from "@/components/views/PaketSayaView";
 import { EmptyView } from "@/components/views/EmptyView";
+import { LandingPageView } from "@/components/views/LandingPageView";
+import { ContactView } from "@/components/views/ContactView";
 import { supabase } from "@/lib/supabaseClient";
 import type { TryoutRecord } from "@/types";
-
-const EMPTY_DATA: TryoutRecord[] = [];
 
 export function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,6 +19,31 @@ export function App() {
   const [activePage, setActivePage] = useState("Dashboard");
   const [data, setData] = useState<TryoutRecord[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showLanding, setShowLanding] = useState(true);
+
+  useEffect(() => {
+    if (!supabase) return;
+    
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+      setCurrentUser(session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || null);
+      if (session) setShowLanding(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+      setCurrentUser(session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || null);
+      if (session) {
+        setShowLanding(false);
+      } else {
+        setData([]);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -59,7 +83,7 @@ export function App() {
 
           setData(normalized);
         } catch {
-          setData(EMPTY_DATA);
+          setData([]);
           toast.warning("Mode Simulasi: Gagal terhubung ke database.", {
             description: "Data ditampilkan menggunakan contoh kosong.",
             duration: 5000,
@@ -74,23 +98,6 @@ export function App() {
     }
   }, [isAuthenticated]);
 
-  const handleLogin = (email: string) => {
-    setIsAuthenticated(true);
-    setCurrentUser(email);
-    setActivePage("Dashboard");
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setCurrentUser(null);
-    setActivePage("Dashboard");
-    setData([]);
-  };
-
-  if (!isAuthenticated) {
-    return <LoginScreen onLogin={handleLogin} />;
-  }
-
   if (loading) {
     return <LoadingSkeleton />;
   }
@@ -98,21 +105,19 @@ export function App() {
   const renderView = () => {
     switch (activePage) {
       case "Dashboard":
-        return <DashboardView data={data} />;
-      case "Tryout SKD":
+        return <DashboardView data={data} userName={currentUser || "Siswa FBK"} />;
+      case "Paket dan Tryout SKD":
         return <TryoutView />;
-      case "Materi Belajar":
-        return <MateriView />;
+      case "Paket Saya":
+        return <PaketSayaView />;
       case "Jadwal Ujian":
         return <EmptyView title="Jadwal Ujian" />;
-      case "Pembahasan Soal":
-        return <EmptyView title="Pembahasan Soal" />;
-      case "Peringkat":
-        return <EmptyView title="Peringkat" />;
+      case "Pusat Bantuan":
+        return <ContactView />;
       case "Pengaturan":
         return <EmptyView title="Pengaturan" />;
       default:
-        return <DashboardView data={data} />;
+        return <DashboardView data={data} userName={currentUser || "Siswa FBK"} />;
     }
   };
 
@@ -128,29 +133,32 @@ export function App() {
         }}
       />
 
-      <div className="flex h-screen bg-slate-50 overflow-hidden">
-        <Sidebar
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          activePage={activePage}
-          onPageChange={setActivePage}
-          currentUser={currentUser || "Siswa FBK"}
-        />
-
-        <div className="flex-1 flex flex-col overflow-hidden lg:ml-64">
-          <Header
-            onMenuToggle={() => setSidebarOpen((prev) => !prev)}
+      {showLanding ? (
+        <LandingPageView onEnter={() => setShowLanding(false)} />
+      ) : (
+        <div className="flex h-screen bg-slate-50 overflow-hidden">
+          <Sidebar
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            activePage={activePage}
+            onPageChange={setActivePage}
             currentUser={currentUser || "Siswa FBK"}
-            onLogout={handleLogout}
           />
 
-          <main className="flex-1 overflow-y-auto">
-            <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-screen-2xl mx-auto">
-              {renderView()}
-            </div>
-          </main>
+          <div className="flex-1 flex flex-col overflow-hidden lg:ml-64">
+            <Header 
+              onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+              currentUser={currentUser || "Siswa FBK"}
+              isAuthenticated={isAuthenticated}
+            />
+            <main className="flex-1 overflow-y-auto">
+              <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-screen-2xl mx-auto">
+                {renderView()}
+              </div>
+            </main>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

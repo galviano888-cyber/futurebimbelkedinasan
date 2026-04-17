@@ -1,13 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Award,
   BookOpen,
   Calendar,
   GraduationCap,
+  HelpCircle,
   LayoutDashboard,
-  MessageSquare,
   Settings,
   X,
+  Library,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,11 +20,10 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "#", active: true },
-  { label: "Tryout SKD", icon: BookOpen, href: "#" },
-  { label: "Materi Belajar", icon: GraduationCap, href: "#" },
+  { label: "Paket dan Tryout SKD", icon: BookOpen, href: "#" },
+  { label: "Paket Saya", icon: Library, href: "#" },
   { label: "Jadwal Ujian", icon: Calendar, href: "#" },
-  { label: "Pembahasan Soal", icon: MessageSquare, href: "#" },
-  { label: "Peringkat", icon: Award, href: "#" },
+  { label: "Pusat Bantuan", icon: HelpCircle, href: "#" },
   { label: "Pengaturan", icon: Settings, href: "#" },
 ];
 
@@ -42,7 +41,7 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
     <div className="flex flex-col h-full bg-[#0a192f]">
       <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-lg bg-blue-500 flex items-center justify-center flex-shrink-0">
             <GraduationCap className="w-5 h-5 text-white" strokeWidth={2.5} />
           </div>
           <div>
@@ -66,7 +65,7 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
         <p className="px-3 mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
           Menu Utama
         </p>
-        {navItems.slice(0, 6).map((item) => {
+        {navItems.slice(0, 5).map((item) => {
           const Icon = item.icon;
           const isActive = activePage === item.label;
           return (
@@ -79,7 +78,7 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
                 isActive
-                  ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20"
+                  ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
                   : "text-slate-400 hover:bg-white/5 hover:text-white"
               )}
             >
@@ -112,7 +111,7 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
             className={cn(
               "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
               activePage === "Pengaturan"
-                ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20"
+                ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
                 : "text-slate-400 hover:bg-white/5 hover:text-white"
             )}
           >
@@ -132,7 +131,7 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
 
       <div className="px-4 py-4 border-t border-white/10">
         <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0">
             <span className="text-white text-xs font-bold">{currentUser.slice(0, 2).toUpperCase()}</span>
           </div>
           <div className="min-w-0">
@@ -140,10 +139,10 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
               {currentUser}
             </p>
             <p className="text-slate-500 text-[10px] truncate">
-              Paket Premium Aktif
+              Akun Gratis
             </p>
           </div>
-          <div className="ml-auto w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
+          <div className="ml-auto w-2 h-2 rounded-full bg-slate-400 flex-shrink-0" />
         </div>
       </div>
     </div>

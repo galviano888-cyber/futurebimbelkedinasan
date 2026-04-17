@@ -45,8 +45,8 @@ export function StatCards({ data }: StatCardsProps) {
       value: averageScore.toLocaleString("id-ID"),
       subtitle: "Dari semua tryout",
       icon: TrendingUp,
-      iconBg: "bg-amber-50",
-      iconColor: "text-amber-600",
+      iconBg: "bg-blue-50",
+      iconColor: "text-blue-600",
       trend:
         averageScore >= 300 ? "Di atas target" : "Perlu peningkatan",
       trendUp: averageScore >= 300,
@@ -105,7 +105,7 @@ export function StatCards({ data }: StatCardsProps) {
                     "inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full",
                     card.trendUp
                       ? "bg-emerald-50 text-emerald-700"
-                      : "bg-amber-50 text-amber-700"
+                      : "bg-blue-50 text-blue-700"
                   )}
                 >
                   {card.trend}
