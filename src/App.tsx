@@ -107,39 +107,22 @@ export function App() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Mengambil data performa adil (hanya percobaan pertama tiap paket) dari view SQL
       const { data: supabaseData, error } = await supabase
-        .from("tryout_results")
-        .select(`
-          *,
-          packages (title)
-        `)
+        .from("fair_package_leaderboard")
+        .select(`*`)
         .eq("user_id", user.id)
         .order("date", { ascending: true });
 
       if (error) throw error;
 
       if (supabaseData) {
-        // Filter: Hanya ambil percobaan PERTAMA untuk setiap package_id
-        const firstAttemptsMap = new Map();
-        
-        // Karena data sudah di-order ascending (paling lama duluan), 
-        // kita cukup ambil yang pertama kali muncul untuk setiap package_id.
-        supabaseData.forEach((row: any) => {
-          // Hanya ambil pengerjaan pertama (Fair) dan yang ada skornya (Bukan sampah)
-          if (row.total > 0) {
-            const uniqueKey = `${row.package_id}-${row.tryout_id || 'tid'}-${row.package_name}`;
-            if (!firstAttemptsMap.has(uniqueKey)) {
-              firstAttemptsMap.set(uniqueKey, row);
-            }
-          }
-        });
-
-        const normalized: TryoutRecord[] = Array.from(firstAttemptsMap.values()).map((row: any) => ({
+        const normalized: TryoutRecord[] = supabaseData.map((row: any) => ({
           id: String(row.id),
           packageId: row.package_id,
           tryoutId: row.tryout_id,
           date: row.date,
-          packageName: row.packages?.title || row.package_name || "Paket Tidak Teridentifikasi",
+          packageName: row.package_name || "Paket Tidak Teridentifikasi",
           twk: row.twk || 0,
           tiu: row.tiu || 0,
           tkp: row.tkp || 0,

@@ -50,16 +50,18 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
   const fetchRank = async () => {
     if (!supabase) return;
     try {
+      // 1. Ambil total peserta unik (percobaan pertama saja) untuk paket ini
       const { count: totalCount } = await supabase
-        .from('tryout_results')
+        .from('fair_package_leaderboard')
         .select('*', { count: 'exact', head: true })
         .eq('package_id', packageId);
 
+      // 2. Ambil posisi peringkat user di antara peserta unik tersebut
       const { count: rankPosition } = await supabase
-        .from('tryout_results')
+        .from('fair_package_leaderboard')
         .select('*', { count: 'exact', head: true })
         .eq('package_id', packageId)
-        .gte('total', result.totalScore); // Using 'total' as per the schema check
+        .gte('total', result.totalScore);
 
       if (totalCount !== null && rankPosition !== null) {
         setRank({ position: rankPosition, total: totalCount });

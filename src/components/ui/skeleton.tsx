@@ -1,11 +1,11 @@
-import { motion } from "framer-motion";
+import { motion, type HTMLMotionProps } from "framer-motion";
 
-interface SkeletonProps {
+interface SkeletonProps extends HTMLMotionProps<"div"> {
   className?: string;
   variant?: "rect" | "circle" | "text";
 }
 
-export function Skeleton({ className = "", variant = "rect" }: SkeletonProps) {
+export function Skeleton({ className = "", variant = "rect", ...props }: SkeletonProps) {
   const variants = {
     rect: "rounded-xl",
     circle: "rounded-full",
@@ -18,6 +18,7 @@ export function Skeleton({ className = "", variant = "rect" }: SkeletonProps) {
       animate={{ opacity: [0.5, 0.8, 0.5] }}
       transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
       className={`bg-slate-200/60 dark:bg-slate-800/40 ${variants[variant]} ${className}`}
+      {...props}
     />
   );
 }
