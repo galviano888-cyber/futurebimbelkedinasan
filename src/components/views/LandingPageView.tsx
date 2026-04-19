@@ -137,7 +137,7 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
               </div>
               <h3 className="text-xl font-black mb-3 text-white">Live Class Zoom</h3>
               <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                Belajar langsung dengan tentor lulusan kedinasan terbaik. Sesi tanya jawab interaktif sampai kamu benar-benar paham.
+                Belajar langsung dengan mentor mahasiswa kedinasan terbaik. Sesi tanya jawab interaktif sampai kamu benar-benar paham.
               </p>
             </div>
             <div className="p-10 rounded-[2.5rem] bg-slate-800/30 border border-slate-700/50 hover:border-emerald-500/50 transition-all group">
