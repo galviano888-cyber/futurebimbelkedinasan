@@ -31,9 +31,10 @@ interface Package {
 interface TryoutViewProps {
   isAuthenticated: boolean;
   onPurchaseSuccess?: (transactionId: string) => void;
+  onLoginClick?: () => void;
 }
 
-export function TryoutView({ isAuthenticated, onPurchaseSuccess }: TryoutViewProps) {
+export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }: TryoutViewProps) {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -166,14 +167,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess }: TryoutViewPro
                   <button 
                     onClick={async () => {
                       if (!isAuthenticated) {
-                        // Memanggil tombol login di header berdasarkan atribut yang ada
-                        const loginBtn = document.querySelector('[data-login-trigger]') as HTMLButtonElement;
-                        if (loginBtn) {
-                          loginBtn.click();
-                        } else {
-                          // Fallback jika ID tidak ketemu
-                          alert("Silakan klik tombol 'Masuk' di pojok kanan atas untuk melanjutkan.");
-                        }
+                        onLoginClick?.();
                         return;
                       }
 

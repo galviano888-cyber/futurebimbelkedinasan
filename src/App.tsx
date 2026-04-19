@@ -39,6 +39,7 @@ export function App() {
   const [activePackageId, setActivePackageId] = useState<string | null>(() => localStorage.getItem('activePackageId'));
   const [questionsId, setQuestionsId] = useState<string | null>(() => localStorage.getItem('questionsId'));
   const [loading, setLoading] = useState(true);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   useEffect(() => {
     if (!supabase) return;
@@ -46,7 +47,11 @@ export function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
       setCurrentUser(session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || null);
-      if (session) setShowLanding(false);
+      if (session) {
+        setShowLanding(false);
+      } else {
+        setLoading(false);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -73,6 +78,7 @@ export function App() {
         setActivePackageId(null);
         setQuestionsId(null);
         setSelectedTransactionId(null);
+        setLoading(false);
       }
     });
 
@@ -284,7 +290,7 @@ export function App() {
       case "Dashboard":
         return <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={setActivePage} onViewInvoice={(txId) => { setSelectedTransactionId(txId); setActivePage('Invoice'); }} onReview={handleHistoryReview} />;
       case "Paket dan Tryout SKD":
-        return <TryoutView isAuthenticated={isAuthenticated} onPurchaseSuccess={(txId) => { setSelectedTransactionId(txId); setActivePage('Invoice'); }} />;
+        return <TryoutView isAuthenticated={isAuthenticated} onPurchaseSuccess={(txId) => { setSelectedTransactionId(txId); setActivePage('Invoice'); }} onLoginClick={() => setIsLoginOpen(true)} />;
       case "Invoice":
         return selectedTransactionId ? <InvoiceView transactionId={selectedTransactionId} onBack={() => setActivePage("Paket dan Tryout SKD")} /> : <div className="p-20 text-center"><h2 className="text-xl font-bold">Invoice Tidak Ditemukan</h2><button onClick={() => setActivePage("Dashboard")} className="text-blue-600 mt-4">Dashboard</button></div>;
       case "TryoutPreView":
@@ -296,7 +302,7 @@ export function App() {
       case "Riwayat Transaksi":
         return <PaymentHistory onBack={() => setActivePage("Dashboard")} onViewInvoice={(txId) => { setSelectedTransactionId(txId); setActivePage('Invoice'); }} />;
       case "Ranking Nasional":
-        return <LeaderboardView />;
+        return <LeaderboardView onLoginClick={() => setIsLoginOpen(true)} />;
       case "Events":
         return <EmptyView title="Events" />;
       case "Pusat Bantuan":
@@ -320,7 +326,7 @@ export function App() {
       <Toaster theme="dark" position="top-right" />
 
       {showLanding ? (
-        <LandingPageView onEnter={() => setShowLanding(false)} />
+        <LandingPageView onEnter={() => { setShowLanding(false); setIsLoginOpen(true); }} />
       ) : activePage === "TryoutEngine" && activePackageId && questionsId ? (
         <TryoutEngineView
           packageId={activePackageId}
@@ -332,7 +338,7 @@ export function App() {
         <div className="flex h-screen bg-[#0f172a] overflow-hidden">
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} activePage={activePage} onPageChange={setActivePage} currentUser={currentUser || "Siswa FBK"} isAuthenticated={isAuthenticated} />
           <div className="flex-1 flex flex-col overflow-hidden lg:ml-64 bg-slate-50">
-            <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} currentUser={currentUser || "Siswa FBK"} isAuthenticated={isAuthenticated} onNavigate={setActivePage} />
+            <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} currentUser={currentUser || "Siswa FBK"} isAuthenticated={isAuthenticated} onNavigate={setActivePage} isLoginOpen={isLoginOpen} setIsLoginOpen={setIsLoginOpen} />
             <main className="flex-1 overflow-y-auto">
               <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-screen-2xl mx-auto">
                 {renderView()}

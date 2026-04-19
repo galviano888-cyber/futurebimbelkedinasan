@@ -12,16 +12,18 @@ import {
   Zap,
   Star
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
-export function LeaderboardView() {
+export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void }) {
   const [loading, setLoading] = useState(true);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [packages, setPackages] = useState<any[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<string>("");
   const [userRank, setUserRank] = useState<{ position: number; total: number; score: number } | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
     fetchPackages();
@@ -55,8 +57,10 @@ export function LeaderboardView() {
       setPackages(data);
       // Set default ke paket pertama jika belum ada yang terpilih
       if (!selectedPackage) {
-        setSelectedPackage(data[0].id);
+        setSelectedPackage("all");
       }
+    } else {
+      setSelectedPackage("all");
     }
   };
 
@@ -64,32 +68,41 @@ export function LeaderboardView() {
     if (!supabase) return;
     setLoading(true);
     try {
-      // Mode Paket Spesifik - Pake view "Fair" (Hanya percobaan pertama)
-      if (!supabase || !selectedPackage) return;
-      const { data, error } = await supabase
-        .from('fair_package_leaderboard')
-        .select(`
-          total,
-          date,
-          user_id,
-          package_id,
-          twk,
-          tiu,
-          tkp,
-          full_name
-        `)
-        .eq('package_id', selectedPackage)
-        .order('total', { ascending: false })
-        .limit(50);
+      if (selectedPackage === "all") {
+        const { data, error } = await supabase
+          .from('leaderboard_averages')
+          .select('*')
+          .order('avg_total', { ascending: false })
+          .limit(50);
+        
+        if (error) throw error;
+        
+        const formatted = (data || []).map((item: any) => ({
+            ...item,
+            twk: item.avg_twk,
+            tiu: item.avg_tiu,
+            tkp: item.avg_tkp,
+            total: item.avg_total,
+            profiles: { full_name: item.full_name }
+        }));
+        setLeaderboard(formatted);
+      } else {
+        const { data, error } = await supabase
+          .from('fair_package_leaderboard')
+          .select('*')
+          .eq('package_id', selectedPackage)
+          .order('total', { ascending: false })
+          .limit(50);
 
-      if (error) throw error;
+        if (error) throw error;
+        
+        const formatted = (data || []).map((item: any) => ({
+            ...item,
+            profiles: { full_name: item.full_name }
+        }));
+        setLeaderboard(formatted);
+      }
       
-      // Map full_name agar sesuai format UI lama
-      const formatted = (data || []).map(item => ({
-          ...item,
-          profiles: { full_name: item.full_name }
-      }));
-      setLeaderboard(formatted);
     } catch (error) {
       console.error("Error fetching leaderboard:", error);
       setLeaderboard([]);
@@ -102,21 +115,30 @@ export function LeaderboardView() {
     if (!supabase) return;
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUser(user);
       if (!user) return;
       if (!supabase) return;
 
       // Peringkat Paket Spesifik (Adil - Percobaan Pertama)
-      const { data: allRanks } = await supabase
-        .from('fair_package_leaderboard')
-        .select('user_id, total')
-        .eq('package_id', selectedPackage)
-        .order('total', { ascending: false });
+      const table = selectedPackage === "all" ? 'leaderboard_averages' : 'fair_package_leaderboard';
+      const scoreCol = selectedPackage === "all" ? 'avg_total' : 'total';
+
+      const query = supabase
+        .from(table)
+        .select(`user_id, ${scoreCol}`)
+        .order(scoreCol, { ascending: false });
+      
+      if (selectedPackage !== "all") {
+        query.eq('package_id', selectedPackage);
+      }
+
+      const { data: allRanks } = await query;
 
       if (allRanks) {
         const position = allRanks.findIndex(r => r.user_id === user.id) + 1;
-        const userStats = allRanks.find(r => r.user_id === user.id);
+        const userStats: any = allRanks.find(r => r.user_id === user.id);
         if (position > 0 && userStats) {
-          setUserRank({ position, total: allRanks.length, score: userStats.total });
+          setUserRank({ position, total: allRanks.length, score: userStats[scoreCol] });
         } else {
           setUserRank(null);
         }
@@ -178,7 +200,7 @@ export function LeaderboardView() {
                     onChange={(e) => setSelectedPackage(e.target.value)}
                     className="bg-transparent py-4 pr-10 text-sm font-black text-slate-800 focus:outline-none appearance-none cursor-pointer"
                    >
-                    {/* Opsi "Semua Paket" dihapus agar tidak pusing */}
+                    <option value="all">🏆 Ranking Nasional (Global)</option>
                     {packages.map(pkg => (
                       <option key={pkg.id} value={pkg.id}>{pkg.title}</option>
                     ))}
@@ -191,6 +213,43 @@ export function LeaderboardView() {
           </motion.div>
         </div>
       </section>
+
+      <div className="relative min-h-[500px]">
+        {/* ACCESS OVERLAY FOR GUESTS */}
+        <AnimatePresence>
+          {!currentUser && !loading && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-x-0 inset-y-0 z-50 flex items-center justify-center rounded-[3rem] overflow-hidden"
+            >
+               <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl border border-white/40" />
+               <div className="relative z-10 text-center space-y-8 p-12 max-w-md animate-in zoom-in-95 duration-500">
+                  <div className="w-24 h-24 bg-blue-600 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-2xl shadow-blue-500/40">
+                     <Trophy className="w-12 h-12 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Ranking Terkunci! 🔒</h2>
+                    <p className="text-slate-600 font-medium mt-3 leading-relaxed">
+                      Waduh! Kamu harus masuk ke akunmu dulu buat liat siapa aja jawara di Ranking Nasional Future Bimbel.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Button 
+                      onClick={onLoginClick} 
+                      className="h-16 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl shadow-xl shadow-blue-500/20 text-base"
+                    >
+                      Login Sekarang
+                    </Button>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Akses eksklusif untuk siswa FBK</p>
+                  </div>
+               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className={cn("space-y-12 transition-all duration-700", (!currentUser && !loading) && "blur-3xl pointer-events-none grayscale opacity-30 select-none")}>
 
       {/* PREMIUM USER RANK CARD */}
       <AnimatePresence>
@@ -464,6 +523,8 @@ export function LeaderboardView() {
             </div>
          </div>
       </section>
+        </div>
+      </div>
     </div>
   );
 }

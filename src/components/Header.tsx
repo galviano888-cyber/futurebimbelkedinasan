@@ -23,11 +23,13 @@ interface HeaderProps {
   currentUser?: string;
   isAuthenticated?: boolean;
   onNavigate?: (page: string) => void;
+  isLoginOpen?: boolean;
+  setIsLoginOpen?: (open: boolean) => void;
 }
 
 
 
-export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticated, onNavigate }: HeaderProps) {
+export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticated, onNavigate, isLoginOpen, setIsLoginOpen }: HeaderProps) {
   const [currentDate, setCurrentDate] = useState<string>("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -94,7 +96,6 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
   const [agreed, setAgreed] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
@@ -127,7 +128,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
         if (signInError) {
           alert("Gagal masuk: Email atau password salah.");
         } else {
-          setIsLoginDialogOpen(false);
+          setIsLoginOpen?.(false);
         }
       } else {
         // Coba register
@@ -361,7 +362,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
           </AnimatePresence>
             </>
           ) : (
-            <Dialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen}>
+            <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
               <DialogTrigger asChild>
                 <Button data-login-trigger className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-6 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">Masuk</Button>
               </DialogTrigger>
