@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   X,
   Library,
+  Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "#", active: true },
   { label: "Paket dan Tryout SKD", icon: BookOpen, href: "#" },
   { label: "Paket Saya", icon: Library, href: "#" },
+  { label: "Ranking Nasional", icon: Trophy, href: "#" },
   { label: "Events", icon: Calendar, href: "#" },
   { label: "Pusat Bantuan", icon: HelpCircle, href: "#" },
 ];
@@ -31,9 +33,10 @@ interface SidebarProps {
   activePage?: string;
   onPageChange?: (page: string) => void;
   currentUser?: string;
+  isAuthenticated?: boolean;
 }
 
-export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChange, currentUser = "Siswa FBK" }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChange, currentUser = "Siswa FBK", isAuthenticated = false }: SidebarProps) {
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-[#0a192f]">
@@ -107,13 +110,13 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
           </div>
           <div className="min-w-0">
             <p className="text-white text-xs font-semibold truncate">
-              {currentUser}
+              {isAuthenticated ? currentUser : "Guest"}
             </p>
             <p className="text-slate-500 text-[10px] truncate">
-              Akun Gratis
+              {isAuthenticated ? "Akun Gratis" : "Belum Login"}
             </p>
           </div>
-          <div className="ml-auto w-2 h-2 rounded-full bg-slate-400 flex-shrink-0" />
+          <div className={`ml-auto w-2 h-2 rounded-full flex-shrink-0 ${isAuthenticated ? 'bg-emerald-400' : 'bg-slate-500'}`} />
         </div>
       </div>
     </div>

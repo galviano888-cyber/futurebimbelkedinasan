@@ -4,14 +4,16 @@ import { ActivePackage } from "@/components/ActivePackage";
 import { HistoryTable } from "@/components/HistoryTable";
 import type { TryoutRecord } from "@/types";
 import { ChartLine as LineChart } from "lucide-react";
+import { PaymentHistory } from "@/components/PaymentHistory";
 
 interface DashboardViewProps {
   data: TryoutRecord[];
   userName?: string;
   onNavigate?: (page: string) => void;
+  onViewInvoice?: (id: string) => void;
 }
 
-export function DashboardView({ data, userName = "Siswa FBK", onNavigate }: DashboardViewProps) {
+export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onViewInvoice }: DashboardViewProps) {
   const isEmpty = data.length === 0;
 
   return (
@@ -42,8 +44,9 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate }: Dash
             <PerformanceChart data={data} />
           )}
         </div>
-        <div>
+        <div className="space-y-6">
           <ActivePackage packageData={null} onNavigate={onNavigate} />
+          {onViewInvoice && <PaymentHistory onViewInvoice={onViewInvoice} />}
         </div>
       </div>
 

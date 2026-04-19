@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Lock, LogIn, Upload, Database, Settings, Users, AlertCircle, FileJson, CheckCircle2, ArrowLeft, Plus } from "lucide-react";
+import { Lock, LogIn, Upload, Database, Settings, Users, AlertCircle, FileJson, CheckCircle2, ArrowLeft, Plus, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { AdminPackageEditorView } from "./AdminPackageEditorView";
+import { AdminProductEditorView } from "./AdminProductEditorView";
+import { AdminTransactionManager } from "./AdminTransactionManager";
 
 export function AdminPanelView() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -11,9 +13,11 @@ export function AdminPanelView() {
   const [error, setError] = useState("");
   
   // App State
-  const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-package'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-package' | 'sales-packages' | 'edit-product' | 'transactions'>('dashboard');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [packages, setPackages] = useState<any[]>([]);
+  const [salesPackages, setSalesPackages] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -28,6 +32,7 @@ export function AdminPanelView() {
           setEmail(session.user.email);
           setIsLoggedIn(true);
           fetchPackages();
+          fetchSalesPackages();
         }
       }
     };
@@ -40,9 +45,25 @@ export function AdminPanelView() {
       .from('tryout_packages')
       .select('*')
       .order('created_at', { ascending: false });
-    
+
     if (data && !error) {
       setPackages(data);
+    }
+  };
+
+  const fetchSalesPackages = async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase
+      .from('packages')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (data && !error) {
+      const filtered = data.filter((p: any) => 
+        p.id !== '11111111-1111-1111-1111-111111111111' && 
+        p.title !== 'Program Intensif SKD Batch 1'
+      );
+      setSalesPackages(filtered);
     }
   };
 
@@ -66,6 +87,7 @@ export function AdminPanelView() {
         setIsLoggedIn(true);
         setError("");
         fetchPackages();
+        fetchSalesPackages();
       } else {
         await supabase.auth.signOut();
         setError("Kredensial tidak valid atau tidak memiliki akses superadmin.");
@@ -215,6 +237,20 @@ export function AdminPanelView() {
           <button className="w-full flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white p-3 rounded-xl font-medium transition-colors">
             <Users className="w-5 h-5" />
             Manajemen User
+          </button>
+          <button 
+            onClick={() => setCurrentView('sales-packages')}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl font-medium transition-colors ${currentView === 'sales-packages' ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+          >
+            <ShoppingCart className="w-5 h-5" />
+            Paket Belajar
+          </button>
+          <button 
+            onClick={() => setCurrentView('transactions')}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl font-medium transition-colors ${currentView === 'transactions' ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+          >
+            <FileJson className="w-5 h-5" />
+            Transaksi
           </button>
           <button className="w-full flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white p-3 rounded-xl font-medium transition-colors">
             <Settings className="w-5 h-5" />
@@ -419,6 +455,109 @@ export function AdminPanelView() {
                     Antarmuka pembuat soal interaktif sedang dirancang untuk Fase 3. Silakan gunakan fitur Bulk Import JSON untuk saat ini.
                   </p>
                 </div>
+              </div>
+            )}
+
+            {currentView === 'sales-packages' && (
+              <div className="animate-in fade-in duration-300">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <h2 className="text-xl font-bold text-slate-800">Manajemen Produk & Paket Belajar</h2>
+                  <Button 
+                    onClick={() => {
+                      setSelectedProductId(null);
+                      setCurrentView('edit-product');
+                    }}
+                    className="font-bold bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Buat Paket Baru
+                  </Button>
+                </div>
+                
+                {salesPackages.length === 0 ? (
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
+                    <ShoppingCart className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-bold text-slate-700">Belum Ada Produk</h3>
+                    <p className="text-slate-500 mt-2 max-w-md mx-auto">
+                      Klik "Buat Paket Baru" untuk mulai menjual paket tryout atau program intensif.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <table className="min-w-full divide-y divide-slate-200">
+                      <thead className="bg-slate-50">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Judul Paket</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Tipe</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Harga</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                          <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-slate-200">
+                        {salesPackages.map((pkg) => (
+                          <tr key={pkg.id} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900">{pkg.title}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                pkg.product_type === 'INTENSIF' ? 'bg-purple-100 text-purple-800' : 
+                                pkg.product_type === 'BUNDLE' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-800'
+                              }`}>
+                                {pkg.product_type}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600">
+                              Rp {pkg.price.toLocaleString('id-ID')}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`w-3 h-3 rounded-full inline-block mr-2 ${pkg.is_active ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                              <span className="text-sm text-slate-600">{pkg.is_active ? 'Aktif' : 'Nonaktif'}</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <button 
+                                onClick={() => {
+                                  setSelectedProductId(pkg.id);
+                                  setCurrentView('edit-product');
+                                }}
+                                className="text-blue-600 hover:text-blue-900 mr-4 font-bold"
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                onClick={async () => {
+                                  if (!supabase) return;
+                                  if(confirm('Hapus produk ini?')) {
+                                    await supabase.from('packages').delete().eq('id', pkg.id);
+                                    fetchSalesPackages();
+                                  }
+                                }}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Hapus
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+            {currentView === 'transactions' && (
+              <AdminTransactionManager />
+            )}
+
+            {currentView === 'edit-product' && (
+              <div className="absolute inset-0 bg-white z-50">
+                <AdminProductEditorView 
+                  packageId={selectedProductId}
+                  onBack={() => {
+                    setCurrentView('sales-packages');
+                    setSelectedProductId(null);
+                    fetchSalesPackages();
+                  }}
+                />
               </div>
             )}
 

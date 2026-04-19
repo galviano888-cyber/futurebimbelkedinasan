@@ -1,660 +1,425 @@
 import { useState, useEffect, useCallback } from "react";
-import { cn } from "@/lib/utils";
-import {
-  Clock,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
-  AlertTriangle,
-  List,
+import { 
+  Clock, 
+  ChevronLeft, 
+  ChevronRight, 
+  Flag, 
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
   X,
-  Loader2
+  Menu
 } from "lucide-react";
-import type {
-  TryoutQuestion,
-  TryoutResult,
-  QuestionCategory,
-} from "@/data/tryoutQuestions";
-import { TRYOUT_CONFIG } from "@/data/tryoutQuestions";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
+import type { TryoutQuestion } from "@/data/tryoutQuestions";
 
-interface TryoutEngineProps {
-  packageId?: string | null;
-  questions?: TryoutQuestion[]; // fallback for demo
-  onFinish: (result: TryoutResult) => void;
+
+
+interface TryoutEngineViewProps {
+  packageId: string;
+  onFinish: (result: any) => void;
   onExit: () => void;
 }
 
-const categoryColors: Record<QuestionCategory, string> = {
-  TWK: "bg-blue-500",
-  TIU: "bg-emerald-500",
-  TKP: "bg-amber-500",
-};
+export function TryoutEngineView({ packageId, onFinish, onExit }: TryoutEngineViewProps) {
+  const [questions, setQuestions] = useState<TryoutQuestion[]>([]);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [answers, setAnswers] = useState<{ [key: string]: string }>({});
+  const [flagged, setFlagged] = useState<{ [key: string]: boolean }>({});
+  const [timeLeft, setTimeLeft] = useState(100 * 60); // 100 menit default
+  const [loading, setLoading] = useState(true);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showNavGrid, setShowNavGrid] = useState(true);
 
-const categoryLabels: Record<QuestionCategory, string> = {
-  TWK: "Tes Wawasan Kebangsaan",
-  TIU: "Tes Intelegensia Umum",
-  TKP: "Tes Karakteristik Pribadi",
-};
-
-export function TryoutEngineView({
-  packageId,
-  questions: initialQuestions = [],
-  onFinish,
-  onExit,
-}: TryoutEngineProps) {
-  const [questions, setQuestions] = useState<TryoutQuestion[]>(initialQuestions);
-  const [loading, setLoading] = useState(!!packageId);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [timeLeft, setTimeLeft] = useState(100 * 60); // Default 100 minutes
-  const [showConfirmExit, setShowConfirmExit] = useState(false);
-  const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
-  const [showNavMobile, setShowNavMobile] = useState(false);
-  const [isTimeUp, setIsTimeUp] = useState(false);
-
+  // Load Data
   useEffect(() => {
-    async function fetchQuestions() {
-      if (!packageId || !supabase) {
-        setLoading(false);
-        return;
-      }
-      
+    const fetchTryoutData = async () => {
+      if (!supabase) return;
+      setLoading(true);
       try {
-        // Fetch package for duration
-        const { data: pkgData } = await supabase.from('tryout_packages').select('duration_minutes').eq('id', packageId).single();
-        if (pkgData && pkgData.duration_minutes) {
-          setTimeLeft(pkgData.duration_minutes * 60);
-        }
-
-        // Fetch questions
-        const { data, error } = await supabase
+        const { data: qData, error } = await supabase
           .from('tryout_questions')
           .select('*')
           .eq('package_id', packageId)
           .order('number', { ascending: true });
 
         if (error) throw error;
-
-        if (data) {
-          const formattedQuestions: TryoutQuestion[] = data.map((q: any) => {
-            // Map options object to array
-            const optionsObj = typeof q.options === 'string' ? JSON.parse(q.options) : (q.options || {});
-            const tkpScoresObj = typeof q.tkp_scores === 'string' ? JSON.parse(q.tkp_scores) : (q.tkp_scores || {});
-            
-            const optionsArray = [];
-            const optionKeys = ['A', 'B', 'C', 'D', 'E'];
-            
-            for (const key of optionKeys) {
-              if (optionsObj[key]) {
-                // Determine score
-                let score = 0;
-                if (q.category === 'TKP') {
-                  score = tkpScoresObj[key] || 0;
-                } else {
-                  score = (q.correct_answer === key) ? 5 : 0;
-                }
-
-                optionsArray.push({
-                  label: key,
-                  text: optionsObj[key],
-                  score: score
-                });
-              }
-            }
-
-            return {
-              id: q.number,
-              category: q.category as QuestionCategory,
-              text: q.question_text,
-              question_image_url: q.question_image_url,
-              options: optionsArray,
-              explanation: q.explanation,
-              fast_tips: q.fast_tips,
-              correct_answer: q.correct_answer
-            };
-          });
-
-          setQuestions(formattedQuestions);
-        }
+        setQuestions(qData || []);
       } catch (err) {
-        console.error("Gagal mengambil soal:", err);
+        console.error("Error loading questions:", err);
       } finally {
         setLoading(false);
       }
-    }
-
-    fetchQuestions();
-  }, [packageId]);
-
-  useEffect(() => {
-    if (loading) return;
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setIsTimeUp(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [loading]);
-
-  const handleSubmit = useCallback(() => {
-    const timeUsed = TRYOUT_CONFIG.timeLimit - timeLeft;
-    let twkScore = 0,
-      tiuScore = 0,
-      tkpScore = 0;
-    let twkCorrect = 0,
-      tiuCorrect = 0,
-      tkpCorrect = 0;
-    let twkMax = 0,
-      tiuMax = 0,
-      tkpMax = 0;
-
-    questions.forEach((q) => {
-      const maxScore = Math.max(...q.options.map((o) => o.score));
-      if (q.category === "TWK") twkMax += maxScore;
-      if (q.category === "TIU") tiuMax += maxScore;
-      if (q.category === "TKP") tkpMax += maxScore;
-
-      const selected = answers[q.id];
-      if (selected) {
-        const option = q.options.find((o) => o.label === selected);
-        const score = option?.score || 0;
-        if (q.category === "TWK") {
-          twkScore += score;
-          if (score > 0) twkCorrect++;
-        }
-        if (q.category === "TIU") {
-          tiuScore += score;
-          if (score > 0) tiuCorrect++;
-        }
-        if (q.category === "TKP") {
-          tkpScore += score;
-          tkpCorrect++; // TKP selalu dapat skor
-        }
-      }
-    });
-
-    const result: TryoutResult = {
-      twkScore,
-      tiuScore,
-      tkpScore,
-      totalScore: twkScore + tiuScore + tkpScore,
-      twkMax,
-      tiuMax,
-      tkpMax,
-      totalMax: twkMax + tiuMax + tkpMax,
-      twkCorrect,
-      tiuCorrect,
-      tkpCorrect,
-      totalQuestions: questions.length,
-      answeredCount: Object.keys(answers).length,
-      timeUsed,
-      questions,
-      answers,
     };
 
-    onFinish(result);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers, questions, timeLeft, onFinish]);
+    fetchTryoutData();
+  }, [packageId]);
 
+  // Timer Logic
   useEffect(() => {
-    if (isTimeUp) {
-      handleSubmit();
+    if (loading || timeLeft <= 0) return;
+    const timer = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [loading, timeLeft]);
+
+  // Auto Finish when time ends
+  useEffect(() => {
+    if (timeLeft === 0) {
+      handleFinish();
     }
-  }, [isTimeUp, handleSubmit]);
+  }, [timeLeft]);
 
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
-    return `${h} Jam ${m.toString().padStart(2, "0")} Menit ${s.toString().padStart(2, "0")} Detik`;
+    return `${h > 0 ? h + ':' : ''}${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  const selectAnswer = (questionId: number, label: string) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: label }));
-  };
-
-  const cancelAnswer = (questionId: number) => {
-    setAnswers((prev) => {
-      const next = { ...prev };
-      delete next[questionId];
-      return next;
-    });
-  };
-
-  const goToQuestion = (index: number) => {
-    setCurrentIndex(index);
-    setShowNavMobile(false);
-  };
-
-  const answeredCount = Object.keys(answers).length;
-  const isWarning = timeLeft < 300; // < 5 menit
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" && currentIndex < questions.length - 1) {
-        setCurrentIndex((p) => p + 1);
-      }
-      if (e.key === "ArrowLeft" && currentIndex > 0) {
-        setCurrentIndex((p) => p - 1);
-      }
+  const handleFinish = useCallback(async () => {
+    const stats = {
+      twk: { score: 0, max: 0, correct: 0, total: 0 },
+      tiu: { score: 0, max: 0, correct: 0, total: 0 },
+      tkp: { score: 0, max: 0, correct: 0, total: 0 },
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, questions.length]);
+
+    questions.forEach(q => {
+      const cat = (q.category || "TWK").toLowerCase();
+      const category = cat === 'twk' || cat === 'tiu' || cat === 'tkp' ? cat : 'twk';
+      const userAnswer = answers[q.id];
+      
+      stats[category].total++;
+      
+      if (category === 'tkp') {
+        stats.tkp.max += 5;
+        if (userAnswer && q.tkp_scores) {
+          const points = q.tkp_scores[userAnswer] || 0;
+          stats.tkp.score += points;
+          if (points === 5) stats.tkp.correct++;
+        }
+      } else {
+        stats[category].max += 5;
+        if (userAnswer === q.correct_answer) {
+          stats[category].score += 5;
+          stats[category].correct++;
+        }
+      }
+    });
+
+    const totalScore = stats.twk.score + stats.tiu.score + stats.tkp.score;
+    const totalMax = stats.twk.max + stats.tiu.max + stats.tkp.max;
+    const totalCorrect = stats.twk.correct + stats.tiu.correct + stats.tkp.correct;
+    const answeredCount = Object.keys(answers).length;
+
+    const resultData = {
+      totalQuestions: questions.length,
+      answeredCount,
+      totalScore,
+      totalMax,
+      totalCorrect,
+      twkScore: stats.twk.score,
+      twkMax: stats.twk.max,
+      twkCorrect: stats.twk.correct,
+      tiuScore: stats.tiu.score,
+      tiuMax: stats.tiu.max,
+      tiuCorrect: stats.tiu.correct,
+      tkpScore: stats.tkp.score,
+      tkpMax: stats.tkp.max,
+      tkpCorrect: stats.tkp.correct,
+      timeUsed: (100 * 60) - timeLeft,
+      questions,
+      answers
+    };
+
+    // SAVE TO DATABASE
+    if (supabase) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          // Ambil nama paket untuk history
+          const { data: pkg } = await supabase.from('packages').select('title').eq('id', packageId).single();
+          
+          await supabase.from('tryout_results').insert([{
+            user_id: user.id,
+            package_id: packageId,
+            package_name: pkg?.title || 'Unknown Package',
+            twk: stats.twk.score,
+            tiu: stats.tiu.score,
+            tkp: stats.tkp.score,
+            total: totalScore,
+            date: new Date().toISOString()
+          }]);
+        }
+      } catch (err) {
+        console.error("Gagal menyimpan hasil tryout:", err);
+      }
+    }
+
+    onFinish(resultData);
+  }, [answers, questions, timeLeft, onFinish, packageId]);
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-slate-50">
-        <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
-        <p className="text-slate-500 font-medium">Memuat soal tryout...</p>
+      <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[999]">
+        <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+        <p className="text-slate-500 font-bold mt-4 animate-pulse text-sm">MENYIAPKAN LEMBAR UJIAN CAT BKN...</p>
       </div>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-slate-50 text-center px-4">
-        <AlertTriangle className="w-10 h-10 text-amber-500 mb-4" />
-        <p className="text-slate-800 font-bold text-lg">Soal belum tersedia</p>
-        <p className="text-slate-500 max-w-md mt-1">Paket ini tidak memiliki soal atau terjadi kesalahan server.</p>
-        <button onClick={onExit} className="mt-6 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold">Kembali ke Katalog</button>
+      <div className="fixed inset-0 bg-slate-50 flex flex-col items-center justify-center p-6 z-[999]">
+        <div className="w-20 h-20 bg-white rounded-3xl shadow-xl flex items-center justify-center text-red-500 mb-6 border border-slate-100">
+          <AlertCircle className="w-10 h-10" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-800 tracking-tight">Data Soal Kosong</h2>
+        <p className="text-slate-500 text-sm mt-2 text-center max-w-xs">
+          Silakan hubungi admin untuk mengisi soal pada paket ini.
+        </p>
+        <button 
+          onClick={onExit}
+          className="mt-8 px-8 py-3 bg-slate-900 text-white font-bold text-sm rounded-xl shadow-lg active:scale-95"
+        >
+          KEMBALI KE DASHBOARD
+        </button>
       </div>
     );
   }
 
-  const currentQuestion = questions[currentIndex];
-  if (!currentQuestion) return null;
-  return (
-    <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
-      {/* ===== TOP BAR ===== */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between flex-shrink-0 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 flex items-center justify-center">
-            <span className="text-white font-black text-xs">F</span>
-          </div>
-          <div>
-            <h1 className="text-sm font-bold text-slate-900 leading-none">
-              Tryout SKD
-            </h1>
-            <p className="text-[10px] text-slate-400 mt-0.5">
-              {questions.length} Soal • {answeredCount} Dijawab
-            </p>
-          </div>
-        </div>
-
-        {/* Timer */}
-        <div
-          className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-colors",
-            isWarning
-              ? "bg-red-50 text-red-600 animate-pulse"
-              : "bg-slate-100 text-slate-700"
-          )}
-        >
-          <Clock className="w-4 h-4" />
-          <span className="hidden sm:inline">{formatTime(timeLeft)}</span>
-          <span className="sm:hidden">
-            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
-          </span>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowNavMobile(true)}
-            className="lg:hidden p-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors"
-          >
-            <List className="w-5 h-5 text-slate-600" />
-          </button>
-          <button
-            onClick={() => setShowConfirmExit(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">Keluar</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ===== MAIN CONTENT ===== */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* LEFT — QUESTION AREA */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
-            {/* Category badge + Question number */}
-            <div className="flex items-center gap-3 mb-6">
-              <span
-                className={cn(
-                  "text-white text-xs font-bold px-3 py-1 rounded-full",
-                  categoryColors[currentQuestion.category]
-                )}
-              >
-                {currentQuestion.category}
-              </span>
-              <span className="text-slate-400 text-sm font-medium">
-                {categoryLabels[currentQuestion.category]}
-              </span>
-            </div>
-
-            <h2 className="text-slate-500 text-sm font-semibold mb-2">
-              Soal Nomor{" "}
-              <span className="text-slate-900 text-lg font-black">
-                {currentQuestion.id}
-              </span>
-            </h2>
-
-            {/* Question text */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6 shadow-sm">
-              <p className="text-slate-800 text-base leading-relaxed whitespace-pre-line">
-                {currentQuestion.text}
-              </p>
-            </div>
-
-            {/* Options */}
-            <div className="space-y-3 mb-8">
-              {currentQuestion.options.map((opt) => {
-                const isSelected = answers[currentQuestion.id] === opt.label;
-                return (
-                  <button
-                    key={opt.label}
-                    onClick={() =>
-                      selectAnswer(currentQuestion.id, opt.label)
-                    }
-                    className={cn(
-                      "w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-200 text-left group",
-                      isSelected
-                        ? "border-blue-500 bg-blue-50 shadow-md shadow-blue-500/10"
-                        : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 transition-colors",
-                        isSelected
-                          ? "bg-blue-500 text-white"
-                          : "bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-600"
-                      )}
-                    >
-                      {opt.label}
-                    </div>
-                    <span
-                      className={cn(
-                        "font-medium transition-colors flex-1",
-                        isSelected
-                          ? "text-blue-700"
-                          : "text-slate-700 group-hover:text-slate-900"
-                      )}
-                    >
-                      {opt.text}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Cancel Answer */}
-            {answers[currentQuestion.id] && (
-              <button
-                onClick={() => cancelAnswer(currentQuestion.id)}
-                className="mb-8 px-5 py-2.5 rounded-lg bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-100 transition-colors border border-red-200"
-              >
-                Batalkan Jawaban
-              </button>
-            )}
-
-            {/* Prev/Next Navigation */}
-            <div className="flex items-center justify-center gap-4 pb-8">
-              <button
-                onClick={() =>
-                  currentIndex > 0 && setCurrentIndex(currentIndex - 1)
-                }
-                disabled={currentIndex === 0}
-                className={cn(
-                  "flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all border",
-                  currentIndex === 0
-                    ? "border-slate-200 text-slate-300 cursor-not-allowed"
-                    : "border-slate-300 text-slate-600 hover:border-slate-400 hover:bg-white"
-                )}
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Sebelumnya
-              </button>
-
-              {currentIndex < questions.length - 1 ? (
-                <button
-                  onClick={() => setCurrentIndex(currentIndex + 1)}
-                  className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold bg-blue-500 text-white hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20"
-                >
-                  Selanjutnya
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              ) : (
-                <button
-                  onClick={() => setShowConfirmSubmit(true)}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20"
-                >
-                  Selesai Mengerjakan
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT — NAVIGATION PANEL (Desktop) */}
-        <div className="hidden lg:flex flex-col w-[300px] bg-white border-l border-slate-200 flex-shrink-0">
-          <NavigationPanel
-            questions={questions}
-            currentIndex={currentIndex}
-            answers={answers}
-            onGoTo={goToQuestion}
-            onSubmit={() => setShowConfirmSubmit(true)}
-          />
-        </div>
-      </div>
-
-      {/* MOBILE NAV OVERLAY */}
-      {showNavMobile && (
-        <div className="fixed inset-0 z-50 bg-black/50 lg:hidden">
-          <div className="absolute right-0 top-0 bottom-0 w-[300px] bg-white shadow-2xl flex flex-col animate-in slide-in-from-right">
-            <div className="flex items-center justify-between p-4 border-b border-slate-200">
-              <h3 className="font-bold text-slate-900">Nomor Soal</h3>
-              <button
-                onClick={() => setShowNavMobile(false)}
-                className="p-1 rounded-lg hover:bg-slate-100"
-              >
-                <X className="w-5 h-5 text-slate-500" />
-              </button>
-            </div>
-            <NavigationPanel
-              questions={questions}
-              currentIndex={currentIndex}
-              answers={answers}
-              onGoTo={goToQuestion}
-              onSubmit={() => setShowConfirmSubmit(true)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* CONFIRM EXIT MODAL */}
-      {showConfirmExit && (
-        <ConfirmModal
-          icon={<LogOut className="w-8 h-8 text-red-500" />}
-          title="Keluar dari Tryout?"
-          description="Semua jawaban Anda akan hilang dan tidak tersimpan."
-          confirmText="Ya, Keluar"
-          cancelText="Lanjut Mengerjakan"
-          onConfirm={onExit}
-          onCancel={() => setShowConfirmExit(false)}
-          danger
-        />
-      )}
-
-      {/* CONFIRM SUBMIT MODAL */}
-      {showConfirmSubmit && (
-        <ConfirmModal
-          icon={<AlertTriangle className="w-8 h-8 text-amber-500" />}
-          title="Selesai Mengerjakan?"
-          description={`Anda telah menjawab ${answeredCount} dari ${questions.length} soal. Soal yang belum dijawab akan mendapat skor 0.`}
-          confirmText="Ya, Kumpulkan"
-          cancelText="Periksa Kembali"
-          onConfirm={handleSubmit}
-          onCancel={() => setShowConfirmSubmit(false)}
-        />
-      )}
-    </div>
-  );
-}
-
-/* ===== SUB-COMPONENTS ===== */
-
-function NavigationPanel({
-  questions,
-  currentIndex,
-  answers,
-  onGoTo,
-  onSubmit,
-}: {
-  questions: TryoutQuestion[];
-  currentIndex: number;
-  answers: Record<number, string>;
-  onGoTo: (i: number) => void;
-  onSubmit: () => void;
-}) {
+  const currentQ = questions[currentIdx];
   const answeredCount = Object.keys(answers).length;
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Stats */}
-      <div className="px-4 py-3 border-b border-slate-100">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-slate-500">Dijawab</span>
-          <span className="font-bold text-slate-900">
-            {answeredCount}/{questions.length}
-          </span>
+    <div className="fixed inset-0 bg-[#f4f7f9] flex flex-col overflow-hidden font-sans select-none">
+      {/* CAT BKN STYLE HEADER */}
+      <header className="h-14 bg-[#1e293b] flex items-center justify-between px-6 z-30 shadow-md">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-sm font-bold text-white tracking-wide uppercase">SISTEM CAT FUTURE BIMBEL</h1>
+          </div>
         </div>
-        <div className="w-full bg-slate-100 rounded-full h-2 mt-2">
-          <div
-            className="bg-emerald-500 h-2 rounded-full transition-all duration-300"
-            style={{
-              width: `${(answeredCount / questions.length) * 100}%`,
-            }}
-          />
-        </div>
-      </div>
 
-      {/* Legend */}
-      <div className="px-4 py-2 flex items-center gap-4 text-[10px] text-slate-500 border-b border-slate-100">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-blue-500" />
-          Aktif
+        <div className="flex items-center gap-4">
+           <div className={`flex items-center gap-2 px-4 py-1.5 rounded bg-black/20 border border-white/10 text-white transition-all ${
+             timeLeft < 300 ? 'text-red-400 animate-pulse' : ''
+           }`}>
+             <Clock className="w-4 h-4" />
+             <span className="text-lg font-bold tabular-nums tracking-tighter">{formatTime(timeLeft)}</span>
+           </div>
+           <button 
+             onClick={() => setShowConfirmModal(true)}
+             className="px-5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-[11px] rounded transition-all uppercase shadow-lg shadow-red-900/20"
+           >
+             Selesai
+           </button>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-emerald-500" />
-          Dijawab
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-slate-200" />
-          Belum
-        </div>
-      </div>
+      </header>
 
-      {/* Question Number Grid */}
-      <div className="flex-1 overflow-y-auto px-4 py-3">
-        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-          Nomor Soal
-        </h4>
-        <div className="grid grid-cols-5 gap-2">
-          {questions.map((q, idx) => {
-            const isCurrent = idx === currentIndex;
-            const isAnswered = !!answers[q.id];
-            return (
+      <div className="flex-1 flex overflow-hidden">
+        {/* LEFT: Question Area */}
+        <main className="flex-1 overflow-y-auto p-6 md:p-8 relative">
+          <div className="max-w-4xl mx-auto">
+            {/* Question Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+               <div className="bg-slate-50 border-b border-slate-100 px-6 py-3 flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                    Soal Nomor {currentIdx + 1} dari {questions.length}
+                  </span>
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded uppercase">
+                    {currentQ?.category || "UMUM"}
+                  </span>
+               </div>
+               
+               <div className="p-8 space-y-8">
+                  {/* Question Text */}
+                  <div className="text-[17px] text-slate-800 font-medium leading-[1.7] text-justify">
+                    {currentQ?.question_text}
+                  </div>
+
+                  {/* Question Image */}
+                  {currentQ?.question_image_url && (
+                    <div className="rounded-lg overflow-hidden border border-slate-100 bg-slate-50 p-2 max-w-xl">
+                      <img src={currentQ.question_image_url} alt="Soal Visual" className="max-h-64 mx-auto object-contain" />
+                    </div>
+                  )}
+
+                  {/* Options List */}
+                  <div className="grid grid-cols-1 gap-3">
+                    {Object.entries(currentQ?.options || {}).map(([key, value]) => (
+                      <button
+                        key={key}
+                        onClick={() => setAnswers({ ...answers, [currentQ.id]: key })}
+                        className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-start gap-4 group ${
+                          answers[currentQ.id] === key 
+                          ? 'bg-blue-50 border-blue-500 text-blue-900 shadow-sm' 
+                          : 'bg-white border-slate-100 hover:border-slate-300 text-slate-700'
+                        }`}
+                      >
+                        <div className={`w-7 h-7 rounded border-2 flex items-center justify-center font-bold text-sm shrink-0 transition-colors ${
+                          answers[currentQ.id] === key 
+                          ? 'bg-blue-600 border-blue-600 text-white' 
+                          : 'bg-slate-50 border-slate-200 text-slate-400 group-hover:bg-slate-100'
+                        }`}>
+                          {key.toUpperCase()}
+                        </div>
+                        <div className="flex-1 text-[15px] leading-relaxed pt-0.5">{value}</div>
+                      </button>
+                    ))}
+                  </div>
+               </div>
+            </div>
+
+            {/* Bottom Actions Area */}
+            <div className="flex items-center justify-between mt-8">
+               <button 
+                 disabled={currentIdx === 0}
+                 onClick={() => setCurrentIdx(prev => prev - 1)}
+                 className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-600 font-bold text-xs rounded-xl hover:bg-slate-50 transition-all disabled:opacity-30 shadow-sm"
+               >
+                 <ChevronLeft className="w-4 h-4" /> SEBELUMNYA
+               </button>
+
+               <button 
+                 onClick={() => setFlagged({ ...flagged, [currentQ.id]: !flagged[currentQ.id] })}
+                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-xs transition-all shadow-sm ${
+                   flagged[currentQ.id] 
+                   ? 'bg-yellow-400 text-yellow-900 border-yellow-500' 
+                   : 'bg-white text-yellow-600 border border-yellow-200 hover:bg-yellow-50'
+                 }`}
+               >
+                 <Flag className={`w-4 h-4 ${flagged[currentQ.id] ? 'fill-current' : ''}`} />
+                 RAGU-RAGU
+               </button>
+
+               <button 
+                 disabled={currentIdx === questions.length - 1}
+                 onClick={() => setCurrentIdx(prev => prev + 1)}
+                 className="flex items-center gap-2 px-6 py-3 bg-[#1e293b] text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition-all disabled:opacity-30 shadow-md"
+               >
+                 SELANJUTNYA <ChevronRight className="w-4 h-4" />
+               </button>
+            </div>
+          </div>
+        </main>
+
+        {/* RIGHT: Navigation Grid (BKN Style Colors) */}
+        <aside className={`bg-white border-l border-slate-200 transition-all duration-300 flex flex-col ${showNavGrid ? 'w-72' : 'w-0 overflow-hidden border-none'}`}>
+          <div className="p-4 border-b border-slate-100 bg-slate-50">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-[11px] font-bold text-slate-500 tracking-wider uppercase">Daftar Soal</h2>
+              <div className="px-2 py-0.5 bg-slate-200 text-slate-700 text-[10px] font-bold rounded">
+                {answeredCount}/{questions.length}
+              </div>
+            </div>
+            {/* Progress Bar Mini */}
+            <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-emerald-500 transition-all duration-500" 
+                style={{ width: `${(answeredCount / questions.length) * 100}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 grid grid-cols-5 gap-2 content-start">
+            {questions.map((q, idx) => (
               <button
                 key={q.id}
-                onClick={() => onGoTo(idx)}
-                className={cn(
-                  "h-10 rounded-lg text-xs font-bold transition-all duration-150",
-                  isCurrent
-                    ? "bg-blue-500 text-white shadow-md shadow-blue-500/30 scale-105"
-                    : isAnswered
-                      ? "bg-emerald-500 text-white hover:bg-emerald-600"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                )}
+                onClick={() => setCurrentIdx(idx)}
+                className={`aspect-square rounded-lg text-xs font-bold transition-all border-2 relative ${
+                  currentIdx === idx 
+                  ? 'border-blue-500 ring-2 ring-blue-100 z-10' 
+                  : ''
+                } ${
+                  flagged[q.id]
+                    ? 'bg-yellow-400 border-yellow-500 text-yellow-900'
+                    : answers[q.id]
+                      ? 'bg-emerald-500 border-emerald-600 text-white'
+                      : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
+                }`}
               >
-                {q.id}
+                {idx + 1}
               </button>
-            );
-          })}
-        </div>
-      </div>
+            ))}
+          </div>
 
-      {/* Submit Button */}
-      <div className="p-4 border-t border-slate-200">
-        <button
-          onClick={onSubmit}
-          className="w-full py-3.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm transition-all shadow-lg shadow-red-500/20 uppercase tracking-wide"
+          <div className="p-4 bg-slate-50 border-t border-slate-100 space-y-4">
+             <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-600">
+                  <div className="w-3 h-3 bg-emerald-500 rounded-sm" /> TERJAWAB
+                </div>
+                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-600">
+                  <div className="w-3 h-3 bg-yellow-400 rounded-sm" /> RAGU-RAGU
+                </div>
+                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-600">
+                  <div className="w-3 h-3 bg-white border border-slate-300 rounded-sm" /> BELUM
+                </div>
+                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-600">
+                  <div className="w-3 h-3 border-2 border-blue-500 rounded-sm" /> AKTIF
+                </div>
+             </div>
+          </div>
+        </aside>
+
+        {/* Mobile Toggle */}
+        <button 
+          onClick={() => setShowNavGrid(!showNavGrid)}
+          className="fixed bottom-6 right-6 w-12 h-12 bg-[#1e293b] text-white rounded-full lg:hidden flex items-center justify-center shadow-2xl z-40"
         >
-          Selesai Mengerjakan
+          {showNavGrid ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
-    </div>
-  );
-}
 
-function ConfirmModal({
-  icon,
-  title,
-  description,
-  confirmText,
-  cancelText,
-  onConfirm,
-  onCancel,
-  danger,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  confirmText: string;
-  cancelText: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-  danger?: boolean;
-}) {
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center">
-        <div className="flex justify-center mb-4">{icon}</div>
-        <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
-        <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-          {description}
-        </p>
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={onConfirm}
-            className={cn(
-              "w-full py-3 rounded-xl font-bold text-sm transition-all",
-              danger
-                ? "bg-red-500 hover:bg-red-600 text-white"
-                : "bg-blue-500 hover:bg-blue-600 text-white"
-            )}
-          >
-            {confirmText}
-          </button>
-          <button
-            onClick={onCancel}
-            className="w-full py-3 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-100 transition-all"
-          >
-            {cancelText}
-          </button>
-        </div>
-      </div>
+      {/* MODAL SELESAI (BKN Style) */}
+      <AnimatePresence>
+        {showConfirmModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowConfirmModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="relative bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
+            >
+              <div className="p-8 text-center space-y-4">
+                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mx-auto">
+                   <AlertCircle className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 uppercase">Konfirmasi Selesai</h3>
+                  <p className="text-slate-500 text-sm mt-2">
+                    Apakah Anda yakin ingin mengakhiri ujian ini? <br/>
+                    <span className="font-bold text-slate-800">Terjawab: {answeredCount} dari {questions.length}</span>
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 pt-4">
+                  <button 
+                    onClick={() => setShowConfirmModal(false)}
+                    className="py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg transition-all text-xs"
+                  >
+                    TIDAK, LANJUTKAN
+                  </button>
+                  <button 
+                    onClick={handleFinish}
+                    className="py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-all text-xs shadow-md"
+                  >
+                    YA, SELESAI
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

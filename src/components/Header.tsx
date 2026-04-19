@@ -21,11 +21,12 @@ interface HeaderProps {
   onMenuToggle: () => void;
   currentUser?: string;
   isAuthenticated?: boolean;
+  onNavigate?: (page: string) => void;
 }
 
 
 
-export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticated }: HeaderProps) {
+export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticated, onNavigate }: HeaderProps) {
   const [currentDate, setCurrentDate] = useState<string>("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -309,6 +310,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
                     onClick={() => {
                       setDropdownOpen(false);
+                      onNavigate?.("Profil Saya");
                     }}
                   >
                     <User className="w-4 h-4 flex-shrink-0" />
@@ -338,7 +340,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
           ) : (
             <Dialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-6 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">Masuk</Button>
+                <Button data-login-trigger className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-6 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">Masuk</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[440px] bg-slate-900/95 backdrop-blur-2xl border border-slate-700/50 text-white shadow-[0_0_50px_-12px_rgba(59,130,246,0.3)] rounded-[2rem] overflow-hidden p-0 gap-0">
                 <div className="relative p-8 md:p-10">

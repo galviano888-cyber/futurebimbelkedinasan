@@ -19,7 +19,9 @@ interface StatCardItem {
 }
 
 export function StatCards({ data }: StatCardsProps) {
-  const totalTryout = data.length;
+  // Hanya hitung paket unik yang sudah dikerjakan
+  const uniquePackages = new Set(data.map(item => item.packageName));
+  const totalTryout = uniquePackages.size;
 
   const averageScore =
     data.length > 0

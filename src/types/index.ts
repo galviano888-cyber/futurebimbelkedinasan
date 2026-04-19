@@ -1,5 +1,6 @@
 export interface TryoutRecord {
   id: string;
+  packageId?: string;
   date: string;
   packageName: string;
   twk: number;

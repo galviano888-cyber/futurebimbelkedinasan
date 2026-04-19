@@ -91,8 +91,8 @@ export function TryoutReviewView({ result, onBack }: TryoutReviewViewProps) {
 
             {/* Question Card */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <div className="prose prose-slate max-w-none text-slate-800 mb-6 font-medium whitespace-pre-wrap">
-                {currentQuestion.text}
+              <div className="text-[17px] text-slate-800 mb-6 font-medium whitespace-pre-wrap leading-relaxed">
+                {currentQuestion.question_text}
               </div>
               
               {currentQuestion.question_image_url && (
@@ -102,9 +102,9 @@ export function TryoutReviewView({ result, onBack }: TryoutReviewViewProps) {
               )}
 
               <div className="space-y-3">
-                {currentQuestion.options.map((opt) => {
-                  const isUserSelected = userAnswer === opt.label;
-                  const isActuallyCorrect = currentQuestion.correct_answer === opt.label;
+                {Object.entries(currentQuestion.options || {}).map(([label, text]) => {
+                  const isUserSelected = userAnswer === label;
+                  const isActuallyCorrect = currentQuestion.correct_answer === label;
                   
                   let optionClass = "border-slate-200 bg-white";
                   let badgeClass = "bg-slate-100 text-slate-500";
@@ -124,16 +124,18 @@ export function TryoutReviewView({ result, onBack }: TryoutReviewViewProps) {
                     }
                   }
 
+                  const tkpScore = currentQuestion.tkp_scores?.[label];
+
                   return (
-                    <div key={opt.label} className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${optionClass}`}>
+                    <div key={label} className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${optionClass}`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${badgeClass}`}>
-                        {opt.label}
+                        {label}
                       </div>
                       <div className="flex-1 pt-1.5 flex flex-col gap-2">
-                        <span className="text-sm font-medium text-slate-700">{opt.text}</span>
-                        {currentQuestion.category === 'TKP' && opt.score > 0 && (
+                        <span className="text-sm font-medium text-slate-700">{text}</span>
+                        {currentQuestion.category === 'TKP' && tkpScore !== undefined && (
                           <span className={`text-xs font-bold w-max px-2 py-0.5 rounded-full ${isUserSelected ? 'bg-amber-200 text-amber-800' : 'bg-slate-200 text-slate-600'}`}>
-                            Poin: {opt.score}
+                            Poin: {tkpScore}
                           </span>
                         )}
                       </div>
