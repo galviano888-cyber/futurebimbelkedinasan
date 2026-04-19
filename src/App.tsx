@@ -71,7 +71,7 @@ export function App() {
 
           const fetchPromise = supabase
             .from("tryout_results")
-            .select("id, date, package_name, twk, tiu, tkp, total")
+            .select("id, date, package_name, twk, tiu, tkp, total, package_id")
             .order("date", { ascending: true });
 
           const timeoutPromise = new Promise<never>((_, reject) =>

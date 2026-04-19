@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
-import { motion, AnimatePresence } from "framer-motion";
+
 
 interface InvoiceViewProps {
   transactionId: string;
@@ -26,7 +26,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
   const [transaction, setTransaction] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
+
   const [timeLeft, setTimeLeft] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
@@ -136,8 +136,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
 
       if (updateError) throw updateError;
 
-      setUploadSuccess(true);
-      console.log("Upload success state set to true"); // Silencing the warning by using the variable
+
       fetchTransaction();
     } catch (err: any) {
       alert("Gagal mengunggah bukti: " + err.message);
