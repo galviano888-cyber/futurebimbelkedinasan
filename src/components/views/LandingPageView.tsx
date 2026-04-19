@@ -7,7 +7,7 @@ interface LandingPageViewProps {
 
 export function LandingPageView({ onEnter }: LandingPageViewProps) {
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-50 font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-500/10">
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between max-w-7xl mx-auto backdrop-blur-md bg-slate-900/50 border-b border-white/5">
         <div className="flex items-center gap-2">
@@ -53,18 +53,18 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
                 Mulai Belajar Sekarang
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <p className="text-slate-500 text-sm font-medium">Gabung dengan 5,000+ siswa lainnya.</p>
+              <p className="text-slate-500 text-sm font-medium">Wujudkan impianmu masuk Kedinasan sekarang.</p>
             </div>
             
             <div className="mt-12 flex items-center justify-center lg:justify-start gap-8">
               <div>
-                <h4 className="text-3xl font-black text-white mb-0">98%</h4>
-                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Tingkat Kelulusan</p>
+                <h4 className="text-3xl font-black text-white mb-0">HOTS</h4>
+                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Standar Soal Terbaru</p>
               </div>
               <div className="w-px h-12 bg-slate-800" />
               <div>
-                <h4 className="text-3xl font-black text-white mb-0">150+</h4>
-                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Tryout Akurat</p>
+                <h4 className="text-3xl font-black text-white mb-0">LIVE</h4>
+                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Ranking Nasional</p>
               </div>
             </div>
           </div>
@@ -261,7 +261,7 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
               <span className="text-xl font-bold text-white">Future Bimbel</span>
             </div>
             <p className="text-slate-500 text-sm leading-relaxed">
-              Platform bimbingan belajar khusus kedinasan nomor satu di Indonesia. Fokus pada kualitas materi dan kelulusan siswa.
+              Platform bimbingan belajar khusus kedinasan dengan kurikulum paling update. Fokus pada kualitas materi dan pendampingan siswa.
             </p>
           </div>
           <div>

@@ -58,14 +58,14 @@ export function PaymentHistory({ onViewInvoice }: PaymentHistoryProps) {
           >
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                tx.status === 'SUCCESS' ? 'bg-emerald-50 text-emerald-600' :
-                tx.status === 'VERIFYING' ? 'bg-blue-50 text-blue-600' :
-                tx.status === 'PENDING' ? 'bg-amber-50 text-amber-600' :
+                tx.status === 'success' ? 'bg-emerald-50 text-emerald-600' :
+                tx.status === 'verifying' ? 'bg-blue-50 text-blue-600' :
+                tx.status === 'pending' ? 'bg-amber-50 text-amber-600' :
                 'bg-slate-100 text-slate-400'
               }`}>
-                {tx.status === 'SUCCESS' ? <CheckCircle2 className="w-5 h-5" /> :
-                 tx.status === 'PENDING' ? <Clock className="w-5 h-5" /> :
-                 tx.status === 'VERIFYING' ? <AlertCircle className="w-5 h-5" /> :
+                {tx.status === 'success' ? <CheckCircle2 className="w-5 h-5" /> :
+                 tx.status === 'pending' ? <Clock className="w-5 h-5" /> :
+                 tx.status === 'verifying' ? <AlertCircle className="w-5 h-5" /> :
                  <XCircle className="w-5 h-5" />}
               </div>
               <div className="text-left">
@@ -75,9 +75,9 @@ export function PaymentHistory({ onViewInvoice }: PaymentHistoryProps) {
             </div>
             <div className="flex items-center gap-2">
                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
-                 tx.status === 'SUCCESS' ? 'bg-emerald-100 text-emerald-700' :
-                 tx.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
-                 tx.status === 'VERIFYING' ? 'bg-blue-100 text-blue-700' :
+                 tx.status === 'success' ? 'bg-emerald-100 text-emerald-700' :
+                 tx.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                 tx.status === 'verifying' ? 'bg-blue-100 text-blue-700' :
                  'bg-slate-200 text-slate-500'
                }`}>
                  {tx.status}

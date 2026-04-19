@@ -8,7 +8,8 @@ import {
   Zap,
   BarChart3,
   TrendingUp,
-  Loader2
+  Loader2,
+  LayoutDashboard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TryoutResult } from "@/data/tryoutQuestions";
@@ -261,9 +262,9 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
                 )}
                 <button
                   onClick={onBack}
-                  className="flex-1 sm:flex-none px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-black text-sm rounded-2xl transition-all border border-white/10 active:scale-95"
+                  className="px-12 py-4 bg-white/10 hover:bg-white/20 text-white font-black text-sm rounded-2xl transition-all border border-white/10 active:scale-95 flex items-center justify-center gap-3 min-w-[180px]"
                 >
-                  DASHBOARD
+                  <LayoutDashboard className="w-4 h-4 text-slate-400" /> DASHBOARD
                 </button>
              </div>
           </div>

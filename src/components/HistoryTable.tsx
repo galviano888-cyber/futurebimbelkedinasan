@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { Download, FileX, Trophy } from "lucide-react";
+import { Download, FileX, Trophy, FileText } from "lucide-react";
 import type { TryoutRecord } from "@/types";
 import { cn } from "@/lib/utils";
 
 interface HistoryTableProps {
   data: TryoutRecord[];
+  onReview?: (record: TryoutRecord) => void;
 }
 
 const TWK_PASSING = 65;
@@ -63,7 +64,7 @@ function handleExport(data: TryoutRecord[]) {
   URL.revokeObjectURL(url);
 }
 
-export function HistoryTable({ data }: HistoryTableProps) {
+export function HistoryTable({ data, onReview }: HistoryTableProps) {
   const recent = data.slice(-5).reverse();
 
   return (
@@ -163,22 +164,32 @@ export function HistoryTable({ data }: HistoryTableProps) {
                       </span>
                     </td>
                     <td className="px-4 py-4 pr-6">
-                      <span
-                        className={cn(
-                          "inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide",
-                          lulus
-                            ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                            : "bg-red-100 text-red-600 border border-red-200"
-                        )}
-                      >
+                      <div className="flex items-center gap-3">
                         <span
                           className={cn(
-                            "w-1.5 h-1.5 rounded-full",
-                            lulus ? "bg-emerald-500" : "bg-red-500"
+                            "inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide shrink-0",
+                            lulus
+                              ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                              : "bg-red-100 text-red-600 border border-red-200"
                           )}
-                        />
-                        {lulus ? "LULUS" : "TIDAK LULUS"}
-                      </span>
+                        >
+                          <span
+                            className={cn(
+                              "w-1.5 h-1.5 rounded-full",
+                              lulus ? "bg-emerald-500" : "bg-red-500"
+                            )}
+                          />
+                          {lulus ? "LULUS" : "TIDAK LULUS"}
+                        </span>
+                        
+                        <button
+                          onClick={() => onReview?.(record)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 text-[10px] font-black uppercase rounded-lg hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all active:scale-95 shadow-sm"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          Pembahasan
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

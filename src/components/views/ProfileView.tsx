@@ -9,12 +9,17 @@ import {
   Package,
   Award,
   Loader2,
-  Save
+  Save,
+  CreditCard
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
 
-export function ProfileView() {
+interface ProfileViewProps {
+  onNavigate?: (page: string) => void;
+}
+
+export function ProfileView({ onNavigate }: ProfileViewProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<any>(null);
@@ -89,8 +94,7 @@ export function ProfileView() {
           id: user.id,
           full_name: profile.full_name,
           whatsapp: profile.whatsapp,
-          school: profile.school,
-          updated_at: new Promise(resolve => resolve(new Date().toISOString())) // TS check workaround
+          school: profile.school
         });
 
       if (error) throw error;
@@ -162,6 +166,13 @@ export function ProfileView() {
                     <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-tight">Tryout Selesai</div>
                   </div>
                </div>
+               <button 
+                  onClick={() => onNavigate?.("Riwayat Transaksi")}
+                  className="w-full mt-2 py-3 bg-slate-50 hover:bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl border border-slate-100 transition-all flex items-center justify-center gap-2"
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  Lihat Riwayat Transaksi
+                </button>
             </div>
           </div>
 
@@ -194,14 +205,14 @@ export function ProfileView() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Lengkap</label>
-                <div className="relative group">
+                <div className="relative group opacity-60">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <input 
                     type="text" 
                     value={profile?.full_name || ""}
-                    onChange={(e) => setProfile({...profile, full_name: e.target.value})}
-                    placeholder="Masukkan nama lengkap"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 transition-all font-medium text-slate-700"
+                    readOnly
+                    placeholder="Nama lengkap"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl focus:outline-none font-medium text-slate-500 cursor-not-allowed"
                   />
                 </div>
               </div>

@@ -5,23 +5,45 @@ import { supabase } from "@/lib/supabaseClient";
 
 interface TryoutPreViewProps {
   packageId: string | null;
+  questionsId: string | null;
   onStart: () => void;
   onCancel: () => void;
 }
 
-export function TryoutPreView({ packageId, onStart, onCancel }: TryoutPreViewProps) {
+export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: TryoutPreViewProps) {
   const [pkg, setPkg] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchPackage() {
       if (!packageId || !supabase) return;
-      const { data } = await supabase.from('tryout_packages').select('*').eq('id', packageId).single();
-      if (data) setPkg(data);
+      
+      // 1. Ambil info paket utama (buat Nama Paket)
+      const { data: mainPkg } = await supabase.from('packages').select('*').eq('id', packageId).maybeSingle();
+      
+      // 2. Ambil info teknis (durasi, passing grade) dari tryout_packages
+      let techData = null;
+      if (questionsId) {
+        const { data } = await supabase.from('tryout_packages').select('*').eq('id', questionsId).maybeSingle();
+        techData = data;
+      }
+
+      // Gabungkan data
+      if (mainPkg) {
+        setPkg({
+          id: mainPkg.id,
+          name: mainPkg.title,
+          duration_minutes: techData?.duration_minutes || 100,
+          passing_grade_twk: techData?.passing_grade_twk || 65,
+          passing_grade_tiu: techData?.passing_grade_tiu || 80,
+          passing_grade_tkp: techData?.passing_grade_tkp || 166
+        });
+      }
+
       setLoading(false);
     }
     fetchPackage();
-  }, [packageId]);
+  }, [packageId, questionsId]);
 
   if (loading) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>;

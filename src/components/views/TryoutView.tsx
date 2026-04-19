@@ -206,8 +206,35 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess }: TryoutViewPro
                         if (!supabase) return;
                         setLoading(true);
                         try {
-                          const { data: { user } } = await supabase.auth.getUser();
-                          if (!user) throw new Error("Silakan login untuk membeli.");
+                          const { data: { session } } = await supabase.auth.getSession();
+                          if (!session?.user) throw new Error("Silakan login untuk membeli.");
+
+                          // Ensure profile exists (for old users before the profile table was created)
+                          await supabase.from('profiles').upsert({
+                            id: session.user.id,
+                            full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+                            email: session.user.email
+                          }, { onConflict: 'id' });
+
+                          // CHECK FOR EXISTING PENDING OR VERIFYING TRANSACTION
+                          const { data: existingTxs, error: checkError } = await supabase
+                            .from('transactions')
+                            .select('id, status')
+                            .eq('user_id', session.user.id)
+                            .eq('package_id', pkg.id)
+                            .in('status', ['pending', 'verifying'])
+                            .order('created_at', { ascending: false });
+
+                          if (checkError) console.error("Check error:", checkError);
+
+                          if (existingTxs && existingTxs.length > 0) {
+                            // PRIORITAS: Cari yang 'verifying' dulu, kalau nggak ada baru yang 'pending' terbaru
+                            const bestTx = existingTxs.find(tx => tx.status === 'verifying') || existingTxs[0];
+                            
+                            if (onPurchaseSuccess) onPurchaseSuccess(bestTx.id);
+                            setLoading(false);
+                            return;
+                          }
 
                           const invoice_id = `INV-SKD-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(100 + Math.random() * 900)}`;
                           const expiry_date = new Date();
@@ -216,11 +243,12 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess }: TryoutViewPro
                           const { data: newTx, error: txError } = await supabase
                             .from('transactions')
                             .insert([{
-                              user_id: user.id,
+                              id: crypto.randomUUID(),
+                              user_id: session.user.id,
                               package_id: pkg.id,
                               amount: pkg.price,
                               invoice_id: invoice_id,
-                              status: 'PENDING',
+                              status: 'pending',
                               expiry_date: expiry_date.toISOString()
                             }])
                             .select()

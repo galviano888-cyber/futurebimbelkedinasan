@@ -37,7 +37,7 @@ interface UserPackage {
 }
 
 interface PaketSayaViewProps {
-  onStartTryout: (tryoutId: string) => void;
+  onStartTryout: (packageId: string, tryoutId: string) => void;
 }
 
 export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
@@ -321,10 +321,11 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                             </div>
                             <button 
                               onClick={() => {
-                                if (content.tryout_id) {
-                                  onStartTryout(content.tryout_id);
+                                // Pakai "Jalur Ganda": package_id buat dashboard, content.tryout_id/id buat soal
+                                if (selectedPkg.package_id && (content.tryout_id || content.id)) {
+                                  onStartTryout(selectedPkg.package_id, content.tryout_id || content.id);
                                 } else {
-                                  alert("Gagal memuat Tryout: Paket ini belum dihubungkan ke Bank Soal oleh Admin.");
+                                  alert("Gagal memuat Tryout: Data paket atau soal tidak lengkap.");
                                 }
                               }}
                               className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-2xl transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 active:scale-95"

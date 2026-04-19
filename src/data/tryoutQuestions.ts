@@ -37,6 +37,7 @@ export interface TryoutResult {
   timeUsed: number;
   questions: TryoutQuestion[];
   answers: Record<string | number, string>;
+  fromHistory?: boolean;
 }
 
 // Placeholder — 5 soal contoh saja, nanti diganti soal asli

@@ -2,15 +2,16 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,
   ChevronDown,
+  CreditCard,
   GraduationCap,
   LogOut,
   Menu,
-  Settings,
   Shield,
   User,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -192,6 +193,27 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const [isSiswaAktif, setIsSiswaAktif] = useState(false);
+
+  useEffect(() => {
+    async function fetchStatus() {
+      if (!supabase || !isAuthenticated) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: userPkgs } = await supabase
+        .from('user_packages')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      if (userPkgs && userPkgs.length > 0) {
+        setIsSiswaAktif(true);
+      }
+    }
+    fetchStatus();
+  }, [isAuthenticated]);
+
   return (
     <header className="sticky top-0 z-10 h-16 bg-white border-b border-slate-200 flex items-center px-4 lg:px-8 gap-4 shadow-sm">
       <button
@@ -280,15 +302,15 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
             onClick={() => setDropdownOpen(!dropdownOpen)}
             className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-xl hover:bg-slate-100 transition-all duration-200 group"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0 ring-2 ring-blue-100">
-              <span className="text-white text-xs font-bold">{currentUser.slice(0, 2).toUpperCase()}</span>
+            <div className={cn("w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center flex-shrink-0 ring-2", isSiswaAktif ? "from-blue-400 to-blue-600 ring-blue-100" : "from-slate-400 to-slate-600 ring-slate-100")}>
+              <span className="text-white text-xs font-bold">{currentUser?.slice(0, 2).toUpperCase() || "GA"}</span>
             </div>
             <div className="hidden sm:flex flex-col items-start min-w-0">
-              <span className="text-slate-900 text-xs font-semibold leading-tight">
+              <span className="text-slate-900 text-xs font-bold leading-tight truncate max-w-[120px]">
                 {currentUser}
               </span>
-              <span className="text-slate-500 text-[10px] leading-tight truncate max-w-[100px]">
-                Akun Gratis
+              <span className={cn("text-[10px] font-black uppercase tracking-widest leading-tight truncate", isSiswaAktif ? "text-blue-500" : "text-slate-500")}>
+                {isSiswaAktif ? "Akun Siswa" : "Akun Gratis"}
               </span>
             </div>
             <ChevronDown
@@ -320,10 +342,11 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
                     onClick={() => {
                       setDropdownOpen(false);
+                      onNavigate?.("Riwayat Transaksi");
                     }}
                   >
-                    <Settings className="w-4 h-4 flex-shrink-0" />
-                    Pengaturan
+                    <CreditCard className="w-4 h-4 flex-shrink-0" />
+                    Riwayat Transaksi
                   </button>
                   <button
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"

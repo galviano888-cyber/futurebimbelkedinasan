@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
@@ -10,6 +11,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabaseClient";
 
 interface NavItem {
   label: string;
@@ -37,6 +39,26 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChange, currentUser = "Siswa FBK", isAuthenticated = false }: SidebarProps) {
+  const [isSiswaAktif, setIsSiswaAktif] = useState(false);
+
+  useEffect(() => {
+    async function fetchStatus() {
+      if (!supabase || !isAuthenticated) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: userPkgs } = await supabase
+        .from('user_packages')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      if (userPkgs && userPkgs.length > 0) {
+        setIsSiswaAktif(true);
+      }
+    }
+    fetchStatus();
+  }, [isAuthenticated]);
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-[#0a192f]">
@@ -99,24 +121,33 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
             </button>
           );
         })}
-
-
       </nav>
 
       <div className="px-4 py-4 border-t border-white/10">
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-xs font-bold">{currentUser.slice(0, 2).toUpperCase()}</span>
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+          <div className={cn(
+            "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 p-[2px]",
+            isSiswaAktif ? "bg-blue-500/20" : "bg-white/5"
+          )}>
+            <div className={cn(
+              "w-full h-full rounded-full flex items-center justify-center text-white text-xs font-bold",
+              isSiswaAktif ? "bg-gradient-to-br from-blue-400 to-blue-600 shadow-[0_0_10px_rgba(59,130,246,0.3)]" : "bg-slate-700"
+            )}>
+              {currentUser?.slice(0, 2).toUpperCase() || "GA"}
+            </div>
           </div>
           <div className="min-w-0">
-            <p className="text-white text-xs font-semibold truncate">
+            <p className="text-white text-xs font-bold truncate group-hover:text-blue-400 transition-colors">
               {isAuthenticated ? currentUser : "Guest"}
             </p>
-            <p className="text-slate-500 text-[10px] truncate">
-              {isAuthenticated ? "Akun Gratis" : "Belum Login"}
+            <p className={cn("text-[10px] truncate font-black uppercase tracking-widest mt-0.5", isSiswaAktif ? "text-blue-400" : "text-slate-500")}>
+              {isAuthenticated ? (isSiswaAktif ? "Akun Siswa" : "Akun Gratis") : "Belum Login"}
             </p>
           </div>
-          <div className={`ml-auto w-2 h-2 rounded-full flex-shrink-0 ${isAuthenticated ? 'bg-emerald-400' : 'bg-slate-500'}`} />
+          <div className={cn(
+            "ml-auto w-2 h-2 rounded-full flex-shrink-0",
+            isAuthenticated ? (isSiswaAktif ? "bg-blue-400 shadow-[0_0_8px_#60a5fa]" : "bg-emerald-400") : 'bg-slate-500'
+          )} />
         </div>
       </div>
     </div>

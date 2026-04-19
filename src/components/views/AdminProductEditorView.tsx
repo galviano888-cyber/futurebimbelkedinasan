@@ -68,8 +68,20 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
 
   const fetchTryouts = async () => {
     if (!supabase) return;
-    const { data } = await supabase.from('tryout_packages').select('id, name').eq('status', 'Published');
-    if (data) setAllTryouts(data);
+    try {
+      // Fetch all to be safe, then filter in JS
+      const { data, error } = await supabase
+        .from('tryout_packages')
+        .select('id, name, status');
+      
+      if (error) throw error;
+      if (data) {
+        const published = data.filter(p => p.status === 'Published');
+        setAllTryouts(published);
+      }
+    } catch (err) {
+      console.error("Error fetching tryouts for product editor:", err);
+    }
   };
 
   const handleSave = async () => {

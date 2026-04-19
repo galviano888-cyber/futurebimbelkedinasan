@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Save, Image as ImageIcon, CheckCircle2, Loader2, UploadCloud } from "lucide-react";
+import { ArrowLeft, Save, Image as ImageIcon, CheckCircle2, Loader2, UploadCloud, Edit2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -14,6 +14,8 @@ export function AdminPackageEditorView({ packageId, onBack }: AdminPackageEditor
   const [activeQuestion, setActiveQuestion] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -33,6 +35,25 @@ export function AdminPackageEditorView({ packageId, onBack }: AdminPackageEditor
       if (qData.length > 0) setActiveQuestion(qData[0]);
     }
     setLoading(false);
+  };
+
+  const handleUpdatePackageName = async () => {
+    if (!supabase || !tempName.trim()) return;
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('tryout_packages')
+        .update({ name: tempName })
+        .eq('id', packageId);
+
+      if (error) throw error;
+      setPkg({ ...pkg, name: tempName });
+      setIsEditingName(false);
+    } catch (err: any) {
+      alert("Gagal update nama: " + err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSaveQuestion = async () => {
@@ -104,7 +125,27 @@ export function AdminPackageEditorView({ packageId, onBack }: AdminPackageEditor
           </button>
           <div>
             <h1 className="font-bold text-slate-800">Editor Bank Soal</h1>
-            <p className="text-sm text-slate-500">{pkg.name} • {questions.length} Soal</p>
+            {isEditingName ? (
+              <div className="flex items-center gap-2 mt-1">
+                <input 
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  className="bg-slate-50 border-2 border-blue-500 rounded-lg px-2 py-1 text-sm font-bold outline-none w-64"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleUpdatePackageName();
+                    if (e.key === 'Escape') setIsEditingName(false);
+                  }}
+                />
+                <button onClick={handleUpdatePackageName} className="text-emerald-600"><Check className="w-4 h-4" /></button>
+                <button onClick={() => setIsEditingName(false)} className="text-red-600"><X className="w-4 h-4" /></button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 group cursor-pointer" onClick={() => { setIsEditingName(true); setTempName(pkg.name); }}>
+                <p className="text-sm text-slate-500">{pkg.name} • {questions.length} Soal</p>
+                <Edit2 className="w-3 h-3 text-slate-300 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all" />
+              </div>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-3">

@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, AtSign, Link as LinkIcon, HelpCircle } from "lucide-react";
+import { MessageCircle, AtSign } from "lucide-react";
 
 export function ContactView() {
   return (
@@ -51,22 +51,6 @@ export function ContactView() {
           </Button>
         </Card>
 
-        <Card className="p-6 bg-blue-500 border-blue-600 md:col-span-2 relative overflow-hidden">
-          <div className="relative z-10">
-            <h3 className="font-bold text-slate-900 text-xl mb-2">Daftar Batch 1 Sekarang!</h3>
-            <p className="text-blue-900 text-sm mb-4 max-w-xl">
-              Pendaftaran Program Intensif SKD Kedinasan Batch 1 telah dibuka. Kuota terbatas! Segera daftarkan diri kamu untuk mengamankan kursi dengan harga spesial.
-            </p>
-            <Button 
-              className="bg-slate-900 hover:bg-slate-800 text-white border-none"
-              onClick={() => window.open('https://bit.ly/DaftarBatch1FBK', '_blank')}
-            >
-              <LinkIcon className="w-4 h-4 mr-2" />
-              bit.ly/DaftarBatch1FBK
-            </Button>
-          </div>
-          <HelpCircle className="absolute -right-8 -bottom-8 w-48 h-48 text-blue-600/20" />
-        </Card>
       </div>
     </div>
   );

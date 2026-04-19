@@ -32,10 +32,33 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
 
   useEffect(() => {
     fetchTransaction();
+
+    // Listen for real-time updates to this transaction
+    if (!supabase) return;
+    const channel = supabase
+      .channel(`transaction-status-${transactionId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'transactions',
+          filter: `id=eq.${transactionId}`
+        },
+        () => {
+          // Re-fetch everything to get the updated status and package data
+          fetchTransaction();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      if (supabase) supabase.removeChannel(channel);
+    };
   }, [transactionId]);
 
   useEffect(() => {
-    if (!transaction?.expiry_date || transaction.status !== 'PENDING') return;
+    if (!transaction?.expiry_date || transaction.status !== 'pending') return;
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -92,8 +115,8 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
     if (!selectedFile) return;
 
     // Validasi
-    if (selectedFile.size > 2 * 1024 * 1024) {
-      alert("Ukuran file maksimal 2MB");
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      alert("Ukuran file maksimal 5MB");
       return;
     }
     if (!['image/jpeg', 'image/png'].includes(selectedFile.type)) {
@@ -128,7 +151,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
       const { error: updateError } = await supabase
         .from('transactions')
         .update({
-          status: 'VERIFYING',
+          status: 'verifying',
           payment_proof_url: publicUrl,
           updated_at: new Date().toISOString()
         })
@@ -172,18 +195,18 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
         </div>
 
         <div className={`px-6 py-3 rounded-2xl flex items-center gap-3 border shadow-sm ${
-          transaction.status === 'PENDING' ? 'bg-amber-50 border-amber-200 text-amber-700' :
-          transaction.status === 'VERIFYING' ? 'bg-blue-50 border-blue-200 text-blue-700' :
+          transaction.status === 'pending' ? 'bg-amber-50 border-amber-200 text-amber-700' :
+          transaction.status === 'verifying' ? 'bg-blue-50 border-blue-200 text-blue-700' :
           'bg-emerald-50 border-emerald-200 text-emerald-700'
         }`}>
           <div className={`w-3 h-3 rounded-full animate-pulse ${
-            transaction.status === 'PENDING' ? 'bg-amber-500' :
-            transaction.status === 'VERIFYING' ? 'bg-blue-500' :
+            transaction.status === 'pending' ? 'bg-amber-500' :
+            transaction.status === 'verifying' ? 'bg-blue-500' :
             'bg-emerald-500'
           }`} />
           <span className="text-sm font-black uppercase tracking-widest">
-            {transaction.status === 'PENDING' ? 'Menunggu Pembayaran' :
-             transaction.status === 'VERIFYING' ? 'Menunggu Verifikasi' :
+            {transaction.status === 'pending' ? 'Menunggu Pembayaran' :
+             transaction.status === 'verifying' ? 'Menunggu Verifikasi' :
              'Pembayaran Berhasil'}
           </span>
         </div>
@@ -241,7 +264,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
 
         {/* KOLOM KANAN: Instruksi Pembayaran */}
         <div className="lg:col-span-5 space-y-6">
-          {transaction.status === 'PENDING' && (
+          {transaction.status === 'pending' && (
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 p-8">
               <div className="text-center mb-8">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Sisa Waktu Pembayaran</p>
@@ -260,14 +283,14 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                   <div className="relative z-10 flex items-center justify-between">
                     <div>
                       <div className="bg-white px-3 py-1 rounded-lg border border-slate-200 inline-block mb-3">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg" alt="BCA" className="h-4" />
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAA4CAMAAACfWMssAAAAclBMVEX///8AUpwARpe+yNwASJgAUJsATZq4xNoAS5kAQZUARJYAPJMJVJ2gr80APpQANpGsvNXs7/V7lL6aq8tohraPo8YAOZJwjLkuYKLT2ufi5u/4+ftBbKmnttLb4ew1ZKRTeK7Gz+BgfrKEmsEcWZ9NcqyD1LBEAAACs0lEQVRIiZ2X68KyMAiApzl1VmaleUrTDvd/i58Cm87D9P34FbpnMIZAjPVySDNu7RKepQcmJXcDdx/WS7c4R8677LSmrF48sHehnRwUtYsPqvKF27bSLnUHnmAlD9MI5P4SiDr3Xq1S4SPXtF5UvUNUTl1cAvx1HY58gn3dG+kfXHyEFTXaDFp284enUl7w9iGfRUC6KSjFkXZ98eGhlNLm4KvUEwc2RyXud+VPBgdyPA1klYMvpUDEAryFCHY5MXDZPugge4CvSk368zhnTBYbkBXw2ZsI1cHbPoI+RsszgmlvQhRSLUQPxjtAiICoNdDdA2a6q3AuzdWV4Fzhsi6D5+4QHKNFyAr+0vfpsmULbGGhn0j96Y5uxwDmlJwyqA1cOQXVAOYhZJPbkP4GznrUG2CNnMrxGDlHpvMaWKOf1pHSN8Z1vkrcFbAWyIUVXQRxKsIrYDHhbvCZW+7ALSdAQWUjPOtcxsxgESAn6AY/Ys4tgbu4BbCwkQs+uCIh7luawYIqqi85qoQvxsxg+8CAyrJ4JzArN0BK7c7VVCPd05Kr2j0eJKnbnBxyKQGm5GJ4FhPAI1JMAruVACNSv0o/2wJn5I1sTpN8XqwiIuVnNUvz1SpHJBelRqoPcr08Vkg6slal+qdsqKtnOBcPpC6LwG8LxM5hiXxCOr8tkIHJobGqgtVsgVDJqcmAvAfSCEKTGXXkgXybwby/Aq59+Q2R8cHUyqEDaxYZ++G8438tAwjDw2QUYU8kLRMIM4wTsXWSwMmaFq7jcWXr5BfnCz8evy+hbM2qVO+JJLvz36Bpql7YScH5ghdE0vjYVbSWkl+SZUJtTixwdPruZdfWLWoXcdVJ0hwd6Ux1nsn9TTPot9ujHg+6/jBjc2dBxoPu/4zWdHt/Hea5mrj+8PfBkn8f/gGYrimCPfFGDgAAAABJRU5ErkJggg==" alt="BRI" className="h-6" />
                       </div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nomor Rekening</p>
-                      <p className="text-2xl font-black text-slate-900 tracking-tight">8831 2940 33</p>
-                      <p className="text-sm font-bold text-slate-600 mt-1 uppercase">A/N Galviano Rizky</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nomor Rekening (BRI)</p>
+                      <p className="text-2xl font-black text-slate-900 tracking-tight">0356 0108 9005 505</p>
+                      <p className="text-sm font-bold text-slate-600 mt-1 uppercase">A/N Galih Oktaviano</p>
                     </div>
                     <button 
-                      onClick={() => handleCopy("8831294033")}
+                      onClick={() => handleCopy("035601089005505")}
                       className="p-4 bg-white hover:bg-blue-600 hover:text-white text-slate-400 rounded-2xl transition-all shadow-sm border border-slate-100"
                     >
                       <Copy className="w-6 h-6" />
@@ -303,7 +326,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                         <>
                           <Upload className="w-10 h-10 text-slate-300 mb-2 group-hover:text-blue-500" />
                           <p className="text-xs font-bold text-slate-600">Klik untuk Pilih Foto Bukti</p>
-                          <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-black">JPG / PNG (MAX 2MB)</p>
+                          <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-black">JPG / PNG (MAX 5MB)</p>
                         </>
                       )}
                     </label>
@@ -345,7 +368,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
             </div>
           )}
 
-          {transaction.status === 'VERIFYING' && (
+          {transaction.status === 'verifying' && (
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 p-12 text-center space-y-6">
               <div className="w-24 h-24 bg-blue-50 rounded-[2.5rem] flex items-center justify-center mx-auto relative">
                 <div className="absolute inset-0 bg-blue-400/20 rounded-[2.5rem] animate-ping opacity-30" />
@@ -372,7 +395,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
             </div>
           )}
 
-          {transaction.status === 'SUCCESS' && (
+          {transaction.status === 'success' && (
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 p-12 text-center space-y-6">
               <div className="w-24 h-24 bg-emerald-50 rounded-[2.5rem] flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-12 h-12 text-emerald-600" />
