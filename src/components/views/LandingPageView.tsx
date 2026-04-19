@@ -277,7 +277,7 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
             <p className="text-slate-500 text-sm mb-4 font-medium">Butuh bantuan? Hubungi kami via WhatsApp atau Email.</p>
             <div className="space-y-3">
               <p className="text-blue-500 text-sm font-black">support@fbk-kedinasan.com</p>
-              <p className="text-slate-300 text-sm font-black">+62 883-1294-033</p>
+              <p className="text-slate-300 text-sm font-black">+62 877-5364-6617</p>
             </div>
           </div>
         </div>

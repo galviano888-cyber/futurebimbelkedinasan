@@ -351,7 +351,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                   </div>
 
                   <a 
-                    href={`https://wa.me/628831294033?text=${encodeURIComponent(
+                    href={`https://wa.me/6287753646617?text=${encodeURIComponent(
                       `Halo Admin FBK Kedinasan,\n\nSaya ingin konfirmasi pembayaran untuk:\n🧾 *Invoice:* ${transaction.invoice_id}\n📦 *Paket:* ${transaction.packages.title}\n💰 *Total:* Rp ${transaction.amount.toLocaleString('id-ID')}\n\nSaya sudah melakukan transfer, mohon bantuannya untuk verifikasi. Terima kasih!`
                     )}`}
                     target="_blank"
@@ -385,7 +385,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                   Kembali ke Dashboard
                 </Button>
                 <a 
-                  href={`https://wa.me/628831294033?text=Halo Admin, saya sudah bayar invoice ${transaction.invoice_id}`} 
+                  href={`https://wa.me/6287753646617?text=Halo Admin, saya sudah bayar invoice ${transaction.invoice_id}`} 
                   target="_blank" rel="noreferrer"
                   className="flex items-center justify-center gap-2 text-blue-600 text-xs font-bold hover:underline"
                 >
