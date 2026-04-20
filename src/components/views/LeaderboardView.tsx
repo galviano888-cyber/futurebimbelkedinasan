@@ -232,7 +232,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                   <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tight">Ranking Terkunci! 🔒</h2>
                     <p className="text-slate-600 font-medium mt-3 leading-relaxed">
-                      Waduh! Kamu harus masuk ke akunmu dulu buat liat siapa aja jawara di Ranking Nasional Future Bimbel.
+                      Waduh! Kamu harus masuk ke akunmu dulu buat liat siapa aja jawara di Ranking Nasional Future Bimbel Kedinasan.
                     </p>
                   </div>
                   <div className="flex flex-col gap-3">
