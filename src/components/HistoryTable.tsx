@@ -33,7 +33,7 @@ function ScorePill({
       className={cn(
         "inline-flex items-center font-semibold text-xs px-2 py-0.5 rounded-md",
         pass
-          ? "bg-blue-50 text-blue-700"
+          ? "bg-blue-50 text-blue-600"
           : "bg-red-50 text-red-600"
       )}
     >
@@ -72,9 +72,9 @@ export function HistoryTable({ data, onReview }: HistoryTableProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4, duration: 0.4, ease: "easeOut" }}
-      className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"
+      className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-5 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-5 border-b border-slate-50">
         <div>
           <h2 className="text-slate-900 font-bold text-base">
             Riwayat Tryout
@@ -85,7 +85,7 @@ export function HistoryTable({ data, onReview }: HistoryTableProps) {
         </div>
         <button
           onClick={() => handleExport(data)}
-          className="flex items-center gap-2 px-4 py-2 border border-slate-200 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-300 hover:brightness-110 self-start sm:self-auto"
+          className="flex items-center gap-2 px-4 py-2 border border-slate-200 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 transition-all duration-300 self-start sm:self-auto"
         >
           <Download className="w-4 h-4" />
           Export Nilai
@@ -94,7 +94,7 @@ export function HistoryTable({ data, onReview }: HistoryTableProps) {
 
       {recent.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+          <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-4">
             <FileX className="w-8 h-8 text-slate-300" />
           </div>
           <p className="text-slate-500 text-sm font-medium mb-1">
@@ -108,7 +108,7 @@ export function HistoryTable({ data, onReview }: HistoryTableProps) {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px]">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
+              <tr className="bg-slate-50/50 border-b border-slate-100">
                 {["No", "Tanggal", "Paket Tryout", "TWK", "TIU", "TKP", "Total", "Status"].map(
                   (header) => (
                     <th
@@ -127,12 +127,12 @@ export function HistoryTable({ data, onReview }: HistoryTableProps) {
                 return (
                   <tr
                     key={record.id}
-                    className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors"
+                    className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
                   >
-                    <td className="px-4 py-4 pl-6 text-slate-400 text-xs font-medium">
+                    <td className="px-4 py-4 pl-6 text-slate-500 text-xs font-medium">
                       {index + 1}
                     </td>
-                    <td className="px-4 py-4 text-slate-600 text-xs font-medium whitespace-nowrap">
+                    <td className="px-4 py-4 text-slate-500 text-xs font-medium whitespace-nowrap">
                       {new Date(record.date).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "short",
@@ -141,7 +141,7 @@ export function HistoryTable({ data, onReview }: HistoryTableProps) {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center flex-shrink-0">
                           <Trophy className="w-3.5 h-3.5 text-slate-400" />
                         </div>
                         <span className="text-slate-700 text-xs font-medium max-w-[200px] truncate">
@@ -169,8 +169,8 @@ export function HistoryTable({ data, onReview }: HistoryTableProps) {
                           className={cn(
                             "inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide shrink-0",
                             lulus
-                              ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                              : "bg-red-100 text-red-600 border border-red-200"
+                              ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                              : "bg-red-50 text-red-600 border border-red-100"
                           )}
                         >
                           <span
@@ -199,7 +199,7 @@ export function HistoryTable({ data, onReview }: HistoryTableProps) {
         </div>
       )}
 
-      <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+      <div className="px-6 py-4 border-t border-slate-50 flex items-center justify-between">
         <p className="text-slate-400 text-xs">
           Menampilkan {recent.length} dari {data.length} riwayat
         </p>

@@ -99,7 +99,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-3">
-            <Layout className="w-8 h-8 text-blue-600" />
+            <Layout className="w-8 h-8 text-blue-500" />
             Katalog Paket Belajar & Tryout
           </h1>
           <p className="text-slate-500 text-sm mt-1">Pilih paket bimbingan dan uji kemampuan Anda dengan Tryout SKD.</p>
@@ -109,11 +109,11 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
       {/* Grid Katalog Produk (Satuan, Bundle, Intensif) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {packages.length === 0 ? (
-          <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-slate-300 text-center px-6">
-            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+          <div className="col-span-full flex flex-col items-center justify-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200 text-center px-6">
+            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
               <ShoppingBag className="w-10 h-10 text-slate-300" />
             </div>
-            <h3 className="text-xl font-bold text-slate-800">Belum Ada Paket Tersedia</h3>
+            <h3 className="text-xl font-bold text-slate-900">Belum Ada Paket Tersedia</h3>
             <p className="text-slate-500 mt-2 max-w-sm">
               Maaf, saat ini belum ada paket yang aktif. Silakan hubungi admin atau kembali lagi nanti.
             </p>
@@ -123,21 +123,21 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
             <motion.div
               key={pkg.id}
               whileHover={{ y: -5 }}
-              className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col"
+              className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col"
             >
               {/* Badge Tipe Produk */}
               <div className="px-6 pt-6">
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                  pkg.product_type === 'INTENSIF' ? 'bg-purple-100 text-purple-700' :
-                  pkg.product_type === 'BUNDLE' ? 'bg-blue-100 text-blue-700' :
-                  'bg-emerald-100 text-emerald-700'
+                  pkg.product_type === 'INTENSIF' ? 'bg-purple-500/20 text-purple-400' :
+                  pkg.product_type === 'BUNDLE' ? 'bg-blue-500/20 text-blue-400' :
+                  'bg-emerald-500/20 text-emerald-400'
                 }`}>
                   {pkg.product_type === 'SATUAN' ? 'Tryout Satuan' : pkg.product_type === 'BUNDLE' ? 'Paket Tryout' : 'Program Intensif'}
                 </span>
               </div>
 
               <div className="p-6 flex-1 flex flex-col">
-                <h3 className="text-lg font-black text-slate-800 leading-tight mb-2 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-lg font-black text-slate-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors">
                   {pkg.title}
                 </h3>
                 <p className="text-slate-500 text-xs line-clamp-2 mb-6">
@@ -157,7 +157,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                 </div>
 
                 {/* Harga & Tombol Aksi */}
-                <div className="mt-auto pt-6 border-t border-slate-100 flex items-center justify-between">
+                <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] font-bold text-slate-400 uppercase">Harga Paket</p>
                     <p className="text-xl font-black text-blue-600">
@@ -261,7 +261,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                         }
                       }
                     }}
-                    className="px-6 py-3 bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold rounded-2xl transition-all shadow-lg shadow-slate-200 flex items-center gap-2"
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-2xl transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2"
                   >
                     Beli <ChevronRight className="w-4 h-4" />
                   </button>

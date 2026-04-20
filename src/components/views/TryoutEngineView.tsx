@@ -369,7 +369,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
             <CheckCircle2 className="w-6 h-6" />
           </div>
-          <h1 className="text-sm font-black text-white tracking-widest uppercase hidden md:block">SISTEM CAT FUTURE BIMBEL</h1>
+          <h1 className="text-sm font-black text-white tracking-widest uppercase hidden md:block">SISTEM CAT FUTURE BIMBEL KEDINASAN</h1>
         </div>
 
         <div className="flex items-center gap-4">

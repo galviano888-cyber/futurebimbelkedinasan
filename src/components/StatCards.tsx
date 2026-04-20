@@ -76,7 +76,7 @@ export function StatCards({ data }: StatCardsProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08, duration: 0.4, ease: "easeOut" }}
             className={cn(
-              "bg-white border border-slate-200 rounded-2xl p-6 shadow-sm",
+              "bg-white border border-slate-100 rounded-2xl p-6 shadow-sm",
               "hover:-translate-y-1 hover:shadow-md transition-all duration-300 cursor-default"
             )}
           >
@@ -106,8 +106,8 @@ export function StatCards({ data }: StatCardsProps) {
                   className={cn(
                     "inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full",
                     card.trendUp
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "bg-blue-50 text-blue-700"
+                      ? "bg-emerald-50 text-emerald-600"
+                      : "bg-blue-50 text-blue-600"
                   )}
                 >
                   {card.trend}

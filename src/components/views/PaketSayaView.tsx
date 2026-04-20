@@ -114,7 +114,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
         <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mb-6 border border-slate-100 shadow-inner">
           <Package className="w-10 h-10 text-slate-300" />
         </div>
-        <h3 className="text-2xl font-black text-slate-800 tracking-tight">Belum Ada Paket Aktif</h3>
+        <h3 className="text-2xl font-black text-slate-900 tracking-tight">Belum Ada Paket Aktif</h3>
         <p className="text-slate-500 mt-2 max-w-sm text-sm">
           Sepertinya kamu belum memiliki paket belajar. Jelajahi katalog dan mulai perjalanan suksesmu sekarang!
         </p>
@@ -137,18 +137,18 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter flex items-center gap-3">
-            <Layout className="w-8 h-8 text-blue-600" />
+            <Layout className="w-8 h-8 text-blue-500" />
             Ruang Belajarku
           </h1>
           <p className="text-slate-500 text-sm mt-1">Lanjutkan belajarmu dan raih target skor maksimal.</p>
         </div>
         <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
-           <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
-             <Award className="w-5 h-5 text-emerald-600" />
+           <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+             <Award className="w-5 h-5 text-emerald-400" />
            </div>
            <div>
              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Status Belajar</p>
-             <p className="text-xs font-bold text-slate-800">Siswa Aktif FBK</p>
+             <p className="text-xs font-bold text-white">Siswa Aktif FBK</p>
            </div>
         </div>
       </div>
@@ -169,7 +169,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                 className={`w-full text-left p-6 rounded-[2rem] transition-all duration-300 border-2 group relative overflow-hidden ${
                   selectedPkg?.id === pkg.id 
                   ? 'bg-blue-600 border-blue-500 shadow-xl shadow-blue-500/20 text-white translate-x-2' 
-                  : 'bg-white border-slate-100 hover:border-blue-200 text-slate-700 hover:shadow-lg'
+                  : 'bg-white border-slate-100 hover:border-blue-500/30 text-slate-400 hover:text-slate-600 hover:shadow-lg'
                 }`}
               >
                 {selectedPkg?.id === pkg.id && (
@@ -200,7 +200,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
         {/* MAIN CONTENT: Isi Paket (Col 8) */}
         <div className="lg:col-span-8 space-y-6">
           {selectedPkg && (
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden min-h-[500px] flex flex-col">
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl overflow-hidden min-h-[500px] flex flex-col">
               {/* Header Paket & Tabs */}
               <div className="p-8 pb-0 border-b border-slate-50">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
@@ -220,7 +220,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                       }`}
                     >
                       Materi & Live Class
-                      {activeTab === 'materi' && <motion.div layoutId="tab-line" className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full" />}
+                      {activeTab === 'materi' && <motion.div layoutId="tab-line" className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 rounded-full" />}
                     </button>
                   )}
                   <button
@@ -230,7 +230,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                     }`}
                   >
                     Daftar Tryout
-                    {activeTab === 'tryout' && <motion.div layoutId="tab-line" className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full" />}
+                    {activeTab === 'tryout' && <motion.div layoutId="tab-line" className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 rounded-full" />}
                   </button>
                 </div>
               </div>
@@ -260,7 +260,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                                 {content.type === 'video' ? <Video className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
                               </div>
                               <div>
-                                <h4 className="font-bold text-slate-800 text-sm leading-tight group-hover:text-blue-600 transition-colors">{content.title}</h4>
+                                <h4 className="font-bold text-slate-700 text-sm leading-tight group-hover:text-blue-600 transition-colors">{content.title}</h4>
                                 <p className="text-[10px] font-black text-slate-400 uppercase mt-1 flex items-center gap-2">
                                   {content.type === 'video' ? (
                                     <> <Calendar className="w-3 h-3" /> Live Class / Rekaman </>
@@ -274,7 +274,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                                {content.zoom_link && (
                                  <a 
                                    href={content.zoom_link} target="_blank" rel="noreferrer"
-                                   className="px-4 py-2 bg-slate-900 text-white text-[10px] font-black rounded-xl hover:bg-blue-600 transition-all flex items-center gap-2"
+                                   className="px-4 py-2 bg-slate-800 text-white text-[10px] font-black rounded-xl hover:bg-blue-600 transition-all flex items-center gap-2"
                                  >
                                    <Video className="w-3 h-3" /> MASUK ZOOM
                                  </a>
@@ -308,7 +308,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                                 <Award className="w-7 h-7" />
                               </div>
                               <div>
-                                <h4 className="font-bold text-slate-800 leading-tight group-hover:text-blue-600 transition-colors">{content.title}</h4>
+                                <h4 className="font-bold text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">{content.title}</h4>
                                 <div className="flex items-center gap-4 mt-2">
                                    <span className="flex items-center gap-1.5 text-slate-400 text-[10px] font-black uppercase">
                                      <Clock className="w-3.5 h-3.5" /> 100 Menit
@@ -346,7 +346,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
               </div>
 
               {/* Footer Info */}
-              <div className="p-6 bg-slate-900 text-white/50 text-[10px] font-bold text-center uppercase tracking-widest">
+              <div className="p-6 bg-slate-50 text-slate-400 text-[10px] font-bold text-center uppercase tracking-widest">
                 Pastikan koneksi internet stabil saat mengerjakan tryout atau masuk Live Class.
               </div>
             </div>

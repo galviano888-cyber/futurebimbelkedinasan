@@ -50,6 +50,7 @@ export function App() {
       if (session) {
         setShowLanding(false);
       } else {
+        setShowLanding(true);
         setLoading(false);
       }
     });
@@ -78,6 +79,7 @@ export function App() {
         setActivePackageId(null);
         setQuestionsId(null);
         setSelectedTransactionId(null);
+        setShowLanding(true);
         setLoading(false);
       }
     });
@@ -305,7 +307,7 @@ export function App() {
   // REMOVED LOADING CHECK TO PREVENT WHITE SCREEN
   
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-slate-50">
       <Toaster theme="dark" position="top-right" />
 
       {showLanding ? (
@@ -318,7 +320,7 @@ export function App() {
           onExit={() => { setActivePackageId(null); setQuestionsId(null); setActivePage("Paket Saya"); }}
         />
       ) : (
-        <div className="flex h-screen bg-[#0f172a] overflow-hidden">
+        <div className="flex h-screen bg-slate-50 overflow-hidden">
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} activePage={activePage} onPageChange={setActivePage} currentUser={currentUser || "Siswa FBK"} isAuthenticated={isAuthenticated} />
           <div className="flex-1 flex flex-col overflow-hidden lg:ml-64 bg-slate-50">
             <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} currentUser={currentUser || "Siswa FBK"} isAuthenticated={isAuthenticated} onNavigate={setActivePage} isLoginOpen={isLoginOpen} setIsLoginOpen={setIsLoginOpen} />

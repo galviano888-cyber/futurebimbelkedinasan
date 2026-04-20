@@ -48,8 +48,8 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   );
 
   return (
-    <div className="bg-slate-900 rounded-xl p-4 shadow-2xl border border-slate-700 min-w-[170px]">
-      <p className="text-blue-400 text-xs font-bold uppercase tracking-wider mb-3">
+    <div className="bg-white rounded-xl p-4 shadow-xl border border-slate-100 min-w-[170px]">
+      <p className="text-blue-600 text-xs font-bold uppercase tracking-wider mb-3">
         {label}
       </p>
       <div className="space-y-2">
@@ -71,7 +71,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-white text-sm font-bold">
+                <span className="text-slate-900 text-sm font-bold">
                   {entry.value}
                 </span>
                 <span
@@ -88,10 +88,10 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
           );
         })}
       </div>
-      <div className="mt-3 pt-3 border-t border-slate-700">
+      <div className="mt-3 pt-3 border-t border-slate-100">
         <p className="text-slate-500 text-[10px]">
           Total:{" "}
-          <span className="text-white font-bold">{totalScore}</span>
+          <span className="text-slate-900 font-bold">{totalScore}</span>
         </p>
       </div>
     </div>
@@ -110,7 +110,7 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
   }));
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm h-full">
+    <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm h-full">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
           <h2 className="text-slate-900 font-bold text-base">
@@ -169,7 +169,7 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
           />
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ stroke: "#e2e8f0", strokeWidth: 2 }}
+            cursor={{ stroke: "#f1f5f9", strokeWidth: 2 }}
           />
 
           <ReferenceLine
@@ -216,7 +216,7 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
             type="monotone"
             dataKey="TWK"
             stroke="#3b82f6"
-            strokeWidth={2.5}
+            strokeWidth={3}
             dot={{ fill: "#3b82f6", strokeWidth: 2, r: 4, stroke: "#fff" }}
             activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
           />
@@ -224,7 +224,7 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
             type="monotone"
             dataKey="TIU"
             stroke="#10b981"
-            strokeWidth={2.5}
+            strokeWidth={3}
             dot={{ fill: "#10b981", strokeWidth: 2, r: 4, stroke: "#fff" }}
             activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
           />
@@ -232,7 +232,7 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
             type="monotone"
             dataKey="TKP"
             stroke="#f59e0b"
-            strokeWidth={2.5}
+            strokeWidth={3}
             dot={{ fill: "#f59e0b", strokeWidth: 2, r: 4, stroke: "#fff" }}
             activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
           />

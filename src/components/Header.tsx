@@ -216,7 +216,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
   }, [isAuthenticated]);
 
   return (
-    <header className="sticky top-0 z-10 h-16 bg-white border-b border-slate-200 flex items-center px-4 lg:px-8 gap-4 shadow-sm">
+    <header className="sticky top-0 z-10 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center px-4 lg:px-8 gap-4 shadow-sm">
       <button
         onClick={onMenuToggle}
         className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
@@ -235,7 +235,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
               {currentDate}
             </p>
           ) : (
-            <div className="h-3.5 w-32 bg-slate-200 rounded animate-pulse" />
+            <div className="h-3.5 w-32 bg-white/5 rounded animate-pulse" />
           )}
         </div>
       </div>
@@ -255,14 +255,14 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
 
           <AnimatePresence>
             {notificationOpen && (
-              <motion.div
+                <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: -8 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
                 transition={{ duration: 0.15, ease: "easeOut" }}
-                className="absolute right-[calc(100%-2rem)] sm:right-0 top-full mt-2 w-72 sm:w-80 bg-white border border-slate-200 rounded-xl shadow-xl shadow-slate-900/10 z-50 flex flex-col"
+                className="absolute right-[calc(100%-2rem)] sm:right-0 top-full mt-2 w-72 sm:w-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 flex flex-col"
               >
-                <div className="p-4 border-b border-slate-100 flex justify-between items-center">
+                <div className="p-4 border-b border-slate-50 flex justify-between items-center">
                   <h3 className="font-semibold text-slate-900">Notifikasi</h3>
                   {unreadCount > 0 && (
                     <button 
@@ -278,9 +278,9 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
                     notifications.map((notif) => (
                       <div 
                         key={notif.id} 
-                        className={`p-3 rounded-lg mb-1 transition-colors ${notif.read ? 'hover:bg-slate-50' : 'bg-blue-50/50 hover:bg-blue-50'} cursor-pointer`}
+                        className={`p-3 rounded-lg mb-1 transition-colors ${notif.read ? 'hover:bg-slate-50' : 'bg-blue-50 hover:bg-blue-100'} cursor-pointer`}
                       >
-                        <h4 className={`text-sm ${notif.read ? 'font-medium text-slate-700' : 'font-semibold text-slate-900'}`}>{notif.title}</h4>
+                        <h4 className={`text-sm ${notif.read ? 'font-medium text-slate-600' : 'font-semibold text-slate-900'}`}>{notif.title}</h4>
                         <p className="text-xs text-slate-500 mt-1 line-clamp-2">{notif.message}</p>
                         <p className="text-[10px] text-slate-400 mt-2">{notif.time}</p>
                       </div>
@@ -301,16 +301,16 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
             <>
               <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-xl hover:bg-slate-100 transition-all duration-200 group"
+            className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-xl hover:bg-slate-50 transition-all duration-200 group"
           >
-            <div className={cn("w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center flex-shrink-0 ring-2", isSiswaAktif ? "from-blue-400 to-blue-600 ring-blue-100" : "from-slate-400 to-slate-600 ring-slate-100")}>
+            <div className={cn("w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center flex-shrink-0 ring-2", isSiswaAktif ? "from-blue-400 to-blue-600 ring-blue-50" : "from-slate-400 to-slate-600 ring-slate-50")}>
               <span className="text-white text-xs font-bold">{currentUser?.slice(0, 2).toUpperCase() || "GA"}</span>
             </div>
             <div className="hidden sm:flex flex-col items-start min-w-0">
               <span className="text-slate-900 text-xs font-bold leading-tight truncate max-w-[120px]">
                 {currentUser}
               </span>
-              <span className={cn("text-[10px] font-black uppercase tracking-widest leading-tight truncate", isSiswaAktif ? "text-blue-500" : "text-slate-500")}>
+              <span className={cn("text-[10px] font-black uppercase tracking-widest leading-tight truncate", isSiswaAktif ? "text-blue-600" : "text-slate-500")}>
                 {isSiswaAktif ? "Akun Siswa" : "Akun Gratis"}
               </span>
             </div>
@@ -321,16 +321,16 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
 
           <AnimatePresence>
             {dropdownOpen && (
-              <motion.div
+                <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: -8 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
                 transition={{ duration: 0.15, ease: "easeOut" }}
-                className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl shadow-slate-900/10 overflow-hidden z-50"
+                className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-100 rounded-xl shadow-2xl overflow-hidden z-50"
               >
                 <div className="p-1">
                   <button
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                     onClick={() => {
                       setDropdownOpen(false);
                       onNavigate?.("Profil Saya");
@@ -340,7 +340,7 @@ export function Header({ onMenuToggle, currentUser = "Siswa FBK", isAuthenticate
                     Profil Saya
                   </button>
                   <button
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                     onClick={() => {
                       setDropdownOpen(false);
                       onNavigate?.("Riwayat Transaksi");
