@@ -4,24 +4,24 @@ import { Quote } from "lucide-react";
 const dummyTestimonials = [
   {
     id: 1,
-    name: "Siswa FBK 1",
-    role: "Catar Kedinasan 2026",
+    name: "Arya Perkasa",
+    role: "Taruna IPDN 2026",
     content: "Materi di FBK sangat lengkap dan terstruktur. Mentornya juga sangat sabar dalam menjelaskan materi yang sulit dipahami.",
-    avatar: "S1"
+    avatar: "AP"
   },
   {
     id: 2,
-    name: "Siswa FBK 2",
-    role: "Lulus SKD 2025",
+    name: "Siti Rahma",
+    role: "Praja IPDN 2025",
     content: "Tryout di sini soal-soalnya sangat mirip dengan SKD aslinya. Sangat membantu saya beradaptasi dengan waktu dan tipe soal HOTS.",
-    avatar: "S2"
+    avatar: "SR"
   },
   {
     id: 3,
-    name: "Siswa FBK 3",
-    role: "Pejuang Sekolah Kedinasan",
+    name: "Budi Santoso",
+    role: "Mahasiswa STIS",
     content: "Grup diskusi belajarnya sangat aktif. Saya bisa bertanya kapan saja dan selalu mendapat jawaban yang memuaskan dari mentor maupun teman-teman.",
-    avatar: "S3"
+    avatar: "BS"
   }
 ];
 

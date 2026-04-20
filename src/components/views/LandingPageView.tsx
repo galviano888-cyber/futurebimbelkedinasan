@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, Star, Zap, MessageSquare, LayoutDashboard, Search, GraduationCap, BookOpen, X } from "lucide-react";
+import { ArrowRight, CheckCircle2, Zap, MessageSquare, LayoutDashboard, Search, GraduationCap, BookOpen, X, Trophy, Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
@@ -146,17 +146,17 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
             className="space-y-8"
           >
             <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest">
-              <Star className="w-3.5 h-3.5 fill-blue-400" />
-              <span>Bimbel SKD Kedinasan</span>
+              <Trophy className="w-3.5 h-3.5 fill-blue-400" />
+              <span>Platform Persiapan Kedinasan #1</span>
             </motion.div>
             
             <motion.h1 variants={itemVariants} className="text-5xl lg:text-7xl font-black tracking-tight leading-[1.1] text-white">
-              Kuasai SKD, <br />
-              Tembus Sekolah <span className="text-blue-500">Kedinasan.</span>
+              Wujudkan Mimpi <br />
+              Menjadi <span className="text-blue-500">Abdi Negara.</span>
             </motion.h1>
             
-            <motion.p variants={itemVariants} className="text-lg text-slate-500 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              Persiapan intensif SKD dengan materi TWK, TIU, dan TKP terlengkap. Simulasi CAT standar BKN untuk raih skor maksimal melampaui passing grade.
+            <motion.p variants={itemVariants} className="text-lg text-slate-500 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium text-justify">
+              Akselerasi persiapan SKD Anda dengan <b>Kurikulum Komprehensif</b> TWK, TIU, & TKP. Rasakan pengalaman simulasi CAT <b>Real-Engine</b> standar BKN untuk raih skor maksimal.
             </motion.p>
             
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
@@ -276,18 +276,18 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
            <div className="grid md:grid-cols-3 gap-8">
               <FeatureCard 
                 icon={<GraduationCap className="w-6 h-6 text-blue-600" />}
-                title="Mentor Mahasiswa Kedinasan"
-                desc="Belajar langsung dari mahasiswa kedinasan yang siap membagikan pengalaman dan strategi praktis menghadapi ujian SKD."
+                title="Eksklusif: Taruna, Praja & Mahasiswa Kedinasan"
+                desc="Dibimbing langsung oleh Kakak tingkat (Taruna, Praja, atau Mahasiswa Kedinasan) yang telah berhasil lolos seleksi. Dapatkan insight berharga dan strategi efektif untuk menghadapi setiap tahapan seleksi."
               />
               <FeatureCard 
                 icon={<Zap className="w-6 h-6 text-blue-600" />}
-                title="Sistem CAT BKN"
-                desc="Simulasi ujian dengan antarmuka dan sistem penilaian akurat sesuai standar BKN."
+                title="Engine Simulasi Standar Kelulusan"
+                desc="Uji kemampuan Anda dengan platform simulasi yang presisi sesuai standar sistem CAT BKN asli, didukung dengan sistem penilaian otomatis dan perangkingan nasional."
               />
               <FeatureCard 
                 icon={<BookOpen className="w-6 h-6 text-blue-600" />}
-                title="Soal Standar Terbaru"
-                desc="Ribuan bank soal TWK, TIU, dan TKP yang telah disesuaikan dengan pola soal asli Seleksi Kedinasan dalam 2 tahun terakhir."
+                title="Materi & Tryout Standar Terbaru"
+                desc="Akses materi belajar dan bank soal yang telah disesuaikan dengan standar seleksi SKD tahun 2024 dan 2025."
               />
            </div>
         </div>
@@ -321,6 +321,47 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
                  features={["Akses Semua Tryout SKD", "Live Zoom Tiap Minggu", "Konsultasi Strategi SKD"]}
                  onEnter={onEnter}
                />
+            </div>
+         </div>
+      </section>
+      
+      {/* FAQ Section */}
+      <section className="py-32 bg-[#0a1425]">
+         <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-20">
+               <h2 className="text-4xl font-black tracking-tight text-white mb-4">Pertanyaan yang Sering Diajukan</h2>
+               <p className="text-slate-400 font-medium">Temukan jawaban cepat untuk pertanyaan populer Anda.</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-x-12 gap-y-2 max-w-5xl mx-auto">
+               <div className="space-y-2">
+                  <AccordionItem 
+                    question="Apakah materi sesuai dengan standar SKD terbaru?" 
+                    answer="Ya, seluruh materi dan tryout kami diperbarui secara berkala mengikuti pola soal asli SKD tahun 2024 dan 2025." 
+                  />
+                  <AccordionItem 
+                    question="Sistem pembelajaran di FBK cocok untuk pemula?" 
+                    answer="Sangat cocok. Kami memulai dari konsep dasar hingga teknik menjawab cepat (fast track) yang mudah dipahami bahkan untuk pemula." 
+                  />
+                  <AccordionItem 
+                    question="Apa itu Paket Premium FBK?" 
+                    answer="Paket Premium adalah akses lengkap ke seluruh fitur unggulan termasuk bimbingan mentor eksklusif, bank soal HOTS, dan simulasi CAT tanpa batas." 
+                  />
+               </div>
+               <div className="space-y-2">
+                  <AccordionItem 
+                    question="Apa keuntungan utama berlangganan Paket Premium?" 
+                    answer="Anda mendapatkan bimbingan eksklusif dari mentor Taruna/Praja, akses grup diskusi aktif, dan prediksi soal yang sangat akurat." 
+                  />
+                  <AccordionItem 
+                    question="Bagaimana cara Berlangganan?" 
+                    answer="Klik tombol 'Masuk', pilih paket yang Anda inginkan, lakukan pembayaran, dan konfirmasi ke Admin via WhatsApp untuk aktivasi instan." 
+                  />
+                  <AccordionItem 
+                    question="Mengapa paket Saya belum bisa diakses?" 
+                    answer="Pastikan Anda sudah mengirim bukti transfer ke Admin. Verifikasi biasanya memakan waktu kurang dari 15 menit pada jam operasional." 
+                  />
+               </div>
             </div>
          </div>
       </section>
@@ -364,6 +405,38 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
   );
 }
 
+function AccordionItem({ question, answer }: { question: string, answer: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="border-b border-white/5 last:border-0">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full py-7 flex items-center justify-between text-left group transition-all"
+      >
+        <span className={`font-bold transition-colors ${isOpen ? 'text-blue-400 text-lg' : 'text-white'}`}>{question}</span>
+        <div className={`w-8 h-8 rounded-full border border-white/10 flex items-center justify-center transition-all duration-300 ${isOpen ? 'rotate-45 bg-blue-600 border-blue-600 shadow-lg shadow-blue-600/30' : 'group-hover:border-blue-500/50'}`}>
+          <Plus className="w-5 h-5 text-white" />
+        </div>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <p className="pb-8 text-slate-400 text-[15px] leading-relaxed font-medium">
+              {answer}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function FeatureCard({ icon, title, desc }: { icon: any, title: string, desc: string }) {
   return (
     <motion.div 
@@ -377,7 +450,7 @@ function FeatureCard({ icon, title, desc }: { icon: any, title: string, desc: st
           {icon}
        </div>
        <h3 className="text-xl font-black text-white mb-4 relative z-10">{title}</h3>
-       <p className="text-sm text-slate-400 leading-relaxed font-medium relative z-10">{desc}</p>
+       <p className="text-sm text-slate-400 leading-relaxed font-medium relative z-10 text-justify">{desc}</p>
     </motion.div>
   );
 }
