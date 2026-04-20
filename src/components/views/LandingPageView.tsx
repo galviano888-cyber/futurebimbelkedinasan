@@ -49,7 +49,7 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
                 <div className="flex justify-between items-start mb-10">
                   <div>
                     <h2 className="text-3xl font-black text-white tracking-tight mb-2">Panduan Penggunaan</h2>
-                    <p className="text-slate-400 font-medium text-sm">4 Langkah mudah mulai belajar di Future Bimbel.</p>
+                    <p className="text-slate-400 font-medium text-sm">4 Langkah mudah mulai belajar di Future Bimbel Kedinasan.</p>
                   </div>
                   <button 
                     onClick={() => setShowGuide(false)}
