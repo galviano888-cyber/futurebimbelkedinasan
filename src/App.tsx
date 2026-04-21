@@ -26,10 +26,6 @@ const SettingsView = lazy(() => import("@/components/views/SettingsView").then(m
 const ProfileView = lazy(() => import("@/components/views/ProfileView").then(m => ({ default: m.ProfileView })));
 const PaymentHistory = lazy(() => import("@/components/views/PaymentHistoryView").then(m => ({ default: m.PaymentHistory })));
 const InvoiceView = lazy(() => import("@/components/views/InvoiceView").then(m => ({ default: m.InvoiceView })));
-import { supabase } from "@/lib/supabaseClient";
-import type { TryoutRecord } from "@/types";
-
-import { ResetPasswordView } from "@/components/views/ResetPasswordView";
 
 export default function App() {
   const path = window.location.pathname;
