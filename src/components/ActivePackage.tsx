@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, BookMarked, Clock, FileText, Zap } from "lucide-react";
 import type { ActivePackageData } from "@/types";
-import { cn } from "@/lib/utils";
 
 interface ActivePackageProps {
   packageData: ActivePackageData | null;

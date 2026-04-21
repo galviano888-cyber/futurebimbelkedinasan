@@ -289,11 +289,6 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                               <Loader2 className={cn("w-3 h-3 mr-1", loading && "animate-spin")} />
                               Refresh Data
                             </button>
-                            {liveClassContents.length > 0 && (
-                              <div className="text-[8px] font-mono text-slate-400 opacity-50 bg-slate-100 dark:bg-slate-800 p-1 rounded px-2">
-                                ID: {liveClassContents[0].id}
-                              </div>
-                            )}
                           </div>
                         </div>
                         
