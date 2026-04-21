@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
@@ -6,20 +6,26 @@ import { DashboardView } from "@/components/views/DashboardView";
 import { TryoutView } from "@/components/views/TryoutView";
 import { PaketSayaView } from "@/components/views/PaketSayaView";
 import { ContactView } from "@/components/views/ContactView";
-import { TryoutEngineView } from "@/components/views/TryoutEngineView";
-import { TryoutResultView } from "@/components/views/TryoutResultView";
-import { TryoutPreView } from "@/components/views/TryoutPreView";
-import { TryoutReviewView } from "@/components/views/TryoutReviewView";
-import { AdminPanelView } from "@/components/views/AdminPanelView";
-import { InvoiceView } from "@/components/views/InvoiceView";
-import { ProfileView } from "@/components/views/ProfileView";
-import { SettingsView } from "@/components/views/SettingsView";
-import { LeaderboardView } from "@/components/views/LeaderboardView";
 import { DashboardSkeleton } from "@/components/ui/skeleton";
-import { PaymentHistory } from "@/components/views/PaymentHistoryView";
 import { EmptyView } from "@/components/views/EmptyView";
 import { LandingPageView } from "@/components/views/LandingPageView";
 import { AuthModal } from "@/components/AuthModal";
+import { supabase } from "@/lib/supabaseClient";
+import type { TryoutRecord } from "@/types";
+
+import { ResetPasswordView } from "@/components/views/ResetPasswordView";
+
+// Lazy Loaded Views for better mobile performance
+const TryoutEngineView = lazy(() => import("@/components/views/TryoutEngineView").then(m => ({ default: m.TryoutEngineView })));
+const TryoutResultView = lazy(() => import("@/components/views/TryoutResultView").then(m => ({ default: m.TryoutResultView })));
+const TryoutPreView = lazy(() => import("@/components/views/TryoutPreView").then(m => ({ default: m.TryoutPreView })));
+const TryoutReviewView = lazy(() => import("@/components/views/TryoutReviewView").then(m => ({ default: m.TryoutReviewView })));
+const AdminPanelView = lazy(() => import("@/components/views/AdminPanelView").then(m => ({ default: m.AdminPanelView })));
+const LeaderboardView = lazy(() => import("@/components/views/LeaderboardView").then(m => ({ default: m.LeaderboardView })));
+const SettingsView = lazy(() => import("@/components/views/SettingsView").then(m => ({ default: m.SettingsView })));
+const ProfileView = lazy(() => import("@/components/views/ProfileView").then(m => ({ default: m.ProfileView })));
+const PaymentHistory = lazy(() => import("@/components/views/PaymentHistoryView").then(m => ({ default: m.PaymentHistory })));
+const InvoiceView = lazy(() => import("@/components/views/InvoiceView").then(m => ({ default: m.InvoiceView })));
 import { supabase } from "@/lib/supabaseClient";
 import type { TryoutRecord } from "@/types";
 
@@ -260,7 +266,9 @@ export default function App() {
       <div className="h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-500">
         <Toaster position="top-center" richColors />
         <main className="h-full overflow-y-auto">
-          {renderView()}
+          <Suspense fallback={<DashboardSkeleton />}>
+            {renderView()}
+          </Suspense>
         </main>
       </div>
     );
@@ -286,7 +294,9 @@ export default function App() {
           setIsLoginOpen={setIsLoginOpen}
         />
         <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/20 p-4 lg:p-8">
-          {renderView()}
+          <Suspense fallback={<DashboardSkeleton />}>
+            {renderView()}
+          </Suspense>
         </main>
       </div>
       <AuthModal
