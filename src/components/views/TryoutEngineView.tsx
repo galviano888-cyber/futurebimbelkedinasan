@@ -1,506 +1,525 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { 
-  Clock, 
-  ChevronLeft, 
-  ChevronRight, 
-  Flag, 
-  AlertCircle,
-  CheckCircle2,
+import { useState, useEffect } from "react";
+import {
+  Clock,
+  Menu,
   X,
-  Menu
+  Loader2,
+  AlertCircle
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 
 interface TryoutEngineViewProps {
-  packageId: string; 
-  questionsId: string; 
-  onFinish: (result: any) => void;
+  packageId: string;
+  questionsId: string;
+  onFinish: (results: any) => void;
   onExit: () => void;
 }
 
 export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: TryoutEngineViewProps) {
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(() => {
-    const saved = localStorage.getItem(`timer_${questionsId}`);
-    return saved ? parseInt(saved) : 100 * 60;
-  });
-  const [answers, setAnswers] = useState<{ [key: string]: string }>(() => {
-    const saved = localStorage.getItem(`answers_${questionsId}`);
-    return saved ? JSON.parse(saved) : {};
-  });
-  const [flagged, setFlagged] = useState<{ [key: string]: boolean }>(() => {
-    const saved = localStorage.getItem(`flagged_${questionsId}`);
-    return saved ? JSON.parse(saved) : {};
-  });
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [timeLeft, setTimeLeft] = useState(6000); // Default 100m
   const [loading, setLoading] = useState(true);
-  const [loadingStatus, setLoadingStatus] = useState("Menyiapkan lembar ujian...");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [showNavGrid, setShowNavGrid] = useState(true);
-  
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const isInitialMount = useRef(true);
-  const hasLoaded = useRef(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. Initial Load & Session Recovery
   useEffect(() => {
-    if (hasLoaded.current) return;
-    hasLoaded.current = true;
-
-    const fetchTryoutData = async () => {
-      if (!supabase || !questionsId) {
-        localStorage.removeItem(`timer_${questionsId}`);
-        setLoading(false);
-        return;
-      }
+    async function fetchQuestions() {
+      if (!supabase) return;
       try {
+        setLoading(true);
+
+        // Fetch user once
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("User tidak login");
+        if (user) setUserId(user.id);
 
-        setLoadingStatus("MENGHUBUNGI DATABASE...");
-
-        // A. Cek sesi aktif pake limit(1) biar nggak PGRST116
-        const { data: activeSessions, error: sessionError } = await supabase
-          .from('active_tryout_sessions')
+        const { data: techData } = await supabase
+          .from('tryout_packages')
           .select('*')
-          .eq('user_id', user.id)
-          .eq('tryout_id', questionsId)
-          .limit(1);
+          .eq('id', questionsId)
+          .maybeSingle();
 
-        if (sessionError) {
-          console.error("Session Error:", sessionError);
+        // 1. Initial Default Time
+        let initialTime = 6000;
+        if (techData?.duration_minutes) {
+          initialTime = techData.duration_minutes * 60;
         }
 
-        const activeSession = activeSessions?.[0];
+        // 2. Check LocalStorage for persistence
+        if (user) {
+          const timerKey = `to_endtime_${user.id}_${questionsId}`;
+          const savedEndTime = localStorage.getItem(timerKey);
 
-        let initialTimeLeft = timeLeft;
-        let initialAnswers = answers;
-        let initialFlagged = flagged;
-        let initialIdx = currentIdx;
-        let foundValidSession = false;
+          if (savedEndTime) {
+            const endTime = parseInt(savedEndTime);
+            const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+            setTimeLeft(remaining);
 
-        if (activeSession) {
-          const endTime = new Date(activeSession.end_time).getTime();
-          const now = Date.now();
-          const remaining = Math.floor((endTime - now) / 1000);
-
-          if (remaining > 1) { // Masih ada sisa waktu minimal 1 detik
-            setLoadingStatus("SESI DITEMUKAN! MEMULIHKAN DATA...");
-            initialTimeLeft = remaining;
-            
-            // Gabungkan jawaban dari database dengan lokal (utamakan lokal jika ada)
-            const localAnswers = localStorage.getItem(`answers_${questionsId}`);
-            const localFlagged = localStorage.getItem(`flagged_${questionsId}`);
-            
-            initialAnswers = localAnswers ? JSON.parse(localAnswers) : (activeSession.answers || {});
-            initialFlagged = localFlagged ? JSON.parse(localFlagged) : (activeSession.flagged || {});
-            
-            initialIdx = activeSession.current_idx || 0;
-            setSessionId(activeSession.id);
-            foundValidSession = true;
+            if (remaining === 0) {
+              // Auto finish if time is already up when loading
+              toast.error("Waktu sudah habis! Mengirim jawaban otomatis...");
+              setTimeout(() => {
+                handleSubmit();
+              }, 1500);
+              return;
+            }
           } else {
-            await supabase.from('active_tryout_sessions').delete().eq('id', activeSession.id);
+            // First time starting: set and save end time
+            const endTime = Date.now() + (initialTime * 1000);
+            localStorage.setItem(timerKey, endTime.toString());
+            setTimeLeft(initialTime);
+          }
+
+          // Also check for saved answers
+          const savedAnswers = localStorage.getItem(`to_answers_${user.id}_${questionsId}`);
+          if (savedAnswers) {
+            try {
+              setAnswers(JSON.parse(savedAnswers));
+            } catch (e) { }
           }
         } else {
+          setTimeLeft(initialTime);
         }
 
-        // B. Fetch questions
-        setLoadingStatus("MENGAMBIL BUTIR SOAL...");
-        const { data: qData, error } = await supabase
+        const { data, error } = await supabase
           .from('tryout_questions')
           .select('*')
           .eq('package_id', questionsId)
           .order('number', { ascending: true });
 
         if (error) throw error;
+        if (!data || data.length === 0) throw new Error("Tidak ada soal ditemukan di paket ini.");
 
-        // C. Fetch package duration
-        const { data: pData } = await supabase
-          .from('tryout_packages')
-          .select('name, duration')
-          .eq('id', questionsId)
-          .limit(1);
-
-        const pkg = pData?.[0];
-        const duration = pkg?.duration || 100;
-        const packageName = pkg?.name || "Tryout SKD";
-
-        // D. Create new session if none exists
-        if (!foundValidSession) {
-          setLoadingStatus("MEMBUAT SESI BARU...");
-          const endTime = new Date(Date.now() + duration * 60000).toISOString();
-          const { data: newSessions, error: insertError } = await supabase
-            .from('active_tryout_sessions')
-            .insert([{
-              user_id: user.id,
-              package_id: packageId,
-              tryout_id: questionsId,
-              end_time: endTime,
-              answers: {},
-              flagged: {},
-              current_idx: 0
-            }])
-            .select();
-          
-          if (insertError) {
-             console.error("Insert Error:", insertError);
-          }
-          
-          if (newSessions?.[0]) {
-            const newSession = newSessions[0];
-            setSessionId(newSession.id);
-            initialTimeLeft = duration * 60;
-          }
-        }
-
-        const questionsWithPackage = (qData || []).map(q => ({ ...q, package_name: packageName }));
-        
-        setQuestions(questionsWithPackage);
-        setAnswers(initialAnswers);
-        setFlagged(initialFlagged);
-        setCurrentIdx(initialIdx);
-        setTimeLeft(initialTimeLeft);
-
-      } catch (err) {
-        console.error("Error loading tryout:", err);
+        setQuestions(data || []);
+      } catch (err: any) {
+        console.error("Error loading engine:", err);
+        setError(err.message || "Gagal memuat soal tryout.");
       } finally {
         setLoading(false);
       }
-    };
+    }
+    fetchQuestions();
+  }, [questionsId]);
 
-    fetchTryoutData();
-  }, [questionsId, packageId]);
-
-  // 2. Auto-save Persistence (Debounced)
   useEffect(() => {
-    if (loading) return;
-    
-    // Save to LocalStorage for instant refresh recovery
-    localStorage.setItem(`timer_${questionsId}`, timeLeft.toString());
-    localStorage.setItem(`answers_${questionsId}`, JSON.stringify(answers));
-    localStorage.setItem(`flagged_${questionsId}`, JSON.stringify(flagged));
-
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
+    if (loading || questions.length === 0 || timeLeft <= 0) {
+      if (timeLeft === 0 && questions.length > 0) {
+        handleSubmit();
+      }
       return;
     }
 
-    const saveSession = async () => {
-      if (!supabase || !sessionId || loading) return;
-      
-      await supabase
-        .from('active_tryout_sessions')
-        .update({
-          answers,
-          flagged,
-          current_idx: currentIdx,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', sessionId);
-    };
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-    const timer = setTimeout(saveSession, 3000); 
-    return () => clearTimeout(timer);
-  }, [answers, flagged, currentIdx, sessionId, loading, timeLeft]);
-
-  // 3. Timer Logic
-  useEffect(() => {
-    if (loading || timeLeft <= 0) {
-      if (!loading && timeLeft <= 0) handleFinish();
-      return;
-    }
-    const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
     return () => clearInterval(timer);
-  }, [loading, timeLeft]);
+  }, [loading, questions.length, timeLeft]);
+
+  // Save answers to localStorage when they change
+  useEffect(() => {
+    if (userId && Object.keys(answers).length > 0) {
+      localStorage.setItem(`to_answers_${userId}_${questionsId}`, JSON.stringify(answers));
+    }
+  }, [answers, userId, questionsId]);
+
+
+  const handleSubmit = async () => {
+    if (isSubmitting || !supabase) return;
+    setIsSubmitting(true);
+    setLoading(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+      if (!user) throw new Error("No user");
+
+      let totalScore = 0;
+      let twkScore = 0;
+      let tiuScore = 0;
+      let tkpScore = 0;
+
+      const details = questions.map(q => {
+        const userAnswer = answers[q.id];
+        const isCorrect = userAnswer === q.correct_answer;
+        let score = 0;
+
+        if (q.category === 'TKP') {
+          score = q.tkp_scores ? (q.tkp_scores[userAnswer] || 0) : (isCorrect ? 5 : 0);
+        } else {
+          score = isCorrect ? 5 : 0;
+        }
+
+        if (q.category === 'TWK') twkScore += score;
+        else if (q.category === 'TIU') tiuScore += score;
+        else if (q.category === 'TKP') tkpScore += score;
+
+        totalScore += score;
+        return {
+          questionId: q.id,
+          userAnswer,
+          correctAnswer: q.correct_answer,
+          isCorrect,
+          score,
+          category: q.category
+        };
+      });
+
+      const twkCorrect = details.filter(d => d.category === 'TWK' && d.score === 5).length;
+      const tiuCorrect = details.filter(d => d.category === 'TIU' && d.score === 5).length;
+      const tkpCorrect = details.filter(d => d.category === 'TKP' && d.userAnswer).length;
+
+      // Fetch package name for record
+      const { data: pkgInfo } = await supabase
+        .from('packages')
+        .select('title')
+        .eq('id', packageId)
+        .maybeSingle();
+
+      const result = {
+        package_id: packageId,
+        tryout_id: questionsId,
+        user_id: user.id,
+        package_name: pkgInfo?.title || "Tryout SKD",
+        twk: twkScore,
+        tiu: tiuScore,
+        tkp: tkpScore,
+        twk_correct: twkCorrect,
+        tiu_correct: tiuCorrect,
+        tkp_correct: tkpCorrect,
+        total: totalScore,
+        answers: answers,
+        score_details: details,
+        date: new Date().toISOString()
+      };
+
+      const { error: insertError } = await supabase
+        .from('tryout_results')
+        .insert([result]);
+
+      if (insertError) throw insertError;
+
+      // Clear persistence on success
+      if (user) {
+        localStorage.removeItem(`to_endtime_${user.id}_${questionsId}`);
+        localStorage.removeItem(`to_answers_${user.id}_${questionsId}`);
+      }
+
+      onFinish({
+        ...result,
+        totalScore,
+        twkScore,
+        tiuScore,
+        tkpScore,
+        totalQuestions: questions.length,
+        twkMax: questions.filter(q => q.category === 'TWK').length * 5,
+        tiuMax: questions.filter(q => q.category === 'TIU').length * 5,
+        tkpMax: questions.filter(q => q.category === 'TKP').length * 5,
+        questions: questions // Pass questions for review
+      });
+    } catch (err: any) {
+      console.error("Error submitting tryout:", err);
+      toast.error("Gagal mengirim jawaban: " + (err.message || "Unknown error"));
+      setIsSubmitting(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
-    return `${h > 0 ? h + ':' : ''}${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+    return `${h > 0 ? h + ':' : ''}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleFinish = useCallback(async () => {
-    // Hapus timer segera di awal agar tidak tersimpan kembali saat re-render
-    localStorage.removeItem(`timer_${questionsId}`);
-    
-    try {
-      setLoading(true);
-      setLoadingStatus("MENYIMPAN HASIL UJIAN...");
-      
-      let twk = 0, tiu = 0, tkp = 0;
-      questions.forEach(q => {
-        const userAnswer = answers[q.id];
-        if (!userAnswer) return;
-        if (q.category === 'TWK') {
-          if (userAnswer === q.correct_answer) twk += 5;
-        } else if (q.category === 'TIU') {
-          if (userAnswer === q.correct_answer) tiu += 5;
-        } else if (q.category === 'TKP') {
-          const points = q.tkp_scores ? (q.tkp_scores[userAnswer] || 0) : (userAnswer === q.correct_answer ? 5 : 0);
-          tkp += points;
-        }
-      });
-
-      const total = twk + tiu + tkp;
-      if (!supabase) throw new Error("Database tidak terhubung.");
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Sesi berakhir.");
-
-      const payload = {
-        user_id: user.id,
-        package_id: packageId,
-        tryout_id: questionsId,
-        package_name: questions[0]?.package_name || "Tryout SKD",
-        twk, tiu, tkp, total,
-        answers,
-        date: new Date().toISOString().split('T')[0],
-        score_details: { answers, flagged }
-      };
-
-      const { data: resultData, error: saveError } = await supabase
-        .from('tryout_results')
-        .insert([payload])
-        .select().single();
-
-      if (saveError) throw saveError;
-
-      if (sessionId) {
-        await supabase.from('active_tryout_sessions').delete().eq('id', sessionId);
-      }
-      
-      // Pastikan lagi terhapus
-      localStorage.removeItem(`timer_${questionsId}`);
-      localStorage.removeItem(`answers_${questionsId}`);
-      localStorage.removeItem(`flagged_${questionsId}`);
-
-      const finalResult = {
-        id: resultData.id,
-        twkScore: twk, tiuScore: tiu, tkpScore: tkp,
-        totalScore: resultData.total || total,
-        twkMax: 150, tiuMax: 175, tkpMax: 225, totalMax: 550,
-        twkCorrect: questions.filter(q => q.category === 'TWK' && answers[q.id] === q.correct_answer).length,
-        tiuCorrect: questions.filter(q => q.category === 'TIU' && answers[q.id] === q.correct_answer).length,
-        tkpCorrect: questions.filter(q => q.category === 'TKP' && answers[q.id]).length,
-        totalQuestions: questions.length,
-        answeredCount: Object.keys(answers).length,
-        timeUsed: (100 * 60) - timeLeft,
-        questions,
-        answers
-      };
-
-      onFinish(finalResult);
-      
-    } catch (err: any) {
-      console.error("Gagal menyimpan hasil:", err);
-      alert(err.message || "Terjadi kesalahan saat menyimpan hasil.");
-    } finally {
-      setLoading(false);
-    }
-  }, [answers, questions, questionsId, packageId, flagged, onFinish, sessionId, timeLeft]);
-
-  if (loading) {
+  if (error) {
     return (
-      <div className="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center z-[10000]">
-        {/* Abstract Background Glows */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-600/20 blur-[100px] rounded-full animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-indigo-600/20 blur-[100px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
-
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative bg-white/5 backdrop-blur-3xl p-12 rounded-[3.5rem] border border-white/10 flex flex-col items-center shadow-2xl"
-        >
-          <div className="relative mb-10">
-            <div className="w-20 h-20 border-4 border-blue-500/20 rounded-full" />
-            <motion.div 
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 w-20 h-20 border-t-4 border-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)]"
-            />
-          </div>
-          
-          <div className="text-center space-y-3">
-             <h3 className="text-white font-black text-xl tracking-tight uppercase">Menyiapkan Lembar Ujian</h3>
-             <p className="text-blue-400 font-bold text-[10px] tracking-[0.4em] uppercase animate-pulse">{loadingStatus}</p>
-          </div>
-
-          <div className="mt-12 flex gap-4">
-             {[0, 1, 2].map((i) => (
-               <motion.div 
-                key={i}
-                animate={{ 
-                  scale: [1, 1.5, 1],
-                  opacity: [0.3, 1, 0.3]
-                }}
-                transition={{ 
-                  duration: 1, 
-                  repeat: Infinity, 
-                  delay: i * 0.2 
-                }}
-                className="w-1.5 h-1.5 bg-blue-500 rounded-full"
-               />
-             ))}
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
-
-  if (!questions || questions.length === 0) {
-    return (
-      <div className="fixed inset-0 bg-white flex flex-col items-center justify-center p-6 z-[9999] text-center">
-        <div className="w-20 h-20 bg-orange-50 rounded-3xl flex items-center justify-center text-orange-500 mb-6">
+      <div className="fixed inset-0 bg-white dark:bg-slate-950 z-50 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 bg-red-50 dark:bg-red-900/30 rounded-3xl flex items-center justify-center mb-6 text-red-600">
           <AlertCircle className="w-10 h-10" />
         </div>
-        <h2 className="text-xl font-bold">Data Ujian Kosong</h2>
-        <button onClick={onExit} className="mt-8 px-8 py-3 bg-slate-900 text-white font-bold rounded-xl shadow-lg">KEMBALI KE DASHBOARD</button>
+        <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2">Gagal Memuat Soal</h3>
+        <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto">
+          {error}
+        </p>
+        <button
+          onClick={onExit}
+          className="px-10 py-4 bg-slate-900 dark:bg-slate-800 text-white font-black rounded-2xl transition-all active:scale-95 shadow-xl"
+        >
+          KEMBALI KE DASHBOARD
+        </button>
       </div>
     );
   }
 
-  const currentQ = questions[currentIdx];
+  if (loading && questions.length === 0) {
+    return (
+      <div className="fixed inset-0 bg-white dark:bg-slate-950 z-50 flex flex-col items-center justify-center">
+        <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
+        <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Menyiapkan Lembar Ujian...</p>
+      </div>
+    );
+  }
+  const currentQuestion = questions[currentIdx];
 
   return (
-    <div className="fixed inset-0 bg-[#f8fafc] flex flex-col overflow-hidden font-sans select-none z-[9999]">
-      <header className="h-16 bg-[#1e293b] flex items-center justify-between px-6 shadow-xl z-50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-            <CheckCircle2 className="w-6 h-6" />
-          </div>
-          <h1 className="text-sm font-black text-white tracking-widest uppercase hidden md:block">SISTEM CAT FUTURE BIMBEL KEDINASAN</h1>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans">
+      {/* Top Navigation Bar */}
+      <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 shrink-0 sticky top-0 z-50 shadow-sm">
+        <div className="flex items-center gap-4">
+          <button onClick={onExit} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800" />
+          <h1 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight hidden sm:block">Tryout SKD Nasional</h1>
         </div>
 
-        <div className="flex items-center gap-4">
-           <div className={`flex items-center gap-3 px-5 py-2 rounded-xl bg-black/30 border border-white/10 text-white transition-all ${timeLeft < 300 ? 'text-red-400 animate-pulse border-red-500/50' : ''}`}>
-             <Clock className="w-5 h-5" />
-             <span className="text-xl font-black tabular-nums tracking-tighter">{formatTime(timeLeft)}</span>
-           </div>
-           <button onClick={() => setShowConfirmModal(true)} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl transition-all uppercase shadow-lg shadow-emerald-900/20">SELESAI</button>
+        <div className="flex items-center gap-4 sm:gap-6">
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Terjawab</span>
+            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{Object.keys(answers).length} / {questions.length}</span>
+          </div>
+
+          <div className={cn(
+            "flex items-center gap-3 px-5 py-2 rounded-xl border transition-all",
+            timeLeft < 300
+              ? "bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-800 text-red-600 dark:text-red-400 animate-pulse"
+              : "bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+          )}>
+            <Clock className="w-4 h-4" />
+            <span className="font-mono text-lg font-bold">{formatTime(timeLeft)}</span>
+          </div>
+          <button
+            onClick={() => setShowConfirmModal(true)}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/20"
+          >
+            Selesai
+          </button>
+          <button onClick={() => setShowSidebar(!showSidebar)} className="lg:hidden p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+            <Menu className="w-6 h-6" />
+          </button>
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50/50">
+      <div className="flex-1 flex flex-col lg:flex-row relative">
+        {/* Main Content Area */}
+        <div className="flex-1 p-6 md:p-12 lg:p-16">
           <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
-               <div className="bg-slate-50/50 border-b border-slate-100 px-8 py-4 flex items-center justify-between">
-                  <span className="text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Soal Nomor {currentIdx + 1} / {questions.length}</span>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 text-[10px] font-black rounded-lg uppercase tracking-wider">{currentQ?.category || "UMUM"}</span>
-               </div>
-               
-               <div className="p-8 md:p-12 space-y-10">
-                  <div className="text-[18px] text-slate-800 font-medium leading-relaxed text-justify">
-                    {currentQ?.question_text}
+            <motion.div
+              key={currentIdx}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-10"
+            >
+              {/* Question Info Header */}
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-600/20">
+                    {currentIdx + 1}
                   </div>
-
-                  <div className="grid grid-cols-1 gap-4">
-                    {Object.entries(currentQ?.options || {}).map(([key, value]: [string, any]) => (
-                      <button
-                        key={key}
-                        onClick={() => setAnswers({ ...answers, [currentQ.id]: key })}
-                        className={`w-full text-left p-5 rounded-2xl border-2 transition-all flex items-start gap-5 group relative overflow-hidden ${
-                          answers[currentQ.id] === key 
-                          ? 'bg-blue-50/50 border-blue-500 text-blue-950 shadow-md' 
-                          : 'bg-white border-slate-100 hover:border-slate-300 text-slate-700'
-                        }`}
-                      >
-                        <div className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center font-black text-sm shrink-0 transition-all ${
-                          answers[currentQ.id] === key 
-                          ? 'bg-blue-600 border-blue-600 text-white scale-110 shadow-lg' 
-                          : 'bg-slate-50 border-slate-200 text-slate-400 group-hover:bg-slate-100'
-                        }`}>
-                          {key.toUpperCase()}
-                        </div>
-                        <div className="flex-1 text-[16px] leading-relaxed pt-0.5">{value}</div>
-                      </button>
-                    ))}
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] leading-none mb-1">Nomor Soal</p>
+                    <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{currentQuestion?.category || 'Umum'}</h2>
                   </div>
-               </div>
-            </div>
-
-            <div className="flex items-center justify-between mt-10 px-2">
-               <button disabled={currentIdx === 0} onClick={() => setCurrentIdx(prev => prev - 1)} className="flex items-center gap-2 px-8 py-4 bg-white border border-slate-200 text-slate-600 font-black text-[11px] rounded-2xl hover:bg-slate-50 transition-all disabled:opacity-30 shadow-sm uppercase tracking-widest">
-                 <ChevronLeft className="w-4 h-4" /> SEBELUMNYA
-               </button>
-
-               <button onClick={() => setFlagged({ ...flagged, [currentQ.id]: !flagged[currentQ.id] })} className={`flex items-center gap-2 px-8 py-4 rounded-2xl font-black text-[11px] transition-all shadow-sm uppercase tracking-widest border-2 ${flagged[currentQ.id] ? 'bg-yellow-400 text-yellow-950 border-yellow-500' : 'bg-white text-yellow-600 border-yellow-200 hover:bg-yellow-50'}`}>
-                 <Flag className={`w-4 h-4 ${flagged[currentQ.id] ? 'fill-current' : ''}`} /> RAGU-RAGU
-               </button>
-
-               <button disabled={currentIdx === questions.length - 1} onClick={() => setCurrentIdx(prev => prev + 1)} className="flex items-center gap-2 px-8 py-4 bg-[#1e293b] text-white font-black text-[11px] rounded-2xl hover:bg-slate-800 transition-all disabled:opacity-30 shadow-lg uppercase tracking-widest">
-                 SELANJUTNYA <ChevronRight className="w-4 h-4" />
-               </button>
-            </div>
-          </div>
-        </main>
-
-        <aside className={`bg-white border-l border-slate-200 transition-all duration-500 flex flex-col ${showNavGrid ? 'w-80' : 'w-0 overflow-hidden'}`}>
-           <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-              <h2 className="text-[10px] font-black text-slate-500 tracking-[0.3em] uppercase mb-4">Peta Jawaban</h2>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-black text-slate-800 tracking-tighter">{Object.keys(answers).length}/{questions.length}</span>
-                <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase">Terjawab</span>
+                </div>
               </div>
-              <div className="w-full h-2 bg-slate-200 rounded-full mt-4 overflow-hidden shadow-inner">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${(Object.keys(answers).length / questions.length) * 100}%` }} className="h-full bg-blue-500 shadow-lg shadow-blue-500/20" />
+
+              {/* Question Section */}
+              <div className="space-y-6">
+                <p className="text-base sm:text-lg text-slate-800 dark:text-slate-100 font-medium leading-relaxed text-justify">
+                  {currentQuestion?.question_text}
+                </p>
+
+                {currentQuestion?.question_image_url && (
+                  <div className="rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-xl max-w-2xl mx-auto">
+                    <img src={currentQuestion.question_image_url} alt="Soal" className="w-full h-auto" />
+                  </div>
+                )}
               </div>
-           </div>
 
-           <div className="flex-1 overflow-y-auto p-6 grid grid-cols-5 gap-3 content-start">
-             {questions.map((q, idx) => (
-               <button
-                 key={q.id}
-                 onClick={() => setCurrentIdx(idx)}
-                 className={`aspect-square rounded-xl text-[11px] font-black transition-all border-2 relative ${
-                   currentIdx === idx ? 'ring-4 ring-blue-100 z-10 scale-105' : ''
-                 } ${
-                   flagged[q.id] ? 'bg-yellow-400 border-yellow-500 text-yellow-950' : 
-                   answers[q.id] ? 'bg-emerald-500 border-emerald-600 text-white shadow-lg shadow-emerald-500/10' : 
-                   'bg-white border-slate-100 text-slate-400 hover:border-slate-300'
-                 }`}
-               >
-                 {idx + 1}
-               </button>
-             ))}
-           </div>
+              {/* Options Grid */}
+              <div className="grid grid-cols-1 gap-3">
+                {['A', 'B', 'C', 'D', 'E'].map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setAnswers({ ...answers, [currentQuestion.id]: opt })}
+                    className="group flex items-center gap-2.5 w-full text-left transition-all active:scale-[0.99]"
+                  >
+                    {/* Radio Circle */}
+                    <div className={cn(
+                      "w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all",
+                      answers[currentQuestion.id] === opt
+                        ? "border-blue-600 bg-blue-600"
+                        : "border-slate-300 dark:border-slate-600 group-hover:border-blue-400"
+                    )}>
+                      {answers[currentQuestion.id] === opt && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </div>
 
-           <div className="p-6 bg-slate-50/80 border-t border-slate-200 grid grid-cols-2 gap-3 text-[9px] font-black text-slate-500 tracking-widest uppercase">
-              <div className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-500 rounded-sm shadow-sm" /> TERJAWAB</div>
-              <div className="flex items-center gap-2"><div className="w-3 h-3 bg-yellow-400 rounded-sm shadow-sm" /> RAGU-RAGU</div>
-              <div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border border-slate-300 rounded-sm shadow-sm" /> BELUM</div>
-              <div className="flex items-center gap-2"><div className="w-3 h-3 border-2 border-blue-500 rounded-sm" /> AKTIF</div>
-           </div>
-        </aside>
+                    {/* Letter */}
+                    <span className={cn(
+                      "text-xs font-black w-4 transition-colors shrink-0",
+                      answers[currentQuestion.id] === opt ? "text-blue-600" : "text-slate-400"
+                    )}>
+                      {opt}.
+                    </span>
 
-        <button onClick={() => setShowNavGrid(!showNavGrid)} className="fixed bottom-6 right-6 w-14 h-14 bg-[#1e293b] text-white rounded-2xl lg:hidden flex items-center justify-center shadow-2xl z-50">
-          {showNavGrid ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      </div>
+                    {/* Content Pill */}
+                    <div className={cn(
+                      "flex-1 p-3 px-5 rounded-xl border transition-all",
+                      answers[currentQuestion.id] === opt
+                        ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 shadow-sm"
+                        : "bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 group-hover:bg-slate-100 dark:group-hover:bg-slate-800"
+                    )}>
+                      <p className={cn(
+                        "text-sm font-bold leading-relaxed text-justify",
+                        answers[currentQuestion.id] === opt ? "text-blue-900 dark:text-blue-100" : "text-slate-700 dark:text-slate-300"
+                      )}>
+                        {currentQuestion?.options?.[opt]}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
 
-      <AnimatePresence>
-        {showConfirmModal && (
-          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowConfirmModal(false)} className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="relative bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden">
-               <div className="p-10 text-center space-y-6">
-                 <div className="w-20 h-20 bg-blue-50 rounded-[2rem] flex items-center justify-center text-blue-600 mx-auto border border-blue-100 shadow-inner">
-                    <AlertCircle className="w-10 h-10" />
-                 </div>
-                 <div className="space-y-2">
-                   <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Selesaikan Ujian?</h3>
-                   <p className="text-slate-500 text-sm leading-relaxed">Pastikan semua jawaban sudah benar.</p>
-                 </div>
-                 <div className="grid grid-cols-2 gap-4 pt-4">
-                   <button onClick={() => setShowConfirmModal(false)} className="py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black rounded-2xl transition-all text-[11px] uppercase tracking-widest">LANJUTKAN</button>
-                   <button onClick={handleFinish} className="py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl transition-all text-[11px] uppercase tracking-widest shadow-lg shadow-emerald-500/20">YA, SELESAI</button>
-                 </div>
-               </div>
+              {/* Bottom Controls */}
+              <div className="mt-12 space-y-8">
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => {
+                      const newAnswers = { ...answers };
+                      delete newAnswers[currentQuestion.id];
+                      setAnswers(newAnswers);
+                      if (userId) {
+                        localStorage.setItem(`to_answers_${userId}_${questionsId}`, JSON.stringify(newAnswers));
+                      }
+                    }}
+                    className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+                  >
+                    Batalkan Jawaban
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-center gap-4 pt-10 border-t border-slate-100 dark:border-slate-800">
+                  <button
+                    onClick={() => {
+                      setCurrentIdx((prev) => Math.max(0, prev - 1));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={currentIdx === 0}
+                    className="flex items-center gap-2 px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 disabled:opacity-30 transition-all active:scale-95"
+                  >
+                    Sebelumnya
+                  </button>
+
+                  {currentIdx === questions.length - 1 ? (
+                    <button
+                      onClick={() => setShowConfirmModal(true)}
+                      className="flex items-center gap-2 px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+                    >
+                      Selesai Ujian
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setCurrentIdx((prev) => Math.min(questions.length - 1, prev + 1));
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="flex items-center gap-2 px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-95"
+                    >
+                      Selanjutnya
+                    </button>
+                  )}
+                </div>
+              </div>
             </motion.div>
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+
+        {/* Sidebar Question Grid */}
+        <aside className={cn(
+          "fixed lg:sticky lg:top-20 inset-y-0 right-0 w-80 bg-slate-50 dark:bg-slate-950 lg:bg-transparent border-l lg:border-l-0 border-slate-200 dark:border-slate-800 z-30 transition-transform duration-300 transform lg:translate-x-0 shadow-2xl lg:shadow-none shrink-0 h-fit",
+          showSidebar ? "translate-x-0" : "translate-x-full"
+        )}>
+          <div className="p-6 h-full flex flex-col gap-6">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight mx-auto">Nomor Soal</h3>
+                <button onClick={() => setShowSidebar(false)} className="lg:hidden p-2 text-slate-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="grid grid-cols-5 gap-2 pb-4">
+                {questions.map((q, idx) => (
+                  <button
+                    key={q.id}
+                    onClick={() => {
+                      setCurrentIdx(idx);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      if (window.innerWidth < 1024) setShowSidebar(false);
+                    }}
+                    className={cn(
+                      "h-10 rounded-lg text-xs font-bold transition-all relative border",
+                      idx === currentIdx
+                        ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20 scale-105 z-10"
+                        : answers[q.id]
+                          ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-800"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-transparent hover:border-slate-200"
+                    )}
+                  >
+                    {idx + 1}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl text-center border border-slate-100 dark:border-slate-800"
+          >
+            <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/30 rounded-3xl flex items-center justify-center mx-auto mb-6 text-blue-600">
+              <AlertCircle className="w-10 h-10" />
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">Selesai Mengerjakan?</h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+              Kamu masih memiliki waktu <span className="text-blue-600 font-bold">{formatTime(timeLeft)}</span>. Pastikan semua jawaban sudah terisi dengan benar.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleSubmit}
+                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl shadow-xl shadow-blue-500/20 transition-all active:scale-95"
+              >
+                YA, SELESAI & SIMPAN
+              </button>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-black rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+              >
+                LANJUTKAN MENGERJAKAN
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

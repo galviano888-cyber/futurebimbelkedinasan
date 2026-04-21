@@ -21,6 +21,9 @@ export interface TryoutQuestion {
 }
 
 export interface TryoutResult {
+  id?: string;
+  packageId?: string;
+  tryoutId?: string;
   twkScore: number;
   tiuScore: number;
   tkpScore: number;

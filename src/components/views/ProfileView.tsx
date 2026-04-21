@@ -1,282 +1,232 @@
 import { useState, useEffect } from "react";
 import { 
   User, 
+  ShieldCheck, 
   Mail, 
   Phone, 
-  GraduationCap, 
-  Camera, 
-  ShieldCheck,
-  Package,
-  Award,
-  Loader2,
-  Save,
-  CreditCard
+  Package, 
+  Award, 
+  ArrowRight,
+  Loader2
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
 
-interface ProfileViewProps {
-  onNavigate?: (page: string) => void;
+interface Profile {
+  full_name: string;
+  phone_number: string;
+  email: string;
 }
 
-export function ProfileView({ onNavigate }: ProfileViewProps) {
+export function ProfileView() {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [stats, setStats] = useState({ packages: 0, tryouts: 0 });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [profile, setProfile] = useState<any>(null);
-  const [stats, setStats] = useState({
-    packages: 0,
-    tryouts: 0
-  });
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [tempPhone, setTempPhone] = useState("");
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
-    fetchProfile();
+    async function fetchData() {
+      if (!supabase) return;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Fetch Profile
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        if (profileData) setProfile({ ...profileData, email: user.email });
+
+        // Fetch Stats
+        const [pkgRes, recordRes] = await Promise.all([
+          supabase.from('user_packages').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+          supabase.from('tryout_results').select('tryout_id, package_name').eq('user_id', user.id)
+        ]);
+
+        // Count unique tryout_ids or package_names
+        const uniqueTryouts = new Set(
+          recordRes.data?.map(r => r.tryout_id || r.package_name).filter(Boolean)
+        ).size;
+
+        setStats({
+          packages: pkgRes.count || 0,
+          tryouts: uniqueTryouts
+        });
+
+      } catch (err) {
+        console.error("Gagal ambil profil:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
   }, []);
 
-  const fetchProfile = async () => {
-    if (!supabase) return;
-    setLoading(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Ambil data profil
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (profileData) {
-        setProfile(profileData);
-      } else {
-        // Fallback jika belum ada baris di tabel profiles
-        setProfile({
-          full_name: user.user_metadata?.full_name || "Siswa FBK",
-          email: user.email,
-          whatsapp: "",
-          school: ""
-        });
-      }
-
-      // Ambil Stats
-      const { count: pkgCount } = await supabase
-        .from('user_packages')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-
-      const { count: tryoutCount } = await supabase
-        .from('tryout_results')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-
-      setStats({
-        packages: pkgCount || 0,
-        tryouts: tryoutCount || 0
-      });
-
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSave = async () => {
+  const handleUpdatePhone = async () => {
     if (!supabase || !profile) return;
-    setSaving(true);
+    setUpdating(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       const { error } = await supabase
         .from('profiles')
-        .upsert({
-          id: user.id,
-          full_name: profile.full_name,
-          whatsapp: profile.whatsapp,
-          school: profile.school
-        });
+        .update({ phone_number: tempPhone })
+        .eq('id', user.id);
 
       if (error) throw error;
-      toast.success("Profil berhasil diperbarui!");
-    } catch (error: any) {
-      toast.error("Gagal memperbarui profil: " + error.message);
+      
+      setProfile({ ...profile, phone_number: tempPhone });
+      setIsEditingPhone(false);
+      toast.success("Nomor WhatsApp berhasil diperbarui");
+    } catch (err: any) {
+      toast.error("Gagal memperbarui nomor: " + err.message);
     } finally {
-      setSaving(false);
+      setUpdating(false);
     }
   };
 
+
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-        <p className="text-slate-500 font-medium tracking-tight">Menyiapkan profil Anda...</p>
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       {/* HEADER SECTION */}
       <div className="relative">
-        <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl" />
-        <div className="absolute -bottom-12 left-8 flex items-end gap-6">
-          <div className="relative group">
-            <div className="w-32 h-32 bg-white rounded-[2.5rem] p-1.5 shadow-xl border-4 border-white overflow-hidden">
-               <div className="w-full h-full bg-slate-100 rounded-[2.2rem] flex items-center justify-center text-blue-600 font-black text-4xl">
-                 {profile?.full_name?.charAt(0).toUpperCase() || "S"}
-               </div>
-            </div>
-            <button className="absolute bottom-2 right-2 w-10 h-10 bg-white hover:bg-slate-50 text-slate-600 rounded-2xl shadow-lg border border-slate-100 flex items-center justify-center transition-all active:scale-90">
-              <Camera className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="pb-4">
-            <h1 className="text-2xl font-black text-white drop-shadow-sm">{profile?.full_name}</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <div className="px-2 py-0.5 bg-white/20 backdrop-blur-md rounded-md text-[10px] font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <ShieldCheck className="w-3 h-3 text-emerald-300" /> Siswa Aktif FBK
-              </div>
+        <div className="h-48 bg-slate-900 dark:bg-slate-800 rounded-[3rem] shadow-2xl relative overflow-hidden">
+          {/* Abstract pattern/gradient for premium feel */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-900/40" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -mr-20 -mt-20" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -ml-20 -mb-20" />
+        </div>
+        
+        <div className="absolute -bottom-12 left-8">
+          <div className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-slate-900 rounded-[2.5rem] sm:rounded-[3rem] p-2 shadow-2xl border-4 border-white dark:border-slate-800 overflow-hidden relative">
+            <div className="w-full h-full bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] flex items-center justify-center text-blue-600 dark:text-blue-400 font-black text-5xl">
+              {profile?.full_name?.charAt(0).toUpperCase() || "S"}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-12">
-        {/* STATS CARDS */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-            <h3 className="text-sm font-bold text-slate-800 mb-6 uppercase tracking-wider">Aktivitas Belajar</h3>
-            <div className="space-y-4">
-               <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-2xl border border-blue-100/50">
-                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm">
-                    <Package className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <div className="text-lg font-black text-slate-800 leading-none">{stats.packages}</div>
-                    <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-tight">Paket Belajar</div>
-                  </div>
-               </div>
-               <div className="flex items-center gap-4 p-4 bg-emerald-50 rounded-2xl border border-emerald-100/50">
-                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm">
-                    <Award className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <div className="text-lg font-black text-slate-800 leading-none">{stats.tryouts}</div>
-                    <div className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-tight">Tryout Selesai</div>
-                  </div>
-               </div>
-               <button 
-                  onClick={() => onNavigate?.("Riwayat Transaksi")}
-                  className="w-full mt-2 py-3 bg-slate-50 hover:bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl border border-slate-100 transition-all flex items-center justify-center gap-2"
-                >
-                  <CreditCard className="w-3.5 h-3.5" />
-                  Lihat Riwayat Transaksi
-                </button>
-            </div>
+      {/* Name and Status Section (Always Below Banner) */}
+      <div className="px-8 pt-12 sm:pt-14">
+        <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+          {profile?.full_name}
+        </h1>
+        <div className="flex items-center gap-2 mt-3">
+          <div className="px-3 py-1 bg-blue-600 dark:bg-blue-500 rounded-xl text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-blue-500/20">
+            <ShieldCheck className="w-3.5 h-3.5" /> Siswa Aktif FBK
           </div>
+        </div>
+      </div>
 
-          <div className="bg-slate-900 p-6 rounded-3xl shadow-xl text-white relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 blur-3xl -mr-10 -mt-10" />
-            <h4 className="text-xs font-bold text-blue-300 uppercase tracking-widest mb-1">Target Kamu</h4>
-            <p className="text-sm font-medium leading-relaxed">Terus asah kemampuanmu dan raih skor tertinggi di SKD 2026!</p>
-            <div className="mt-6 h-1 w-full bg-white/10 rounded-full overflow-hidden">
-               <div className="h-full bg-blue-400 w-[45%]" />
-            </div>
-            <div className="mt-2 text-[10px] font-bold text-slate-400">45% Menuju Target SKD</div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-16">
+        {/* SIDEBAR STATS */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Activity Cards */}
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 space-y-4">
+             <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">Aktivitas Belajar</h3>
+             <div className="flex items-center gap-5 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100/50 dark:border-blue-900/30">
+                <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm"><Package className="w-6 h-6" /></div>
+                <div>
+                  <div className="text-xl font-black text-slate-800 dark:text-white leading-none">{stats.packages}</div>
+                  <div className="text-[10px] font-black text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-widest">Paket Belajar</div>
+                </div>
+             </div>
+             <div className="flex items-center gap-5 p-5 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-100/50 dark:border-emerald-900/30">
+                <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm"><Award className="w-6 h-6" /></div>
+                <div>
+                  <div className="text-xl font-black text-slate-800 dark:text-white leading-none">{stats.tryouts}</div>
+                  <div className="text-[10px] font-black text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-widest">Tryout Selesai</div>
+                </div>
+             </div>
           </div>
         </div>
 
-        {/* EDIT PROFILE FORM */}
+        {/* PROFILE DETAILS */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-black text-slate-800 tracking-tight">Informasi Akun</h2>
-              <button 
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
-              >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                SIMPAN PERUBAHAN
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Lengkap</label>
-                <div className="relative group opacity-60">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                  <input 
-                    type="text" 
-                    value={profile?.full_name || ""}
-                    readOnly
-                    placeholder="Nama lengkap"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl focus:outline-none font-medium text-slate-500 cursor-not-allowed"
-                  />
+          <div className="bg-white dark:bg-slate-900 p-10 rounded-[3rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 dark:bg-slate-800/30 rounded-full -mr-32 -mt-32 pointer-events-none" />
+             
+             <div className="relative z-10">
+              <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight mb-10 flex items-center gap-3">
+                <User className="w-6 h-6 text-blue-600" /> Informasi Akun
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Nama Lengkap</p>
+                  <p className="text-base font-bold text-slate-700 dark:text-slate-200 flex items-center gap-3">
+                    {profile?.full_name || "Belum diatur"}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Nomor WhatsApp</p>
+                  <div className="flex items-center gap-3">
+                    {isEditingPhone ? (
+                      <div className="flex items-center gap-2">
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">+</span>
+                          <input 
+                            type="text"
+                            value={tempPhone}
+                            onChange={(e) => setTempPhone(e.target.value.replace(/\D/g, ''))}
+                            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-7 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-44"
+                            placeholder="62812345678"
+                          />
+                        </div>
+                        <button 
+                          onClick={handleUpdatePhone}
+                          disabled={updating}
+                          className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-xl transition-all disabled:opacity-50"
+                        >
+                          {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                        </button>
+                        <button 
+                          onClick={() => setIsEditingPhone(false)}
+                          className="bg-slate-100 dark:bg-slate-800 text-slate-500 p-2 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                        >
+                          <ArrowRight className="w-4 h-4 rotate-180" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <p className="text-base font-bold text-slate-700 dark:text-slate-200 flex items-center gap-3">
+                          <Phone className="w-4 h-4 text-slate-300" /> +{profile?.phone_number || "Belum diatur"}
+                        </p>
+                        <button 
+                          onClick={() => {
+                            setTempPhone(profile?.phone_number || "");
+                            setIsEditingPhone(true);
+                          }}
+                          className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest hover:underline"
+                        >
+                          Ubah
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Alamat Email</p>
+                  <p className="text-base font-bold text-slate-700 dark:text-slate-200 flex items-center gap-3">
+                    <Mail className="w-4 h-4 text-slate-300" /> {profile?.email || "Belum diatur"}
+                  </p>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
-                <div className="relative group opacity-60">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input 
-                    type="email" 
-                    value={profile?.email || ""}
-                    readOnly
-                    className="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl focus:outline-none font-medium text-slate-500 cursor-not-allowed"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nomor WhatsApp</label>
-                <div className="relative group">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                  <input 
-                    type="text" 
-                    value={profile?.whatsapp || ""}
-                    onChange={(e) => setProfile({...profile, whatsapp: e.target.value})}
-                    placeholder="Contoh: 08123456789"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 transition-all font-medium text-slate-700"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Asal Sekolah / Instansi</label>
-                <div className="relative group">
-                  <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                  <input 
-                    type="text" 
-                    value={profile?.school || ""}
-                    onChange={(e) => setProfile({...profile, school: e.target.value})}
-                    placeholder="Contoh: SMAN 1 Jakarta"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white focus:border-blue-500 transition-all font-medium text-slate-700"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-             <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-slate-800">Keamanan Akun</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Kelola akses dan kata sandi kamu</p>
-                </div>
-             </div>
-             <div className="flex flex-col md:flex-row gap-4">
-                <button className="px-6 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 text-slate-600 text-[11px] font-black rounded-xl transition-all uppercase tracking-wider">
-                   Ganti Kata Sandi
-                </button>
-                <button className="px-6 py-3 bg-red-50 hover:bg-red-100 border border-red-100 text-red-600 text-[11px] font-black rounded-xl transition-all uppercase tracking-wider">
-                   Hapus Akun
-                </button>
              </div>
           </div>
         </div>

@@ -48,11 +48,11 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   );
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-xl border border-slate-100 min-w-[170px]">
-      <p className="text-blue-600 text-xs font-bold uppercase tracking-wider mb-3">
+    <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 shadow-2xl border border-white min-w-[200px]">
+      <p className="text-blue-600 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
         {label}
       </p>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {payload.map((entry: TooltipPayloadEntry) => {
           const passing = PASSING_GRADES[entry.name] ?? 0;
           const isPassing = entry.value >= passing;
@@ -61,38 +61,38 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
               key={entry.name}
               className="flex items-center justify-between gap-4"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <span
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                  className="w-3 h-3 rounded-full flex-shrink-0 shadow-sm"
                   style={{ backgroundColor: entry.color }}
                 />
-                <span className="text-slate-400 text-xs font-medium">
+                <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">
                   {entry.name}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-slate-900 text-sm font-bold">
+              <div className="flex items-center gap-2">
+                <span className="text-slate-900 text-sm font-black">
                   {entry.value}
                 </span>
                 <span
-                  className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                  className={`text-[10px] font-black px-2 py-0.5 rounded-lg ${
                     isPassing
-                      ? "bg-emerald-500/20 text-emerald-400"
-                      : "bg-red-500/20 text-red-400"
+                      ? "bg-emerald-100 text-emerald-600"
+                      : "bg-rose-100 text-rose-600"
                   }`}
                 >
-                  {isPassing ? "✓" : "✗"}
+                  {isPassing ? "PASSED" : "FAILED"}
                 </span>
               </div>
             </div>
           );
         })}
       </div>
-      <div className="mt-3 pt-3 border-t border-slate-100">
-        <p className="text-slate-500 text-[10px]">
-          Total:{" "}
-          <span className="text-slate-900 font-bold">{totalScore}</span>
-        </p>
+      <div className="mt-4 pt-4 border-t border-slate-100">
+        <div className="flex items-center justify-between">
+           <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Total Skor</span>
+           <span className="text-blue-600 font-black text-sm">{totalScore}</span>
+        </div>
       </div>
     </div>
   );
@@ -110,134 +110,122 @@ export function PerformanceChart({ data }: PerformanceChartProps) {
   }));
 
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm h-full">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-        <div>
-          <h2 className="text-slate-900 font-bold text-base">
-            Grafik Perkembangan Skor
-          </h2>
-          <p className="text-slate-500 text-xs mt-0.5">
-            Tren nilai TWK, TIU &amp; TKP per sesi tryout
-          </p>
-        </div>
+    <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 h-full relative overflow-hidden group">
+      <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/10 transition-colors duration-700" />
+      
+      <div className="relative z-10 flex flex-col h-full">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-10">
+          <div>
+            <h2 className="text-slate-900 font-black text-xl tracking-tight">
+              Grafik Perkembangan Skor
+            </h2>
+            <p className="text-slate-400 text-[10px] mt-1 font-black uppercase tracking-[0.2em]">
+              Tren Nilai Per Sesi Tryout
+            </p>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {[
-            { label: "TWK", color: "#3b82f6" },
-            { label: "TIU", color: "#10b981" },
-            { label: "TKP", color: "#f59e0b" },
-          ].map((item) => (
-            <div key={item.label} className="flex items-center gap-1.5">
-              <span
-                className="w-5 h-0.5 rounded-full inline-block"
-                style={{ backgroundColor: item.color }}
-              />
-              <span className="text-slate-500 text-xs font-medium">
-                {item.label}
-              </span>
-            </div>
-          ))}
-          <div className="flex items-center gap-1.5">
-            <span className="text-slate-400 text-xs">- - Batas Lulus</span>
+          <div className="flex flex-wrap items-center gap-4 bg-slate-50/50 p-2 rounded-2xl border border-slate-100">
+            {[
+              { label: "TWK", color: "#3b82f6" },
+              { label: "TIU", color: "#10b981" },
+              { label: "TKP", color: "#f59e0b" },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-2 px-2">
+                <span
+                  className="w-3 h-3 rounded-full inline-block shadow-sm"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="text-slate-500 text-[10px] font-black uppercase tracking-wider">
+                  {item.label}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
+
+        <div className="flex-1 min-h-[350px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={chartData}
+              margin={{ top: 10, right: 10, left: -10, bottom: 5 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#f1f5f9"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="name"
+                tick={{ fill: "#94a3b8", fontSize: 10, fontWeight: 700 }}
+                axisLine={false}
+                tickLine={false}
+                dy={12}
+              />
+              <YAxis
+                domain={[0, 250]}
+                tick={{ fill: "#94a3b8", fontSize: 10, fontWeight: 700 }}
+                axisLine={false}
+                tickLine={false}
+                tickCount={6}
+              />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ stroke: "#f1f5f9", strokeWidth: 2 }}
+              />
+
+              <ReferenceLine
+                y={65}
+                stroke="#3b82f6"
+                strokeDasharray="5 4"
+                strokeWidth={1}
+                opacity={0.3}
+              />
+              <ReferenceLine
+                y={80}
+                stroke="#10b981"
+                strokeDasharray="5 4"
+                strokeWidth={1}
+                opacity={0.3}
+              />
+              <ReferenceLine
+                y={166}
+                stroke="#f59e0b"
+                strokeDasharray="5 4"
+                strokeWidth={1}
+                opacity={0.3}
+              />
+
+              <Line
+                type="monotone"
+                dataKey="TWK"
+                stroke="#3b82f6"
+                strokeWidth={4}
+                dot={{ fill: "#fff", stroke: "#3b82f6", strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 7, stroke: "#fff", strokeWidth: 3, fill: "#3b82f6" }}
+                animationDuration={1500}
+              />
+              <Line
+                type="monotone"
+                dataKey="TIU"
+                stroke="#10b981"
+                strokeWidth={4}
+                dot={{ fill: "#fff", stroke: "#10b981", strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 7, stroke: "#fff", strokeWidth: 3, fill: "#10b981" }}
+                animationDuration={1500}
+              />
+              <Line
+                type="monotone"
+                dataKey="TKP"
+                stroke="#f59e0b"
+                strokeWidth={4}
+                dot={{ fill: "#fff", stroke: "#f59e0b", strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 7, stroke: "#fff", strokeWidth: 3, fill: "#f59e0b" }}
+                animationDuration={1500}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
-
-      <ResponsiveContainer width="100%" height={350}>
-        <LineChart
-          data={chartData}
-          margin={{ top: 10, right: 10, left: -10, bottom: 5 }}
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="#f1f5f9"
-            vertical={false}
-          />
-          <XAxis
-            dataKey="name"
-            tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 500 }}
-            axisLine={false}
-            tickLine={false}
-            dy={8}
-          />
-          <YAxis
-            domain={[0, 250]}
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-            tickCount={6}
-          />
-          <Tooltip
-            content={<CustomTooltip />}
-            cursor={{ stroke: "#f1f5f9", strokeWidth: 2 }}
-          />
-
-          <ReferenceLine
-            y={65}
-            stroke="#3b82f6"
-            strokeDasharray="5 4"
-            strokeWidth={1.5}
-            label={{
-              value: "TWK 65",
-              position: "insideTopLeft",
-              fill: "#3b82f6",
-              fontSize: 10,
-              fontWeight: 600,
-            }}
-          />
-          <ReferenceLine
-            y={80}
-            stroke="#10b981"
-            strokeDasharray="5 4"
-            strokeWidth={1.5}
-            label={{
-              value: "TIU 80",
-              position: "insideTopLeft",
-              fill: "#10b981",
-              fontSize: 10,
-              fontWeight: 600,
-            }}
-          />
-          <ReferenceLine
-            y={166}
-            stroke="#f59e0b"
-            strokeDasharray="5 4"
-            strokeWidth={1.5}
-            label={{
-              value: "TKP 166",
-              position: "insideTopLeft",
-              fill: "#f59e0b",
-              fontSize: 10,
-              fontWeight: 600,
-            }}
-          />
-
-          <Line
-            type="monotone"
-            dataKey="TWK"
-            stroke="#3b82f6"
-            strokeWidth={3}
-            dot={{ fill: "#3b82f6", strokeWidth: 2, r: 4, stroke: "#fff" }}
-            activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="TIU"
-            stroke="#10b981"
-            strokeWidth={3}
-            dot={{ fill: "#10b981", strokeWidth: 2, r: 4, stroke: "#fff" }}
-            activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="TKP"
-            stroke="#f59e0b"
-            strokeWidth={3}
-            dot={{ fill: "#f59e0b", strokeWidth: 2, r: 4, stroke: "#fff" }}
-            activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
     </div>
   );
 }

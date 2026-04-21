@@ -9,7 +9,9 @@ import {
   BarChart3,
   TrendingUp,
   Loader2,
-  LayoutDashboard
+  LayoutDashboard,
+  Shield,
+  User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TryoutResult } from "@/data/tryoutQuestions";
@@ -22,6 +24,7 @@ import {
   PolarAngleAxis, 
   ResponsiveContainer 
 } from "recharts";
+import { motion } from "framer-motion";
 
 interface TryoutResultProps {
   result: TryoutResult;
@@ -50,13 +53,11 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
   const fetchRank = async () => {
     if (!supabase) return;
     try {
-      // 1. Ambil total peserta unik (percobaan pertama saja) untuk paket ini
       const { count: totalCount } = await supabase
         .from('fair_package_leaderboard')
         .select('*', { count: 'exact', head: true })
         .eq('package_id', packageId);
 
-      // 2. Ambil posisi peringkat user di antara peserta unik tersebut
       const { count: rankPosition } = await supabase
         .from('fair_package_leaderboard')
         .select('*', { count: 'exact', head: true })
@@ -71,7 +72,6 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
     }
   };
 
-  // Data for Radar Chart
   const chartData = [
     { subject: 'TWK', A: Math.round((result.twkScore / result.twkMax) * 100), fullMark: 100 },
     { subject: 'TIU', A: Math.round((result.tiuScore / result.tiuMax) * 100), fullMark: 100 },
@@ -90,23 +90,23 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
             <ArrowLeft className="w-3 h-3" />
             Kembali ke Dashboard
           </button>
-          <h1 className="text-slate-900 font-black text-4xl tracking-tight flex items-center gap-4">
-            <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shadow-sm border border-amber-100">
+          <h1 className="text-slate-900 dark:text-white font-black text-4xl tracking-tight flex items-center gap-4">
+            <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-500 shadow-sm border border-amber-100 dark:border-amber-800">
                <Trophy className="w-7 h-7" />
             </div>
             Hasil Tryout SKD
           </h1>
-          <p className="text-slate-500 text-sm mt-2 font-medium">Laporan analisis performa pengerjaan tryout kamu secara mendalam.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 font-medium">Laporan analisis performa pengerjaan tryout kamu secara mendalam.</p>
         </div>
         
         <div className="flex gap-3">
-           <div className="px-5 py-2.5 bg-white rounded-2xl border border-slate-200 shadow-sm">
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Skor</div>
-              <div className="text-2xl font-black text-slate-900 leading-none">{result.totalScore}</div>
+           <div className="px-5 py-2.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Total Skor</div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white leading-none">{result.totalScore}</div>
            </div>
-           <div className="px-5 py-2.5 bg-white rounded-2xl border border-slate-200 shadow-sm">
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Akurasi</div>
-              <div className="text-2xl font-black text-slate-900 leading-none">{Math.round((totalCorrect / result.totalQuestions) * 100)}%</div>
+           <div className="px-5 py-2.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Akurasi</div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white leading-none">{Math.round((totalCorrect / result.totalQuestions) * 100)}%</div>
            </div>
         </div>
       </div>
@@ -118,8 +118,8 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
           <div className={cn(
             "rounded-[2.5rem] p-8 border-4 text-center relative overflow-hidden",
             allPass
-              ? "bg-emerald-50 border-emerald-100/50"
-              : "bg-red-50 border-red-100/50"
+              ? "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100/50 dark:border-emerald-800/30"
+              : "bg-red-50 dark:bg-red-900/10 border-red-100/50 dark:border-red-800/30"
           )}>
             <div className="relative z-10">
               <div className="flex justify-center mb-4">
@@ -133,16 +133,15 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
                   </div>
                 )}
               </div>
-              <h2 className={cn("text-3xl font-black mb-2 tracking-tight", allPass ? "text-emerald-900" : "text-red-900")}>
+              <h2 className={cn("text-3xl font-black mb-2 tracking-tight", allPass ? "text-emerald-900 dark:text-emerald-200" : "text-red-900 dark:text-red-200")}>
                 {allPass ? "LULUS SKD!" : "BELUM LULUS"}
               </h2>
-              <p className={cn("text-sm font-bold px-4", allPass ? "text-emerald-600" : "text-red-600")}>
+              <p className={cn("text-sm font-bold px-4", allPass ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
                 {allPass
                   ? "Selamat! Kamu berhasil menaklukkan passing grade nasional."
                   : "Tetap semangat! Masih ada kategori yang perlu kamu perbaiki."}
               </p>
             </div>
-            {/* Background elements */}
             <div className={`absolute top-0 right-0 w-32 h-32 blur-[60px] opacity-30 ${allPass ? 'bg-emerald-400' : 'bg-red-400'}`} />
           </div>
 
@@ -176,18 +175,18 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
              </div>
           </div>
 
-          <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm">
              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
                    <BarChart3 className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-black text-slate-800 tracking-tight">Peta Kekuatan</h3>
+                <h3 className="text-lg font-black text-slate-800 dark:text-white tracking-tight">Peta Kekuatan</h3>
              </div>
              
              <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
-                    <PolarGrid stroke="#e2e8f0" />
+                    <PolarGrid stroke="#e2e8f0" className="dark:opacity-20" />
                     <PolarAngleAxis 
                       dataKey="subject" 
                       tick={{ fill: '#64748b', fontSize: 12, fontWeight: 800 }} 
@@ -202,7 +201,7 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
                   </RadarChart>
                 </ResponsiveContainer>
              </div>
-             <p className="text-center text-[11px] font-bold text-slate-400 mt-4 uppercase tracking-wider">Persentase Penguasaan Materi</p>
+             <p className="text-center text-[11px] font-bold text-slate-400 dark:text-slate-500 mt-4 uppercase tracking-wider">Persentase Penguasaan Materi</p>
           </div>
         </div>
 
@@ -276,9 +275,6 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
   );
 }
 
-// Subcomponent for Detailed Category Cards
-import { Shield, User } from "lucide-react";
-
 function DetailedScoreCard({
   label, fullLabel, score, max, passing, passed, correct, color, icon, description
 }: {
@@ -289,62 +285,69 @@ function DetailedScoreCard({
   description: string;
 }) {
   const pct = max > 0 ? Math.round((score / max) * 100) : 0;
+  
   const colorMap = {
-    blue: "bg-blue-600 text-blue-600 border-blue-100 bg-blue-50/50",
-    emerald: "bg-emerald-600 text-emerald-600 border-emerald-100 bg-emerald-50/50",
-    amber: "bg-amber-600 text-amber-600 border-amber-100 bg-amber-50/50",
+    blue: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/30",
+    emerald: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30",
+    amber: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/30",
   };
   
   const barColors = {
-    blue: "bg-blue-600",
-    emerald: "bg-emerald-600",
-    amber: "bg-amber-600",
+    blue: "bg-blue-600 dark:bg-blue-500",
+    emerald: "bg-emerald-600 dark:bg-emerald-500",
+    amber: "bg-amber-600 dark:bg-amber-500",
   };
 
   return (
-    <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex flex-col md:flex-row gap-8 items-start">
-        <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 border", colorMap[color])}>
+        <div className={cn("w-16 h-16 rounded-[1.5rem] flex items-center justify-center flex-shrink-0 border", colorMap[color])}>
            {icon}
         </div>
         
-        <div className="flex-1 space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="flex-1 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-xl font-black text-slate-800 leading-tight">{fullLabel} ({label})</h3>
-              <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-wider">{description}</p>
+              <h3 className="text-xl font-black text-slate-800 dark:text-white leading-tight tracking-tight">{fullLabel} ({label})</h3>
+              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 mt-1.5 uppercase tracking-[0.2em]">{description}</p>
             </div>
             {passed ? (
-              <div className="px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-lg border border-emerald-100 uppercase tracking-widest">Lulus</div>
+              <div className="px-4 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-xl border border-emerald-100 dark:border-emerald-800/50 uppercase tracking-widest self-start">Lulus</div>
             ) : (
-              <div className="px-4 py-1.5 bg-red-50 text-red-600 text-[10px] font-black rounded-lg border border-red-100 uppercase tracking-widest">Gagal</div>
+              <div className="px-4 py-1.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[10px] font-black rounded-xl border border-red-100 dark:border-red-800/50 uppercase tracking-widest self-start">Gagal</div>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-            <div>
-               <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Skor Kamu</div>
-               <div className="text-3xl font-black text-slate-900">{score} <span className="text-sm font-bold text-slate-400">/ {max}</span></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-1">
+               <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Skor Kamu</div>
+               <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
+                 {score} <span className="text-sm font-bold text-slate-400 dark:text-slate-500">/ {max}</span>
+               </div>
             </div>
-            <div>
-               <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Passing Grade</div>
-               <div className="text-3xl font-black text-slate-900">{passing}</div>
+            <div className="space-y-1">
+               <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Passing Grade</div>
+               <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{passing}</div>
             </div>
-            <div>
-               <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Benar</div>
-               <div className="text-3xl font-black text-slate-900">{correct} <span className="text-sm font-bold text-slate-400">Soal</span></div>
+            <div className="space-y-1">
+               <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Benar</div>
+               <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
+                 {correct} <span className="text-sm font-bold text-slate-400 dark:text-slate-500">Soal</span>
+               </div>
             </div>
           </div>
 
           <div className="pt-2">
-            <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+            <div className="flex justify-between text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">
                <span>Pencapaian Materi</span>
-               <span>{pct}%</span>
+               <span className="text-slate-900 dark:text-white font-black">{pct}%</span>
             </div>
-            <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-               <div 
-                 className={cn("h-full transition-all duration-1000", barColors[color])} 
-                 style={{ width: `${pct}%` }}
+            <div className="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden">
+               <motion.div 
+                 initial={{ width: 0 }}
+                 animate={{ width: `${pct}%` }}
+                 transition={{ duration: 1.5, ease: "easeOut" }}
+                 className={cn("h-full", barColors[color])} 
                />
             </div>
           </div>
@@ -353,4 +356,3 @@ function DetailedScoreCard({
     </div>
   );
 }
-

@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { StatCards } from "@/components/StatCards";
 import { PerformanceChart } from "@/components/PerformanceChart";
-import { ActivePackage } from "@/components/ActivePackage";
 import { HistoryTable } from "@/components/HistoryTable";
 import { supabase } from "@/lib/supabaseClient";
-import type { TryoutRecord } from "@/types";
-import { ChartLine as LineChart, Clock, Award } from "lucide-react";
+import type { TryoutRecord, ActivePackageData } from "@/types";
+import { Clock, Award, BookMarked, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DashboardViewProps {
@@ -19,108 +18,196 @@ interface DashboardViewProps {
 export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onViewInvoice, onReview }: DashboardViewProps) {
   const isEmpty = data.length === 0;
   const [pendingTx, setPendingTx] = useState<any>(null);
+  const [activePackageData, setActivePackageData] = useState<ActivePackageData | null>(null);
 
   useEffect(() => {
-    async function checkPending() {
+    async function fetchData() {
       if (!supabase) return;
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData?.session?.user?.id;
+      if (!userId) return;
 
-      const { data } = await supabase
+      // 1. Check Pending Transactions
+      const { data: txData } = await supabase
         .from('transactions')
         .select('*, packages(title)')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .in('status', ['pending', 'verifying'])
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
       
-      if (data) setPendingTx(data);
-    }
-    checkPending();
-  }, []);
+      if (txData) setPendingTx(txData);
 
-  const isSiswaAktif = data.length > 0;
+      // 2. Fetch User Packages
+      const { data: userPkgs, error } = await supabase
+        .from('user_packages')
+        .select('*, packages(*)')
+        .eq('user_id', userId);
+
+      if (error) console.error("Dashboard fetch error:", error);
+
+      let foundPackage: any = null;
+
+      if (userPkgs && userPkgs.length > 0) {
+        // Try to find INTENSIF first
+        foundPackage = userPkgs.find((up: any) => {
+          const p = Array.isArray(up.packages) ? up.packages[0] : up.packages;
+          return p?.product_type?.toUpperCase() === 'INTENSIF' || p?.title?.toUpperCase().includes('INTENSIF');
+        });
+
+        if (!foundPackage) foundPackage = userPkgs[0];
+      }
+
+      // Fallback: Try to find package from tryout results
+      if (!foundPackage && data.length > 0) {
+        const lastResult = data[0];
+        if (lastResult.packageId) {
+          const { data: pkg } = await supabase
+            .from('packages')
+            .select('*')
+            .eq('id', lastResult.packageId)
+            .single();
+          if (pkg) {
+            foundPackage = { packages: pkg, created_at: lastResult.date };
+          }
+        }
+      }
+
+      if (foundPackage) {
+        const pkg = Array.isArray(foundPackage.packages) ? foundPackage.packages[0] : foundPackage.packages;
+        
+        if (pkg) {
+          const expiryDate = new Date(foundPackage.created_at || new Date());
+          expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+
+          setActivePackageData({
+            id: pkg.id,
+            name: pkg.title,
+            description: pkg.description || "Program bimbingan intensif persiapan sekolah kedinasan.",
+            totalSoal: 0,
+            duration: 100,
+            expiresAt: expiryDate.toISOString(),
+            category: "Paket SKD"
+          });
+          
+          const { data: contents } = await supabase
+            .from('package_contents')
+            .select('id')
+            .eq('package_id', pkg.id);
+          
+          if (contents) {
+            setActivePackageData(prev => prev ? ({ ...prev, totalSoal: contents.length }) : null);
+          }
+        }
+      }
+    }
+    fetchData();
+  }, [data]);
+
+  const isSiswaAktif = data.length > 0 || activePackageData !== null;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-7">
+    <div className="space-y-10">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div>
-          <h1 className="text-slate-900 font-bold text-2xl tracking-tight">
-            Selamat Datang, {userName}
+          <h1 className="text-slate-900 dark:text-white font-black text-4xl tracking-tight leading-none">
+            Selamat Datang, <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">{userName}</span>
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Pantau perkembangan belajarmu dan raih hasil terbaik di ujian kedinasan.
+          <p className="text-slate-500 dark:text-slate-400 text-base mt-3 font-medium max-w-xl">
+            Pantau perkembangan belajarmu secara real-time dan persiapkan dirimu untuk menaklukkan ujian kedinasan.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+        <div className="flex items-center gap-5 bg-white/70 dark:bg-slate-900/50 backdrop-blur-xl p-4 rounded-[2rem] border border-white dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all">
            <div className={cn(
-             "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500",
-             isSiswaAktif ? "bg-blue-50 text-blue-600 shadow-[0_0_10px_rgba(59,130,246,0.2)]" : "bg-emerald-50 text-emerald-600"
+             "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-700 shadow-lg",
+             isSiswaAktif 
+               ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-blue-500/20" 
+               : "bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-emerald-500/20"
            )}>
-             <Award className="w-5 h-5" />
+             <Award className="w-7 h-7" />
            </div>
-           <div>
-             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Status Belajar</p>
+           <div className="pr-6">
+             <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] leading-none mb-1.5">Status Belajar</p>
              <p className={cn(
-               "text-xs font-bold",
-               isSiswaAktif ? "text-blue-600" : "text-emerald-600"
+               "text-base font-black tracking-tight",
+               isSiswaAktif ? "text-blue-700 dark:text-blue-400" : "text-emerald-700 dark:text-emerald-400"
              )}>
-               {isSiswaAktif ? "Siswa Aktif FBK" : "Siswa Gratis"}
+               {isSiswaAktif ? "AKUN SISWA" : "SISWA GRATIS"}
              </p>
            </div>
         </div>
       </div>
 
       {pendingTx && (
-        <div className={`${pendingTx.status === 'verifying' ? 'bg-blue-50 border-blue-100' : 'bg-amber-50 border-amber-100'} border rounded-[2rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-500`}>
-          <div className="flex items-center gap-5">
-            <div className={`w-14 h-14 ${pendingTx.status === 'verifying' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600'} rounded-2xl flex items-center justify-center shrink-0`}>
-              <Clock className="w-7 h-7" />
+        <div className={cn(
+          "border rounded-[2.5rem] p-8 flex flex-col md:flex-row items-center justify-between gap-8 animate-in slide-in-from-top-4 duration-700",
+          pendingTx.status === 'verifying' 
+            ? 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30' 
+            : 'bg-amber-50/50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/30'
+        )}>
+          <div className="flex items-center gap-6">
+            <div className={cn(
+              "w-16 h-16 rounded-[1.5rem] flex items-center justify-center shrink-0",
+              pendingTx.status === 'verifying' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
+            )}>
+              <Clock className="w-8 h-8" />
             </div>
             <div>
-              <h3 className={`${pendingTx.status === 'verifying' ? 'text-blue-900' : 'text-amber-900'} font-black`}>
-                {pendingTx.status === 'verifying' ? 'Pembayaran Sedang Diverifikasi' : 'Tagihan Belum Dibayar'}
+              <h3 className={cn(
+                "text-xl font-black tracking-tight",
+                pendingTx.status === 'verifying' ? 'text-blue-900 dark:text-blue-200' : 'text-amber-900 dark:text-amber-200'
+              )}>
+                {pendingTx.status === 'verifying' ? 'Sedang Diverifikasi' : 'Menunggu Pembayaran'}
               </h3>
-              <p className={`${pendingTx.status === 'verifying' ? 'text-blue-700/70' : 'text-amber-700/70'} text-sm font-medium`}>
-                {pendingTx.status === 'verifying' 
-                  ? `Bukti pembayaran paket "${pendingTx.packages?.title}" sedang dicek oleh tim kami.` 
-                  : `Kamu punya pesanan "${pendingTx.packages?.title}" yang menunggu pembayaran.`}
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">
+                Paket: <span className="font-bold text-slate-700 dark:text-slate-300">{pendingTx.packages?.title}</span> • 
+                ID: <span className="font-mono bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-xs">{pendingTx.invoice_id}</span>
               </p>
             </div>
           </div>
           <button 
             onClick={() => onViewInvoice?.(pendingTx.id)}
-            className={`w-full md:w-auto px-8 py-3 ${pendingTx.status === 'verifying' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20' : 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20'} text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-lg transition-all active:scale-95`}
+            className={cn(
+              "px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all",
+              pendingTx.status === 'verifying' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-amber-600 text-white hover:bg-amber-700'
+            )}
           >
-            {pendingTx.status === 'verifying' ? 'Lihat Detail Invoice' : 'Selesaikan Pembayaran'}
+            Lihat Detail Invoice
           </button>
         </div>
       )}
 
-      <div className="mb-6">
-        <StatCards data={data} />
-      </div>
+      <StatCards data={data} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 gap-10">
+        <div className="w-full">
           {isEmpty ? (
-            <div className="bg-white rounded-[2rem] border border-slate-100 p-12 flex flex-col items-center justify-center h-[400px]">
-              <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
-                <LineChart className="w-8 h-8 text-slate-300" />
+            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[3rem] p-12 shadow-xl h-[450px] flex flex-col justify-center items-center text-center relative overflow-hidden group transition-all">
+              <div className="w-24 h-24 rounded-[2.5rem] bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-8 shadow-inner">
+                <BookMarked className="w-12 h-12 text-slate-300 dark:text-slate-600" />
               </div>
-              <p className="text-slate-500 text-center font-bold text-sm">
-                Belum ada data grafik.<br/>
-                <span className="text-slate-400 font-medium">Ayo kerjakan tryout pertamamu!</span>
+              
+              <h3 className="text-slate-900 dark:text-white font-black text-3xl mb-4 tracking-tight">
+                Belum Ada Paket Aktif
+              </h3>
+              <p className="text-slate-500 dark:text-slate-400 text-base mb-10 max-w-[320px] mx-auto leading-relaxed font-medium">
+                Tingkatkan peluang lulusmu ke sekolah kedinasan impian dengan mengikuti program bimbingan intensif kami.
               </p>
+              
+              <button 
+                onClick={() => onNavigate?.("Paket dan Tryout SKD")}
+                className="w-full sm:w-auto px-10 flex items-center justify-center gap-4 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-[0.2em] py-5 rounded-2xl transition-all shadow-lg"
+              >
+                Lihat Katalog Paket
+                <ArrowRight className="w-5 h-5" />
+              </button>
             </div>
           ) : (
             <PerformanceChart data={data} />
           )}
-        </div>
-        <div className="space-y-6">
-          <ActivePackage packageData={null} onNavigate={onNavigate} />
         </div>
       </div>
 

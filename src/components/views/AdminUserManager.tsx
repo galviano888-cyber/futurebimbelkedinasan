@@ -11,9 +11,11 @@ import {
   Trash2,
   AlertCircle,
   RotateCw,
-  ExternalLink
+  ExternalLink,
+  Download
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { Button } from "@/components/ui/button";
 
 export function AdminUserManager() {
   const [users, setUsers] = useState<any[]>([]);
@@ -64,6 +66,31 @@ export function AdminUserManager() {
     }
   };
 
+  const exportToCSV = () => {
+    if (filteredUsers.length === 0) return;
+    
+    const headers = ["ID", "Nama Lengkap", "Email", "WhatsApp", "Sekolah", "Paket Aktif", "Tgl Daftar"];
+    const rows = filteredUsers.map(u => [
+      `"${u.id}"`,
+      `"${u.full_name || 'N/A'}"`,
+      `"${u.email || 'N/A'}"`,
+      `"${u.whatsapp || 'N/A'}"`,
+      `"${u.school || 'N/A'}"`,
+      `"${u.user_packages?.map((up: any) => up.packages?.title).join(', ') || 'None'}"`,
+      `"${new Date(u.created_at).toLocaleDateString('id-ID')}"`
+    ]);
+    
+    const csvContent = [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `data-siswa-fbk-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filteredUsers = users.filter(user => 
     user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -94,15 +121,20 @@ export function AdminUserManager() {
           <p className="text-sm text-slate-500 font-medium mt-1">Pantau perkembangan pendaftaran dan paket aktif setiap siswa.</p>
         </div>
         
-        <div className="relative group">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-          <input 
-            type="text"
-            placeholder="Cari Nama atau Email..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-[2rem] w-full sm:w-96 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-sm text-slate-800 shadow-sm placeholder:text-slate-400"
-          />
+        <div className="flex gap-4 items-center">
+          <div className="relative group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <input 
+              type="text"
+              placeholder="Cari Nama atau Email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-[2rem] w-full sm:w-80 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-sm text-slate-800 shadow-sm"
+            />
+          </div>
+          <Button onClick={exportToCSV} disabled={filteredUsers.length === 0} className="h-14 px-8 rounded-[2rem] bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs gap-2 shadow-lg shadow-indigo-500/20">
+            <Download className="w-4 h-4" /> EXPORT CSV
+          </Button>
         </div>
       </div>
 

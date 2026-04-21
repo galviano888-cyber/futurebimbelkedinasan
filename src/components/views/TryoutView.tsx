@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
+import { cn } from "@/lib/utils";
 
 interface PackageContent {
   id: string;
@@ -23,6 +24,7 @@ interface Package {
   title: string;
   description: string;
   price: number;
+  original_price?: number | null;
   product_type: 'SATUAN' | 'BUNDLE' | 'INTENSIF';
   is_active: boolean;
   contents: PackageContent[];
@@ -43,13 +45,11 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
       if (!supabase) return;
       setLoading(true);
       try {
-        // 1. Ambil semua paket yang aktif
         const { data: allPackages, error: pkgError } = await supabase
           .from('packages')
           .select('*, contents:package_contents(*)')
           .eq('is_active', true);
 
-        // 2. Ambil paket yang sudah dimiliki user
         const { data: { user } } = await supabase.auth.getUser();
         let ownedPackageIds: string[] = [];
         
@@ -65,7 +65,6 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
         }
 
         if (!pkgError && allPackages) {
-          // 3. Filter: Tampilkan hanya yang BELUM dimiliki
           const filtered = allPackages
             .filter((p: any) => p.id !== '11111111-1111-1111-1111-111111111111' && !ownedPackageIds.includes(p.id))
             .map((p: any) => ({
@@ -88,7 +87,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-        <p className="text-slate-500 font-medium">Memuat katalog...</p>
+        <p className="text-slate-500 dark:text-slate-400 font-medium">Memuat katalog...</p>
       </div>
     );
   }
@@ -98,23 +97,23 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
       {/* Header Katalog */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-3">
-            <Layout className="w-8 h-8 text-blue-500" />
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+            <Layout className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             Katalog Paket Belajar & Tryout
           </h1>
-          <p className="text-slate-500 text-sm mt-1">Pilih paket bimbingan dan uji kemampuan Anda dengan Tryout SKD.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-base mt-1 font-medium">Pilih paket bimbingan dan uji kemampuan Anda dengan Tryout SKD.</p>
         </div>
       </div>
 
       {/* Grid Katalog Produk (Satuan, Bundle, Intensif) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {packages.length === 0 ? (
-          <div className="col-span-full flex flex-col items-center justify-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200 text-center px-6">
-            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-              <ShoppingBag className="w-10 h-10 text-slate-300" />
+          <div className="col-span-full flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 text-center px-6">
+            <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+              <ShoppingBag className="w-10 h-10 text-slate-300 dark:text-slate-600" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900">Belum Ada Paket Tersedia</h3>
-            <p className="text-slate-500 mt-2 max-w-sm">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Belum Ada Paket Tersedia</h3>
+            <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-sm text-sm">
               Maaf, saat ini belum ada paket yang aktif. Silakan hubungi admin atau kembali lagi nanti.
             </p>
           </div>
@@ -123,7 +122,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
             <motion.div
               key={pkg.id}
               whileHover={{ y: -5 }}
-              className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col"
+              className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col"
             >
               {/* Badge Tipe Produk */}
               <div className="px-6 pt-6">
@@ -137,32 +136,42 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
               </div>
 
               <div className="p-6 flex-1 flex flex-col">
-                <h3 className="text-lg font-black text-slate-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-xl font-black text-slate-900 dark:text-white leading-tight mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   {pkg.title}
                 </h3>
-                <p className="text-slate-500 text-xs line-clamp-2 mb-6">
+                <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-2 mb-6 leading-relaxed">
                   {pkg.description || "Dapatkan akses penuh ke materi dan tryout kualitas terbaik untuk persiapan tes kedinasan."}
                 </p>
 
                 {/* Detail Singkat */}
                 <div className="flex items-center gap-4 mb-6">
-                   <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold">
+                   <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-[11px] font-bold">
                      <FileEdit className="w-3.5 h-3.5" /> {pkg.contents?.length || 0} Konten
                    </div>
                    {pkg.product_type === 'SATUAN' && (
-                     <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-bold">
+                     <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-[11px] font-bold">
                        <Clock className="w-3.5 h-3.5" /> 100 Menit
                      </div>
                    )}
                 </div>
 
                 {/* Harga & Tombol Aksi */}
-                <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
+                <div className="mt-auto pt-6 border-t border-slate-50 dark:border-slate-800/50 flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Harga Paket</p>
-                    <p className="text-xl font-black text-blue-600">
-                      {pkg.price === 0 ? "GRATIS" : `Rp ${pkg.price.toLocaleString('id-ID')}`}
-                    </p>
+                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Harga Paket</p>
+                    <div className="flex items-center gap-2">
+                      <p className={cn(
+                        "text-xl font-black tracking-tighter",
+                        pkg.price === 0 ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"
+                      )}>
+                        {pkg.price === 0 ? "GRATIS" : `Rp ${pkg.price.toLocaleString('id-ID')}`}
+                      </p>
+                      {pkg.original_price && pkg.original_price > pkg.price && pkg.original_price > 0 ? (
+                        <p className="text-sm font-bold text-slate-400 line-through decoration-red-500 decoration-2">
+                          Rp {pkg.original_price.toLocaleString('id-ID')}
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
                   <button 
                     onClick={async () => {
@@ -196,21 +205,18 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                           setLoading(false);
                         }
                       } else {
-                        // MANUAL PAYMENT FLOW
                         if (!supabase) return;
                         setLoading(true);
                         try {
                           const { data: { session } } = await supabase.auth.getSession();
                           if (!session?.user) throw new Error("Silakan login untuk membeli.");
 
-                          // Ensure profile exists (for old users before the profile table was created)
                           await supabase.from('profiles').upsert({
                             id: session.user.id,
                             full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
                             email: session.user.email
                           }, { onConflict: 'id' });
 
-                          // CHECK FOR EXISTING PENDING OR VERIFYING TRANSACTION
                           const { data: existingTxs, error: checkError } = await supabase
                             .from('transactions')
                             .select('id, status')
@@ -222,9 +228,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                           if (checkError) console.error("Check error:", checkError);
 
                           if (existingTxs && existingTxs.length > 0) {
-                            // PRIORITAS: Cari yang 'verifying' dulu, kalau nggak ada baru yang 'pending' terbaru
                             const bestTx = existingTxs.find(tx => tx.status === 'verifying') || existingTxs[0];
-                            
                             if (onPurchaseSuccess) onPurchaseSuccess(bestTx.id);
                             setLoading(false);
                             return;
@@ -249,21 +253,18 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                             .single();
 
                           if (txError) throw txError;
-
-                          if (onPurchaseSuccess && newTx) {
-                            onPurchaseSuccess(newTx.id);
-                          }
+                          if (newTx && onPurchaseSuccess) onPurchaseSuccess(newTx.id);
 
                         } catch (err: any) {
-                          alert(`Gagal memproses pesanan: ${err.message}`);
+                          alert(`Gagal memproses pembelian: ${err.message}`);
                         } finally {
                           setLoading(false);
                         }
                       }
                     }}
-                    className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-2xl transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2"
+                    className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-black rounded-xl transition-all shadow-lg shadow-blue-500/25 active:scale-95 flex items-center gap-2 group/btn text-sm"
                   >
-                    Beli <ChevronRight className="w-4 h-4" />
+                    Beli <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                   </button>
                 </div>
               </div>

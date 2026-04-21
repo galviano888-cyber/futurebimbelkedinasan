@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Save, Image as ImageIcon, CheckCircle2, Loader2, UploadCloud, Edit2, Check, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, Save, Loader2, UploadCloud, Edit2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface AdminPackageEditorViewProps {
   packageId: string;
@@ -11,316 +13,355 @@ interface AdminPackageEditorViewProps {
 export function AdminPackageEditorView({ packageId, onBack }: AdminPackageEditorViewProps) {
   const [pkg, setPkg] = useState<any>(null);
   const [questions, setQuestions] = useState<any[]>([]);
+  const [tryouts, setTryouts] = useState<any[]>([]);
   const [activeQuestion, setActiveQuestion] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetchData();
+    fetchPackageDetails();
+    fetchTryouts();
   }, [packageId]);
 
-  const fetchData = async () => {
+  const fetchTryouts = async () => {
     if (!supabase) return;
-    setLoading(true);
-    
-    const { data: pkgData } = await supabase.from('tryout_packages').select('*').eq('id', packageId).single();
-    if (pkgData) setPkg(pkgData);
+    const { data } = await supabase.from('tryout_packages').select('id, title');
+    setTryouts(data || []);
+  };
 
-    const { data: qData } = await supabase.from('tryout_questions').select('*').eq('package_id', packageId).order('number', { ascending: true });
-    if (qData) {
-      setQuestions(qData);
-      if (qData.length > 0) setActiveQuestion(qData[0]);
+  const fetchPackageDetails = async () => {
+    if (!supabase) return;
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('packages')
+        .select('*, contents:package_contents(*)')
+        .eq('id', packageId)
+        .single();
+
+      if (error) throw error;
+      setPkg(data);
+      setTempName(data.title);
+      
+      const sortedContents = (data.contents || []).sort((a: any, b: any) => a.order_index - b.order_index);
+      setQuestions(sortedContents);
+      
+      // Maintain active question if it exists, otherwise default to first
+      if (sortedContents.length > 0) {
+        if (activeQuestion) {
+          const current = sortedContents.find((q: any) => q.id === activeQuestion.id);
+          if (current) setActiveQuestion(current);
+          else setActiveQuestion(sortedContents[0]);
+        } else {
+          setActiveQuestion(sortedContents[0]);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching package details:", err);
+      toast.error("Gagal mengambil detail paket");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleUpdatePackageName = async () => {
     if (!supabase || !tempName.trim()) return;
-    setSaving(true);
     try {
       const { error } = await supabase
-        .from('tryout_packages')
-        .update({ name: tempName })
+        .from('packages')
+        .update({ title: tempName })
         .eq('id', packageId);
 
       if (error) throw error;
-      setPkg({ ...pkg, name: tempName });
+      setPkg({ ...pkg, title: tempName });
       setIsEditingName(false);
-    } catch (err: any) {
-      alert("Gagal update nama: " + err.message);
-    } finally {
-      setSaving(false);
+      toast.success("Nama paket berhasil diperbarui");
+    } catch (err) {
+      toast.error("Gagal memperbarui nama paket");
     }
   };
 
   const handleSaveQuestion = async () => {
     if (!supabase || !activeQuestion) return;
-    setSaving(true);
     try {
+      setSaving(true);
+      console.log("DEBUG - Saving Payload:", {
+        title: activeQuestion.title,
+        url: activeQuestion.url,
+        type: activeQuestion.type,
+        zoom_link: activeQuestion.zoom_link,
+        recording_url: activeQuestion.recording_url,
+        live_schedule: activeQuestion.live_schedule,
+        mentor_name: activeQuestion.mentor_name,
+        tryout_id: activeQuestion.tryout_id
+      });
+
+      const payload = {
+        title: activeQuestion.title,
+        url: activeQuestion.url,
+        type: activeQuestion.type,
+        zoom_link: activeQuestion.zoom_link,
+        recording_url: activeQuestion.recording_url,
+        live_schedule: activeQuestion.live_schedule,
+        mentor_name: activeQuestion.live_schedule ? `[SCHEDULE]: ${activeQuestion.live_schedule}` : activeQuestion.mentor_name,
+        tryout_id: activeQuestion.tryout_id
+      };
+
+      console.log("SENDING TO SUPABASE:", payload);
+      alert("DEBUG - Mengirim Data: " + JSON.stringify(payload));
+
       const { error } = await supabase
-        .from('tryout_questions')
-        .update({
-          question_text: activeQuestion.question_text,
-          question_image_url: activeQuestion.question_image_url,
-          options: activeQuestion.options,
-          correct_answer: activeQuestion.correct_answer,
-          tkp_scores: activeQuestion.tkp_scores,
-          explanation: activeQuestion.explanation,
-          fast_tips: activeQuestion.fast_tips
-        })
+        .from('package_contents')
+        .update(payload)
         .eq('id', activeQuestion.id);
 
       if (error) throw error;
-      
-      // Update local state
-      setQuestions(prev => prev.map(q => q.id === activeQuestion.id ? activeQuestion : q));
-      alert("Soal berhasil disimpan!");
+      toast.success("Konten berhasil disimpan");
+      fetchPackageDetails();
     } catch (err: any) {
-      alert("Gagal menyimpan soal: " + err.message);
+      console.error("DEBUG - Save Error:", err);
+      toast.error(`Gagal menyimpan: ${err.message || 'Cek koneksi/database'}`);
+      if (err.message?.includes('column')) {
+        toast.error("Database belum siap. Jalankan SQL Migration yang saya berikan!", { duration: 5000 });
+      }
     } finally {
       setSaving(false);
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !supabase || !activeQuestion) return;
-
+  const handleAddQuestion = async () => {
+    if (!supabase) return;
     try {
-      setSaving(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `images/${fileName}`;
-      
-      const { error: uploadError } = await supabase.storage.from('question-media').upload(filePath, file);
-      if (uploadError) throw uploadError;
-      
-      const { data } = supabase.storage.from('question-media').getPublicUrl(filePath);
-      
-      setActiveQuestion({ ...activeQuestion, question_image_url: data.publicUrl });
-    } catch (err: any) {
-      alert("Gagal upload gambar: " + err.message);
-    } finally {
-      setSaving(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      const newOrder = questions.length + 1;
+      const { data, error } = await supabase
+        .from('package_contents')
+        .insert([{
+          package_id: packageId,
+          title: "Konten Baru",
+          type: 'video',
+          order_index: newOrder
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      setQuestions([...questions, data]);
+      setActiveQuestion(data);
+      toast.success("Konten baru ditambahkan");
+    } catch (err) {
+      toast.error("Gagal menambah konten");
     }
   };
 
-  if (loading) {
-    return <div className="flex h-full items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-blue-600" /></div>;
-  }
-
-  if (!pkg) return <div className="p-8">Paket tidak ditemukan. <Button onClick={onBack}>Kembali</Button></div>;
+  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-blue-600" /></div>;
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 animate-in fade-in">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="font-bold text-slate-800">Editor Bank Soal</h1>
-            {isEditingName ? (
-              <div className="flex items-center gap-2 mt-1">
-                <input 
-                  value={tempName}
-                  onChange={(e) => setTempName(e.target.value)}
-                  className="bg-slate-50 border-2 border-blue-500 rounded-lg px-2 py-1 text-sm font-bold outline-none w-64"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleUpdatePackageName();
-                    if (e.key === 'Escape') setIsEditingName(false);
-                  }}
-                />
-                <button onClick={handleUpdatePackageName} className="text-emerald-600"><Check className="w-4 h-4" /></button>
-                <button onClick={() => setIsEditingName(false)} className="text-red-600"><X className="w-4 h-4" /></button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 group cursor-pointer" onClick={() => { setIsEditingName(true); setTempName(pkg.name); }}>
-                <p className="text-sm text-slate-500">{pkg.name} • {questions.length} Soal</p>
-                <Edit2 className="w-3 h-3 text-slate-300 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all" />
-              </div>
-            )}
-          </div>
+          <Button variant="ghost" onClick={onBack}><ArrowLeft className="w-4 h-4 mr-2" /> Kembali</Button>
+          <div className="h-8 w-px bg-slate-200 mx-2" />
+          {isEditingName ? (
+            <div className="flex items-center gap-2">
+              <input 
+                value={tempName} 
+                onChange={(e) => setTempName(e.target.value)}
+                className="text-2xl font-bold bg-white border border-blue-500 rounded px-2 py-1 outline-none"
+                autoFocus
+              />
+              <Button size="sm" onClick={handleUpdatePackageName}><Check className="w-4 h-4" /></Button>
+              <Button size="sm" variant="ghost" onClick={() => { setIsEditingName(false); setTempName(pkg.title); }}><X className="w-4 h-4" /></Button>
+            </div>
+          ) : (
+            <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+              {pkg?.title}
+              <Button variant="ghost" size="sm" onClick={() => setIsEditingName(true)}><Edit2 className="w-4 h-4" /></Button>
+            </h1>
+          )}
         </div>
-        <div className="flex items-center gap-3">
-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${pkg.status === 'Published' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
-            {pkg.status}
-          </span>
-          <Button variant="outline" size="sm" className="text-slate-700 border-slate-300 hover:bg-slate-100" onClick={async () => {
-            const newStatus = pkg.status === 'Draft' ? 'Published' : 'Draft';
-            await supabase?.from('tryout_packages').update({ status: newStatus }).eq('id', pkg.id);
-            setPkg({...pkg, status: newStatus});
-          }}>
-            {pkg.status === 'Draft' ? 'Publish Paket' : 'Jadikan Draft'}
-          </Button>
-        </div>
-      </header>
+        <Button onClick={handleSaveQuestion} disabled={saving}>
+          {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+          Simpan Semua Perubahan
+        </Button>
+      </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar Nav Soal */}
-        <div className="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0">
-          <div className="p-4 border-b border-slate-100 bg-slate-50">
-            <h3 className="font-bold text-slate-700 text-sm">Navigasi Soal</h3>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-12 gap-8">
+        {/* Sidebar Konten */}
+        <div className="col-span-4 space-y-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="font-bold text-sm text-slate-600">Daftar Konten</h3>
+              <Button size="sm" variant="outline" onClick={handleAddQuestion}>Tambah</Button>
+            </div>
+            <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
               {questions.map((q) => (
                 <button
                   key={q.id}
                   onClick={() => setActiveQuestion(q)}
-                  className={`h-10 rounded-lg flex items-center justify-center text-sm font-semibold transition-all ${activeQuestion?.id === q.id ? 'bg-blue-600 text-white shadow-md scale-105' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  className={cn(
+                    "w-full p-4 text-left hover:bg-slate-50 transition-all flex items-center gap-3",
+                    activeQuestion?.id === q.id ? "bg-blue-50 border-r-4 border-blue-500" : ""
+                  )}
                 >
-                  {q.number}
+                  <div className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center",
+                    q.type === 'video' ? "bg-blue-100 text-blue-600" :
+                    q.type === 'file' ? "bg-emerald-100 text-emerald-600" :
+                    "bg-amber-100 text-amber-600"
+                  )}>
+                    {q.type === 'video' ? <PlayIcon className="w-4 h-4" /> : q.type === 'file' ? <FileTextIcon className="w-4 h-4" /> : <AwardIcon className="w-4 h-4" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-xs truncate text-slate-800">{q.title}</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-medium">{q.type}</p>
+                  </div>
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Editor Area */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8">
+        {/* Editor Konten */}
+        <div className="col-span-8">
           {activeQuestion ? (
-            <div className="max-w-4xl mx-auto space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
-                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-lg">Soal #{activeQuestion.number}</span>
-                  <span className={`px-2.5 py-1 rounded-md text-xs font-bold text-white ${activeQuestion.category === 'TWK' ? 'bg-blue-500' : activeQuestion.category === 'TIU' ? 'bg-emerald-500' : 'bg-amber-500'}`}>
-                    {activeQuestion.category}
-                  </span>
-                </h2>
-                <Button onClick={handleSaveQuestion} disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-white font-bold">
-                  {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                  Simpan Perubahan
-                </Button>
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 space-y-6">
+              <div className="flex items-center justify-between text-[10px] font-mono text-slate-300">
+                <span>ID Konten: {activeQuestion.id}</span>
+                <span>Tipe: {activeQuestion.type.toUpperCase()}</span>
               </div>
-
-              {/* Teks Soal */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                <label className="font-bold text-slate-700 text-sm uppercase tracking-wide">Teks Soal</label>
-                <textarea
-                  value={activeQuestion.question_text}
-                  onChange={(e) => setActiveQuestion({ ...activeQuestion, question_text: e.target.value })}
-                  className="w-full h-32 p-4 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                  placeholder="Tulis soal di sini..."
+              <div className="space-y-4">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Judul Konten</label>
+                <input 
+                  className="w-full text-xl font-bold p-4 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  value={activeQuestion.title}
+                  onChange={(e) => setActiveQuestion({ ...activeQuestion, title: e.target.value })}
                 />
-                
-                {/* Image Upload */}
-                <div>
-                  <label className="font-bold text-slate-700 text-sm uppercase tracking-wide mb-2 block">Media Soal (Opsional)</label>
-                  {activeQuestion.question_image_url ? (
-                    <div className="relative inline-block">
-                      <img src={activeQuestion.question_image_url} alt="Media Soal" className="max-h-48 rounded-lg border border-slate-200" />
-                      <button 
-                        onClick={() => setActiveQuestion({ ...activeQuestion, question_image_url: null })}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 shadow-md"
-                      >
-                        <ArrowLeft className="w-4 h-4 rotate-45" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-4">
-                      <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageUpload} />
-                      <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={saving} className="border-dashed border-2 border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900">
-                        <UploadCloud className="w-4 h-4 mr-2" /> Unggah Gambar (JPG/PNG)
-                      </Button>
-                    </div>
-                  )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tipe Konten</label>
+                  <select 
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl outline-none"
+                    value={activeQuestion.type}
+                    onChange={(e) => setActiveQuestion({ ...activeQuestion, type: e.target.value as any })}
+                  >
+                    <option value="video">Video (Live Class)</option>
+                    <option value="file">File (E-Book/PDF)</option>
+                    <option value="tryout">Tryout</option>
+                  </select>
+                </div>
+                <div className="space-y-4">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">URL Konten / ID Tryout</label>
+                  <input 
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl outline-none"
+                    value={activeQuestion.url || ""}
+                    onChange={(e) => setActiveQuestion({ ...activeQuestion, url: e.target.value })}
+                    placeholder="https://... atau UUID"
+                  />
                 </div>
               </div>
 
-              {/* Opsi Jawaban */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
-                <label className="font-bold text-slate-700 text-sm uppercase tracking-wide">Opsi Jawaban & Skor</label>
-                <div className="space-y-4">
-                  {['A', 'B', 'C', 'D', 'E'].map(opt => (
-                    <div key={opt} className="flex items-start gap-4">
-                      <div className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center font-bold text-sm ${activeQuestion.correct_answer === opt ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600'}`}>
-                        {opt}
-                      </div>
-                      <div className="flex-1 flex gap-4">
-                        <textarea
-                          value={activeQuestion.options[opt] || ''}
-                          onChange={(e) => setActiveQuestion({
-                            ...activeQuestion,
-                            options: { ...activeQuestion.options, [opt]: e.target.value }
-                          })}
-                          className="flex-1 p-3 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 outline-none min-h-[60px]"
-                          placeholder={`Teks Opsi ${opt}`}
-                        />
-                        {activeQuestion.category === 'TKP' && (
-                          <div className="w-24 shrink-0">
-                            <label className="text-xs font-bold text-slate-500 block mb-1">Poin TKP</label>
-                            <input
-                              type="number"
-                              min="1" max="5"
-                              value={activeQuestion.tkp_scores?.[opt] || 0}
-                              onChange={(e) => setActiveQuestion({
-                                ...activeQuestion,
-                                tkp_scores: { ...activeQuestion.tkp_scores, [opt]: parseInt(e.target.value) || 0 }
-                              })}
-                              className="w-full p-2 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg text-center"
-                            />
-                          </div>
-                        )}
-                      </div>
+              {activeQuestion.type === 'video' && (
+                <div className="space-y-6 pt-6 border-t border-slate-100">
+                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Detail Live Class</h4>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Link Zoom / YT</label>
+                      <input 
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl outline-none text-sm"
+                        value={activeQuestion.zoom_link || ""}
+                        onChange={(e) => setActiveQuestion({ ...activeQuestion, zoom_link: e.target.value })}
+                        placeholder="https://zoom.us/j/..."
+                      />
                     </div>
-                  ))}
-                </div>
-
-                {activeQuestion.category !== 'TKP' && (
-                  <div className="pt-4 border-t border-slate-100">
-                    <label className="font-bold text-slate-700 text-sm uppercase tracking-wide mr-4">Kunci Jawaban Benar:</label>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Jadwal</label>
+                      <input 
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl outline-none text-sm"
+                        value={activeQuestion.live_schedule || ""}
+                        onChange={(e) => setActiveQuestion({ ...activeQuestion, live_schedule: e.target.value })}
+                        placeholder="Contoh: Selasa, 19:30 WIB"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Link Rekaman</label>
+                      <input 
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl outline-none text-sm"
+                        value={activeQuestion.recording_url || ""}
+                        onChange={(e) => setActiveQuestion({ ...activeQuestion, recording_url: e.target.value })}
+                        placeholder="https://youtube.com/..."
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Mentor</label>
+                      <input 
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl outline-none text-sm"
+                        value={activeQuestion.mentor_name || ""}
+                        onChange={(e) => setActiveQuestion({ ...activeQuestion, mentor_name: e.target.value })}
+                        placeholder="Nama Mentor"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Link Mini Tes (Optional)</label>
                     <select 
-                      value={activeQuestion.correct_answer || ''}
-                      onChange={(e) => setActiveQuestion({ ...activeQuestion, correct_answer: e.target.value })}
-                      className="p-2 border border-slate-300 text-slate-900 rounded-lg bg-white font-bold"
+                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl outline-none text-sm"
+                      value={activeQuestion.tryout_id || ""}
+                      onChange={(e) => setActiveQuestion({ ...activeQuestion, tryout_id: e.target.value })}
                     >
-                      <option value="">Pilih...</option>
-                      {['A', 'B', 'C', 'D', 'E'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      <option value="">-- Pilih Mini Tes --</option>
+                      {tryouts.map(to => (
+                        <option key={to.id} value={to.id}>{to.title}</option>
+                      ))}
                     </select>
                   </div>
-                )}
-              </div>
 
-              {/* Pembahasan */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                <label className="font-bold text-slate-700 text-sm uppercase tracking-wide text-emerald-600 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" /> Pembahasan Rahasia (Ditampilkan setelah ujian)
-                </label>
-                <textarea
-                  value={activeQuestion.explanation || ''}
-                  onChange={(e) => setActiveQuestion({ ...activeQuestion, explanation: e.target.value })}
-                  className="w-full h-32 p-4 text-slate-900 bg-emerald-50/50 border border-emerald-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
-                  placeholder="Penjelasan lengkap mengapa jawaban ini benar..."
-                />
-                
-                <label className="font-bold text-slate-700 text-sm uppercase tracking-wide text-amber-600 block mt-4">
-                  💡 Tips Cepat
-                </label>
-                <input
-                  type="text"
-                  value={activeQuestion.fast_tips || ''}
-                  onChange={(e) => setActiveQuestion({ ...activeQuestion, fast_tips: e.target.value })}
-                  className="w-full p-3 text-slate-900 bg-amber-50/50 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
-                  placeholder="Cara cepat / rumus cerdas menjawab tipe soal ini..."
-                />
-              </div>
+                  <div className="pt-4">
+                    <Button 
+                      onClick={handleSaveQuestion} 
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest py-6 rounded-2xl shadow-lg shadow-blue-500/20"
+                      disabled={saving}
+                    >
+                      {saving ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
+                      Simpan Konten Ini
+                    </Button>
+                  </div>
+                </div>
+              )}
 
+              <div className="pt-8 border-t border-slate-100">
+                <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100 flex items-start gap-4">
+                  <UploadCloud className="w-6 h-6 text-blue-600 mt-1" />
+                  <div>
+                    <h4 className="font-bold text-blue-900 mb-1">Panduan Pengisian</h4>
+                    <p className="text-sm text-blue-700 leading-relaxed">
+                      Untuk tipe **Video**, masukkan URL video (YouTube/Drive). Untuk **File**, masukkan URL PDF. Untuk **Tryout**, masukkan ID Paket Tryout yang sudah dibuat di Import Soal.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-slate-400">
-              <ImageIcon className="w-16 h-16 mb-4 opacity-50" />
-              <p>Pilih soal dari navigasi di sebelah kiri untuk mulai mengedit.</p>
+            <div className="bg-slate-50 rounded-2xl border border-dashed border-slate-200 h-64 flex items-center justify-center text-slate-400">
+              Pilih konten di sidebar untuk mulai mengedit
             </div>
           )}
         </div>
       </div>
     </div>
   );
+}
+
+// Minimal icons local to this view to avoid import issues
+function PlayIcon({ className }: { className?: string }) {
+  return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+}
+function FileTextIcon({ className }: { className?: string }) {
+  return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
+}
+function AwardIcon({ className }: { className?: string }) {
+  return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>;
 }
