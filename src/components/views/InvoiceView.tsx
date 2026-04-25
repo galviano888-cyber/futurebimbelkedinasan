@@ -7,10 +7,12 @@ import {
   Loader2,
   CreditCard,
   FileText,
-  Phone
+  Phone,
+  Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 
 
 interface InvoiceViewProps {
@@ -103,13 +105,13 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text.replace(/\s/g, ''));
-    alert("Berhasil disalin!");
+    toast.success("Berhasil disalin!");
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
-    if (selectedFile.size > 5 * 1024 * 1024) return alert("Ukuran file maksimal 5MB");
+    if (selectedFile.size > 5 * 1024 * 1024) return toast.error("Ukuran file maksimal 5MB");
     setFile(selectedFile);
   };
 
@@ -129,10 +131,10 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
         updated_at: new Date().toISOString()
       }).eq('id', transactionId);
 
-      alert("Bukti pembayaran berhasil dikirim!");
+      toast.success("Bukti pembayaran berhasil dikirim!");
       fetchTransaction(true);
     } catch (err: any) {
-      alert("Terjadi kesalahan: " + err.message);
+      toast.error("Terjadi kesalahan: " + err.message);
     } finally {
       setUploading(false);
     }
@@ -215,23 +217,38 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                   </div>
                </div>
 
-               <div className="space-y-4">
-                  <input type="file" id="proof-upload" className="hidden" onChange={handleFileUpload} accept="image/*" />
-                  <label htmlFor="proof-upload" className={`flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-[2rem] cursor-pointer transition-all ${file ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:border-blue-500'}`}>
-                    {file ? <CheckCircle2 className="w-10 h-10 text-emerald-500 mb-2" /> : <Upload className="w-10 h-10 text-slate-300 mb-2" />}
-                    <p className="text-xs font-bold text-slate-600">{file ? file.name : "Pilih Bukti Pembayaran"}</p>
-                  </label>
-                  
-                  <Button onClick={submitProof} disabled={!file || uploading} className="w-full h-16 bg-blue-600 text-white rounded-2xl font-black shadow-lg shadow-blue-500/30">
-                    {uploading ? "Mengirim..." : "Kirim Bukti Pembayaran"}
-                  </Button>
+               {isPending ? (
+                 <div className="space-y-4">
+                    <input type="file" id="proof-upload" className="hidden" onChange={handleFileUpload} accept="image/*" />
+                    <label htmlFor="proof-upload" className={`flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-[2rem] cursor-pointer transition-all ${file ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:border-blue-500'}`}>
+                      {file ? <CheckCircle2 className="w-10 h-10 text-emerald-500 mb-2" /> : <Upload className="w-10 h-10 text-slate-300 mb-2" />}
+                      <p className="text-xs font-bold text-slate-600">{file ? file.name : "Pilih Bukti Pembayaran"}</p>
+                    </label>
+                    
+                    <Button onClick={submitProof} disabled={!file || uploading} className="w-full h-16 bg-blue-600 text-white rounded-2xl font-black shadow-lg shadow-blue-500/30">
+                      {uploading ? "Mengirim..." : "Kirim Bukti Pembayaran"}
+                    </Button>
 
-                  <div className="flex items-center gap-4 py-2"><div className="flex-1 h-px bg-slate-100" /><span className="text-[10px] font-black text-slate-300 uppercase">Atau</span><div className="flex-1 h-px bg-slate-100" /></div>
+                    <div className="flex items-center gap-4 py-2"><div className="flex-1 h-px bg-slate-100" /><span className="text-[10px] font-black text-slate-300 uppercase">Atau</span><div className="flex-1 h-px bg-slate-100" /></div>
 
-                  <a href={generateWaLink()} target="_blank" rel="noreferrer" className={`w-full h-16 rounded-2xl font-black flex items-center justify-center gap-2 text-sm transition-all ${transaction.payment_proof_url ? 'bg-emerald-500 text-white shadow-lg' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
-                    <Phone className="w-5 h-5" /> Konfirmasi WhatsApp
-                  </a>
-               </div>
+                    <a href={generateWaLink()} target="_blank" rel="noreferrer" className={`w-full h-16 rounded-2xl font-black flex items-center justify-center gap-2 text-sm transition-all ${transaction.payment_proof_url ? 'bg-emerald-500 text-white shadow-lg' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
+                      <Phone className="w-5 h-5" /> Konfirmasi WhatsApp
+                    </a>
+                 </div>
+               ) : (
+                 <div className="space-y-6 pt-6 border-t border-slate-100 text-center">
+                    <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto">
+                      <Clock className="w-8 h-8 text-blue-500 animate-pulse" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-slate-900 uppercase">Verifikasi Dalam Proses</h4>
+                      <p className="text-xs text-slate-500 mt-2 leading-relaxed">Kami sedang memeriksa pembayaranmu. Proses ini biasanya memakan waktu 5-10 menit. Jika terlalu lama, silakan hubungi admin.</p>
+                    </div>
+                    <a href={generateWaLink()} target="_blank" rel="noreferrer" className="w-full h-14 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-2xl font-black flex items-center justify-center gap-2 text-sm transition-all">
+                      <Phone className="w-5 h-5" /> Hubungi Admin via WhatsApp
+                    </a>
+                 </div>
+               )}
             </div>
           )}
 

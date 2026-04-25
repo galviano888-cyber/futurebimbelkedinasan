@@ -10,6 +10,7 @@ import {
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface PackageContent {
   id: string;
@@ -193,14 +194,14 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                           }]);
 
                           if (error) {
-                            if (error.code === '23505') alert("Anda sudah memiliki paket ini!");
+                            if (error.code === '23505') toast.error("Anda sudah memiliki paket ini!");
                             else throw error;
                           } else {
-                            alert("Selamat! Paket gratis berhasil ditambahkan ke akun Anda.");
+                            toast.success("Selamat! Paket gratis berhasil ditambahkan ke akun Anda.");
                             window.location.reload();
                           }
                         } catch (err: any) {
-                          alert(`Gagal mengambil paket: ${err.message}`);
+                          toast.error(`Gagal mengambil paket: ${err.message}`);
                         } finally {
                           setLoading(false);
                         }
@@ -256,7 +257,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                           if (newTx && onPurchaseSuccess) onPurchaseSuccess(newTx.id);
 
                         } catch (err: any) {
-                          alert(`Gagal memproses pembelian: ${err.message}`);
+                          toast.error(`Gagal memproses pembelian: ${err.message}`);
                         } finally {
                           setLoading(false);
                         }

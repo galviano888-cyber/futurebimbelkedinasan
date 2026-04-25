@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Lock, Loader2, CheckCircle2, ArrowRight } from "lucide-react";
+import { Lock, Loader2, CheckCircle2, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,8 @@ export function ResetPasswordView() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useState(() => {
     // Check for error in hash (Supabase puts errors in hash fragment)
@@ -90,26 +92,44 @@ export function ResetPasswordView() {
           <form onSubmit={handleReset} className="space-y-6">
             <div className="space-y-2">
               <Label className="text-slate-600 font-semibold text-xs uppercase tracking-wider ml-1">Kata Sandi Baru</Label>
-              <Input 
-                type="password" 
-                required 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="Minimal 8 karakter"
-                className="bg-slate-50 border-slate-200 h-14 rounded-2xl focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 font-bold"
-              />
+              <div className="relative">
+                <Input 
+                  type={showPassword ? "text" : "password"} 
+                  required 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  placeholder="Minimal 8 karakter"
+                  className="bg-slate-50 border-slate-200 h-14 rounded-2xl pr-12 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 font-bold"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
             
             <div className="space-y-2">
               <Label className="text-slate-600 font-semibold text-xs uppercase tracking-wider ml-1">Konfirmasi Kata Sandi</Label>
-              <Input 
-                type="password" 
-                required 
-                value={confirmPassword} 
-                onChange={(e) => setConfirmPassword(e.target.value)} 
-                placeholder="Ulangi kata sandi"
-                className="bg-slate-50 border-slate-200 h-14 rounded-2xl focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 font-bold"
-              />
+              <div className="relative">
+                <Input 
+                  type={showConfirmPassword ? "text" : "password"} 
+                  required 
+                  value={confirmPassword} 
+                  onChange={(e) => setConfirmPassword(e.target.value)} 
+                  placeholder="Ulangi kata sandi"
+                  className="bg-slate-50 border-slate-200 h-14 rounded-2xl pr-12 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 font-bold"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
 
             <Button type="submit" disabled={loading || !!urlError} className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50">

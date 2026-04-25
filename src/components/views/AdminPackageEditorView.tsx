@@ -110,7 +110,7 @@ export function AdminPackageEditorView({ packageId, onBack }: AdminPackageEditor
       };
 
       console.log("SENDING TO SUPABASE:", payload);
-      alert("DEBUG - Mengirim Data: " + JSON.stringify(payload));
+      console.log("DEBUG - Mengirim Data: ", payload);
 
       const { error } = await supabase
         .from('package_contents')

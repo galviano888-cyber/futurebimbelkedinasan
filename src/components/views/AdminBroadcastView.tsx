@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Megaphone, Send, Loader2, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 
 export function AdminBroadcastView() {
   const [title, setTitle] = useState("");
@@ -31,7 +32,7 @@ export function AdminBroadcastView() {
       setMessage("");
       setTimeout(() => setSuccess(false), 5000);
     } catch (err: any) {
-      alert("Gagal mengirim broadcast: " + err.message);
+      toast.error("Gagal mengirim broadcast: " + err.message);
     } finally {
       setLoading(false);
     }

@@ -16,6 +16,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface PackageContent {
   id: string;
@@ -440,7 +441,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                                   if (selectedPkg?.package_id && (content.tryout_id || content.id)) {
                                     onStartTryout(selectedPkg.package_id, content.tryout_id || content.id);
                                   } else {
-                                    alert("Gagal memuat Tryout: Data paket atau soal tidak lengkap.");
+                                    toast.error("Gagal memuat Tryout: Data paket atau soal tidak lengkap.");
                                   }
                                 }}
                                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-2xl transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 active:scale-95"

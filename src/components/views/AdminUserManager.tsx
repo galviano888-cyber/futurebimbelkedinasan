@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export function AdminUserManager() {
   const [users, setUsers] = useState<any[]>([]);
@@ -60,9 +61,9 @@ export function AdminUserManager() {
       const { error } = await supabase.rpc('delete_user_by_admin', { target_user_id: userId });
       if (error) throw error;
       setUsers(users.filter(u => u.id !== userId));
-      alert("Akun berhasil dihapus!");
+      toast.success("Akun berhasil dihapus!");
     } catch (err: any) {
-      alert("Gagal menghapus user: " + err.message);
+      toast.error("Gagal menghapus user: " + err.message);
     }
   };
 
