@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Globe, Plus, Trash2 } from "lucide-react";
+import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Globe, Plus, Trash2, Check, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { AdminPackageEditorView } from "./AdminPackageEditorView";
@@ -31,6 +31,9 @@ export function AdminPanelView() {
 
   const [loading, setLoading] = useState(true);
   const [salesPackages, setSalesPackages] = useState<any[]>([]);
+  const [editingPackageId, setEditingPackageId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const [selectedJsonFile, setSelectedJsonFile] = useState<File | null>(null);
 
   useEffect(() => {
     fetchPackages();
@@ -92,6 +95,21 @@ export function AdminPanelView() {
     if (!error && data) {
       setPackages(data);
       setFilteredPackages(data);
+    }
+  };
+
+  const handleUpdatePackageName = async (id: string, newName: string) => {
+    if (!newName.trim()) {
+      setEditingPackageId(null);
+      return;
+    }
+    const { error } = await supabase!.from('tryout_packages').update({ name: newName }).eq('id', id);
+    if (!error) {
+      setPackages(packages.map(p => p.id === id ? { ...p, name: newName } : p));
+      toast.success("Nama tryout berhasil diubah");
+      setEditingPackageId(null);
+    } else {
+      toast.error("Gagal mengubah nama: " + error.message);
     }
   };
 
@@ -273,7 +291,35 @@ export function AdminPanelView() {
                     <tbody className="bg-white divide-y divide-slate-50">
                       {filteredPackages.map((pkg) => (
                         <tr key={pkg.id} className="hover:bg-blue-50/30 transition-colors group">
-                           <td className="px-8 py-5 whitespace-nowrap"><div className="font-black text-slate-900 tracking-tight">{pkg.name}</div></td>
+                           <td className="px-8 py-5 whitespace-nowrap">
+                             {editingPackageId === pkg.id ? (
+                               <div className="flex items-center gap-2 animate-in fade-in duration-300">
+                                 <input 
+                                   autoFocus
+                                   type="text" 
+                                   value={editingName}
+                                   onChange={(e) => setEditingName(e.target.value)}
+                                   onKeyDown={(e) => {
+                                     if (e.key === 'Enter') handleUpdatePackageName(pkg.id, editingName);
+                                     if (e.key === 'Escape') setEditingPackageId(null);
+                                   }}
+                                   className="bg-white border border-blue-500 rounded-lg px-3 py-1 text-sm font-black text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/10 min-w-[200px]"
+                                 />
+                                 <button onClick={() => handleUpdatePackageName(pkg.id, editingName)} className="p-1 text-emerald-500 hover:bg-emerald-50 rounded-md transition-colors"><Check className="w-4 h-4" /></button>
+                                 <button onClick={() => setEditingPackageId(null)} className="p-1 text-red-500 hover:bg-red-50 rounded-md transition-colors"><X className="w-4 h-4" /></button>
+                               </div>
+                             ) : (
+                               <div className="flex items-center gap-3 group/name">
+                                 <div className="font-black text-slate-900 tracking-tight">{pkg.name}</div>
+                                 <button 
+                                   onClick={() => { setEditingPackageId(pkg.id); setEditingName(pkg.name); }}
+                                   className="opacity-0 group-hover/name:opacity-100 p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                 >
+                                   <Edit2 className="w-3.5 h-3.5" />
+                                 </button>
+                               </div>
+                             )}
+                           </td>
                            <td className="px-8 py-5 whitespace-nowrap">
                              <select 
                                value={pkg.category || 'SKD'}
@@ -402,44 +448,69 @@ export function AdminPanelView() {
 }`}
                   </pre>
                 </div>
-                <textarea 
-                  id="json-input"
-                  className="w-full h-80 p-6 bg-slate-900 text-emerald-400 font-mono text-xs rounded-3xl border-none outline-none ring-4 ring-slate-100"
-                  placeholder="Paste JSON kamu di sini..."
-                />
-                <Button className="w-full h-16 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20" onClick={async () => {
-                  try {
-                    const raw = (document.getElementById('json-input') as HTMLTextAreaElement).value;
-                    const data = JSON.parse(raw);
-                    setLoading(true);
+                <div className="border-4 border-dashed border-slate-100 rounded-[2rem] p-12 text-center space-y-4 hover:border-blue-200 transition-all group relative">
+                  <input 
+                    type="file" 
+                    accept=".json"
+                    onChange={(e) => setSelectedJsonFile(e.target.files?.[0] || null)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                    <FileJson className="w-10 h-10 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-black text-slate-900">{selectedJsonFile ? selectedJsonFile.name : "Pilih File JSON"}</p>
+                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">{selectedJsonFile ? `${(selectedJsonFile.size / 1024).toFixed(2)} KB` : "Drag & drop atau klik untuk upload"}</p>
+                  </div>
+                </div>
+
+                <Button 
+                  className="w-full h-16 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed" 
+                  disabled={!selectedJsonFile || loading}
+                  onClick={async () => {
+                    if (!selectedJsonFile) return;
                     
-                    // 1. Insert Package
-                    const { data: pkgData, error: pkgError } = await supabase!.from('tryout_packages').insert({
-                      name: data.name,
-                      category: data.category || 'SKD',
-                      status: 'Draft'
-                    }).select().single();
-                    
-                    if (pkgError) throw pkgError;
-                    
-                    // 2. Insert Questions
-                    const questionsToInsert = data.questions.map((q: any) => ({
-                      ...q,
-                      package_id: pkgData.id
-                    }));
-                    
-                    const { error: qError } = await supabase!.from('tryout_questions').insert(questionsToInsert);
-                    if (qError) throw qError;
-                    
-                    toast.success("Import Berhasil! " + questionsToInsert.length + " soal ditambahkan.");
-                    setCurrentView('dashboard');
-                    fetchPackages();
-                  } catch (err: any) {
-                    toast.error("Gagal Import: " + err.message);
-                  } finally {
-                    setLoading(false);
-                  }
-                }}>Proses Import Sekarang</Button>
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                      try {
+                        const raw = e.target?.result as string;
+                        const data = JSON.parse(raw);
+                        setLoading(true);
+                        
+                        // 1. Insert Package
+                        const packageName = data.name || data.title || selectedJsonFile.name.replace('.json', '');
+                        const { data: pkgData, error: pkgError } = await supabase!.from('tryout_packages').insert({
+                          name: packageName,
+                          category: data.category || 'SKD',
+                          status: 'Draft'
+                        }).select().single();
+                        
+                        if (pkgError) throw pkgError;
+                        
+                        // 2. Insert Questions
+                        const questionsToInsert = data.questions.map((q: any) => ({
+                          ...q,
+                          package_id: pkgData.id
+                        }));
+                        
+                        const { error: qError } = await supabase!.from('tryout_questions').insert(questionsToInsert);
+                        if (qError) throw qError;
+                        
+                        toast.success("Import Berhasil! " + questionsToInsert.length + " soal ditambahkan.");
+                        setCurrentView('dashboard');
+                        fetchPackages();
+                        setSelectedJsonFile(null);
+                      } catch (err: any) {
+                        toast.error("Gagal Import: " + err.message);
+                      } finally {
+                        setLoading(false);
+                      }
+                    };
+                    reader.readAsText(selectedJsonFile);
+                  }}
+                >
+                  {loading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "Proses Import Sekarang"}
+                </Button>
               </div>
             )}
 

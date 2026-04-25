@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Save, Plus, Trash2, Loader2, Image as ImageIcon, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2, Loader2, Image as ImageIcon, CheckCircle2, AlertCircle, Edit2, Check, X, Globe, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
@@ -16,6 +16,9 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [packageName, setPackageName] = useState("");
+  const [status, setStatus] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState("");
 
   useEffect(() => {
     fetchPackageInfo();
@@ -24,8 +27,41 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
 
   const fetchPackageInfo = async () => {
     if (!supabase) return;
-    const { data } = await supabase.from('tryout_packages').select('name').eq('id', packageId).single();
-    if (data) setPackageName(data.name);
+    const { data } = await supabase.from('tryout_packages').select('name, status').eq('id', packageId).single();
+    if (data) {
+      setPackageName(data.name);
+      setTempName(data.name);
+      setStatus(data.status);
+    }
+  };
+
+  const handleToggleStatus = async () => {
+    if (!supabase) return;
+    const newStatus = status === 'Published' ? 'Draft' : 'Published';
+    try {
+      setSaving(true);
+      const { error } = await supabase.from('tryout_packages').update({ status: newStatus }).eq('id', packageId);
+      if (error) throw error;
+      setStatus(newStatus);
+      toast.success(`Paket berhasil ${newStatus === 'Published' ? 'Dipublikasikan' : 'Ditarik ke Draft'}`);
+    } catch (err: any) {
+      toast.error("Gagal mengubah status: " + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpdateName = async () => {
+    if (!supabase || !tempName.trim()) return;
+    try {
+      const { error } = await supabase.from('tryout_packages').update({ name: tempName }).eq('id', packageId);
+      if (error) throw error;
+      setPackageName(tempName);
+      setIsEditingName(false);
+      toast.success("Nama tryout berhasil diperbarui");
+    } catch (err: any) {
+      toast.error("Gagal memperbarui nama: " + err.message);
+    }
   };
 
   const fetchQuestions = async () => {
@@ -137,11 +173,50 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
           <Button variant="ghost" onClick={onBack} className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" /> Kembali</Button>
           <div className="h-8 w-px bg-slate-200" />
           <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">{packageName || "Bank Soal"}</h1>
+            {isEditingName ? (
+              <div className="flex items-center gap-2 animate-in fade-in duration-300">
+                <input 
+                  autoFocus
+                  type="text" 
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleUpdateName();
+                    if (e.key === 'Escape') setIsEditingName(false);
+                  }}
+                  className="bg-white border-2 border-blue-500 rounded-xl px-4 py-2 text-xl font-black text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/10 min-w-[300px]"
+                />
+                <button onClick={handleUpdateName} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-xl transition-colors"><Check className="w-5 h-5" /></button>
+                <button onClick={() => setIsEditingName(false)} className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors"><X className="w-5 h-5" /></button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 group/title">
+                <h1 className="text-2xl font-black text-slate-900 tracking-tight">{packageName || "Bank Soal"}</h1>
+                <button 
+                  onClick={() => { setIsEditingName(true); setTempName(packageName); }}
+                  className="opacity-0 group-hover/title:opacity-100 p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+              </div>
+            )}
             <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Manajemen Butir Soal Tryout</p>
           </div>
         </div>
         <div className="flex gap-3">
+          <Button 
+            onClick={handleToggleStatus} 
+            disabled={saving}
+            className={cn(
+              "rounded-xl font-black transition-all shadow-lg",
+              status === 'Published' 
+                ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/20" 
+                : "bg-amber-500 text-white hover:bg-amber-600 shadow-amber-500/20"
+            )}
+          >
+            {status === 'Published' ? <Lock className="w-4 h-4 mr-2" /> : <Globe className="w-4 h-4 mr-2" />}
+            {status === 'Published' ? "UNPUBLISH" : "PUBLISH SEKARANG"}
+          </Button>
           <Button variant="outline" onClick={handleAddQuestion} className="rounded-xl font-bold"><Plus className="w-4 h-4 mr-2" /> Tambah Soal</Button>
           <Button onClick={handleSaveAll} disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black shadow-lg shadow-blue-500/20 px-8">
             {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}

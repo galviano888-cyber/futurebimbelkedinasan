@@ -184,7 +184,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shrink-0"><CreditCard className="w-6 h-6 text-white" /></div>
                <div>
                  <h4 className="font-black text-slate-900">{transaction.packages.title}</h4>
-                 <p className="text-slate-500 text-xs mt-1">{transaction.packages.description}</p>
+                 <p className="text-slate-500 text-xs mt-1 text-justify leading-relaxed">{transaction.packages.description}</p>
                </div>
             </div>
             <div className="mt-8 pt-8 border-t border-slate-100 flex justify-between items-center">
