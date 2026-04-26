@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
-import { cn } from "@/lib/utils";
 
 interface LandingPageViewProps {
   onEnter: () => void;
@@ -194,7 +193,7 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
         </div>
       </nav>
 
-      <section className="pt-24 pb-0 lg:pt-24 lg:pb-0 bg-[#0a1425] relative overflow-hidden">
+      <section className="pt-16 pb-0 bg-[#0a1425] relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center lg:text-left grid lg:grid-cols-2 gap-16 items-center">
           <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-10 lg:pr-10">
             <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black uppercase mb-4 shadow-sm" style={{ color: colors.badge }}>
@@ -202,24 +201,23 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
               <span>{hero.badge}</span>
             </motion.div>
             
-            <motion.h1 variants={itemVariants} className="text-4xl lg:text-[3.8rem] font-black tracking-tighter leading-[1.15] text-white">
-              {hero.title.split('.').filter(p => p.trim()).map((part, i) => (
-                <span key={i} className="block">
-                  {part.split(' ').map((word, wi) => {
-                    const isAccent = ["SKD", "Aman", "Simulasi", "FBK", "!", "?"].some(a => word.toUpperCase().includes(a.toUpperCase()));
-                    return (
-                      <span key={wi} className={cn(
-                        "inline-block mr-[0.2em]",
-                        isAccent 
-                          ? "bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 font-black" 
-                          : "text-white"
-                      )}>
-                        {word}
+            <motion.h1 variants={itemVariants} className="text-[2rem] lg:text-[2.8rem] font-black tracking-tighter leading-[1.25] text-white" style={{ textWrap: 'balance' } as any}>
+              {(() => {
+                const lastComma = hero.title.lastIndexOf(',');
+                const hasSplit = lastComma > 0;
+                const firstPart = hasSplit ? hero.title.slice(0, lastComma) + ',' : hero.title;
+                const secondPart = hasSplit ? hero.title.slice(lastComma + 1).trim() : '';
+                return (
+                  <>
+                    <span className="block text-white">{firstPart}</span>
+                    {secondPart && (
+                      <span className="block bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500">
+                        {secondPart}
                       </span>
-                    );
-                  })}
-                </span>
-              ))}
+                    )}
+                  </>
+                );
+              })()}
             </motion.h1>
             
             <motion.p variants={itemVariants} className="text-base lg:text-xl leading-relaxed max-w-xl text-slate-400 font-medium text-justify">
@@ -240,17 +238,15 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
             className="hidden lg:block relative"
           >
-             <div className="relative z-10 w-full h-[600px] lg:h-[750px] flex items-end justify-center lg:justify-end pr-4 lg:pr-10">
-                <div className="relative h-full w-auto flex items-end overflow-hidden">
+             <div className="relative z-10 w-full h-[500px] lg:h-[620px] flex items-end justify-center lg:justify-end pr-4 lg:pr-10">
+                <div className="relative h-full w-auto flex items-end justify-center w-full">
                   <img 
-                    src="/hero-image.png" 
-                    alt="Student Kedinasan" 
-                    className="h-full w-auto object-contain brightness-110 contrast-[1.05] origin-bottom animate-in fade-in zoom-in-95 duration-1000"
+                    src="/hero-squad.png" 
+                    alt="Squad Kedinasan" 
+                    className="h-[100%] w-auto max-w-none object-contain brightness-110 contrast-[1.05] origin-bottom animate-in fade-in zoom-in-95 duration-1000 translate-y-2 lg:translate-y-6 scale-110 lg:scale-[1.45]"
                     style={{
-                      maskImage: 'linear-gradient(to top, black 85%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)',
-                      WebkitMaskImage: 'linear-gradient(to top, black 85%, transparent 100%), linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)',
-                      maskComposite: 'intersect',
-                      WebkitMaskComposite: 'source-in'
+                      maskImage: 'linear-gradient(to top, transparent 0%, black 10%, black 100%)',
+                      WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 10%, black 100%)',
                     }}
                   />
                 </div>
@@ -262,7 +258,7 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
                 <motion.div 
                   animate={{ y: [0, -15, 0] }}
                   transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute top-24 left-0 lg:-left-24 bg-white/5 backdrop-blur-2xl p-5 rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-20"
+                  className="absolute top-[40%] left-0 lg:-left-28 bg-white/5 backdrop-blur-2xl p-5 rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-20"
                 >
                    <div className="flex items-center gap-4">
                       <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20">
@@ -279,7 +275,7 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
                 <motion.div 
                   animate={{ y: [0, 15, 0] }}
                   transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                  className="absolute bottom-48 -right-4 lg:-right-10 bg-white/5 backdrop-blur-2xl p-5 rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-20"
+                  className="absolute bottom-[25%] -right-4 lg:-right-16 bg-white/5 backdrop-blur-2xl p-5 rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-20"
                 >
                    <div className="flex items-center gap-4">
                       <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center border border-blue-500/20">
