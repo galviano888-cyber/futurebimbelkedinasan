@@ -170,7 +170,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
         <div>
           <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors mb-4 text-sm font-medium"><ArrowLeft className="w-4 h-4" /> Kembali</button>
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-3"><FileText className="w-8 h-8 text-blue-600" /> Invoice Pembayaran</h1>
-          <p className="text-slate-500 text-sm mt-1">ID: <span className="font-mono font-bold text-slate-900">{transaction.invoice_id}</span></p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">ID: <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{transaction.invoice_id}</span></p>
         </div>
         <div className={`px-6 py-3 rounded-2xl flex items-center gap-3 border shadow-sm ${isPending ? 'bg-amber-50 border-amber-200 text-amber-700' : isVerifying ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700'}`}>
           <div className={`w-3 h-3 rounded-full animate-pulse ${isPending ? 'bg-amber-500' : isVerifying ? 'bg-blue-500' : 'bg-emerald-500'}`} />
@@ -180,16 +180,16 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl p-8">
-            <h3 className="text-lg font-black text-slate-800 mb-6">Ringkasan Pesanan</h3>
-            <div className="flex items-start gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-xl p-8">
+            <h3 className="text-lg font-black text-slate-800 dark:text-white mb-6">Ringkasan Pesanan</h3>
+            <div className="flex items-start gap-4 p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-100 dark:border-white/5">
                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shrink-0"><CreditCard className="w-6 h-6 text-white" /></div>
                <div>
-                 <h4 className="font-black text-slate-900">{transaction.packages.title}</h4>
-                 <p className="text-slate-500 text-xs mt-1 text-justify leading-relaxed">{transaction.packages.description}</p>
+                 <h4 className="font-black text-slate-900 dark:text-white">{transaction.packages.title}</h4>
+                 <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 text-justify leading-relaxed">{transaction.packages.description}</p>
                </div>
             </div>
-            <div className="mt-8 pt-8 border-t border-slate-100 flex justify-between items-center">
+            <div className="mt-8 pt-8 border-t border-slate-100 dark:border-white/5 flex justify-between items-center">
               <span className="text-lg font-black text-slate-900 dark:text-white">Total Tagihan</span>
               <span className="text-2xl font-black text-blue-600">Rp {transaction.amount.toLocaleString('id-ID')}</span>
             </div>
@@ -198,16 +198,16 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
 
         <div className="lg:col-span-5 space-y-6">
           {(isPending || isVerifying) && (
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl p-8 space-y-8">
+            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-xl p-8 space-y-8">
                <div className="text-center">
                  <p className="text-[10px] font-black text-slate-400 uppercase mb-2">Sisa Waktu</p>
-                 <div className="inline-flex items-center gap-2 px-6 py-2 bg-slate-900 text-white rounded-full font-mono text-xl font-black">{timeLeft}</div>
+                 <div className="inline-flex items-center gap-2 px-6 py-2 bg-slate-900 dark:bg-blue-600 text-white rounded-full font-mono text-xl font-black">{timeLeft}</div>
                </div>
                
                <div className="space-y-4">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Transfer {bank.name}</p>
-                  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex items-center justify-between">
-                     <div><p className="text-xl font-black text-slate-900">{bank.number}</p><p className="text-xs font-bold text-slate-500">A/N {bank.owner}</p></div>
+                  <div className="bg-slate-50 dark:bg-white/5 p-6 rounded-3xl border border-slate-100 dark:border-white/5 flex items-center justify-between">
+                     <div><p className="text-xl font-black text-slate-900 dark:text-white">{bank.number}</p><p className="text-xs font-bold text-slate-500 dark:text-slate-400">A/N {bank.owner}</p></div>
                      <button 
                        onClick={() => handleCopy(bank.number)} 
                        className="p-3 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"
@@ -236,14 +236,14 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                     </a>
                  </div>
                ) : (
-                 <div className="space-y-6 pt-6 border-t border-slate-100 text-center">
-                    <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto">
-                      <Clock className="w-8 h-8 text-blue-500 animate-pulse" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-black text-slate-900 uppercase">Verifikasi Dalam Proses</h4>
-                      <p className="text-xs text-slate-500 mt-2 leading-relaxed">Kami sedang memeriksa pembayaranmu. Proses ini biasanya memakan waktu 5-10 menit. Jika terlalu lama, silakan hubungi admin.</p>
-                    </div>
+                  <div className="space-y-6 pt-6 border-t border-slate-100 dark:border-white/5 text-center">
+                     <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center mx-auto">
+                       <Clock className="w-8 h-8 text-blue-500 animate-pulse" />
+                     </div>
+                     <div>
+                       <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase">Verifikasi Dalam Proses</h4>
+                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">Kami sedang memeriksa pembayaranmu. Proses ini biasanya memakan waktu 5-10 menit. Jika terlalu lama, silakan hubungi admin.</p>
+                     </div>
                     <a href={generateWaLink()} target="_blank" rel="noreferrer" className="w-full h-14 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-2xl font-black flex items-center justify-center gap-2 text-sm transition-all">
                       <Phone className="w-5 h-5" /> Hubungi Admin via WhatsApp
                     </a>
@@ -253,10 +253,10 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
           )}
 
           {isSuccess && (
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl p-12 text-center space-y-6">
+            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-xl p-12 text-center space-y-6">
               <CheckCircle2 className="w-20 h-20 text-emerald-600 mx-auto" />
-              <h3 className="text-xl font-black text-slate-900">Pembayaran Berhasil!</h3>
-              <p className="text-slate-500 text-sm">Selamat! Akses paket sudah terbuka.</p>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white">Pembayaran Berhasil!</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">Selamat! Akses paket sudah terbuka.</p>
               <Button className="w-full h-14 bg-emerald-600 text-white rounded-2xl font-black" onClick={onBack}>Mulai Belajar</Button>
             </div>
           )}

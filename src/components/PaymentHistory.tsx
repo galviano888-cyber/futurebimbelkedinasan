@@ -47,14 +47,14 @@ export function PaymentHistory({ onViewInvoice }: PaymentHistoryProps) {
   if (transactions.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm space-y-4">
+    <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-white/5 p-6 shadow-sm space-y-4">
       <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Riwayat Pembayaran</h3>
       <div className="space-y-3">
         {transactions.map((tx) => (
           <button
             key={tx.id}
             onClick={() => onViewInvoice(tx.id)}
-            className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-50 bg-slate-50/50 hover:bg-white hover:border-blue-100 hover:shadow-md transition-all group"
+            className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-50 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 hover:border-blue-100 hover:shadow-md transition-all group"
           >
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
@@ -69,16 +69,16 @@ export function PaymentHistory({ onViewInvoice }: PaymentHistoryProps) {
                  <XCircle className="w-5 h-5" />}
               </div>
               <div className="text-left">
-                <p className="text-sm font-bold text-slate-800 line-clamp-1">{tx.packages?.title}</p>
+                <p className="text-sm font-bold text-slate-800 dark:text-white line-clamp-1">{tx.packages?.title}</p>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-tight">{tx.invoice_id}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
-                 tx.status === 'success' ? 'bg-emerald-100 text-emerald-700' :
-                 tx.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                 tx.status === 'verifying' ? 'bg-blue-100 text-blue-700' :
-                 'bg-slate-200 text-slate-500'
+                 tx.status === 'success' ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' :
+                 tx.status === 'pending' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' :
+                 tx.status === 'verifying' ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400' :
+                 'bg-slate-200 dark:bg-white/10 text-slate-500 dark:text-slate-400'
                }`}>
                  {tx.status}
                </span>
