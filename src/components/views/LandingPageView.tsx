@@ -1,4 +1,5 @@
-import { ArrowRight, Zap, GraduationCap, BookOpen, X, Trophy, Plus, Loader2, MessageCircle, Check } from "lucide-react";
+import { ArrowRight, Zap, GraduationCap, BookOpen, X, Trophy, Plus, Loader2, MessageCircle, Check, HelpCircle } from "lucide-react";
+import { LegalModal } from "@/components/LegalModal";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
@@ -11,6 +12,8 @@ interface LandingPageViewProps {
 export function LandingPageView({ onEnter }: LandingPageViewProps) {
   const [showGuide, setShowGuide] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showLegal, setShowLegal] = useState(false);
+  const [legalType, setLegalType] = useState<'terms' | 'privacy'>('terms');
   
   // Dynamic Content State
   const [hero, setHero] = useState({ 
@@ -187,7 +190,7 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
             <a href="#fitur" className="hover:text-blue-500 transition-colors">Fitur</a>
             <a href="#paket" className="hover:text-blue-500 transition-colors">Paket SKD</a>
             <a href="#testimoni" className="hover:text-blue-500 transition-colors">Testimoni</a>
-            <a href="#faq" className="hover:text-blue-500 transition-colors">Bantuan</a>
+            <a href="#faq" className="hover:text-blue-500 transition-colors">FAQ</a>
           </div>
           <Button onClick={onEnter} className="bg-blue-600 hover:bg-blue-500 text-white font-black px-8 py-6 rounded-2xl shadow-lg shadow-blue-600/20 text-[11px] uppercase tracking-widest">MASUK SEKARANG</Button>
         </div>
@@ -211,7 +214,7 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
                   <>
                     <span className="block text-white">{firstPart}</span>
                     {secondPart && (
-                      <span className="block bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500">
+                      <span className="block bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 drop-shadow-[0_0_20px_rgba(37,99,235,0.4)]">
                         {secondPart}
                       </span>
                     )}
@@ -388,24 +391,83 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
          </div>
       </section>
 
-      <section id="faq" className="py-32 bg-[#0a1425]">
-         <div className="max-w-4xl mx-auto px-6 text-center">
-            <h2 className="text-4xl font-black text-white mb-16">FAQ</h2>
-            <div className="space-y-2">
-               {faqs.map((f, i) => (
-                 <AccordionItem key={i} question={f.q} answer={f.a} />
-               ))}
+      <section id="faq" className="py-32 bg-[#0a1425] relative overflow-hidden">
+         {/* Decorative Background Elements */}
+         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full translate-y-1/2 -translate-x-1/2" />
+
+         <div className="max-w-4xl mx-auto px-6 relative z-10">
+            <div className="text-center mb-16">
+               <motion.div 
+                 initial={{ opacity: 0, y: 20 }}
+                 whileInView={{ opacity: 1, y: 0 }}
+                 viewport={{ once: true }}
+                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black uppercase text-blue-400 mb-6"
+               >
+                 <HelpCircle className="w-3.5 h-3.5" />
+                 <span>FAQ</span>
+               </motion.div>
+               <motion.h2 
+                 initial={{ opacity: 0, y: 20 }}
+                 whileInView={{ opacity: 1, y: 0 }}
+                 viewport={{ once: true }}
+                 transition={{ delay: 0.1 }}
+                 className="text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight"
+               >
+                 Pertanyaan yang <span className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">Sering Diajukan</span>
+               </motion.h2>
+               <motion.p 
+                 initial={{ opacity: 0, y: 20 }}
+                 whileInView={{ opacity: 1, y: 0 }}
+                 viewport={{ once: true }}
+                 transition={{ delay: 0.2 }}
+                 className="text-slate-400 font-medium max-w-2xl mx-auto"
+               >
+                 Temukan jawaban untuk pertanyaan umum seputar program belajar, sistem ujian, dan pendaftaran di Future Bimbel Kedinasan.
+               </motion.p>
             </div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="bg-white/[0.02] backdrop-blur-xl rounded-[3rem] border border-white/5 p-4 lg:p-8 shadow-2xl"
+            >
+               <div className="divide-y divide-white/5">
+                  {faqs.map((f, i) => (
+                    <AccordionItem key={i} question={f.q} answer={f.a} />
+                  ))}
+               </div>
+            </motion.div>
+            
+
          </div>
       </section>
 
       <footer className="py-20 bg-[#0a1425] border-t border-white/5">
-         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-12">
+         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-12 text-center md:text-left">
             <div className="flex items-center gap-3">
-               <div className="h-8 px-2 rounded-lg bg-blue-600 text-white font-black text-[10px] flex items-center">FBK</div>
-               <span className="text-lg font-black text-white">Future Bimbel Kedinasan</span>
+               <div className="h-10 px-3 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center shadow-lg shadow-blue-600/20">FBK</div>
+               <span className="text-xl font-black text-white tracking-tight">Future Bimbel Kedinasan</span>
             </div>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">© 2026 Future Bimbel Kedinasan</p>
+            <div className="flex flex-col md:flex-row items-center gap-8">
+               <div className="flex gap-6 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                  <button 
+                    onClick={() => { setLegalType('terms'); setShowLegal(true); }} 
+                    className="hover:text-blue-400 transition-colors"
+                  >
+                    Syarat & Ketentuan
+                  </button>
+                  <button 
+                    onClick={() => { setLegalType('privacy'); setShowLegal(true); }} 
+                    className="hover:text-blue-400 transition-colors"
+                  >
+                    Kebijakan Privasi
+                  </button>
+               </div>
+               <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">© 2026 Future Bimbel Kedinasan</p>
+            </div>
          </div>
       </footer>
       </div>
@@ -429,6 +491,12 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
           </div>
         </div>
       </motion.a>
+
+      <LegalModal 
+        isOpen={showLegal} 
+        onClose={() => setShowLegal(false)} 
+        type={legalType} 
+      />
     </div>
   );
 }
@@ -436,12 +504,33 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
 function AccordionItem({ question, answer }: { question: string, answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="border-b border-white/5 last:border-0">
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full py-7 flex items-center justify-between text-left group">
-        <span className={`font-bold transition-colors ${isOpen ? 'text-blue-400 text-lg' : 'text-white'}`}>{question}</span>
-        <Plus className={`w-5 h-5 text-white transition-transform ${isOpen ? 'rotate-45 text-blue-400' : ''}`} />
+    <div className="group">
+      <button 
+        onClick={() => setIsOpen(!isOpen)} 
+        className="w-full py-8 flex items-center justify-between text-left transition-all"
+      >
+        <span className={`text-base lg:text-lg font-black tracking-tight transition-all duration-300 ${isOpen ? 'text-blue-400 translate-x-2' : 'text-white'}`}>
+          {question}
+        </span>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-blue-500 text-white rotate-45' : 'bg-white/5 text-slate-400 group-hover:bg-white/10'}`}>
+          <Plus className="w-5 h-5" />
+        </div>
       </button>
-      {isOpen && <div className="pb-8 text-slate-400 text-[15px] leading-relaxed text-justify">{answer}</div>}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="pb-8 pl-2 pr-4 text-slate-400 text-sm lg:text-base leading-relaxed text-justify font-medium">
+              {answer}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -450,7 +539,7 @@ function FeatureCard({ icon, title, desc }: { icon: any, title: string, desc: st
   return (
     <div className="p-10 bg-white/[0.03] rounded-[2.5rem] border border-white/5 hover:border-blue-500/30 transition-all group h-full">
        <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-8 text-blue-500">{icon}</div>
-       <h3 className="text-xl font-black text-white mb-4">{title}</h3>
+       <h3 className="text-xl font-black text-white mb-4 group-hover:text-blue-400 group-hover:drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all duration-300">{title}</h3>
        <p className="text-sm text-slate-400 leading-relaxed font-medium text-justify">{desc}</p>
     </div>
   );
