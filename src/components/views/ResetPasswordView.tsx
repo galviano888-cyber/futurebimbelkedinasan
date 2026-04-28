@@ -132,9 +132,29 @@ export function ResetPasswordView() {
               </div>
             </div>
 
-            <Button type="submit" disabled={loading || !!urlError} className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50">
-              {loading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : (urlError ? "LINK TIDAK VALID" : "SIMPAN KATA SANDI")}
+            <Button 
+              type="submit" 
+              disabled={loading || !!urlError} 
+              className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:bg-slate-400 disabled:shadow-none"
+            >
+              {loading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : "SIMPAN KATA SANDI"}
             </Button>
+
+            {urlError && (
+              <div className="space-y-4">
+                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-medium text-center">
+                  {urlError}
+                </div>
+                <Button 
+                  type="button"
+                  onClick={() => window.location.href = "/"}
+                  variant="outline"
+                  className="w-full h-14 border-slate-200 text-slate-600 rounded-2xl font-bold hover:bg-slate-50"
+                >
+                  KEMBALI KE BERANDA
+                </Button>
+              </div>
+            )}
           </form>
         </div>
       </div>

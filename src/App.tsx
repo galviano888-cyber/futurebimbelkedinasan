@@ -34,7 +34,12 @@ export default function App() {
     return <AdminPanelView />;
   }
 
-  if (path === '/reset-password') {
+  // Handle Password Reset Flow
+  const isResetFlow = path === '/reset-password' || 
+                      window.location.hash.includes('type=recovery') || 
+                      window.location.hash.includes('error_code=otp_expired');
+
+  if (isResetFlow) {
     return <ResetPasswordView />;
   }
 

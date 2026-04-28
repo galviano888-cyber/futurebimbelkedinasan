@@ -276,9 +276,9 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   const currentQuestion = questions[currentIdx];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#eef0f4] dark:bg-slate-950 flex flex-col font-sans">
       {/* Top Navigation Bar */}
-      <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 shrink-0 sticky top-0 z-50 shadow-sm">
+      <header className="h-16 bg-[#f8f9fb] dark:bg-slate-900 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between px-6 shrink-0 sticky top-0 z-50 shadow-sm">
         <div className="flex items-center gap-4">
           <button onClick={onExit} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors">
             <X className="w-5 h-5" />
@@ -339,7 +339,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
               {/* Question Section */}
               <div className="space-y-6">
-                <p className="text-base sm:text-lg text-slate-800 dark:text-slate-100 font-medium leading-relaxed text-justify">
+                <p className="text-[15px] text-slate-700 dark:text-slate-100 font-medium leading-relaxed text-justify">
                   {currentQuestion?.question_text}
                 </p>
 
@@ -381,11 +381,11 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                       "flex-1 p-3 px-5 rounded-xl border transition-all",
                       answers[currentQuestion.id] === opt
                         ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 shadow-sm"
-                        : "bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 group-hover:bg-slate-100 dark:group-hover:bg-slate-800"
+                        : "bg-[#f8f9fb] dark:bg-slate-900/50 border-slate-200/60 dark:border-slate-800 group-hover:bg-slate-100 dark:group-hover:bg-slate-800"
                     )}>
                       <p className={cn(
-                        "text-sm font-bold leading-relaxed text-justify",
-                        answers[currentQuestion.id] === opt ? "text-blue-900 dark:text-blue-100" : "text-slate-700 dark:text-slate-300"
+                        "text-[13px] font-medium leading-relaxed text-justify",
+                        answers[currentQuestion.id] === opt ? "text-blue-800 dark:text-blue-100" : "text-slate-600 dark:text-slate-300"
                       )}>
                         {currentQuestion?.options?.[opt]}
                       </p>
