@@ -243,10 +243,10 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
                   <img 
                     src="/hero-squad.png" 
                     alt="Squad Kedinasan" 
-                    className="h-[100%] w-auto max-w-none object-contain brightness-110 contrast-[1.05] origin-bottom animate-in fade-in zoom-in-95 duration-1000 translate-y-10 lg:translate-y-24 scale-[1.2] lg:scale-[1.65]"
+                    className="h-[100%] w-auto max-w-none object-contain brightness-110 contrast-[1.05] origin-bottom animate-in fade-in zoom-in-95 duration-1000 translate-y-12 lg:translate-y-32 scale-[1.25] lg:scale-[1.72]"
                     style={{
-                      maskImage: 'linear-gradient(to top, transparent 0%, black 10%, black 100%)',
-                      WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 10%, black 100%)',
+                      maskImage: 'linear-gradient(to top, transparent 0%, black 15%, black 100%)',
+                      WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 15%, black 100%)',
                     }}
                   />
                 </div>
@@ -256,8 +256,13 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
                 
                 {/* Floating Info Card 1 */}
                 <motion.div 
-                  animate={{ y: [0, -15, 0] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                  animate={{ y: [0, -20, 0] }}
+                  transition={{ 
+                    duration: 6, 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  }}
+                  style={{ willChange: "transform" }}
                   className="absolute bottom-[15%] left-0 lg:-left-40 bg-white/5 backdrop-blur-2xl p-5 rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-20"
                 >
                    <div className="flex items-center gap-4">
@@ -273,8 +278,14 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
 
                 {/* Floating Info Card 2 */}
                 <motion.div 
-                  animate={{ y: [0, 15, 0] }}
-                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                  animate={{ y: [0, 20, 0] }}
+                  transition={{ 
+                    duration: 7, 
+                    repeat: Infinity, 
+                    ease: "easeInOut", 
+                    delay: 1 
+                  }}
+                  style={{ willChange: "transform" }}
                   className="absolute top-[30%] -right-4 lg:-right-32 bg-white/5 backdrop-blur-2xl p-5 rounded-[2.5rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-20"
                 >
                    <div className="flex items-center gap-4">
