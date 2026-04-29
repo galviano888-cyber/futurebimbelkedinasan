@@ -41,17 +41,19 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     const fetchData = async () => {
       if (!supabase) return;
       setLoading(true);
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
         const { data: allPackages, error: pkgError } = await supabase
           .from('packages')
           .select('*, contents:package_contents(*)')
           .eq('is_active', true);
 
-        const { data: { user } } = await supabase.auth.getUser();
         let ownedPackageIds: string[] = [];
         
         if (user) {
@@ -181,15 +183,26 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                         return;
                       }
 
-                      if (pkg.price === 0) {
-                        if (!supabase) return;
-                        setLoading(true);
-                        try {
-                          const { data: userData } = await supabase.auth.getUser();
-                          if (!userData.user) throw new Error("Silakan login kembali.");
+                      if (!supabase) return;
+                      setLoading(true);
+                      
+                      try {
+                        const { data: { user } } = await supabase.auth.getUser();
+                        if (!user) throw new Error("Silakan login kembali.");
 
+                        // Verifikasi Email Check
+                        if (!user.email_confirmed_at && !user.confirmed_at) {
+                          toast.error("Email Belum Terverifikasi", {
+                            description: "Silakan cek kotak masuk email Anda dan klik tautan konfirmasi sebelum melakukan pembelian.",
+                            duration: 5000,
+                          });
+                          setLoading(false);
+                          return;
+                        }
+
+                        if (pkg.price === 0) {
                           const { error } = await supabase.from('user_packages').insert([{
-                            user_id: userData.user.id,
+                            user_id: user.id,
                             package_id: pkg.id
                           }]);
 
@@ -200,28 +213,18 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                             toast.success("Selamat! Paket gratis berhasil ditambahkan ke akun Anda.");
                             window.location.reload();
                           }
-                        } catch (err: any) {
-                          toast.error(`Gagal mengambil paket: ${err.message}`);
-                        } finally {
-                          setLoading(false);
-                        }
-                      } else {
-                        if (!supabase) return;
-                        setLoading(true);
-                        try {
-                          const { data: { session } } = await supabase.auth.getSession();
-                          if (!session?.user) throw new Error("Silakan login untuk membeli.");
-
+                        } else {
+                          // Ensure profile exists
                           await supabase.from('profiles').upsert({
-                            id: session.user.id,
-                            full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-                            email: session.user.email
+                            id: user.id,
+                            full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+                            email: user.email
                           }, { onConflict: 'id' });
 
                           const { data: existingTxs, error: checkError } = await supabase
                             .from('transactions')
                             .select('id, status')
-                            .eq('user_id', session.user.id)
+                            .eq('user_id', user.id)
                             .eq('package_id', pkg.id)
                             .in('status', ['pending', 'verifying'])
                             .order('created_at', { ascending: false });
@@ -243,7 +246,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                             .from('transactions')
                             .insert([{
                               id: crypto.randomUUID(),
-                              user_id: session.user.id,
+                              user_id: user.id,
                               package_id: pkg.id,
                               amount: pkg.price,
                               invoice_id: invoice_id,
@@ -255,12 +258,11 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
 
                           if (txError) throw txError;
                           if (newTx && onPurchaseSuccess) onPurchaseSuccess(newTx.id);
-
-                        } catch (err: any) {
-                          toast.error(`Gagal memproses pembelian: ${err.message}`);
-                        } finally {
-                          setLoading(false);
                         }
+                      } catch (err: any) {
+                        toast.error(`Gagal memproses: ${err.message}`);
+                      } finally {
+                        setLoading(false);
                       }
                     }}
                     className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-black rounded-xl transition-all shadow-lg shadow-blue-500/25 active:scale-95 flex items-center gap-2 group/btn text-sm"

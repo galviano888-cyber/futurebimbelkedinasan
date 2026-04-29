@@ -1,7 +1,7 @@
-import { Loader2, MessageCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { LegalModal } from "@/components/LegalModal";
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { motion, type Variants } from "framer-motion";
+import type { Variants } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 
 // Landing Sub-components
@@ -28,20 +28,25 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
   const [hero, setHero] = useState({ 
     badge: "Platform Persiapan Kedinasan #1",
     title: "Wujudkan Mimpi Menjadi Abdi Negara.", 
-    subtitle: "Persiapkan dirimu menghadapi seleksi sekolah kedinasan bersama Future Bimbel Kedinasan. Belajar lebih efektif dengan sistem CAT standar BKN.",
+    subtitle: "Hancurkan keraguan dan taklukkan seleksi sekolah kedinasan impianmu. Kami menyediakan ekosistem belajar paling intensif dengan sistem CAT standar BKN untuk menjamin kesiapan maksimalmu.",
     cta: "Mulai Sekarang",
     image: "https://images.unsplash.com/photo-1523240715632-d984bb4b990a?q=80&w=2070&auto=format&fit=crop"
   });
   const [testimonials, setTestimonials] = useState<any[]>([
-    { name: "Siswa FBK", text: "Berkat simulasi CAT di FBK, saya jadi terbiasa dengan tekanan waktu saat ujian asli.", school: "Lulusan 2024" }
+    { name: "Visi Kami", text: "Misi utama kami adalah mencetak ribuan taruna baru setiap tahunnya melalui metode belajar yang paling efisien dan tertarget sesuai standar BKN.", school: "FBK Commitment" },
+    { name: "Jaminan Materi", text: "Kami menjamin semua bank soal yang Anda pelajari adalah materi yang 100% relevan dengan standar seleksi kedinasan terbaru dan terupdate.", school: "FBK Commitment" },
+    { name: "Akses Belajar", text: "Di FBK, Anda bisa belajar kapan saja dan di mana saja tanpa hambatan. Tidak ada lagi kendala jarak untuk meraih seragam impian Anda.", school: "FBK Commitment" }
   ]);
   const [faqs, setFaqs] = useState<any[]>([
-    { q: "Apakah materi sesuai standar terbaru?", a: "Ya, seluruh materi diperbarui berkala mengikuti pola soal asli SKD." }
+    { q: "Apakah materi sesuai standar seleksi terbaru?", a: "Ya, seluruh materi dan bank soal kami diperbarui secara berkala mengikuti pola soal asli SKD dan FR (Field Report) terbaru." },
+    { q: "Bagaimana sistem belajarnya?", a: "Sistem belajar dilakukan secara online melalui Dashboard khusus yang dilengkapi Simulasi CAT standar BKN, materi terstruktur, dan analisis hasil yang mendalam." },
+    { q: "Apakah bisa diakses melalui Smartphone?", a: "Tentu saja! Platform FBK dirancang 100% responsif sehingga Anda bisa belajar dengan nyaman kapan saja dan di mana saja melalui HP, Tablet, maupun Laptop." },
+    { q: "Apakah ada grup diskusi atau mentor?", a: "Ya, untuk member Premium dan Platinum akan mendapatkan akses eksklusif ke grup diskusi dan pendampingan langsung oleh mentor berpengalaman." }
   ]);
   const [features, setFeatures] = useState<any[]>([
-    { title: "Eksklusif: Mentor Kedinasan", desc: "Dibimbing langsung oleh Kakak tingkat yang telah berhasil lolos seleksi dengan strategi efektif." },
-    { title: "Engine CAT Standar BKN", desc: "Uji kemampuan dengan platform simulasi presisi sesuai standar sistem CAT BKN asli." },
-    { title: "Bank Soal Terupdate", desc: "Akses materi belajar dan bank soal yang telah disesuaikan dengan standar seleksi terbaru." }
+    { title: "Mentor Kedinasan Eksklusif", desc: "Jangan menebak-nebak. Belajar langsung dari praktisi yang sudah menaklukkan gerbang kedinasan dengan strategi teruji." },
+    { title: "Simulasi CAT Super Presisi", desc: "Rasakan atmosfer ujian sesungguhnya dengan sistem CAT yang 100% mengikuti standar sistem BKN terbaru." },
+    { title: "Bank Soal Prediksi Akurat", desc: "Berhenti membuang waktu dengan soal lama. Kami menyediakan ribuan bank soal terupdate yang diprediksi keluar di seleksi tahun ini." }
   ]);
   const [colors, setColors] = useState({
     badge: "#3b82f6",
@@ -55,7 +60,6 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
     { name: "Paket Premium", price: "Rp 149.000", originalPrice: "Rp 499.000", benefits: ["Akses Semua Tryout", "Ranking Nasional", "Materi Eksklusif", "Grup Konsultasi"], isRecommended: true },
     { name: "Paket Platinum", price: "Rp 299.000", originalPrice: "Rp 999.000", benefits: ["Semua Fitur Premium", "Bimbingan Live Zoom", "Prediksi Soal Akurat", "Sertifikat Kelulusan"], isRecommended: false }
   ]);
-  const [waNumber, setWaNumber] = useState("6287753646617");
 
   useEffect(() => {
     fetchSiteSettings();
@@ -74,12 +78,11 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
       if (data && data.length > 0) {
         data.forEach(item => {
           if (item.key === 'hero_content') setHero(item.value);
-          if (item.key === 'testimonials') setTestimonials(item.value);
-          if (item.key === 'faqs') setFaqs(item.value);
-          if (item.key === 'features') setFeatures(item.value);
+          if (item.key === 'testimonials' && item.value?.length > 0) setTestimonials(item.value);
+          if (item.key === 'faqs' && item.value?.length > 0) setFaqs(item.value);
+          if (item.key === 'features' && item.value?.length > 0) setFeatures(item.value);
           if (item.key === 'site_colors') setColors(item.value);
           if (item.key === 'skd_packages') setPackages(item.value);
-          if (item.key === 'official_contacts' && item.value?.whatsapp) setWaNumber(item.value.whatsapp);
         });
       }
     } catch (err) {
@@ -124,10 +127,10 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#050b18] text-white font-sans selection:bg-blue-600/30 overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#050b18] text-white font-sans selection:bg-blue-600/30 overflow-x-hidden relative transform-gpu">
       <GuideModal isOpen={showGuide} onClose={handleCloseGuide} />
 
-      <div className="fixed inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      <div className="fixed inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] will-change-opacity" />
       
       <div className="relative z-10">
         <Navbar onEnter={onEnter} />
@@ -151,25 +154,7 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
         <Footer onLegalClick={handleLegalClick} />
       </div>
 
-      {/* FLOATING WHATSAPP BUTTON */}
-      <motion.a 
-        href={`https://wa.me/${waNumber}?text=${encodeURIComponent("Halo Admin FBK, saya ingin bertanya seputar paket bimbel...")}`}
-        target="_blank"
-        rel="noreferrer"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className="fixed bottom-8 right-8 z-[60] group"
-      >
-        <div className="absolute inset-0 bg-green-500 rounded-full blur-xl opacity-40 group-hover:opacity-60 transition-opacity animate-pulse" />
-        <div className="relative bg-green-500 p-5 rounded-full shadow-2xl flex items-center justify-center border border-white/20">
-          <MessageCircle className="w-8 h-8 text-white fill-white" />
-          <div className="absolute right-full mr-4 bg-white text-slate-900 px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl border border-slate-100">
-            Tanya Admin FBK 💬
-          </div>
-        </div>
-      </motion.a>
+
 
       <LegalModal 
         isOpen={showLegal} 

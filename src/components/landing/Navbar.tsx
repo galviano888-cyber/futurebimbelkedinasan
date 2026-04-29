@@ -7,7 +7,7 @@ interface NavbarProps {
 
 export const Navbar = memo(function Navbar({ onEnter }: NavbarProps) {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050b18]/60 backdrop-blur-xl border-b border-white/5">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050b18]/60 backdrop-blur-xl border-b border-white/5 transform-gpu will-change-[backdrop-filter]">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="h-10 px-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20 text-white font-black text-sm">FBK</div>

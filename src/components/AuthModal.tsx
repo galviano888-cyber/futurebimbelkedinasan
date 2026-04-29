@@ -57,14 +57,25 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             data: {
               full_name: fullName,
             },
+            emailRedirectTo: `${window.location.origin}?verified=true`,
           },
         });
         if (error) throw error;
-        toast.success("Registrasi berhasil! Silakan cek email atau langsung masuk.");
+        toast.success("Akun Berhasil Dibuat!", {
+          description: "Satu langkah lagi, Bro! Silakan cek email kamu dan klik link verifikasi untuk membuka akses penuh ke semua fitur FBK.",
+          duration: 6000
+        });
         setIsLogin(true);
       }
     } catch (error: any) {
-      toast.error(error.message || "Terjadi kesalahan");
+      if (error.message === "Email not confirmed") {
+        toast.error("Email Belum Terverifikasi", {
+          description: "Silakan cek kotak masuk email Anda dan klik link konfirmasi untuk mengaktifkan akun, Bro!",
+          duration: 5000
+        });
+      } else {
+        toast.error(error.message || "Terjadi kesalahan");
+      }
     } finally {
       setLoading(false);
     }
@@ -130,7 +141,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     type="button" 
                     onClick={async () => {
                       if (!supabase) return toast.error("Koneksi bermasalah, coba lagi nanti.");
-                      if (!email) return toast.error("Masukkan email kamu dulu ya Bre!");
+                      if (!email) return toast.error("Masukkan email kamu dulu ya Bro!");
                       try {
                         const { error } = await supabase.auth.resetPasswordForEmail(email, {
                           redirectTo: `${window.location.origin}/reset-password`,

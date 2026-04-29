@@ -118,6 +118,10 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
           <p className="text-slate-500 dark:text-slate-400 text-base mt-3 font-medium max-w-xl">
             Pantau perkembangan belajarmu secara real-time dan persiapkan dirimu untuk menaklukkan ujian kedinasan.
           </p>
+          <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-500/5 px-3 py-1.5 rounded-full w-fit">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+            Catatan: Progress dihitung dari pengerjaan tryout pertama kali
+          </div>
         </div>
 
         <div className="flex items-center gap-5 bg-white/70 dark:bg-slate-900/50 backdrop-blur-xl p-4 rounded-[2rem] border border-white dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all">

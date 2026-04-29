@@ -11,9 +11,11 @@ import { EmptyView } from "@/components/views/EmptyView";
 import { LandingPageView } from "@/components/views/LandingPageView";
 import { AuthModal } from "@/components/AuthModal";
 import { supabase } from "@/lib/supabaseClient";
+import { Mail, RefreshCcw } from "lucide-react";
 import type { TryoutRecord } from "@/types";
 
 import { ResetPasswordView } from "@/components/views/ResetPasswordView";
+import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 
 // Lazy Loaded Views for better mobile performance
 const TryoutEngineView = lazy(() => import("@/components/views/TryoutEngineView").then(m => ({ default: m.TryoutEngineView })));
@@ -86,12 +88,22 @@ export default function App() {
     }
   }, [activePage, activePackageId, questionsId, selectedTransactionId]);
 
+
+
+  const [isVerified, setIsVerified] = useState<boolean>(true);
+
+  const checkVerification = async (user: any) => {
+    if (!user) return;
+    setIsVerified(!!(user.email_confirmed_at || user.confirmed_at));
+  };
+
   const fetchAllData = async (user: any) => {
     if (!supabase || !user) {
       setLoading(false);
       return;
     }
 
+    checkVerification(user);
     try {
       const { data: pData } = await supabase
         .from('profiles')
@@ -160,6 +172,61 @@ export default function App() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Handle Redirection after Verification and Hash Routing
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && hash !== 'verified=true') {
+        // Map hash to page name if needed, or use directly
+        const pageMap: Record<string, string> = {
+          'dashboard': 'Dashboard',
+          'paket': 'Paket dan Tryout SKD',
+          'paket-saya': 'Paket Saya',
+          'ranking': 'Ranking Nasional',
+          'events': 'Events',
+          'profile': 'Profil Saya',
+          'settings': 'Settings',
+          'help': 'Pusat Bantuan'
+        };
+        const targetPage = pageMap[hash];
+        if (targetPage) setActivePage(targetPage);
+      }
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('verified') === 'true' || window.location.hash.includes('verified=true')) {
+      setActivePage("Paket dan Tryout SKD");
+      window.history.replaceState(null, "", window.location.pathname);
+      toast.success("Email berhasil diverifikasi! Selamat datang di FBK.");
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    // Initial check
+    handleHashChange();
+
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Sync activePage to Hash
+  useEffect(() => {
+    if (isAuthenticated) {
+      const reverseMap: Record<string, string> = {
+        'Dashboard': 'dashboard',
+        'Paket dan Tryout SKD': 'paket',
+        'Paket Saya': 'paket-saya',
+        'Ranking Nasional': 'ranking',
+        'Events': 'events',
+        'Profil Saya': 'profile',
+        'Settings': 'settings',
+        'Pusat Bantuan': 'help'
+      };
+      const hash = reverseMap[activePage];
+      if (hash && window.location.hash !== `#${hash}`) {
+        window.history.pushState(null, "", `#${hash}`);
+      }
+    }
+  }, [activePage, isAuthenticated]);
 
   const handleStartTryout = (packageId: string, questionsId: string) => {
     setActivePackageId(packageId);
@@ -236,11 +303,31 @@ export default function App() {
       case "Events":
         return <EmptyView title="Event & Kompetisi" />;
       case "TryoutEngine":
-        return <TryoutEngineView packageId={activePackageId!} questionsId={questionsId!} onFinish={handleTryoutComplete} onExit={() => setActivePage("Dashboard")} />;
+        return activePackageId && questionsId ? (
+          <TryoutEngineView 
+            packageId={activePackageId} 
+            questionsId={questionsId} 
+            onFinish={handleTryoutComplete} 
+            onExit={() => setActivePage("Dashboard")} 
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-slate-500">
+            <p>Data tryout tidak lengkap.</p>
+            <button onClick={() => setActivePage("Dashboard")} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Kembali</button>
+          </div>
+        );
       case "TryoutResult":
-        return tryoutResult ? <TryoutResultView result={tryoutResult} packageId={activePackageId!} onBack={() => setActivePage("Dashboard")} onReview={() => setActivePage("TryoutReview")} /> : null;
+        if (!tryoutResult) {
+          setActivePage("Dashboard");
+          return null;
+        }
+        return <TryoutResultView result={tryoutResult} packageId={activePackageId!} onBack={() => setActivePage("Dashboard")} onReview={() => setActivePage("TryoutReview")} />;
       case "TryoutReview":
-        return tryoutResult ? <TryoutReviewView result={tryoutResult} questions={tryoutResult.questions || []} onBack={() => setActivePage("Dashboard")} /> : null;
+        if (!tryoutResult) {
+          setActivePage("Dashboard");
+          return null;
+        }
+        return <TryoutReviewView result={tryoutResult} questions={tryoutResult.questions || []} onBack={() => setActivePage("Dashboard")} />;
       default:
         return <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={setActivePage} onViewInvoice={() => { }} onReview={handleHistoryReview} />;
     }
@@ -251,22 +338,23 @@ export default function App() {
       <>
         <Toaster position="top-center" richColors />
         {renderView()}
-        <AuthModal
-          isOpen={isLoginOpen}
-          onClose={() => setIsLoginOpen(false)}
-        />
-      </>
-    );
-  }
+          <AuthModal
+            isOpen={isLoginOpen}
+            onClose={() => setIsLoginOpen(false)}
+          />
+          <FloatingWhatsApp number="087753646617" />
+        </>
+      );
+    }
 
   // Define full-screen pages
-  const isFullScreenPage = ["TryoutEngine", "TryoutResult", "TryoutReview"].includes(activePage);
+  const isFullScreenPage = ["TryoutPreView", "TryoutEngine", "TryoutResult", "TryoutReview"].includes(activePage);
 
   if (isFullScreenPage) {
     return (
       <div className="h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-500">
         <Toaster position="top-center" richColors />
-        <main className="h-full overflow-y-auto">
+        <main className="h-full overflow-y-auto transform-gpu">
           <Suspense fallback={<DashboardSkeleton />}>
             {renderView()}
           </Suspense>
@@ -294,7 +382,38 @@ export default function App() {
           isLoginOpen={isLoginOpen}
           setIsLoginOpen={setIsLoginOpen}
         />
-        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/20 p-4 lg:p-8">
+        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/20 p-4 lg:p-8 transform-gpu">
+          {!isVerified && isAuthenticated && (
+            <div className="mb-8 animate-in slide-in-from-top-4 duration-500">
+              <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 p-6 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-amber-500/5">
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
+                    <Mail className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-amber-900 dark:text-amber-400 font-black text-xl tracking-tight">Verifikasi Email Anda</h4>
+                    <p className="text-amber-700 dark:text-amber-500/70 text-sm font-medium mt-1">Konfirmasi email diperlukan untuk membuka akses penuh dan fitur pembelian paket.</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={async () => {
+                    if (!supabase) return;
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (user) {
+                      const verified = !!(user.email_confirmed_at || user.confirmed_at);
+                      setIsVerified(verified);
+                      if (verified) toast.success("Email berhasil diverifikasi!");
+                      else toast.error("Email masih belum terverifikasi. Silakan cek inbox Anda.");
+                    }
+                  }}
+                  className="flex items-center gap-3 px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg shadow-amber-500/20 transition-all active:scale-95 whitespace-nowrap group"
+                >
+                  <RefreshCcw className="w-4 h-4 group-active:rotate-180 transition-transform duration-500" />
+                  Cek Status Verifikasi
+                </button>
+              </div>
+            </div>
+          )}
           <Suspense fallback={<DashboardSkeleton />}>
             {renderView()}
           </Suspense>
@@ -304,6 +423,7 @@ export default function App() {
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
       />
+
     </div>
   );
 }

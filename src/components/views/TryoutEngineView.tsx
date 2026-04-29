@@ -29,6 +29,57 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cheatAttempts, setCheatAttempts] = useState(0);
+
+  // Anti-Cheat Implementation
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setCheatAttempts(prev => {
+          const newCount = prev + 1;
+          toast.warning("Peringatan Anti-Cheat!", {
+            description: `Anda terdeteksi meninggalkan halaman ujian (${newCount}x). Aktivitas ini dicatat oleh sistem.`,
+            duration: 5000
+          });
+          return newCount;
+        });
+      }
+    };
+
+    const preventActions = (e: any) => {
+      e.preventDefault();
+      toast.error("Aksi tidak diizinkan selama ujian berlangsung!");
+      return false;
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Prevent Print (Ctrl+P)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        toast.error("Dilarang mencetak halaman ujian!");
+      }
+      // Prevent Screenshot (PrntScrn) - Partial protection as browser can't block all
+      if (e.key === 'PrintScreen') {
+        toast.error("Dilarang mengambil tangkapan layar!");
+      }
+    };
+
+    // Add Listeners
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("contextmenu", preventActions);
+    document.addEventListener("copy", preventActions);
+    document.addEventListener("paste", preventActions);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      // Remove Listeners
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("contextmenu", preventActions);
+      document.removeEventListener("copy", preventActions);
+      document.removeEventListener("paste", preventActions);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
     async function fetchQuestions() {
@@ -95,7 +146,9 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           .order('number', { ascending: true });
 
         if (error) throw error;
-        if (!data || data.length === 0) throw new Error("Tidak ada soal ditemukan di paket ini.");
+        if (!data || data.length === 0) {
+          throw new Error("Tidak ada soal ditemukan di paket ini. Silakan hubungi admin.");
+        }
 
         setQuestions(data || []);
       } catch (err: any) {
@@ -202,6 +255,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         total: totalScore,
         answers: answers,
         score_details: details,
+        cheat_attempts: cheatAttempts,
         date: new Date().toISOString()
       };
 
@@ -219,10 +273,10 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
       onFinish({
         ...result,
-        totalScore,
         twkScore,
         tiuScore,
         tkpScore,
+        cheatAttempts,
         totalQuestions: questions.length,
         twkMax: questions.filter(q => q.category === 'TWK').length * 5,
         tiuMax: questions.filter(q => q.category === 'TIU').length * 5,
@@ -351,7 +405,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
               </div>
 
               {/* Options Grid */}
-              <div className="grid grid-cols-1 gap-3">
+              <div className="grid grid-cols-1 gap-2">
                 {['A', 'B', 'C', 'D', 'E'].map((opt) => (
                   <button
                     key={opt}
@@ -378,7 +432,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
                     {/* Content Pill */}
                     <div className={cn(
-                      "flex-1 p-3 px-5 rounded-xl border transition-all",
+                      "flex-1 p-2.5 px-4 rounded-xl border transition-all",
                       answers[currentQuestion.id] === opt
                         ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 shadow-sm"
                         : "bg-[#f8f9fb] dark:bg-slate-900/50 border-slate-200/60 dark:border-slate-800 group-hover:bg-slate-100 dark:group-hover:bg-slate-800"
@@ -395,31 +449,29 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
               </div>
 
               {/* Bottom Controls */}
-              <div className="mt-12 space-y-8">
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => {
-                      const newAnswers = { ...answers };
-                      delete newAnswers[currentQuestion.id];
-                      setAnswers(newAnswers);
-                      if (userId) {
-                        localStorage.setItem(`to_answers_${userId}_${questionsId}`, JSON.stringify(newAnswers));
-                      }
-                    }}
-                    className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95"
-                  >
-                    Batalkan Jawaban
-                  </button>
-                </div>
+              <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <button
+                  onClick={() => {
+                    const newAnswers = { ...answers };
+                    delete newAnswers[currentQuestion.id];
+                    setAnswers(newAnswers);
+                    if (userId) {
+                      localStorage.setItem(`to_answers_${userId}_${questionsId}`, JSON.stringify(newAnswers));
+                    }
+                  }}
+                  className="w-full sm:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-md shadow-amber-500/10 active:scale-95"
+                >
+                  Batalkan Jawaban
+                </button>
 
-                <div className="flex items-center justify-center gap-4 pt-10 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2.5 w-full sm:w-auto">
                   <button
                     onClick={() => {
                       setCurrentIdx((prev) => Math.max(0, prev - 1));
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     disabled={currentIdx === 0}
-                    className="flex items-center gap-2 px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 disabled:opacity-30 transition-all active:scale-95"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-30 transition-all active:scale-95"
                   >
                     Sebelumnya
                   </button>
@@ -427,9 +479,9 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                   {currentIdx === questions.length - 1 ? (
                     <button
                       onClick={() => setShowConfirmModal(true)}
-                      className="flex items-center gap-2 px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/10 active:scale-95"
                     >
-                      Selesai Ujian
+                      Selesai
                     </button>
                   ) : (
                     <button
@@ -437,7 +489,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                         setCurrentIdx((prev) => Math.min(questions.length - 1, prev + 1));
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className="flex items-center gap-2 px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-95"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/10 active:scale-95"
                     >
                       Selanjutnya
                     </button>
@@ -450,38 +502,41 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
         {/* Sidebar Question Grid */}
         <aside className={cn(
-          "fixed lg:sticky lg:top-20 inset-y-0 right-0 w-80 bg-slate-50 dark:bg-slate-950 lg:bg-transparent border-l lg:border-l-0 border-slate-200 dark:border-slate-800 z-30 transition-transform duration-300 transform lg:translate-x-0 shadow-2xl lg:shadow-none shrink-0 h-fit",
+          "fixed lg:sticky lg:top-20 right-0 w-80 z-30 transition-transform duration-300 transform lg:translate-x-0 shadow-2xl lg:shadow-none shrink-0",
           showSidebar ? "translate-x-0" : "translate-x-full"
         )}>
-          <div className="p-6 h-full flex flex-col gap-6">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col">
-              <div className="flex items-center justify-between mb-8">
+          <div className="p-4 lg:p-6">
+            <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col max-h-[calc(100vh-10rem)]">
+              <div className="flex items-center justify-between mb-6 shrink-0">
                 <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight mx-auto">Nomor Soal</h3>
                 <button onClick={() => setShowSidebar(false)} className="lg:hidden p-2 text-slate-400">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <div className="grid grid-cols-5 gap-2 pb-4">
-                {questions.map((q, idx) => (
-                  <button
-                    key={q.id}
-                    onClick={() => {
-                      setCurrentIdx(idx);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                      if (window.innerWidth < 1024) setShowSidebar(false);
-                    }}
-                    className={cn(
-                      "h-10 rounded-lg text-xs font-bold transition-all relative border",
-                      idx === currentIdx
-                        ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20 scale-105 z-10"
-                        : answers[q.id]
-                          ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-800"
-                          : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-transparent hover:border-slate-200"
-                    )}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
+              
+              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="grid grid-cols-5 gap-2 pb-2">
+                  {questions.map((q, idx) => (
+                    <button
+                      key={q.id}
+                      onClick={() => {
+                        setCurrentIdx(idx);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        if (window.innerWidth < 1024) setShowSidebar(false);
+                      }}
+                      className={cn(
+                        "h-10 rounded-lg text-xs font-bold transition-all relative border",
+                        idx === currentIdx
+                          ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-600/20 scale-105 z-10"
+                          : answers[q.id]
+                            ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/10"
+                            : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-transparent hover:border-slate-200"
+                      )}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

@@ -11,7 +11,7 @@ interface FeaturesSectionProps {
 
 export const FeaturesSection = memo(function FeaturesSection({ features }: FeaturesSectionProps) {
   return (
-    <section id="fitur" className="pt-16 pb-24 bg-[#0a1425]/50">
+    <section id="fitur" className="pt-16 pb-24 bg-[#0a1425]/50 content-auto">
       <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8">
              {features.map((f, i) => (

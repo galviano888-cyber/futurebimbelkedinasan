@@ -109,8 +109,8 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
         </aside>
 
         {/* Center/Right: Question and Explanation */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-10 lg:p-16 bg-slate-50/50 dark:bg-slate-950/50 scroll-smooth">
-          <div className="max-w-4xl mx-auto space-y-10 pb-20">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 bg-slate-50/50 dark:bg-slate-950/50 scroll-smooth">
+          <div className="max-w-3xl mx-auto space-y-6 pb-20">
             {/* Status Header Overlay */}
             <div className={cn(
               "p-8 rounded-[2.5rem] border-2 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-500",
@@ -135,7 +135,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
                 </div>
                 <div>
                   <h3 className={cn(
-                    "text-2xl font-black tracking-tight",
+                    "text-xl font-black tracking-tight",
                     currentQuestion.category === 'TKP' ? 'text-amber-900 dark:text-amber-200' : isCorrect ? 'text-emerald-900 dark:text-emerald-200' : 'text-red-900 dark:text-red-200'
                   )}>
                     {currentQuestion.category === 'TKP' ? 'Pembahasan TKP' : isCorrect ? 'Jawaban Kamu Benar!' : 'Jawaban Kamu Salah'}
@@ -150,19 +150,19 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
               </div>
               
               {!isCorrect && currentQuestion.category !== 'TKP' && (
-                <div className="px-6 py-3 bg-white/40 dark:bg-slate-800/40 rounded-2xl border border-white/20 backdrop-blur-sm">
-                   <p className="text-[10px] font-black text-red-800 dark:text-red-400 uppercase tracking-widest mb-1">Kunci Jawaban</p>
-                   <p className="text-xl font-black text-red-900 dark:text-red-200 uppercase leading-none">Opsi {currentQuestion.correct_answer}</p>
+                <div className="px-4 py-2 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-white/20 backdrop-blur-sm">
+                   <p className="text-[9px] font-black text-red-800 dark:text-red-400 uppercase tracking-widest mb-0.5">Kunci Jawaban</p>
+                   <p className="text-lg font-black text-red-900 dark:text-red-200 uppercase leading-none">Opsi {currentQuestion.correct_answer}</p>
                 </div>
               )}
             </div>
 
             {/* Question Card */}
-            <div className="bg-white dark:bg-slate-900 p-10 rounded-[3rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 relative overflow-hidden group">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 dark:bg-slate-800/30 rounded-full -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-110" />
               
               <div className="relative z-10">
-                <div className="text-[18px] text-slate-800 dark:text-white mb-10 font-bold whitespace-pre-wrap leading-relaxed text-justify">
+                <div className="text-[15px] text-slate-800 dark:text-white mb-8 font-bold whitespace-pre-wrap leading-relaxed text-justify">
                   {currentQuestion.question_text}
                 </div>
                 
@@ -172,7 +172,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
                   </div>
                 )}
 
-                <div className="space-y-4">
+                <div className="space-y-1.5">
                   {Object.entries(currentQuestion.options || {}).map(([label, text]) => {
                     const isUserSelected = userAnswer === label;
                     const isActuallyCorrect = currentQuestion.correct_answer === label;
@@ -195,7 +195,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
                       <div 
                         key={label}
                         className={cn(
-                          "flex items-center gap-5 p-5 rounded-[1.5rem] border-2 transition-all duration-300",
+                          "flex items-center gap-3 p-3 rounded-xl border-2 transition-all duration-300",
                           optionClass
                         )}
                       >
@@ -207,7 +207,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
                         </div>
                         <div className="flex-1">
                            <p className={cn(
-                             "text-[15px] font-bold leading-relaxed",
+                             "text-[13px] font-bold leading-relaxed",
                              isActuallyCorrect && currentQuestion.category !== 'TKP' ? "text-emerald-900 dark:text-emerald-300" :
                              isUserSelected && !isCorrect ? "text-red-900 dark:text-red-300" :
                              "text-slate-700 dark:text-slate-300"
@@ -236,12 +236,12 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
               <div className="space-y-6">
                 <div className="flex items-center gap-4 px-6">
                   <div className="w-1.5 h-8 bg-blue-600 rounded-full" />
-                  <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Pembahasan Mendalam</h3>
+                  <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Pembahasan</h3>
                 </div>
                 
-                <div className="bg-white dark:bg-slate-900 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+                <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
                   {currentQuestion.explanation && (
-                    <div className="text-[16px] text-slate-700 dark:text-slate-300 font-medium leading-relaxed text-justify whitespace-pre-wrap mb-8">
+                    <div className="text-[14px] text-slate-700 dark:text-slate-300 font-medium leading-relaxed text-justify whitespace-pre-wrap mb-6">
                       {currentQuestion.explanation}
                     </div>
                   )}

@@ -12,9 +12,9 @@ interface FAQSectionProps {
 
 export const FAQSection = memo(function FAQSection({ faqs }: FAQSectionProps) {
   return (
-    <section id="faq" className="py-32 bg-[#0a1425] relative overflow-hidden">
-       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
-       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full translate-y-1/2 -translate-x-1/2" />
+    <section id="faq" className="py-32 bg-[#0a1425] relative overflow-hidden content-auto">
+       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[80px] rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
        <div className="max-w-4xl mx-auto px-6 relative z-10">
           <div className="text-center mb-16">

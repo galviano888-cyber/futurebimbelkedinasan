@@ -162,7 +162,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
     <div className="max-w-6xl mx-auto space-y-12 pb-20 p-4">
       {/* GLOWING HERO SECTION */}
       <section className="relative pt-8">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-64 bg-blue-500/10 blur-[120px] rounded-full -z-10" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-64 bg-blue-500/10 blur-[100px] rounded-full -z-10 pointer-events-none will-change-transform" />
         
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
           <motion.div 
@@ -219,7 +219,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
               exit={{ opacity: 0 }}
               className="absolute inset-x-0 inset-y-0 z-50 flex items-center justify-center rounded-[3rem] overflow-hidden"
             >
-               <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/60 backdrop-blur-3xl border border-white/40 dark:border-slate-800/40" />
+               <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/40" />
                <div className="relative z-10 text-center space-y-8 p-12 max-w-md animate-in zoom-in-95 duration-500">
                   <div className="w-24 h-24 bg-blue-600 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-2xl shadow-blue-500/40">
                      <Trophy className="w-12 h-12 text-white" />
@@ -255,8 +255,8 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-[3rem] blur-2xl opacity-20 group-hover:opacity-30 transition-opacity" />
                 <div className="relative bg-slate-900 dark:bg-slate-950 rounded-[3rem] p-8 md:p-12 overflow-hidden border border-white/10 shadow-2xl">
-                   <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 blur-[100px] -mr-48 -mt-48" />
-                   <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 blur-[80px] -ml-32 -mb-32" />
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 blur-[80px] -mr-48 -mt-48 pointer-events-none will-change-transform" />
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 blur-[60px] -ml-32 -mb-32 pointer-events-none will-change-transform" />
                    
                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
                       <div className="flex items-center gap-8">
@@ -331,7 +331,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                     {/* Background Layer with clipping */}
                     <div className="absolute inset-0 bg-blue-600 rounded-[3.5rem] shadow-[0_20px_50px_rgba(37,99,235,0.3)] overflow-hidden">
                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-700" />
-                       <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 blur-[60px] -mr-24 -mt-24" />
+                       <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 blur-[40px] -mr-24 -mt-24 pointer-events-none will-change-transform" />
                     </div>
 
                     {/* Content Layer (No clipping) */}
@@ -423,7 +423,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                               key={index}
                               variants={itemVariants}
                               className={cn(
-                                "group transition-all duration-300",
+                                "group transition-all duration-300 transform-gpu",
                                 item.user_id === userRank?.score ? "bg-blue-50/30 dark:bg-blue-900/20" : "hover:bg-slate-50/50 dark:hover:bg-slate-800/50"
                               )}
                             >
@@ -501,8 +501,8 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
           <section className="relative h-64 rounded-[3.5rem] overflow-hidden group">
              <div className="absolute inset-0 bg-slate-900" />
              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/40 to-indigo-700/40 opacity-50" />
-             <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/20 blur-[100px] rounded-full" />
-             <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/20 blur-[100px] rounded-full" />
+             <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/20 blur-[80px] rounded-full pointer-events-none will-change-transform" />
+             <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/20 blur-[80px] rounded-full pointer-events-none will-change-transform" />
              
              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 space-y-6">
                 <motion.div 

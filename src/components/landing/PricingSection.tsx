@@ -16,7 +16,7 @@ interface PricingSectionProps {
 
 export const PricingSection = memo(function PricingSection({ packages, onEnter }: PricingSectionProps) {
   return (
-    <section id="paket" className="py-32 bg-[#050b18]">
+    <section id="paket" className="py-32 bg-[#050b18] content-auto">
        <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-20">
              <h2 className="text-4xl font-black text-white mb-4 tracking-tight">Pilih Paket Belajarmu</h2>
