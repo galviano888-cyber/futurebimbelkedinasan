@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Clock,
   Menu,
@@ -30,10 +30,16 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   const [userId, setUserId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cheatAttempts, setCheatAttempts] = useState(0);
+  const lastViolationTime = useRef<number>(0);
 
   // Anti-Cheat Implementation
   useEffect(() => {
     const handleViolation = (msg: string) => {
+      const now = Date.now();
+      // Prevent double counting within 2 seconds (cooldown)
+      if (now - lastViolationTime.current < 2000) return;
+      lastViolationTime.current = now;
+
       setCheatAttempts(prev => {
         const newCount = prev + 1;
         toast.warning("Peringatan Anti-Cheat!", {

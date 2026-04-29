@@ -186,12 +186,14 @@ export default function App() {
           'ranking': 'Ranking Nasional',
           'events': 'Events',
           'profile': 'Profil Saya',
-          'settings': 'Settings',
+          'settings': 'Pengaturan',
+          'transactions': 'Riwayat Transaksi',
           'help': 'Pusat Bantuan',
           'tryout-pre': 'TryoutPreView',
           'tryout': 'TryoutEngine',
           'tryout-result': 'TryoutResult',
-          'tryout-review': 'TryoutReview'
+          'tryout-review': 'TryoutReview',
+          'invoice': 'Invoice'
         };
         const targetPage = pageMap[hash];
         if (targetPage) setActivePage(targetPage);
@@ -231,12 +233,14 @@ export default function App() {
         'Ranking Nasional': 'ranking',
         'Events': 'events',
         'Profil Saya': 'profile',
-        'Settings': 'settings',
+        'Pengaturan': 'settings',
+        'Riwayat Transaksi': 'transactions',
         'Pusat Bantuan': 'help',
         'TryoutPreView': 'tryout-pre',
         'TryoutEngine': 'tryout',
         'TryoutResult': 'tryout-result',
-        'TryoutReview': 'tryout-review'
+        'TryoutReview': 'tryout-review',
+        'Invoice': 'invoice'
       };
       const hash = reverseMap[activePage];
       if (hash && window.location.hash !== `#${hash}`) {
