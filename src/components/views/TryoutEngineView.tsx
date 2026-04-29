@@ -33,17 +33,25 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
   // Anti-Cheat Implementation
   useEffect(() => {
+    const handleViolation = (msg: string) => {
+      setCheatAttempts(prev => {
+        const newCount = prev + 1;
+        toast.warning("Peringatan Anti-Cheat!", {
+          description: `${msg} (${newCount}x). Aktivitas ini dicatat oleh sistem.`,
+          duration: 5000
+        });
+        return newCount;
+      });
+    };
+
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        setCheatAttempts(prev => {
-          const newCount = prev + 1;
-          toast.warning("Peringatan Anti-Cheat!", {
-            description: `Anda terdeteksi meninggalkan halaman ujian (${newCount}x). Aktivitas ini dicatat oleh sistem.`,
-            duration: 5000
-          });
-          return newCount;
-        });
+        handleViolation("Anda terdeteksi meninggalkan halaman ujian");
       }
+    };
+
+    const handleBlur = () => {
+      handleViolation("Anda terdeteksi meninggalkan fokus jendela ujian");
     };
 
     const preventActions = (e: any) => {
@@ -53,27 +61,25 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Prevent Print (Ctrl+P)
       if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
         e.preventDefault();
         toast.error("Dilarang mencetak halaman ujian!");
       }
-      // Prevent Screenshot (PrntScrn) - Partial protection as browser can't block all
       if (e.key === 'PrintScreen') {
-        toast.error("Dilarang mengambil tangkapan layar!");
+        handleViolation("Dilarang mengambil tangkapan layar!");
       }
     };
 
-    // Add Listeners
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
     document.addEventListener("contextmenu", preventActions);
     document.addEventListener("copy", preventActions);
     document.addEventListener("paste", preventActions);
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      // Remove Listeners
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleBlur);
       document.removeEventListener("contextmenu", preventActions);
       document.removeEventListener("copy", preventActions);
       document.removeEventListener("paste", preventActions);
@@ -189,6 +195,16 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
     }
   }, [answers, userId, questionsId]);
 
+  // Auto-finish on 3 violations
+  useEffect(() => {
+    if (cheatAttempts >= 3 && !isSubmitting) {
+      toast.error("UJIAN DIHENTIKAN OTOMATIS!", {
+        description: "Anda terdeteksi keluar dari halaman sebanyak 3 kali. Sistem telah mengirim jawaban Anda secara otomatis untuk menjaga integritas ujian.",
+        duration: 8000
+      });
+      handleSubmit();
+    }
+  }, [cheatAttempts, isSubmitting]);
 
   const handleSubmit = async () => {
     if (isSubmitting || !supabase) return;

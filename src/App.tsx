@@ -187,7 +187,11 @@ export default function App() {
           'events': 'Events',
           'profile': 'Profil Saya',
           'settings': 'Settings',
-          'help': 'Pusat Bantuan'
+          'help': 'Pusat Bantuan',
+          'tryout-pre': 'TryoutPreView',
+          'tryout': 'TryoutEngine',
+          'tryout-result': 'TryoutResult',
+          'tryout-review': 'TryoutReview'
         };
         const targetPage = pageMap[hash];
         if (targetPage) setActivePage(targetPage);
@@ -196,9 +200,18 @@ export default function App() {
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('verified') === 'true' || window.location.hash.includes('verified=true')) {
+      if (!isAuthenticated) {
+        setIsLoginOpen(true);
+      }
       setActivePage("Paket dan Tryout SKD");
       window.history.replaceState(null, "", window.location.pathname);
-      toast.success("Email berhasil diverifikasi! Selamat datang di FBK.");
+      
+      setTimeout(() => {
+        toast.success("Email Berhasil Diverifikasi!", {
+          description: "Akun kamu sudah aktif, Bro! Silakan masuk untuk mulai persiapan kedinasan.",
+          duration: 6000
+        });
+      }, 500);
     }
 
     window.addEventListener('hashchange', handleHashChange);
@@ -219,7 +232,11 @@ export default function App() {
         'Events': 'events',
         'Profil Saya': 'profile',
         'Settings': 'settings',
-        'Pusat Bantuan': 'help'
+        'Pusat Bantuan': 'help',
+        'TryoutPreView': 'tryout-pre',
+        'TryoutEngine': 'tryout',
+        'TryoutResult': 'tryout-result',
+        'TryoutReview': 'tryout-review'
       };
       const hash = reverseMap[activePage];
       if (hash && window.location.hash !== `#${hash}`) {
