@@ -3,6 +3,7 @@ import { LegalModal } from "@/components/LegalModal";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Variants } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
+import { SEO } from "@/components/SEO";
 
 // Landing Sub-components
 import { Navbar } from "../landing/Navbar";
@@ -28,7 +29,7 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
   const [hero, setHero] = useState({ 
     badge: "Platform Persiapan Kedinasan #1",
     title: "Wujudkan Mimpi Menjadi Abdi Negara.", 
-    subtitle: "Hancurkan keraguan dan taklukkan seleksi sekolah kedinasan impianmu. Kami menyediakan ekosistem belajar paling intensif dengan sistem CAT standar BKN untuk menjamin kesiapan maksimalmu.",
+    subtitle: "Partner strategis nomor satu untuk raih kursi sekolah kedinasan impianmu. Kami fokus memberikan pendampingan intensif dengan materi terakurat dan sistem simulasi CAT yang presisi demi mencetak calon abdi negara terbaik.",
     cta: "Mulai Sekarang",
     image: "https://images.unsplash.com/photo-1523240715632-d984bb4b990a?q=80&w=2070&auto=format&fit=crop"
   });
@@ -128,6 +129,10 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
 
   return (
     <div className="min-h-screen bg-[#050b18] text-white font-sans selection:bg-blue-600/30 overflow-x-hidden relative transform-gpu">
+      <SEO 
+        title="Future Bimbel Kedinasan | Persiapan Tes SKD #1 Indonesia"
+        description="Partner strategis nomor satu untuk raih kursi sekolah kedinasan impianmu. Kami fokus memberikan pendampingan intensif dengan materi terakurat dan sistem simulasi CAT yang presisi demi mencetak calon abdi negara terbaik."
+      />
       <GuideModal isOpen={showGuide} onClose={handleCloseGuide} />
 
       <div className="fixed inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] will-change-opacity" />

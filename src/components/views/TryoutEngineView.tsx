@@ -221,41 +221,6 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
       const user = userData.user;
       if (!user) throw new Error("No user");
 
-      let totalScore = 0;
-      let twkScore = 0;
-      let tiuScore = 0;
-      let tkpScore = 0;
-
-      const details = questions.map(q => {
-        const userAnswer = answers[q.id];
-        const isCorrect = userAnswer === q.correct_answer;
-        let score = 0;
-
-        if (q.category === 'TKP') {
-          score = q.tkp_scores ? (q.tkp_scores[userAnswer] || 0) : (isCorrect ? 5 : 0);
-        } else {
-          score = isCorrect ? 5 : 0;
-        }
-
-        if (q.category === 'TWK') twkScore += score;
-        else if (q.category === 'TIU') tiuScore += score;
-        else if (q.category === 'TKP') tkpScore += score;
-
-        totalScore += score;
-        return {
-          questionId: q.id,
-          userAnswer,
-          correctAnswer: q.correct_answer,
-          isCorrect,
-          score,
-          category: q.category
-        };
-      });
-
-      const twkCorrect = details.filter(d => d.category === 'TWK' && d.score === 5).length;
-      const tiuCorrect = details.filter(d => d.category === 'TIU' && d.score === 5).length;
-      const tkpCorrect = details.filter(d => d.category === 'TKP' && d.userAnswer).length;
-
       // Fetch package name for record
       const { data: pkgInfo } = await supabase
         .from('packages')
@@ -263,29 +228,17 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         .eq('id', packageId)
         .maybeSingle();
 
-      const result = {
-        package_id: packageId,
-        tryout_id: questionsId,
-        user_id: user.id,
-        package_name: pkgInfo?.title || "Tryout SKD",
-        twk: twkScore,
-        tiu: tiuScore,
-        tkp: tkpScore,
-        twk_correct: twkCorrect,
-        tiu_correct: tiuCorrect,
-        tkp_correct: tkpCorrect,
-        total: totalScore,
-        answers: answers,
-        score_details: details,
-        cheat_attempts: cheatAttempts,
-        date: new Date().toISOString()
-      };
+      // NEW SECURE SUBMISSION VIA RPC
+      const { data: rpcData, error: rpcError } = await supabase.rpc('submit_tryout_secure', {
+        p_user_id: user.id,
+        p_package_id: packageId,
+        p_questions_id: questionsId,
+        p_answers: answers,
+        p_cheat_attempts: cheatAttempts,
+        p_package_name: pkgInfo?.title || "Tryout SKD"
+      });
 
-      const { error: insertError } = await supabase
-        .from('tryout_results')
-        .insert([result]);
-
-      if (insertError) throw insertError;
+      if (rpcError) throw rpcError;
 
       // Clear persistence on success
       if (user) {
@@ -294,10 +247,13 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
       }
 
       onFinish({
-        ...result,
-        twkScore,
-        tiuScore,
-        tkpScore,
+        ...rpcData,
+        package_id: packageId,
+        tryout_id: questionsId,
+        user_id: user.id,
+        package_name: pkgInfo?.title || "Tryout SKD",
+        date: new Date().toISOString(),
+        answers: answers,
         cheatAttempts,
         totalQuestions: questions.length,
         twkMax: questions.filter(q => q.category === 'TWK').length * 5,

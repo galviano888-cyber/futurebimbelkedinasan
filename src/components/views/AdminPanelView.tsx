@@ -44,9 +44,13 @@ export function AdminPanelView() {
       }
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (session && session.user.email) {
-          if (session.user.email === "admin.utama@fbk-kedinasan.com" || session.user.email === "admin.soal@fbk-kedinasan.com") {
-            setEmail(session.user.email);
+        if (session && session.user) {
+          // Check if user has admin role in app_metadata or matches admin criteria
+          const isAdmin = session.user.app_metadata?.role === 'admin' || 
+                          session.user.email?.endsWith('@fbk-kedinasan.com');
+          
+          if (isAdmin) {
+            setEmail(session.user.email || "");
             setIsLoggedIn(true);
             fetchPackages();
             fetchSalesPackages();
@@ -150,9 +154,14 @@ export function AdminPanelView() {
     if (!supabase) return;
     setLoading(true);
     try {
-      const { error: loginError } = await supabase!.auth.signInWithPassword({ email, password });
+      const { data: loginData, error: loginError } = await supabase!.auth.signInWithPassword({ email, password });
       if (loginError) throw loginError;
-      if (email === "admin.utama@fbk-kedinasan.com" || email === "admin.soal@fbk-kedinasan.com") {
+      
+      const user = loginData.user;
+      const isAdmin = user?.app_metadata?.role === 'admin' || 
+                      user?.email?.endsWith('@fbk-kedinasan.com');
+
+      if (isAdmin) {
         setIsLoggedIn(true);
         fetchPackages();
         fetchSalesPackages();

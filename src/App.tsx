@@ -7,7 +7,6 @@ import { TryoutView } from "@/components/views/TryoutView";
 import { PaketSayaView } from "@/components/views/PaketSayaView";
 import { ContactView } from "@/components/views/ContactView";
 import { DashboardSkeleton } from "@/components/ui/skeleton";
-import { EmptyView } from "@/components/views/EmptyView";
 import { LandingPageView } from "@/components/views/LandingPageView";
 import { AuthModal } from "@/components/AuthModal";
 import { supabase } from "@/lib/supabaseClient";
@@ -16,6 +15,8 @@ import type { TryoutRecord } from "@/types";
 
 import { ResetPasswordView } from "@/components/views/ResetPasswordView";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
+import { SEO } from "@/components/SEO";
+import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 
 // Lazy Loaded Views for better mobile performance
 const TryoutEngineView = lazy(() => import("@/components/views/TryoutEngineView").then(m => ({ default: m.TryoutEngineView })));
@@ -30,20 +31,8 @@ const PaymentHistory = lazy(() => import("@/components/views/PaymentHistoryView"
 const InvoiceView = lazy(() => import("@/components/views/InvoiceView").then(m => ({ default: m.InvoiceView })));
 
 export default function App() {
-  const path = window.location.pathname;
-  
-  if (path === '/admin-panel' || path === '/admin_panel') {
-    return <AdminPanelView />;
-  }
-
-  // Handle Password Reset Flow
-  const isResetFlow = path === '/reset-password' || 
-                      window.location.hash.includes('type=recovery') || 
-                      window.location.hash.includes('error_code=otp_expired');
-
-  if (isResetFlow) {
-    return <ResetPasswordView />;
-  }
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // 1. Initialize State from LocalStorage if exists
   const [activePage, setActivePage] = useState(() => {
@@ -173,40 +162,42 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Sync activePage based on URL path
+  useEffect(() => {
+    const path = location.pathname;
+    const pageMap: Record<string, string> = {
+      '/dashboard': 'Dashboard',
+      '/paket': 'Paket dan Tryout SKD',
+      '/paket-saya': 'Paket Saya',
+      '/ranking': 'Ranking Nasional',
+      '/events': 'Events',
+      '/profile': 'Profil Saya',
+      '/settings': 'Pengaturan',
+      '/transactions': 'Riwayat Transaksi',
+      '/help': 'Pusat Bantuan',
+      '/invoice': 'Invoice',
+      '/tryout-result': 'TryoutResult',
+      '/tryout-review': 'TryoutReview'
+    };
+    
+    // Check for exact matches first
+    if (pageMap[path]) {
+      setActivePage(pageMap[path]);
+    } else if (path.startsWith('/tryout-pre')) {
+      setActivePage('TryoutPreView');
+    } else if (path.startsWith('/tryout-engine')) {
+      setActivePage('TryoutEngine');
+    }
+  }, [location.pathname]);
+
   // Handle Redirection after Verification and Hash Routing
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      if (hash && hash !== 'verified=true') {
-        // Map hash to page name if needed, or use directly
-        const pageMap: Record<string, string> = {
-          'dashboard': 'Dashboard',
-          'paket': 'Paket dan Tryout SKD',
-          'paket-saya': 'Paket Saya',
-          'ranking': 'Ranking Nasional',
-          'events': 'Events',
-          'profile': 'Profil Saya',
-          'settings': 'Pengaturan',
-          'transactions': 'Riwayat Transaksi',
-          'help': 'Pusat Bantuan',
-          'tryout-pre': 'TryoutPreView',
-          'tryout': 'TryoutEngine',
-          'tryout-result': 'TryoutResult',
-          'tryout-review': 'TryoutReview',
-          'invoice': 'Invoice'
-        };
-        const targetPage = pageMap[hash];
-        if (targetPage) setActivePage(targetPage);
-      }
-    };
-
     const params = new URLSearchParams(window.location.search);
     if (params.get('verified') === 'true' || window.location.hash.includes('verified=true')) {
       if (!isAuthenticated) {
         setIsLoginOpen(true);
       }
-      setActivePage("Paket dan Tryout SKD");
-      window.history.replaceState(null, "", window.location.pathname);
+      navigate('/paket');
       
       setTimeout(() => {
         toast.success("Email Berhasil Diverifikasi!", {
@@ -215,49 +206,17 @@ export default function App() {
         });
       }, 500);
     }
-
-    window.addEventListener('hashchange', handleHashChange);
-    // Initial check
-    handleHashChange();
-
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  // Sync activePage to Hash
-  useEffect(() => {
-    if (isAuthenticated) {
-      const reverseMap: Record<string, string> = {
-        'Dashboard': 'dashboard',
-        'Paket dan Tryout SKD': 'paket',
-        'Paket Saya': 'paket-saya',
-        'Ranking Nasional': 'ranking',
-        'Events': 'events',
-        'Profil Saya': 'profile',
-        'Pengaturan': 'settings',
-        'Riwayat Transaksi': 'transactions',
-        'Pusat Bantuan': 'help',
-        'TryoutPreView': 'tryout-pre',
-        'TryoutEngine': 'tryout',
-        'TryoutResult': 'tryout-result',
-        'TryoutReview': 'tryout-review',
-        'Invoice': 'invoice'
-      };
-      const hash = reverseMap[activePage];
-      if (hash && window.location.hash !== `#${hash}`) {
-        window.history.pushState(null, "", `#${hash}`);
-      }
-    }
-  }, [activePage, isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   const handleStartTryout = (packageId: string, questionsId: string) => {
     setActivePackageId(packageId);
     setQuestionsId(questionsId);
-    setActivePage("TryoutPreView");
+    navigate(`/tryout-pre/${packageId}/${questionsId}`);
   };
 
   const handleTryoutComplete = (result: any) => {
     setTryoutResult(result);
-    setActivePage("TryoutResult");
+    navigate('/tryout-result');
     // Clear tryout session persistence
     localStorage.removeItem("fbk_active_page");
     localStorage.removeItem("fbk_active_package_id");
@@ -293,91 +252,69 @@ export default function App() {
     }
   };
 
-  const renderView = () => {
-    if (!isAuthenticated) {
-      return <LandingPageView onEnter={() => setIsLoginOpen(true)} />;
-    }
+  const renderRoutes = () => {
+    if (loading) return <DashboardSkeleton />;
 
-    if (loading && activePage === "Dashboard") return <DashboardSkeleton />;
+    return (
+      <Routes>
+        {/* Landing/Auth */}
+        <Route path="/" element={!isAuthenticated ? <LandingPageView onEnter={() => setIsLoginOpen(true)} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/reset-password" element={<ResetPasswordView />} />
+        
+        {/* Admin */}
+        <Route path="/admin-panel" element={<AdminPanelView />} />
 
-    switch (activePage) {
-      case "Dashboard":
-        return <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={setActivePage} onViewInvoice={(txId) => { setSelectedTransactionId(txId); setActivePage('Invoice'); }} onReview={handleHistoryReview} />;
-      case "Paket dan Tryout SKD":
-        return <TryoutView isAuthenticated={isAuthenticated} onPurchaseSuccess={(txId) => { setSelectedTransactionId(txId); setActivePage('Invoice'); }} onLoginClick={() => setIsLoginOpen(true)} />;
-      case "Invoice":
-        return selectedTransactionId ? <InvoiceView transactionId={selectedTransactionId} onBack={() => setActivePage("Paket dan Tryout SKD")} /> : <div className="p-20 text-center">Invoice Not Found</div>;
-      case "TryoutPreView":
-        return <TryoutPreView packageId={activePackageId} questionsId={questionsId} onStart={() => setActivePage("TryoutEngine")} onCancel={() => setActivePage("Paket Saya")} />;
-      case "Paket Saya":
-        return <PaketSayaView onStartTryout={handleStartTryout} />;
-      case "Profil Saya":
-        return <ProfileView />;
-      case "Pengaturan":
-        return <SettingsView />;
-      case "Riwayat Transaksi":
-        return <PaymentHistory onBack={() => setActivePage("Dashboard")} onViewInvoice={(txId) => { setSelectedTransactionId(txId); setActivePage('Invoice'); }} />;
-      case "Ranking Nasional":
-        return <LeaderboardView onLoginClick={() => setIsLoginOpen(true)} />;
-      case "Pusat Bantuan":
-        return <ContactView />;
-      case "Events":
-        return <EmptyView title="Event & Kompetisi" />;
-      case "TryoutEngine":
-        return activePackageId && questionsId ? (
-          <TryoutEngineView 
-            packageId={activePackageId} 
-            questionsId={questionsId} 
-            onFinish={handleTryoutComplete} 
-            onExit={() => setActivePage("Dashboard")} 
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full text-slate-500">
-            <p>Data tryout tidak lengkap.</p>
-            <button onClick={() => setActivePage("Dashboard")} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Kembali</button>
-          </div>
-        );
-      case "TryoutResult":
-        if (!tryoutResult) {
-          setActivePage("Dashboard");
-          return null;
-        }
-        return <TryoutResultView result={tryoutResult} packageId={activePackageId!} onBack={() => setActivePage("Dashboard")} onReview={() => setActivePage("TryoutReview")} />;
-      case "TryoutReview":
-        if (!tryoutResult) {
-          setActivePage("Dashboard");
-          return null;
-        }
-        return <TryoutReviewView result={tryoutResult} questions={tryoutResult.questions || []} onBack={() => setActivePage("Dashboard")} />;
-      default:
-        return <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={setActivePage} onViewInvoice={() => { }} onReview={handleHistoryReview} />;
-    }
+        {/* User Protected Routes */}
+        <Route path="/dashboard" element={isAuthenticated ? <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={(p) => navigate(`/${p.toLowerCase().replace(/ /g, '-')}`)} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onReview={handleHistoryReview} /> : <Navigate to="/" replace />} />
+        <Route path="/paket" element={isAuthenticated ? <TryoutView isAuthenticated={isAuthenticated} onPurchaseSuccess={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onLoginClick={() => setIsLoginOpen(true)} /> : <Navigate to="/" replace />} />
+        <Route path="/paket-saya" element={isAuthenticated ? <PaketSayaView onStartTryout={handleStartTryout} /> : <Navigate to="/" replace />} />
+        <Route path="/ranking" element={<LeaderboardView onLoginClick={() => setIsLoginOpen(true)} />} />
+        <Route path="/profile" element={isAuthenticated ? <ProfileView /> : <Navigate to="/" replace />} />
+        <Route path="/settings" element={isAuthenticated ? <SettingsView /> : <Navigate to="/" replace />} />
+        <Route path="/transactions" element={isAuthenticated ? <PaymentHistory onBack={() => navigate("/dashboard")} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} /> : <Navigate to="/" replace />} />
+        <Route path="/help" element={<ContactView />} />
+        <Route path="/invoice" element={selectedTransactionId ? <InvoiceView transactionId={selectedTransactionId} onBack={() => navigate("/paket")} /> : <Navigate to="/dashboard" replace />} />
+        
+        {/* Tryout Engine Routes */}
+        <Route path="/tryout-pre/:pId/:qId" element={<TryoutPreView packageId={activePackageId} questionsId={questionsId} onStart={() => navigate("/tryout-engine")} onCancel={() => navigate("/paket-saya")} />} />
+        <Route path="/tryout-engine" element={activePackageId && questionsId ? <TryoutEngineView packageId={activePackageId} questionsId={questionsId} onFinish={handleTryoutComplete} onExit={() => navigate("/dashboard")} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/tryout-result" element={tryoutResult ? <TryoutResultView result={tryoutResult} packageId={activePackageId!} onBack={() => navigate("/dashboard")} onReview={() => navigate("/tryout-review")} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/tryout-review" element={tryoutResult ? <TryoutReviewView result={tryoutResult} questions={tryoutResult.questions || []} onBack={() => navigate("/dashboard")} /> : <Navigate to="/dashboard" replace />} />
+        
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
   };
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && location.pathname === '/') {
     return (
       <>
+        <SEO />
         <Toaster position="top-center" richColors />
-        {renderView()}
-          <AuthModal
-            isOpen={isLoginOpen}
-            onClose={() => setIsLoginOpen(false)}
-          />
-          <FloatingWhatsApp number="087753646617" />
-        </>
-      );
-    }
+        {renderRoutes()}
+        <AuthModal
+          isOpen={isLoginOpen}
+          onClose={() => setIsLoginOpen(false)}
+        />
+        <FloatingWhatsApp number="087753646617" />
+      </>
+    );
+  }
 
-  // Define full-screen pages
-  const isFullScreenPage = ["TryoutPreView", "TryoutEngine", "TryoutResult", "TryoutReview"].includes(activePage);
+  // Define full-screen pages based on pathname
+  const isFullScreenPage = location.pathname.startsWith('/tryout') || 
+                           location.pathname === '/admin-panel' || 
+                           location.pathname === '/reset-password';
 
   if (isFullScreenPage) {
     return (
       <div className="h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-500">
+        <SEO title={`${activePage} | Future Bimbel`} />
         <Toaster position="top-center" richColors />
         <main className="h-full overflow-y-auto transform-gpu">
           <Suspense fallback={<DashboardSkeleton />}>
-            {renderView()}
+            {renderRoutes()}
           </Suspense>
         </main>
       </div>
@@ -386,23 +323,52 @@ export default function App() {
 
   return (
     <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col lg:flex-row overflow-hidden transition-colors duration-500">
+      <SEO title={`${activePage} | Future Bimbel`} />
       <Toaster position="top-center" richColors />
-      <Sidebar
-        isOpen={false}
-        onClose={() => { }}
-        activePage={activePage}
-        onPageChange={setActivePage}
-      />
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <Header
-          onMenuToggle={() => { }}
-          currentUser={currentUser}
-          isAuthenticated={isAuthenticated}
-          profile={profile}
-          onNavigate={setActivePage}
-          isLoginOpen={isLoginOpen}
-          setIsLoginOpen={setIsLoginOpen}
+      {isAuthenticated && (
+        <Sidebar
+          isOpen={false}
+          onClose={() => { }}
+          activePage={activePage}
+          onPageChange={(p) => {
+            const pageMap: Record<string, string> = {
+              'Dashboard': '/dashboard',
+              'Paket dan Tryout SKD': '/paket',
+              'Paket Saya': '/paket-saya',
+              'Ranking Nasional': '/ranking',
+              'Events': '/events',
+              'Profil Saya': '/profile',
+              'Pengaturan': '/settings',
+              'Riwayat Transaksi': '/transactions',
+              'Pusat Bantuan': '/help'
+            };
+            if (pageMap[p]) navigate(pageMap[p]);
+            setActivePage(p);
+          }}
         />
+      )}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        {isAuthenticated && (
+          <Header
+            onMenuToggle={() => { }}
+            currentUser={currentUser}
+            isAuthenticated={isAuthenticated}
+            profile={profile}
+            onNavigate={(p) => {
+              const pageMap: Record<string, string> = {
+                'Dashboard': '/dashboard',
+                'Paket dan Tryout SKD': '/paket',
+                'Paket Saya': '/paket-saya',
+                'Riwayat Transaksi': '/transactions',
+                'Profil Saya': '/profile'
+              };
+              if (pageMap[p]) navigate(pageMap[p]);
+              setActivePage(p);
+            }}
+            isLoginOpen={isLoginOpen}
+            setIsLoginOpen={setIsLoginOpen}
+          />
+        )}
         <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/20 p-4 lg:p-8 transform-gpu">
           {!isVerified && isAuthenticated && (
             <div className="mb-8 animate-in slide-in-from-top-4 duration-500">
@@ -436,7 +402,7 @@ export default function App() {
             </div>
           )}
           <Suspense fallback={<DashboardSkeleton />}>
-            {renderView()}
+            {renderRoutes()}
           </Suspense>
         </main>
       </div>
@@ -444,7 +410,7 @@ export default function App() {
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
       />
-
+      {!isAuthenticated && <FloatingWhatsApp number="087753646617" />}
     </div>
   );
 }

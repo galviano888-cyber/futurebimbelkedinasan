@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import type { TryoutRecord, ActivePackageData } from "@/types";
 import { Clock, Award, BookMarked, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SEO } from "@/components/SEO";
 
 interface DashboardViewProps {
   data: TryoutRecord[];
@@ -110,6 +111,7 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
 
   return (
     <div className="space-y-10">
+      <SEO title={`Dashboard ${userName}`} description="Pantau statistik belajar dan hasil tryout kamu di Future Bimbel Kedinasan." />
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div>
           <h1 className="text-slate-900 dark:text-white font-black text-4xl tracking-tight leading-none">
