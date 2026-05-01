@@ -1,10 +1,7 @@
 RewriteEngine On
 
-# 1. Force HTTPS
-RewriteCond %{HTTPS} off
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
-# Support for Single Page Application (React/Vite) routing
+# Biarkan HTTPS diatur via cPanel saja agar tidak bentrok
+# Hanya aturan SPA agar dashboard bisa diakses langsung
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.html [L]
