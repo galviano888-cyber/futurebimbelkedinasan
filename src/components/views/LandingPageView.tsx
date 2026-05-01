@@ -6,14 +6,15 @@ import { supabase } from "@/lib/supabaseClient";
 import { SEO } from "@/components/SEO";
 
 // Landing Sub-components
-import { Navbar } from "../landing/Navbar";
-import { HeroSection } from "../landing/HeroSection";
-import { FeaturesSection } from "../landing/FeaturesSection";
-import { PricingSection } from "../landing/PricingSection";
-import { TestimonialsSection } from "../landing/TestimonialsSection";
-import { FAQSection } from "../landing/FAQSection";
-import { Footer } from "../landing/Footer";
-import { GuideModal } from "../landing/GuideModal";
+const Navbar = lazy(() => import("../landing/Navbar").then(m => ({ default: m.Navbar })));
+const HeroSection = lazy(() => import("../landing/HeroSection").then(m => ({ default: m.HeroSection })));
+const FeaturesSection = lazy(() => import("../landing/FeaturesSection").then(m => ({ default: m.FeaturesSection })));
+const PricingSection = lazy(() => import("../landing/PricingSection").then(m => ({ default: m.PricingSection })));
+const TestimonialsSection = lazy(() => import("../landing/TestimonialsSection").then(m => ({ default: m.TestimonialsSection })));
+const FAQSection = lazy(() => import("../landing/FAQSection").then(m => ({ default: m.FAQSection })));
+const Footer = lazy(() => import("../landing/Footer").then(m => ({ default: m.Footer })));
+const GuideModal = lazy(() => import("../landing/GuideModal").then(m => ({ default: m.GuideModal })));
+const LegalModal = lazy(() => import("../components/LegalModal").then(m => ({ default: m.LegalModal })));
 
 interface LandingPageViewProps {
   onLogin: () => void;
@@ -134,39 +135,55 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
         title="Future Bimbel Kedinasan | Persiapan Tes SKD #1 Indonesia"
         description="Partner strategis nomor satu untuk raih kursi sekolah kedinasan impianmu. Kami fokus memberikan pendampingan intensif dengan materi terakurat dan sistem simulasi CAT yang presisi demi mencetak calon abdi negara terbaik."
       />
-      <GuideModal isOpen={showGuide} onClose={handleCloseGuide} />
+      <Suspense fallback={null}>
+        <GuideModal isOpen={showGuide} onClose={handleCloseGuide} />
+      </Suspense>
 
       <div className="fixed inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] will-change-opacity" />
       
       <div className="relative z-10">
-        <Navbar onLogin={onLogin} onRegister={onRegister} />
+        <Suspense fallback={<div className="h-20" />}>
+          <Navbar onLogin={onLogin} onRegister={onRegister} />
+        </Suspense>
 
-        <HeroSection 
-          hero={hero} 
-          colors={colors} 
-          onEnter={onLogin} 
-          containerVariants={containerVariants} 
-          itemVariants={itemVariants} 
-        />
+        <Suspense fallback={<div className="min-h-screen bg-[#0a1425]" />}>
+          <HeroSection 
+            hero={hero} 
+            colors={colors} 
+            onEnter={onLogin} 
+            containerVariants={containerVariants} 
+            itemVariants={itemVariants} 
+          />
+        </Suspense>
 
-        <FeaturesSection features={features} />
+        <Suspense fallback={<div className="h-96" />}>
+          <FeaturesSection features={features} />
+        </Suspense>
 
-        <PricingSection packages={packages} onEnter={onRegister} />
+        <Suspense fallback={<div className="h-96" />}>
+          <PricingSection packages={packages} onEnter={onRegister} />
+        </Suspense>
 
-        <TestimonialsSection testimonials={testimonials} />
+        <Suspense fallback={<div className="h-96" />}>
+          <TestimonialsSection testimonials={testimonials} />
+        </Suspense>
 
-        <FAQSection faqs={faqs} />
+        <Suspense fallback={<div className="h-96" />}>
+          <FAQSection faqs={faqs} />
+        </Suspense>
 
-        <Footer onLegalClick={handleLegalClick} />
+        <Suspense fallback={<div className="h-60" />}>
+          <Footer onLegalClick={handleLegalClick} />
+        </Suspense>
       </div>
 
-
-
-      <LegalModal 
-        isOpen={showLegal} 
-        onClose={handleCloseLegal} 
-        type={legalType} 
-      />
+      <Suspense fallback={null}>
+        <LegalModal 
+          isOpen={showLegal} 
+          onClose={handleCloseLegal} 
+          type={legalType} 
+        />
+      </Suspense>
     </div>
   );
 }
