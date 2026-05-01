@@ -6,7 +6,8 @@ import {
   User, 
   ChevronRight,
   CreditCard,
-  Settings
+  Settings,
+  Menu
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabaseClient";
@@ -18,10 +19,17 @@ interface HeaderProps {
   currentUser?: string | null;
   setIsLoginOpen?: (open: boolean) => void;
   isLoginOpen?: boolean;
+  activePage?: string;
   onMenuToggle?: () => void;
 }
 
-export function Header({ onNavigate, isAuthenticated = false, currentUser, setIsLoginOpen }: HeaderProps) {
+export function Header({ 
+  onNavigate, 
+  isAuthenticated = false, 
+  currentUser, 
+  setIsLoginOpen, 
+  onMenuToggle 
+}: HeaderProps) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -88,8 +96,14 @@ export function Header({ onNavigate, isAuthenticated = false, currentUser, setIs
   };
 
   return (
-    <header className="h-24 flex items-center justify-between px-8 bg-slate-50/50 dark:bg-slate-950/50 backdrop-blur-xl border-b border-slate-200 dark:border-slate-900 sticky top-0 z-30">
-      <div className="flex items-center gap-6 flex-1">
+    <header className="h-20 lg:h-24 flex items-center justify-between px-4 lg:px-8 bg-slate-50/50 dark:bg-slate-950/50 backdrop-blur-xl border-b border-slate-200 dark:border-slate-900 sticky top-0 z-30">
+      <div className="flex items-center gap-3 lg:gap-6 flex-1">
+        <button 
+          onClick={onMenuToggle}
+          className="lg:hidden p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-all"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
         <div className="relative group max-w-md w-full hidden md:block">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
           <input 
@@ -104,11 +118,11 @@ export function Header({ onNavigate, isAuthenticated = false, currentUser, setIs
         <div className="relative">
           <button 
             onClick={() => setShowNotifications(!showNotifications)}
-            className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all shadow-sm relative group"
+            className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all shadow-sm relative group"
           >
             <Bell className="w-5 h-5" />
             {notifications.some(n => !n.is_read) && (
-              <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
+              <span className="absolute top-2.5 right-2.5 lg:top-3 lg:right-3 w-2 h-2 lg:w-2.5 lg:h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
             )}
           </button>
 
@@ -154,9 +168,9 @@ export function Header({ onNavigate, isAuthenticated = false, currentUser, setIs
           <div className="relative">
             <button 
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="flex items-center gap-4 pl-2 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-blue-500 transition-all duration-300 group"
+              className="flex items-center gap-3 lg:gap-4 p-1.5 lg:pl-2 lg:pr-4 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl lg:rounded-2xl hover:border-blue-500 transition-all duration-300 group"
             >
-              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-sm overflow-hidden">
+              <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs lg:text-sm overflow-hidden">
                 {currentUser?.charAt(0) || "U"}
               </div>
               <div className="text-left hidden sm:block">

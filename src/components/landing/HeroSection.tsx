@@ -35,7 +35,7 @@ export const HeroSection = memo(function HeroSection({
             <span>{hero.badge}</span>
           </motion.div>
           
-          <motion.h1 variants={itemVariants} className="text-[2rem] lg:text-[2.8rem] font-black tracking-tighter leading-[1.25] text-white" style={{ textWrap: 'balance' } as any}>
+          <motion.h1 variants={itemVariants} className="text-[2.25rem] sm:text-[3rem] lg:text-[2.8rem] font-black tracking-tighter leading-[1.25] text-white" style={{ textWrap: 'balance' } as any}>
             {(() => {
               const lastComma = hero.title.lastIndexOf(',');
               const hasSplit = lastComma > 0;
@@ -54,18 +54,39 @@ export const HeroSection = memo(function HeroSection({
             })()}
           </motion.h1>
           
-          <motion.p variants={itemVariants} className="text-base lg:text-xl leading-relaxed max-w-xl text-slate-400 font-medium text-justify lg:-translate-y-4">
+          <motion.p variants={itemVariants} className="text-base lg:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0 text-slate-400 font-medium text-center lg:text-justify lg:-translate-y-4">
             {hero.subtitle}
           </motion.p>
+
+          {/* Mobile Image Display */}
+          <motion.div 
+            variants={itemVariants}
+            className="lg:hidden relative py-8 max-w-xs mx-auto"
+          >
+            <div className="relative aspect-[4/5] rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
+              <img 
+                src="/hero-squad.png" 
+                alt="Squad Kedinasan" 
+                className="w-full h-full object-cover brightness-110 contrast-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a1425] via-transparent to-transparent" />
+            </div>
+            {/* Floating Stats for Mobile */}
+            <div className="absolute -bottom-4 -right-4 bg-white/10 backdrop-blur-xl p-3 rounded-2xl border border-white/10 shadow-xl z-20">
+               <p className="text-[8px] font-black text-emerald-400 uppercase tracking-widest leading-none mb-1">Target Skor</p>
+               <p className="text-xs font-black text-white">450+ SKD</p>
+            </div>
+          </motion.div>
           
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
-            <Button onClick={onEnter} className="w-full sm:w-auto h-16 px-10 text-white font-black text-lg rounded-2xl shadow-2xl shadow-blue-600/40 hover:scale-105 active:scale-95 transition-all group" style={{ backgroundColor: colors.cta }}>
+            <Button onClick={onEnter} className="w-full sm:w-auto h-16 px-10 text-white font-black text-lg rounded-2xl shadow-2xl shadow-blue-600/40 hover:scale-105 active:scale-95 transition-all group shrink-0" style={{ backgroundColor: colors.cta }}>
               Mulai Belajar Sekarang 
               <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-2 transition-transform" />
             </Button>
           </motion.div>
         </motion.div>
 
+        {/* Desktop Image Section */}
         <motion.div 
           initial={{ opacity: 0, x: 50, scale: 0.9 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}

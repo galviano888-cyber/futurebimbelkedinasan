@@ -29,6 +29,7 @@ const SettingsView = lazy(() => import("@/components/views/SettingsView").then(m
 const ProfileView = lazy(() => import("@/components/views/ProfileView").then(m => ({ default: m.ProfileView })));
 const PaymentHistory = lazy(() => import("@/components/views/PaymentHistoryView").then(m => ({ default: m.PaymentHistory })));
 const InvoiceView = lazy(() => import("@/components/views/InvoiceView").then(m => ({ default: m.InvoiceView })));
+const EventsView = lazy(() => import("@/components/views/EventsView").then(m => ({ default: m.EventsView })));
 
 export default function App() {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ export default function App() {
   const [questionsId, setQuestionsId] = useState<string | null>(() => {
     return localStorage.getItem("fbk_active_questions_id");
   });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [session, setSession] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -51,6 +53,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [tryoutResult, setTryoutResult] = useState<any>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(() => {
     return localStorage.getItem("fbk_selected_transaction_id");
   });
@@ -187,6 +190,12 @@ export default function App() {
       setActivePage('TryoutPreView');
     } else if (path.startsWith('/tryout-engine')) {
       setActivePage('TryoutEngine');
+    } else if (path === '/login') {
+      setIsLoginOpen(true);
+      setAuthMode('login');
+    } else if (path === '/register') {
+      setIsLoginOpen(true);
+      setAuthMode('register');
     }
   }, [location.pathname]);
 
@@ -258,7 +267,9 @@ export default function App() {
     return (
       <Routes>
         {/* Landing/Auth */}
-        <Route path="/" element={!isAuthenticated ? <LandingPageView onEnter={() => setIsLoginOpen(true)} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/login" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/register" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/dashboard" replace />} />
         <Route path="/reset-password" element={<ResetPasswordView />} />
         
         {/* Admin */}
@@ -269,6 +280,7 @@ export default function App() {
         <Route path="/paket" element={isAuthenticated ? <TryoutView isAuthenticated={isAuthenticated} onPurchaseSuccess={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onLoginClick={() => setIsLoginOpen(true)} /> : <Navigate to="/" replace />} />
         <Route path="/paket-saya" element={isAuthenticated ? <PaketSayaView onStartTryout={handleStartTryout} /> : <Navigate to="/" replace />} />
         <Route path="/ranking" element={<LeaderboardView onLoginClick={() => setIsLoginOpen(true)} />} />
+        <Route path="/events" element={isAuthenticated ? <EventsView /> : <Navigate to="/" replace />} />
         <Route path="/profile" element={isAuthenticated ? <ProfileView /> : <Navigate to="/" replace />} />
         <Route path="/settings" element={isAuthenticated ? <SettingsView /> : <Navigate to="/" replace />} />
         <Route path="/transactions" element={isAuthenticated ? <PaymentHistory onBack={() => navigate("/dashboard")} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} /> : <Navigate to="/" replace />} />
@@ -295,7 +307,8 @@ export default function App() {
         {renderRoutes()}
         <AuthModal
           isOpen={isLoginOpen}
-          onClose={() => setIsLoginOpen(false)}
+          onClose={() => { setIsLoginOpen(false); if (location.pathname === '/login' || location.pathname === '/register') navigate('/'); }}
+          initialMode={authMode}
         />
         <FloatingWhatsApp number="087753646617" />
       </>
@@ -327,8 +340,8 @@ export default function App() {
       <Toaster position="top-center" richColors />
       {isAuthenticated && (
         <Sidebar
-          isOpen={false}
-          onClose={() => { }}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
           activePage={activePage}
           onPageChange={(p) => {
             const pageMap: Record<string, string> = {
@@ -344,13 +357,15 @@ export default function App() {
             };
             if (pageMap[p]) navigate(pageMap[p]);
             setActivePage(p);
+            setIsSidebarOpen(false);
           }}
         />
       )}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {isAuthenticated && (
           <Header
-            onMenuToggle={() => { }}
+            onMenuToggle={() => setIsSidebarOpen(true)}
+            activePage={activePage}
             currentUser={currentUser}
             isAuthenticated={isAuthenticated}
             profile={profile}
@@ -360,7 +375,9 @@ export default function App() {
                 'Paket dan Tryout SKD': '/paket',
                 'Paket Saya': '/paket-saya',
                 'Riwayat Transaksi': '/transactions',
-                'Profil Saya': '/profile'
+                'Profil Saya': '/profile',
+                'Pengaturan': '/settings',
+                'Events': '/events'
               };
               if (pageMap[p]) navigate(pageMap[p]);
               setActivePage(p);
@@ -408,7 +425,8 @@ export default function App() {
       </div>
       <AuthModal
         isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
+        onClose={() => { setIsLoginOpen(false); if (location.pathname === '/login' || location.pathname === '/register') navigate('/'); }}
+        initialMode={authMode}
       />
       {!isAuthenticated && <FloatingWhatsApp number="087753646617" />}
     </div>

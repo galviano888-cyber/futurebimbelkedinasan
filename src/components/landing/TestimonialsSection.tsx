@@ -11,21 +11,37 @@ interface TestimonialsSectionProps {
 
 export const TestimonialsSection = memo(function TestimonialsSection({ testimonials }: TestimonialsSectionProps) {
   return (
-    <section id="testimoni" className="py-32 bg-[#0a1425] content-auto">
-       <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-black text-white mb-16">Apa Kata Mereka?</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <section id="testimoni" className="py-20 lg:py-32 bg-[#050b18] relative overflow-hidden">
+       {/* Background Orbs */}
+       <div className="absolute top-1/2 left-0 w-72 h-72 bg-blue-600/5 blur-[120px] -z-10" />
+
+       <div className="max-w-7xl mx-auto px-6">
+          <div className="mb-16 text-center lg:text-left">
+             <h2 className="text-3xl lg:text-5xl font-black text-white mb-4 tracking-tight">Apa Kata Mereka?</h2>
+             <p className="text-sm lg:text-base text-slate-400 font-medium max-w-lg mx-auto lg:mx-0">Bergabunglah dengan ribuan siswa yang telah membuktikan kualitas FBK.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
              {testimonials.map((t, i) => (
-                <motion.div key={i} whileHover={{ y: -5 }} className="p-10 bg-white/[0.03] rounded-[2.5rem] border border-white/5 text-left">
-                   <p className="text-slate-400 mb-8 leading-relaxed text-justify">{t.text}</p>
-                   <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-black text-xs">{t.name.charAt(0)}</div>
-                      <div>
-                         <p className="font-black text-white text-sm">{t.name}</p>
-                         <p className="text-[10px] font-black text-blue-500 uppercase">{t.school}</p>
-                      </div>
-                   </div>
-                </motion.div>
+               <motion.div 
+                 key={i} 
+                 initial={{ opacity: 0, y: 20 }}
+                 whileInView={{ opacity: 1, y: 0 }}
+                 viewport={{ once: true }}
+                 transition={{ delay: i * 0.1 }}
+                 className="p-8 lg:p-10 bg-white/[0.02] backdrop-blur-sm rounded-[2.5rem] border border-white/5 hover:border-blue-500/20 transition-all duration-500"
+               >
+                  <p className="text-sm lg:text-base text-slate-300 leading-relaxed italic mb-8">"{t.text}"</p>
+                  <div className="flex items-center gap-4">
+                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-blue-600/20">
+                        {t.name[0]}
+                     </div>
+                     <div>
+                        <p className="text-sm font-black text-white">{t.name}</p>
+                        <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">{t.school}</p>
+                     </div>
+                  </div>
+               </motion.div>
              ))}
           </div>
        </div>

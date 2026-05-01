@@ -293,7 +293,52 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                           </div>
                         </div>
                         
-                        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+                        {/* Mobile Live Class View */}
+                        <div className="md:hidden space-y-4">
+                          {liveClassContents.length > 0 ? (
+                            liveClassContents.map((content) => (
+                              <div key={content.id} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
+                                <div className="flex justify-between items-start">
+                                  <div className="space-y-1">
+                                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">{content.schedule_date || content.live_schedule || "EMPTY"}</span>
+                                    <h4 className="text-base font-bold text-slate-900 dark:text-white leading-tight">{content.title}</h4>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase">{content.mentor_name || 'Mentor FBK'}</p>
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                  {content.zoom_link && (
+                                    <a href={content.zoom_link} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">
+                                      <Video className="w-3.5 h-3.5" /> ZOOM
+                                    </a>
+                                  )}
+                                  {content.recording_url && (
+                                    <a href={content.recording_url} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 py-3 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">
+                                      <Play className="w-3.5 h-3.5" /> REKAMAN
+                                    </a>
+                                  )}
+                                </div>
+
+                                {content.tryout_id && (
+                                  <button 
+                                    onClick={() => onStartTryout(selectedPkg?.package_id || '', content.tryout_id || '')}
+                                    className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
+                                  >
+                                    <Zap className="w-3.5 h-3.5" /> KERJAKAN MINI TES
+                                  </button>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="py-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+                               <Loader2 className="w-6 h-6 text-slate-300 animate-spin mx-auto mb-2" />
+                               <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Jadwal Sedang Disiapkan</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Desktop Live Class View */}
+                        <div className="hidden md:block bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
                           <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                               <thead>
@@ -373,20 +418,20 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                     )}
 
                     {activeTab === 'materi' && (
-                      <div className="space-y-4">
+                      <div className="space-y-3 lg:space-y-4">
                         {materiContents.length > 0 ? (
                           materiContents.map((content) => (
                             <div 
                               key={content.id}
-                              className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all flex items-center justify-between group"
+                              className="bg-white dark:bg-slate-900 p-4 lg:p-5 rounded-2xl lg:rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
                             >
-                              <div className="flex items-center gap-5">
-                                <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center transition-transform group-hover:scale-110">
-                                  <FileText className="w-6 h-6" />
+                              <div className="flex items-center gap-4 lg:gap-5">
+                                <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center transition-transform group-hover:scale-110">
+                                  <FileText className="w-5 h-5 lg:w-6 lg:h-6" />
                                 </div>
                                 <div>
-                                  <h4 className="font-bold text-slate-700 dark:text-white text-sm leading-tight group-hover:text-blue-600 transition-colors">{content.title}</h4>
-                                  <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase mt-1 flex items-center gap-2">
+                                  <h4 className="font-bold text-slate-700 dark:text-white text-xs lg:text-sm leading-tight group-hover:text-blue-600 transition-colors">{content.title}</h4>
+                                  <p className="text-[9px] lg:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase mt-1 flex items-center gap-2">
                                     <FileText className="w-3 h-3" /> E-Book PDF
                                   </p>
                                 </div>
@@ -395,7 +440,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                                  {content.url && (
                                    <a 
                                      href={content.url} target="_blank" rel="noreferrer"
-                                     className="px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black rounded-xl hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2"
+                                     className="w-full sm:w-auto px-4 py-2.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[9px] lg:text-[10px] font-black rounded-xl hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-2"
                                    >
                                      <ExternalLink className="w-3 h-3" /> DOWNLOAD
                                    </a>
@@ -413,25 +458,25 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                     )}
 
                     {activeTab === 'tryout' && (
-                      <div className="space-y-4">
+                      <div className="space-y-3 lg:space-y-4">
                         {tryoutContents.length > 0 ? (
                           tryoutContents.map((content) => (
                             <div 
                               key={content.id}
-                              className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all flex items-center justify-between group"
+                              className="bg-white dark:bg-slate-900 p-5 lg:p-6 rounded-2xl lg:rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
                             >
-                              <div className="flex items-center gap-5">
-                                <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                  <Award className="w-7 h-7" />
+                              <div className="flex items-center gap-4 lg:gap-5">
+                                <div className="w-12 h-12 lg:w-14 lg:h-14 bg-blue-50 dark:bg-blue-900/20 rounded-xl lg:rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                  <Award className="w-6 h-6 lg:w-7 lg:h-7" />
                                 </div>
-                                <div>
-                                  <h4 className="font-bold text-slate-900 dark:text-white leading-tight group-hover:text-blue-600 transition-colors">{content.title}</h4>
-                                  <div className="flex items-center gap-4 mt-2">
-                                     <span className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase">
-                                       <Clock className="w-3.5 h-3.5" /> 100 Menit
+                                <div className="flex-1">
+                                  <h4 className="font-bold text-slate-900 dark:text-white text-sm lg:text-base leading-tight group-hover:text-blue-600 transition-colors">{content.title}</h4>
+                                  <div className="flex items-center gap-3 lg:gap-4 mt-2">
+                                     <span className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-[9px] lg:text-[10px] font-black uppercase">
+                                       <Clock className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> 100 Menit
                                      </span>
-                                     <span className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase">
-                                       <CheckCircle2 className="w-3.5 h-3.5" /> 110 Soal SKD
+                                     <span className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-[9px] lg:text-[10px] font-black uppercase">
+                                       <CheckCircle2 className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> 110 Soal
                                      </span>
                                   </div>
                                 </div>
@@ -444,7 +489,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                                     toast.error("Gagal memuat Tryout: Data paket atau soal tidak lengkap.");
                                   }
                                 }}
-                                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-2xl transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 active:scale-95"
+                                className="w-full sm:w-auto px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] lg:text-xs font-black rounded-xl lg:rounded-2xl transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 active:scale-95"
                               >
                                 <Play className="w-4 h-4" /> MULAI TRYOUT
                               </button>

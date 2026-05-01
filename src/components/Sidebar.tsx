@@ -5,7 +5,8 @@ import {
   Trophy, 
   Calendar, 
   HelpCircle,
-  Zap
+  Zap,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +31,6 @@ const bottomItems = [
 
 export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChange }: SidebarProps) {
 
-
   return (
     <>
       {/* Mobile Overlay */}
@@ -46,10 +46,9 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
         "fixed lg:static inset-y-0 left-0 w-72 bg-slate-950 border-r border-slate-900 z-50 transition-all duration-500 ease-in-out transform flex flex-col",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
-        {/* Logo Section */}
-        <div className="p-8">
+        <div className="p-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
               <Zap className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -57,6 +56,12 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Future Bimbel Kedinasan</p>
             </div>
           </div>
+          <button 
+            onClick={onClose}
+            className="lg:hidden p-2 text-slate-500 hover:text-white transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
         {/* Navigation Menu */}
@@ -116,7 +121,6 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
             </div>
           </div>
         </nav>
-
       </aside>
     </>
   );

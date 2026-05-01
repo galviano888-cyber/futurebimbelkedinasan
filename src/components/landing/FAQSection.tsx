@@ -12,10 +12,9 @@ interface FAQSectionProps {
 
 export const FAQSection = memo(function FAQSection({ faqs }: FAQSectionProps) {
   return (
-    <section id="faq" className="py-32 bg-[#0a1425] relative overflow-hidden content-auto">
+    <section id="faq" className="py-20 lg:py-32 bg-[#0a1425] relative overflow-hidden content-auto">
        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[80px] rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none" />
-
+       
        <div className="max-w-4xl mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
              <motion.div 
@@ -32,7 +31,7 @@ export const FAQSection = memo(function FAQSection({ faqs }: FAQSectionProps) {
                whileInView={{ opacity: 1, y: 0 }}
                viewport={{ once: true }}
                transition={{ delay: 0.1 }}
-               className="text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight"
+               className="text-3xl lg:text-5xl font-black text-white mb-6 tracking-tight"
              >
                Pertanyaan yang <span className="text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">Sering Diajukan</span>
              </motion.h2>
@@ -41,7 +40,7 @@ export const FAQSection = memo(function FAQSection({ faqs }: FAQSectionProps) {
                whileInView={{ opacity: 1, y: 0 }}
                viewport={{ once: true }}
                transition={{ delay: 0.2 }}
-               className="text-slate-400 font-medium max-w-2xl mx-auto"
+               className="text-sm lg:text-base text-slate-400 font-medium max-w-2xl mx-auto"
              >
                Temukan jawaban untuk pertanyaan umum seputar program belajar, sistem ujian, dan pendaftaran di Future Bimbel Kedinasan.
              </motion.p>
@@ -52,7 +51,7 @@ export const FAQSection = memo(function FAQSection({ faqs }: FAQSectionProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="bg-white/[0.02] backdrop-blur-xl rounded-[3rem] border border-white/5 p-4 lg:p-8 shadow-2xl"
+            className="bg-white/[0.02] backdrop-blur-xl rounded-[2.5rem] lg:rounded-[3rem] border border-white/5 p-4 lg:p-8 shadow-2xl"
           >
              <div className="divide-y divide-white/5">
                 {faqs.map((f, i) => (

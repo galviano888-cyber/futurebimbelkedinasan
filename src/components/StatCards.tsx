@@ -66,7 +66,7 @@ export function StatCards({ data }: StatCardsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5">
       {cards.map((card, index) => {
         const Icon = card.icon;
         return (
@@ -76,7 +76,7 @@ export function StatCards({ data }: StatCardsProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08, duration: 0.4, ease: "easeOut" }}
             className={cn(
-              "bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] p-7 shadow-sm relative overflow-hidden group",
+              "bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 lg:p-7 shadow-sm relative overflow-hidden group",
               "hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 cursor-default"
             )}
           >
@@ -87,7 +87,7 @@ export function StatCards({ data }: StatCardsProps) {
                 <p className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">
                   {card.title}
                 </p>
-                <p className="text-slate-900 dark:text-white text-4xl font-black tracking-tighter leading-none mb-1">
+                <p className="text-slate-900 dark:text-white text-3xl lg:text-4xl font-black tracking-tighter leading-none mb-1">
                   {card.value}
                 </p>
                 <p className="text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-wider">{card.subtitle}</p>

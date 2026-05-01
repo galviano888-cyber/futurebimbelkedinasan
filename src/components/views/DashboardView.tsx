@@ -114,7 +114,7 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
       <SEO title={`Dashboard ${userName}`} description="Pantau statistik belajar dan hasil tryout kamu di Future Bimbel Kedinasan." />
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div>
-          <h1 className="text-slate-900 dark:text-white font-black text-4xl tracking-tight leading-none">
+          <h1 className="text-slate-900 dark:text-white font-black text-3xl lg:text-4xl tracking-tight leading-none">
             Selamat Datang, <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">{userName}</span>
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-base mt-3 font-medium max-w-xl">

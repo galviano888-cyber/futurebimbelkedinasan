@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Dialog, 
   DialogContent, 
@@ -17,10 +17,11 @@ import { LegalModal } from "./LegalModal";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialMode?: 'login' | 'register';
 }
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
-  const [isLogin, setIsLogin] = useState(true);
+export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) {
+  const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +30,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [legalType, setLegalType] = useState<'terms' | 'privacy'>('terms');
   const [isLegalOpen, setIsLegalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Sync state when initialMode or isOpen changes
+  useEffect(() => {
+    if (isOpen) {
+      setIsLogin(initialMode === 'login');
+    }
+  }, [initialMode, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,27 +91,27 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none bg-slate-900 rounded-[2.5rem]">
-        <div className="relative p-8 md:p-10">
+      <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none bg-slate-900 rounded-[2.5rem] max-h-[95vh] overflow-y-auto custom-scrollbar">
+        <div className="relative p-6 lg:p-10">
           <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-blue-600/20 to-transparent pointer-events-none" />
           
-          <DialogHeader className="relative z-10 mb-6">
-            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/20 mb-6 mx-auto">
-              <ShieldCheck className="w-8 h-8 text-white" />
+          <DialogHeader className="relative z-10 mb-4 lg:mb-6">
+            <div className="w-12 h-12 lg:w-16 lg:h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/20 mb-4 lg:mb-6 mx-auto">
+              <ShieldCheck className="w-6 h-6 lg:w-8 lg:h-8 text-white" />
             </div>
-            <DialogTitle className="text-3xl font-black text-white text-center tracking-tight">
+            <DialogTitle className="text-2xl lg:text-3xl font-black text-white text-center tracking-tight">
               {isLogin ? "Selamat Datang Kembali" : "Gabung Bersama Kami"}
             </DialogTitle>
-            <DialogDescription className="text-slate-400 text-center font-medium mt-2">
+            <DialogDescription className="text-slate-400 text-center font-medium mt-1 lg:mt-2 text-xs lg:text-sm">
               {isLogin 
                 ? "Masuk untuk melanjutkan persiapan kedinasanmu." 
                 : "Buat akun untuk mulai belajar dengan materi terbaik."}
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
+          <form onSubmit={handleSubmit} className="space-y-3 lg:space-y-5 relative z-10">
             {!isLogin && (
-              <div className="space-y-2">
+              <div className="space-y-1 lg:space-y-2">
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nama Lengkap</Label>
                 <div className="relative group">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
@@ -112,13 +120,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required={!isLogin}
-                    className="bg-white/5 border-white/10 text-white pl-12 h-14 rounded-2xl focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    className="bg-white/5 border-white/10 text-white pl-12 h-12 lg:h-14 rounded-2xl focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   />
                 </div>
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-1 lg:space-y-2">
               <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email</Label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
@@ -128,12 +136,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-white/5 border-white/10 text-white pl-12 h-14 rounded-2xl focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  className="bg-white/5 border-white/10 text-white pl-12 h-12 lg:h-14 rounded-2xl focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1 lg:space-y-2">
               <div className="flex justify-between items-center ml-1">
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Password</Label>
                 {isLogin && (
@@ -166,7 +174,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="bg-white/5 border-white/10 text-white pl-12 pr-12 h-14 rounded-2xl focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  className="bg-white/5 border-white/10 text-white pl-12 pr-12 h-12 lg:h-14 rounded-2xl focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 />
                 <button
                   type="button"
@@ -179,7 +187,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </div>
 
             {!isLogin && (
-              <div className="flex items-start gap-3 px-1 py-2">
+              <div className="flex items-start gap-3 px-1 py-1">
                 <input 
                   type="checkbox" 
                   id="terms" 
@@ -187,7 +195,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   onChange={(e) => setAgreed(e.target.checked)}
                   className="mt-1 rounded border-white/10 bg-white/5 text-blue-600 focus:ring-blue-500/20" 
                 />
-                <label htmlFor="terms" className="text-[11px] text-slate-400 leading-relaxed font-medium">
+                <label htmlFor="terms" className="text-[10px] lg:text-[11px] text-slate-400 leading-relaxed font-medium">
                   Saya setuju dengan <button type="button" onClick={() => { setLegalType('terms'); setIsLegalOpen(true); }} className="text-blue-500 hover:underline">Syarat & Ketentuan</button> serta <button type="button" onClick={() => { setLegalType('privacy'); setIsLegalOpen(true); }} className="text-blue-500 hover:underline">Kebijakan Privasi</button> Future Bimbel Kedinasan.
                 </label>
               </div>
@@ -196,7 +204,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <Button 
               type="submit" 
               disabled={loading}
-              className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-600/20 transition-all active:scale-95 mt-4"
+              className="w-full h-12 lg:h-14 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-600/20 transition-all active:scale-95 mt-2 lg:mt-4"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -209,8 +217,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-white/5 text-center relative z-10">
-            <p className="text-slate-500 text-xs font-medium">
+          <div className="mt-4 lg:mt-6 pt-4 lg:pt-6 border-t border-white/5 text-center relative z-10">
+            <p className="text-slate-500 text-[10px] lg:text-xs font-medium">
               {isLogin ? "Belum punya akun?" : "Sudah punya akun?"}{" "}
               <button 
                 onClick={() => setIsLogin(!isLogin)}

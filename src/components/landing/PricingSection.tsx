@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PricingSectionProps {
@@ -22,7 +22,7 @@ export const PricingSection = memo(function PricingSection({ packages, onEnter }
              <h2 className="text-4xl font-black text-white mb-4 tracking-tight">Pilih Paket Belajarmu</h2>
              <p className="text-slate-400 font-medium">Investasi terbaik untuk masa depan seragam kedinasanmu.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
              {packages.map((p, i) => (
                <motion.div 
                  key={i} 
@@ -30,7 +30,10 @@ export const PricingSection = memo(function PricingSection({ packages, onEnter }
                  className={`relative p-10 rounded-[3rem] border transition-all duration-500 ${p.isRecommended ? 'bg-blue-600 border-blue-500 shadow-2xl shadow-blue-600/20' : 'bg-white/[0.03] border-white/10 hover:border-white/20'}`}
                >
                   {p.isRecommended && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-blue-600 text-[10px] font-black px-4 py-1.5 rounded-full shadow-xl uppercase tracking-widest">Terpopuler</div>
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-blue-600 text-[10px] font-black px-4 py-1.5 rounded-full shadow-xl uppercase tracking-widest flex items-center gap-2">
+                       <Sparkles className="w-3 h-3" />
+                       Terpopuler
+                    </div>
                   )}
                   <h3 className={`text-xl font-black mb-2 text-white`}>{p.name}</h3>
                   <div className="flex flex-col mb-8">
@@ -39,7 +42,10 @@ export const PricingSection = memo(function PricingSection({ packages, onEnter }
                          {p.originalPrice}
                        </span>
                      )}
-                     <span className={`text-3xl font-black ${p.isRecommended ? 'text-white' : 'text-blue-500'}`}>{p.price}</span>
+                     <div className="flex items-baseline gap-1">
+                        <span className={`text-3xl font-black ${p.isRecommended ? 'text-white' : 'text-blue-500'}`}>{p.price}</span>
+                        {p.price !== "Gratis" && <span className={`text-[10px] font-bold opacity-60 ${p.isRecommended ? 'text-white' : 'text-slate-400'}`}>/ SELAMANYA</span>}
+                     </div>
                   </div>
                   <div className="space-y-4 mb-10">
                      {p.benefits.map((b: string, bi: number) => (

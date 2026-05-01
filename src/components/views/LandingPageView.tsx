@@ -16,10 +16,11 @@ import { Footer } from "../landing/Footer";
 import { GuideModal } from "../landing/GuideModal";
 
 interface LandingPageViewProps {
-  onEnter: () => void;
+  onLogin: () => void;
+  onRegister: () => void;
 }
 
-export function LandingPageView({ onEnter }: LandingPageViewProps) {
+export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   const [showGuide, setShowGuide] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showLegal, setShowLegal] = useState(false);
@@ -138,19 +139,19 @@ export function LandingPageView({ onEnter }: LandingPageViewProps) {
       <div className="fixed inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] will-change-opacity" />
       
       <div className="relative z-10">
-        <Navbar onEnter={onEnter} />
+        <Navbar onLogin={onLogin} onRegister={onRegister} />
 
         <HeroSection 
           hero={hero} 
           colors={colors} 
-          onEnter={onEnter} 
+          onEnter={onLogin} 
           containerVariants={containerVariants} 
           itemVariants={itemVariants} 
         />
 
         <FeaturesSection features={features} />
 
-        <PricingSection packages={packages} onEnter={onEnter} />
+        <PricingSection packages={packages} onEnter={onRegister} />
 
         <TestimonialsSection testimonials={testimonials} />
 

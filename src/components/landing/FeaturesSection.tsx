@@ -13,7 +13,7 @@ export const FeaturesSection = memo(function FeaturesSection({ features }: Featu
   return (
     <section id="fitur" className="pt-16 pb-24 bg-[#0a1425]/50 content-auto">
       <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
              {features.map((f, i) => (
                <FeatureCard 
                  key={i}
