@@ -35,6 +35,18 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Enforce HTTPS in production
+  useEffect(() => {
+    if (
+      typeof window !== 'undefined' && 
+      window.location.protocol === 'http:' && 
+      window.location.hostname !== 'localhost' &&
+      !window.location.hostname.includes('192.168.')
+    ) {
+      window.location.href = window.location.href.replace('http:', 'https:');
+    }
+  }, []);
+
   // 1. Initialize State from LocalStorage if exists
   const [activePage, setActivePage] = useState(() => {
     return localStorage.getItem("fbk_active_page") || "Dashboard";
