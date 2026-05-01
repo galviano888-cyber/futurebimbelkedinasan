@@ -6,6 +6,7 @@ import compression from "vite-plugin-compression"
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/',
   plugins: [
     react(), 
     tailwindcss(),
@@ -16,16 +17,6 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom'],
-          'vendor-ui': ['framer-motion', 'lucide-react', 'clsx', 'tailwind-merge'],
-          'vendor-charts': ['recharts'],
-          'vendor-utils': ['date-fns', 'zod', 'react-hook-form'],
-        }
-      }
-    },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 2000,
   }
 })
