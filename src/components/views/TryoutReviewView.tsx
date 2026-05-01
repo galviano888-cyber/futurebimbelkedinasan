@@ -207,7 +207,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
                         </div>
                         <div className="flex-1">
                            <p className={cn(
-                             "text-[13px] font-bold leading-relaxed",
+                             "text-[13px] font-bold leading-relaxed text-justify",
                              isActuallyCorrect && currentQuestion.category !== 'TKP' ? "text-emerald-900 dark:text-emerald-300" :
                              isUserSelected && !isCorrect ? "text-red-900 dark:text-red-300" :
                              "text-slate-700 dark:text-slate-300"

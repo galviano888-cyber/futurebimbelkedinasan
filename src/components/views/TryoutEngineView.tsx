@@ -371,7 +371,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
               {/* Question Section */}
               <div className="space-y-4 sm:space-y-6">
-                <p className="text-[14px] sm:text-[15px] text-slate-700 dark:text-slate-100 font-medium leading-relaxed">
+                <p className="text-[14px] sm:text-[15px] text-slate-700 dark:text-slate-100 font-medium leading-relaxed text-justify">
                   {currentQuestion?.question_text}
                 </p>
 
@@ -416,7 +416,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                         : "bg-[#f8f9fb] dark:bg-slate-900/50 border-slate-200/60 dark:border-slate-800 group-hover:bg-slate-100 dark:group-hover:bg-slate-800"
                     )}>
                       <p className={cn(
-                        "text-[12px] sm:text-[13px] font-medium leading-relaxed",
+                        "text-[12px] sm:text-[13px] font-medium leading-relaxed text-justify",
                         answers[currentQuestion.id] === opt ? "text-blue-800 dark:text-blue-100" : "text-slate-600 dark:text-slate-300"
                       )}>
                         {currentQuestion?.options?.[opt]}
