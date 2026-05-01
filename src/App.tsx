@@ -339,7 +339,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-full min-h-[100dvh] bg-slate-50 dark:bg-slate-950 flex flex-col lg:flex-row overflow-hidden transition-colors duration-500">
+    <div className="h-[100dvh] bg-slate-50 dark:bg-slate-950 flex flex-col lg:flex-row overflow-hidden transition-colors duration-500">
       <SEO title={`${activePage} | Future Bimbel`} />
       <Toaster position="top-center" richColors />
       {isAuthenticated && (
@@ -365,7 +365,7 @@ export default function App() {
           }}
         />
       )}
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="flex-1 flex flex-col h-full min-h-0 overflow-hidden">
         {isAuthenticated && (
           <Header
             onMenuToggle={() => setIsSidebarOpen(true)}
