@@ -9,14 +9,6 @@ export default defineConfig({
   plugins: [
     react(), 
     tailwindcss(),
-    compression({
-      algorithm: 'gzip',
-      ext: '.gz',
-    }),
-    compression({
-      algorithm: 'brotliCompress',
-      ext: '.br',
-    })
   ],
   resolve: {
     alias: {

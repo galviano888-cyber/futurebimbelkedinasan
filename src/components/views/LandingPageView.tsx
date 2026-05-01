@@ -5,8 +5,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { SEO } from "@/components/SEO";
 
 // Landing Sub-components
-const Navbar = lazy(() => import("../landing/Navbar").then(m => ({ default: m.Navbar })));
-const HeroSection = lazy(() => import("../landing/HeroSection").then(m => ({ default: m.HeroSection })));
+import { Navbar } from "../landing/Navbar";
+import { HeroSection } from "../landing/HeroSection";
 const FeaturesSection = lazy(() => import("../landing/FeaturesSection").then(m => ({ default: m.FeaturesSection })));
 const PricingSection = lazy(() => import("../landing/PricingSection").then(m => ({ default: m.PricingSection })));
 const TestimonialsSection = lazy(() => import("../landing/TestimonialsSection").then(m => ({ default: m.TestimonialsSection })));
@@ -141,19 +141,15 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
       <div className="fixed inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] will-change-opacity" />
       
       <div className="relative z-10">
-        <Suspense fallback={<div className="h-20" />}>
-          <Navbar onLogin={onLogin} onRegister={onRegister} />
-        </Suspense>
+        <Navbar onLogin={onLogin} onRegister={onRegister} />
 
-        <Suspense fallback={<div className="min-h-screen bg-[#0a1425]" />}>
-          <HeroSection 
-            hero={hero} 
-            colors={colors} 
-            onEnter={onLogin} 
-            containerVariants={containerVariants} 
-            itemVariants={itemVariants} 
-          />
-        </Suspense>
+        <HeroSection 
+          hero={hero} 
+          colors={colors} 
+          onEnter={onLogin} 
+          containerVariants={containerVariants} 
+          itemVariants={itemVariants} 
+        />
 
         <Suspense fallback={<div className="h-96" />}>
           <FeaturesSection features={features} />
