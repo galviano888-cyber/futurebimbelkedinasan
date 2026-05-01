@@ -155,7 +155,7 @@
     height: 100%;
     position: relative;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: none;
+    overscroll-behavior-y: auto;
     /* Support for iPhone Notch/Safe Area */
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
