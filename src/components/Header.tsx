@@ -127,7 +127,7 @@ export function Header({
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-4 w-96 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="fixed top-20 left-4 right-4 md:absolute md:top-auto md:left-auto md:right-0 mt-4 md:w-96 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-50">
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                 <h3 className="font-black text-slate-900 dark:text-white">Notifikasi</h3>
                 <button 
@@ -184,7 +184,7 @@ export function Header({
             </button>
 
             {showProfileMenu && (
-              <div className="absolute right-0 mt-4 w-72 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <div className="fixed top-20 left-4 right-4 md:absolute md:top-auto md:left-auto md:right-0 mt-4 md:w-72 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-50">
                 <div className="p-6 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-lg overflow-hidden">

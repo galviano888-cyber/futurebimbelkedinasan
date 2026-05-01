@@ -325,7 +325,7 @@ export default function App() {
       <div className="h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-500">
         <SEO title={`${activePage} | Future Bimbel`} />
         <Toaster position="top-center" richColors />
-        <main className="h-full overflow-y-auto transform-gpu">
+        <main className="h-full overflow-y-auto transform-gpu overscroll-contain webkit-overflow-scrolling-touch">
           <Suspense fallback={<DashboardSkeleton />}>
             {renderRoutes()}
           </Suspense>
@@ -386,7 +386,7 @@ export default function App() {
             setIsLoginOpen={setIsLoginOpen}
           />
         )}
-        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/20 p-4 lg:p-8 transform-gpu">
+        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/20 p-4 lg:p-8 transform-gpu overscroll-contain webkit-overflow-scrolling-touch">
           {!isVerified && isAuthenticated && (
             <div className="mb-8 animate-in slide-in-from-top-4 duration-500">
               <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 p-6 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-amber-500/5">

@@ -310,33 +310,33 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   return (
     <div className="min-h-screen bg-[#eef0f4] dark:bg-slate-950 flex flex-col font-sans">
       {/* Top Navigation Bar */}
-      <header className="h-14 sm:h-16 bg-[#f8f9fb] dark:bg-slate-900 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between px-4 sm:px-6 shrink-0 sticky top-0 z-50 shadow-sm">
-        <div className="flex items-center gap-2 sm:gap-4">
+      <header className="h-14 sm:h-16 bg-[#f8f9fb] dark:bg-slate-900 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between px-3 sm:px-6 shrink-0 sticky top-0 z-50 shadow-sm touch-none">
+        <div className="flex items-center gap-1.5 sm:gap-4">
           <button onClick={onExit} className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors">
             <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-          <div className="h-5 w-px bg-slate-200 dark:bg-slate-800" />
-          <h1 className="text-[10px] sm:text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">Tryout SKD</h1>
+          <div className="hidden xs:block h-5 w-px bg-slate-200 dark:bg-slate-800" />
+          <h1 className="hidden xs:block text-[10px] sm:text-sm font-bold text-slate-800 dark:text-white uppercase tracking-tight">Tryout SKD</h1>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-6">
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+        <div className="flex items-center gap-1.5 sm:gap-6">
+          <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Terjawab</span>
             <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{Object.keys(answers).length} / {questions.length}</span>
           </div>
 
           <div className={cn(
-            "flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-1.5 sm:py-2 rounded-xl border transition-all",
+            "flex items-center gap-1.5 sm:gap-3 px-2 sm:px-5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border transition-all",
             timeLeft < 300
               ? "bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-800 text-red-600 dark:text-red-400 animate-pulse"
               : "bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300"
           )}>
             <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="font-mono text-sm sm:text-lg font-bold">{formatTime(timeLeft)}</span>
+            <span className="font-mono text-xs sm:text-lg font-bold">{formatTime(timeLeft)}</span>
           </div>
           <button
             onClick={() => setShowConfirmModal(true)}
-            className="px-4 sm:px-6 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/20"
+            className="px-3 sm:px-6 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-[9px] sm:text-xs font-bold uppercase tracking-widest rounded-lg sm:rounded-xl transition-all shadow-lg shadow-blue-500/20"
           >
             Selesai
           </button>
@@ -348,7 +348,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
       <div className="flex-1 flex flex-col lg:flex-row relative">
         {/* Main Content Area */}
-        <div className="flex-1 p-6 md:p-12 lg:p-16">
+        <div className="flex-1 p-4 sm:p-12 lg:p-16">
           <div className="max-w-4xl mx-auto">
             <motion.div
               key={currentIdx}
@@ -371,7 +371,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
               {/* Question Section */}
               <div className="space-y-4 sm:space-y-6">
-                <p className="text-[14px] sm:text-[15px] text-slate-700 dark:text-slate-100 font-medium leading-relaxed text-justify">
+                <p className="text-[14px] sm:text-[15px] text-slate-700 dark:text-slate-100 font-medium leading-relaxed">
                   {currentQuestion?.question_text}
                 </p>
 
@@ -416,7 +416,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                         : "bg-[#f8f9fb] dark:bg-slate-900/50 border-slate-200/60 dark:border-slate-800 group-hover:bg-slate-100 dark:group-hover:bg-slate-800"
                     )}>
                       <p className={cn(
-                        "text-[12px] sm:text-[13px] font-medium leading-relaxed text-justify",
+                        "text-[12px] sm:text-[13px] font-medium leading-relaxed",
                         answers[currentQuestion.id] === opt ? "text-blue-800 dark:text-blue-100" : "text-slate-600 dark:text-slate-300"
                       )}>
                         {currentQuestion?.options?.[opt]}

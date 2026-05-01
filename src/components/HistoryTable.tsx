@@ -214,8 +214,8 @@ export function HistoryTable({ data, onReview }: HistoryTableProps) {
                         <Trophy className="w-6 h-6" />
                       </div>
                       <div>
-                        <h4 className="text-slate-900 dark:text-white font-black leading-tight text-lg">{record.packageName}</h4>
-                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">{new Date(record.date).toLocaleDateString("id-ID")}</p>
+                        <h4 className="text-slate-900 dark:text-white font-black leading-tight text-base sm:text-lg line-clamp-1">{record.packageName}</h4>
+                        <p className="text-slate-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest mt-1">{new Date(record.date).toLocaleDateString("id-ID")}</p>
                       </div>
                    </div>
                    <div className={cn(
@@ -226,7 +226,7 @@ export function HistoryTable({ data, onReview }: HistoryTableProps) {
                    </div>
                 </div>
 
-                <div className="grid grid-cols-4 gap-2 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-3xl">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-3xl">
                    <ScorePill value={record.twk} passing={TWK_PASSING} label="TWK" />
                    <ScorePill value={record.tiu} passing={TIU_PASSING} label="TIU" />
                    <ScorePill value={record.tkp} passing={TKP_PASSING} label="TKP" />

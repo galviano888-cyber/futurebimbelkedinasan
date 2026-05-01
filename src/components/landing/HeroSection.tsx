@@ -35,7 +35,7 @@ export const HeroSection = memo(function HeroSection({
             <span>{hero.badge}</span>
           </motion.div>
           
-          <motion.h1 variants={itemVariants} className="text-[2.25rem] sm:text-[3rem] lg:text-[2.8rem] font-black tracking-tighter leading-[1.25] text-white" style={{ textWrap: 'balance' } as any}>
+          <motion.h1 variants={itemVariants} className="text-[2rem] sm:text-[3rem] lg:text-[2.8rem] font-black tracking-tighter leading-[1.25] text-white" style={{ textWrap: 'balance' } as any}>
             {(() => {
               const lastComma = hero.title.lastIndexOf(',');
               const hasSplit = lastComma > 0;
