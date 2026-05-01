@@ -129,15 +129,13 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#050b18] text-white font-sans selection:bg-blue-600/30 overflow-x-hidden relative transform-gpu">
+    <div className="min-h-screen bg-[#050b18] text-white font-sans selection:bg-blue-600/30 overflow-x-hidden">
       <SEO 
         title="Future Bimbel Kedinasan | Persiapan Tes SKD #1 Indonesia"
         description="Partner strategis nomor satu untuk raih kursi sekolah kedinasan impianmu. Kami fokus memberikan pendampingan intensif dengan materi terakurat dan sistem simulasi CAT yang presisi demi mencetak calon abdi negara terbaik."
       />
       <GuideModal isOpen={showGuide} onClose={handleCloseGuide} />
 
-      <div className="fixed inset-0 z-[1] opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] will-change-opacity" />
-      
       <div className="relative z-10">
         <Navbar onLogin={onLogin} onRegister={onRegister} />
 
