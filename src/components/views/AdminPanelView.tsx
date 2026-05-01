@@ -412,7 +412,7 @@ export function AdminPanelView() {
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Nama Paket</label>
-                    <input id="new-pkg-name" type="text" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 font-bold" placeholder="Contoh: Tryout Akbar SKD 2024" />
+                    <input id="new-pkg-name" type="text" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 font-bold" placeholder="Contoh: Tryout Akbar SKD 2026" />
                   </div>
                    <div className="space-y-2">
                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Kategori Utama</label>

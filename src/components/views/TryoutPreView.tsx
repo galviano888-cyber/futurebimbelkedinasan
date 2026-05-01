@@ -116,7 +116,7 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
           <div className="flex items-center gap-3 mb-2">
             <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-black uppercase rounded-lg tracking-widest">SIMULASI LIVE</span>
             <span className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700" />
-            <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">SKD KEDINASAN 2024</span>
+            <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">SKD KEDINASAN 2026</span>
           </div>
           <h1 className="text-slate-900 dark:text-white font-black text-3xl sm:text-4xl tracking-tight mb-4">
             Persiapan Tryout SKD

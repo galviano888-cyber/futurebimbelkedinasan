@@ -265,6 +265,32 @@ export default function App() {
     }
   };
 
+  const handleNavigate = (p: string) => {
+    const pageMap: Record<string, string> = {
+      'Dashboard': '/dashboard',
+      'Paket dan Tryout SKD': '/paket',
+      'Paket Saya': '/paket-saya',
+      'Ranking Nasional': '/ranking',
+      'Events': '/events',
+      'Profil Saya': '/profile',
+      'Pengaturan': '/settings',
+      'Riwayat Transaksi': '/transactions',
+      'Pusat Bantuan': '/help',
+      'Invoice': '/invoice'
+    };
+
+    const targetPath = pageMap[p];
+    if (targetPath) {
+      navigate(targetPath);
+      setActivePage(p);
+    } else {
+      const slug = p.toLowerCase().replace(/ /g, '-');
+      const finalPath = slug.startsWith('/') ? slug : `/${slug}`;
+      navigate(finalPath);
+    }
+    setIsSidebarOpen(false);
+  };
+
   const renderRoutes = () => {
     if (loading) return <DashboardSkeleton />;
 
@@ -280,7 +306,7 @@ export default function App() {
         <Route path="/admin-panel" element={<AdminPanelView />} />
 
         {/* User Protected Routes */}
-        <Route path="/dashboard" element={isAuthenticated ? <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={(p) => navigate(`/${p.toLowerCase().replace(/ /g, '-')}`)} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onReview={handleHistoryReview} /> : <Navigate to="/" replace />} />
+        <Route path="/dashboard" element={isAuthenticated ? <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={handleNavigate} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onReview={handleHistoryReview} /> : <Navigate to="/" replace />} />
         <Route path="/paket" element={isAuthenticated ? <TryoutView isAuthenticated={isAuthenticated} onPurchaseSuccess={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onLoginClick={() => setIsLoginOpen(true)} /> : <Navigate to="/" replace />} />
         <Route path="/paket-saya" element={isAuthenticated ? <PaketSayaView onStartTryout={handleStartTryout} /> : <Navigate to="/" replace />} />
         <Route path="/ranking" element={<LeaderboardView onLoginClick={() => setIsLoginOpen(true)} />} />
@@ -347,22 +373,7 @@ export default function App() {
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
           activePage={activePage}
-          onPageChange={(p) => {
-            const pageMap: Record<string, string> = {
-              'Dashboard': '/dashboard',
-              'Paket dan Tryout SKD': '/paket',
-              'Paket Saya': '/paket-saya',
-              'Ranking Nasional': '/ranking',
-              'Events': '/events',
-              'Profil Saya': '/profile',
-              'Pengaturan': '/settings',
-              'Riwayat Transaksi': '/transactions',
-              'Pusat Bantuan': '/help'
-            };
-            if (pageMap[p]) navigate(pageMap[p]);
-            setActivePage(p);
-            setIsSidebarOpen(false);
-          }}
+          onPageChange={handleNavigate}
         />
       )}
       <div className="flex-1 flex flex-col h-full min-h-0 overflow-hidden">
@@ -373,19 +384,7 @@ export default function App() {
             currentUser={currentUser}
             isAuthenticated={isAuthenticated}
             profile={profile}
-            onNavigate={(p) => {
-              const pageMap: Record<string, string> = {
-                'Dashboard': '/dashboard',
-                'Paket dan Tryout SKD': '/paket',
-                'Paket Saya': '/paket-saya',
-                'Riwayat Transaksi': '/transactions',
-                'Profil Saya': '/profile',
-                'Pengaturan': '/settings',
-                'Events': '/events'
-              };
-              if (pageMap[p]) navigate(pageMap[p]);
-              setActivePage(p);
-            }}
+            onNavigate={handleNavigate}
             isLoginOpen={isLoginOpen}
             setIsLoginOpen={setIsLoginOpen}
           />
