@@ -35,7 +35,7 @@ export const HeroSection = memo(function HeroSection({
             <span>{hero.badge}</span>
           </motion.div>
           
-          <motion.h1 variants={itemVariants} className="text-[2rem] sm:text-[3rem] lg:text-[2.8rem] font-black tracking-tighter leading-[1.25] text-white" style={{ textWrap: 'balance' } as any}>
+          <motion.h1 variants={itemVariants} className="text-[1.75rem] xs:text-[2rem] sm:text-[3rem] lg:text-[2.8rem] font-black tracking-tighter leading-[1.2] text-white" style={{ textWrap: 'balance' } as any}>
             {(() => {
               const lastComma = hero.title.lastIndexOf(',');
               const hasSplit = lastComma > 0;
@@ -54,7 +54,7 @@ export const HeroSection = memo(function HeroSection({
             })()}
           </motion.h1>
           
-          <motion.p variants={itemVariants} className="text-base lg:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0 text-slate-400 font-medium text-center lg:text-justify lg:-translate-y-4">
+          <motion.p variants={itemVariants} className="text-sm sm:text-base lg:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0 text-slate-400 font-medium text-center lg:text-justify lg:-translate-y-4 px-2 sm:px-0">
             {hero.subtitle}
           </motion.p>
 
@@ -63,7 +63,7 @@ export const HeroSection = memo(function HeroSection({
             variants={itemVariants}
             className="lg:hidden relative py-8 max-w-xs mx-auto"
           >
-            <div className="relative aspect-[4/5] rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
+            <div className="relative aspect-[4/5] rounded-[2rem] sm:rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
               <img 
                 src="/hero-squad.png" 
                 alt="Squad Kedinasan" 
@@ -72,9 +72,9 @@ export const HeroSection = memo(function HeroSection({
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a1425] via-transparent to-transparent" />
             </div>
             {/* Floating Stats for Mobile */}
-            <div className="absolute -bottom-4 -right-4 bg-white/10 backdrop-blur-xl p-3 rounded-2xl border border-white/10 shadow-xl z-20">
-               <p className="text-[8px] font-black text-emerald-400 uppercase tracking-widest leading-none mb-1">Target Skor</p>
-               <p className="text-xs font-black text-white">450+ SKD</p>
+            <div className="absolute -bottom-2 -right-2 sm:-bottom-4 sm:-right-4 bg-white/10 backdrop-blur-xl p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-white/10 shadow-xl z-20">
+               <p className="text-[7px] sm:text-[8px] font-black text-emerald-400 uppercase tracking-widest leading-none mb-1">Target Skor</p>
+               <p className="text-[10px] sm:text-xs font-black text-white">450+ SKD</p>
             </div>
           </motion.div>
           

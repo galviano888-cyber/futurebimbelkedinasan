@@ -22,13 +22,18 @@ export const Navbar = memo(function Navbar({ onLogin, onRegister }: NavbarProps)
     <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#050b18]/80 backdrop-blur-xl border-b border-white/5 transform-gpu will-change-[backdrop-filter]">
       <div className="max-w-7xl mx-auto px-6 h-24 md:h-20 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20 text-white font-black text-sm shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20 text-white font-black text-[10px] sm:text-sm shrink-0">
             FBK
           </div>
-          <span className="text-sm sm:text-xl font-black tracking-tighter text-white whitespace-nowrap">
-            Future Bimbel <span className="text-blue-500">Kedinasan</span>
-          </span>
+          <div className="flex flex-col -space-y-1">
+            <span className="text-xs sm:text-lg font-black tracking-tighter text-white whitespace-nowrap">
+              Future Bimbel
+            </span>
+            <span className="text-xs sm:text-lg font-black tracking-tighter text-blue-500 whitespace-nowrap">
+              Kedinasan
+            </span>
+          </div>
         </div>
 
         {/* Desktop Navigation */}
