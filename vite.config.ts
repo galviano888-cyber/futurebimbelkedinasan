@@ -5,7 +5,7 @@ import { defineConfig } from "vite"
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './',
+  base: '/',
   plugins: [
     react(), 
     tailwindcss(),
@@ -16,13 +16,6 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'vendor': ['react', 'react-dom', 'framer-motion', 'lucide-react', 'recharts'],
-        }
-      }
-    },
     chunkSizeWarningLimit: 2000,
   }
 })
