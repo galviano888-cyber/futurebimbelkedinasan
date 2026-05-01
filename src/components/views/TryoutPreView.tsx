@@ -103,7 +103,7 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 px-6 py-12 transition-colors duration-500 overflow-y-auto">
+    <div className="min-h-[100dvh] bg-slate-50 dark:bg-slate-950 px-6 py-12 transition-colors duration-500 overflow-y-auto">
       <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="mb-8">
           <button

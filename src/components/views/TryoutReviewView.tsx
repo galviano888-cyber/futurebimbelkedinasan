@@ -13,7 +13,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
 
   if (!questions || questions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-slate-50 dark:bg-slate-950 p-6 text-center">
+      <div className="flex flex-col items-center justify-center h-[100dvh] bg-slate-50 dark:bg-slate-950 p-6 text-center">
         <div className="w-20 h-20 bg-slate-100 dark:bg-slate-900 rounded-[2rem] flex items-center justify-center mb-6">
           <BookOpen className="w-10 h-10 text-slate-300 dark:text-slate-700" />
         </div>
@@ -29,7 +29,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
   const isCorrect = currentQuestion.category === 'TKP' ? true : currentQuestion.correct_answer === userAnswer;
 
   return (
-    <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans">
+    <div className="h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans">
       {/* Header */}
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between shrink-0 shadow-sm relative z-20">
         <div className="flex items-center gap-4">

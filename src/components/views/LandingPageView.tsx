@@ -121,7 +121,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050b18] flex flex-col items-center justify-center">
+      <div className="min-h-[100dvh] bg-[#050b18] flex flex-col items-center justify-center">
         <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
         <p className="text-blue-500 font-black text-[10px] uppercase tracking-[0.3em] animate-pulse">Menyiapkan Pengalaman Belajar...</p>
       </div>
@@ -129,7 +129,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#050b18] text-white font-sans selection:bg-blue-600/30 overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-[#050b18] text-white font-sans selection:bg-blue-600/30 overflow-x-hidden">
       <SEO 
         title="Future Bimbel Kedinasan | Persiapan Tes SKD #1 Indonesia"
         description="Partner strategis nomor satu untuk raih kursi sekolah kedinasan impianmu. Kami fokus memberikan pendampingan intensif dengan materi terakurat dan sistem simulasi CAT yang presisi demi mencetak calon abdi negara terbaik."

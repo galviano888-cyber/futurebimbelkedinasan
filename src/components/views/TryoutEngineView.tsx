@@ -308,7 +308,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   const currentQuestion = questions[currentIdx];
 
   return (
-    <div className="min-h-screen bg-[#eef0f4] dark:bg-slate-950 flex flex-col font-sans">
+    <div className="min-h-[100dvh] bg-[#eef0f4] dark:bg-slate-950 flex flex-col font-sans">
       {/* Top Navigation Bar */}
       <header className="h-14 sm:h-16 bg-[#f8f9fb] dark:bg-slate-900 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between px-3 sm:px-6 shrink-0 sticky top-0 z-50 shadow-sm touch-none">
         <div className="flex items-center gap-1.5 sm:gap-4">

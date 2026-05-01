@@ -59,7 +59,7 @@ export function ResetPasswordView() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="min-h-[100dvh] bg-slate-50 flex items-center justify-center p-6">
         <div className="w-full max-w-md bg-white p-10 rounded-[3rem] shadow-2xl border border-slate-100 text-center space-y-6 animate-in zoom-in-95 duration-500">
           <div className="w-20 h-20 bg-emerald-100 rounded-3xl flex items-center justify-center mx-auto mb-2">
             <CheckCircle2 className="w-10 h-10 text-emerald-600" />
@@ -75,7 +75,7 @@ export function ResetPasswordView() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-slate-50 flex items-center justify-center p-6 relative overflow-hidden">
       {/* Background Ornaments */}
       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(37,99,235,0.05),transparent_50%)] pointer-events-none" />
       
