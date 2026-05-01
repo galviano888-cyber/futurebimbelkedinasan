@@ -27,10 +27,9 @@ RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# 2. (Optional) Force non-WWW (Best for SEO)
-# Jika Anda ingin selalu tanpa www, aktifkan 2 baris di bawah ini:
-# RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
-# RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+# 2. Force non-WWW (Crucial for Google Search landing)
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
 
 # Support for Single Page Application (React/Vite) routing
 RewriteCond %{REQUEST_FILENAME} !-f
