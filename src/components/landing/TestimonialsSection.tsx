@@ -18,7 +18,7 @@ export const TestimonialsSection = memo(function TestimonialsSection({ testimoni
        <div className="max-w-7xl mx-auto px-6">
           <div className="mb-16 text-center lg:text-left">
              <h2 className="text-3xl lg:text-5xl font-black text-white mb-4 tracking-tight">Apa Kata Mereka?</h2>
-             <p className="text-sm lg:text-base text-slate-400 font-medium max-w-lg mx-auto lg:mx-0">Bergabunglah dengan ribuan siswa yang telah membuktikan kualitas FBK.</p>
+             <p className="text-sm lg:text-base text-slate-400 font-medium max-w-lg mx-auto lg:mx-0">Mulai langkah pertamamu sekarang untuk meraih seragam impian bersama FBK.</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
