@@ -1,6 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { LegalModal } from "@/components/LegalModal";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
 import type { Variants } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { SEO } from "@/components/SEO";
@@ -14,7 +13,7 @@ const TestimonialsSection = lazy(() => import("../landing/TestimonialsSection").
 const FAQSection = lazy(() => import("../landing/FAQSection").then(m => ({ default: m.FAQSection })));
 const Footer = lazy(() => import("../landing/Footer").then(m => ({ default: m.Footer })));
 const GuideModal = lazy(() => import("../landing/GuideModal").then(m => ({ default: m.GuideModal })));
-const LegalModal = lazy(() => import("../components/LegalModal").then(m => ({ default: m.LegalModal })));
+const LegalModal = lazy(() => import("../LegalModal").then(m => ({ default: m.LegalModal })));
 
 interface LandingPageViewProps {
   onLogin: () => void;
