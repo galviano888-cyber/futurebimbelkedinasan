@@ -61,8 +61,8 @@ export const Footer = memo(function Footer({ onLegalClick }: FooterProps) {
                 { name: 'FAQ', id: 'faq' }
               ].map((link) => (
                 <li key={link.name}>
-                  <a href={`#${link.id}`} className="group flex items-center gap-3 text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 scale-0 group-hover:scale-100 transition-transform duration-300" />
+                  <a href={`#${link.id}`} className="group flex items-center justify-center lg:justify-start gap-2.5 text-slate-400 hover:text-white transition-colors text-sm font-medium">
+                    <div className="hidden lg:block w-1.5 h-1.5 rounded-full bg-blue-500 scale-0 group-hover:scale-100 transition-transform duration-300" />
                     {link.name}
                   </a>
                 </li>
@@ -75,14 +75,14 @@ export const Footer = memo(function Footer({ onLegalClick }: FooterProps) {
             <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Bantuan & Legal</h4>
             <ul className="space-y-3 flex flex-col items-center lg:items-start">
               <li>
-                <button onClick={() => onLegalClick('terms')} className="group flex items-center gap-3 text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 scale-0 group-hover:scale-100 transition-transform duration-300" />
+                <button onClick={() => onLegalClick('terms')} className="group flex items-center justify-center lg:justify-start gap-2.5 text-slate-400 hover:text-white transition-colors text-sm font-medium">
+                  <div className="hidden lg:block w-1.5 h-1.5 rounded-full bg-blue-500 scale-0 group-hover:scale-100 transition-transform duration-300" />
                   Syarat & Ketentuan
                 </button>
               </li>
               <li>
-                <button onClick={() => onLegalClick('privacy')} className="group flex items-center gap-3 text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 scale-0 group-hover:scale-100 transition-transform duration-300" />
+                <button onClick={() => onLegalClick('privacy')} className="group flex items-center justify-center lg:justify-start gap-2.5 text-slate-400 hover:text-white transition-colors text-sm font-medium">
+                  <div className="hidden lg:block w-1.5 h-1.5 rounded-full bg-blue-500 scale-0 group-hover:scale-100 transition-transform duration-300" />
                   Kebijakan Privasi
                 </button>
               </li>
