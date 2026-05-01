@@ -236,7 +236,13 @@ export function HistoryTable({ data, onReview }: HistoryTableProps) {
                    </div>
                 </div>
 
-                <button className="w-full py-4 bg-slate-900 dark:bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onReview?.(record);
+                  }}
+                  className="w-full py-4 bg-slate-900 dark:bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-lg shadow-slate-200 dark:shadow-none"
+                >
                    <FileText className="w-4 h-4" />
                    LIHAT ANALISIS LENGKAP
                    <ChevronRight className="w-4 h-4 ml-1" />
