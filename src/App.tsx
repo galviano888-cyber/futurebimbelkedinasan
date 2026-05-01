@@ -248,6 +248,7 @@ export default function App() {
 
   const handleHistoryReview = async (record: TryoutRecord) => {
     if (!supabase) return;
+    const toastId = toast.loading("Memuat pembahasan...");
     try {
       let { data: questionsData, error } = await supabase
         .rpc('get_tryout_review', { target_result_id: record.id });
@@ -266,10 +267,13 @@ export default function App() {
           ...record,
           questions: questionsData,
         });
-        setActivePage("TryoutReview");
+        toast.success("Pembahasan siap!", { id: toastId });
+        navigate("/tryout-review");
+      } else {
+        toast.error("Pembahasan tidak ditemukan", { id: toastId });
       }
     } catch (err) {
-      toast.error("Gagal memuat pembahasan");
+      toast.error("Gagal memuat pembahasan", { id: toastId });
     }
   };
 
