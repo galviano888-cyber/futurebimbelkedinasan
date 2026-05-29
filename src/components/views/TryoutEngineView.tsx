@@ -42,7 +42,10 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
       setCheatAttempts(prev => {
         const newCount = prev + 1;
+        // Use a stable toast ID so repeated warnings UPDATE the same toast
+        // instead of stacking multiple notifications like spam
         toast.warning("Peringatan Anti-Cheat!", {
+          id: "anti-cheat-warning",
           description: `${msg} (${newCount}x). Aktivitas ini dicatat oleh sistem.`,
           duration: 5000
         });
@@ -52,24 +55,24 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        handleViolation("Anda terdeteksi meninggalkan halaman ujian");
+        handleViolation("Anda terdeteksi meninggalkan fokus jendela ujian");
       }
-    };
-
-    const handleBlur = () => {
-      handleViolation("Anda terdeteksi meninggalkan fokus jendela ujian");
     };
 
     const preventActions = (e: any) => {
       e.preventDefault();
-      toast.error("Aksi tidak diizinkan selama ujian berlangsung!");
+      toast.error("Aksi tidak diizinkan selama ujian berlangsung!", {
+        id: "anti-cheat-action-blocked"
+      });
       return false;
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
         e.preventDefault();
-        toast.error("Dilarang mencetak halaman ujian!");
+        toast.error("Dilarang mencetak halaman ujian!", {
+          id: "anti-cheat-print-blocked"
+        });
       }
       if (e.key === 'PrintScreen') {
         handleViolation("Dilarang mengambil tangkapan layar!");
@@ -77,7 +80,6 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("blur", handleBlur);
     document.addEventListener("contextmenu", preventActions);
     document.addEventListener("copy", preventActions);
     document.addEventListener("paste", preventActions);
@@ -85,7 +87,6 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("blur", handleBlur);
       document.removeEventListener("contextmenu", preventActions);
       document.removeEventListener("copy", preventActions);
       document.removeEventListener("paste", preventActions);
@@ -205,6 +206,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   useEffect(() => {
     if (cheatAttempts >= 3 && !isSubmitting) {
       toast.error("UJIAN DIHENTIKAN OTOMATIS!", {
+        id: "anti-cheat-auto-finish",
         description: "Anda terdeteksi keluar dari halaman sebanyak 3 kali. Sistem telah mengirim jawaban Anda secara otomatis untuk menjaga integritas ujian.",
         duration: 8000
       });
@@ -228,6 +230,14 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         .eq('id', packageId)
         .maybeSingle();
 
+      const { data: tryoutInfo } = await supabase
+        .from('tryout_packages')
+        .select('name')
+        .eq('id', questionsId)
+        .maybeSingle();
+
+      const combinedName = tryoutInfo?.name ? `${pkgInfo?.title || 'Paket'} - ${tryoutInfo.name}` : pkgInfo?.title || "Tryout SKD";
+
       // NEW SECURE SUBMISSION VIA RPC
       const { data: rpcData, error: rpcError } = await supabase.rpc('submit_tryout_secure', {
         p_user_id: user.id,
@@ -235,7 +245,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         p_questions_id: questionsId,
         p_answers: answers,
         p_cheat_attempts: cheatAttempts,
-        p_package_name: pkgInfo?.title || "Tryout SKD"
+        p_package_name: combinedName
       });
 
       if (rpcError) throw rpcError;
@@ -248,10 +258,17 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
       onFinish({
         ...rpcData,
+        twkScore: rpcData?.twk || 0,
+        tiuScore: rpcData?.tiu || 0,
+        tkpScore: rpcData?.tkp || 0,
+        totalScore: rpcData?.total || 0,
+        twkCorrect: rpcData?.twk_correct || 0,
+        tiuCorrect: rpcData?.tiu_correct || 0,
+        tkpCorrect: rpcData?.tkp_correct || 0,
         package_id: packageId,
         tryout_id: questionsId,
         user_id: user.id,
-        package_name: pkgInfo?.title || "Tryout SKD",
+        package_name: combinedName,
         date: new Date().toISOString(),
         answers: answers,
         cheatAttempts,

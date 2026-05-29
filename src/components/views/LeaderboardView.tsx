@@ -473,7 +473,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                                </td>
                                <td className="px-6 py-6 text-center">
                                   <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-[11px] font-black rounded-xl group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:border-blue-100 transition-all">
-                                     {selectedPackage === 'all' ? (item.total_tryouts || 1) : 1}x <span className="text-[9px] font-bold text-slate-400">Selesai</span>
+                                     {selectedPackage === 'all' ? (item.packages_completed || 1) : 1}x <span className="text-[9px] font-bold text-slate-400">Selesai</span>
                                   </div>
                                </td>
                                <td className="px-6 py-6 text-right">

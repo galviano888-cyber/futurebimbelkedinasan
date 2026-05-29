@@ -27,10 +27,10 @@ export const HeroSection = memo(function HeroSection({
   itemVariants 
 }: HeroSectionProps) {
   return (
-    <section className="pt-16 pb-0 bg-[#0a1425] relative overflow-hidden">
+    <section className="pt-36 lg:pt-24 pb-0 bg-[#0a1425] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 relative z-10 text-center lg:text-left grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
         <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-8 lg:pr-10">
-          <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black uppercase mb-4 shadow-sm" style={{ color: colors.badge }}>
+          <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black uppercase mb-4 mt-2 shadow-sm" style={{ color: colors.badge }}>
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
             <span>{hero.badge}</span>
           </motion.div>

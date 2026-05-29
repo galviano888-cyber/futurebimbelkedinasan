@@ -376,37 +376,6 @@ export function AdminLandingPageEditorView() {
         </div>
       </section>
 
-      {/* SECTION 2: TESTIMONIALS */}
-      <section className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600"><MessageSquare className="w-6 h-6" /></div>
-            <div>
-              <h2 className="text-xl font-black text-slate-900 tracking-tight">Testimoni Siswa</h2>
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Kata mereka yang sudah lolos</p>
-            </div>
-          </div>
-          <button onClick={() => setTestimonials([...testimonials, { name: "Nama Siswa", text: "Tulis testimoni...", school: "Tahun/Lulusan" }])} className="p-3 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all"><Plus className="w-5 h-5" /></button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {testimonials.map((t, i) => (
-            <div key={i} className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 relative group">
-              <button onClick={() => setTestimonials(testimonials.filter((_, idx) => idx !== i))} className="absolute -top-2 -right-2 w-8 h-8 bg-white text-red-500 rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-4 h-4" /></button>
-              <input value={t.name} onChange={(e) => { const newT = [...testimonials]; newT[i].name = e.target.value; setTestimonials(newT); }} className="bg-transparent font-black text-slate-900 block w-full mb-1 outline-none" placeholder="Nama Siswa" />
-              <input value={t.school} onChange={(e) => { const newT = [...testimonials]; newT[i].school = e.target.value; setTestimonials(newT); }} className="bg-transparent text-[10px] font-black text-blue-500 uppercase tracking-widest block w-full mb-4 outline-none" placeholder="Sekolah/Tahun" />
-              <textarea value={t.text} onChange={(e) => { const newT = [...testimonials]; newT[i].text = e.target.value; setTestimonials(newT); }} className="bg-transparent text-sm text-slate-500 w-full h-20 outline-none resize-none" placeholder="Isi testimoni..." />
-            </div>
-          ))}
-        </div>
-        <button 
-          onClick={() => handleSave('testimonials', testimonials)} 
-          disabled={saving}
-          className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black text-sm shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all disabled:opacity-50"
-        >
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
-          SIMPAN TESTIMONI
-        </button>
-      </section>
 
       {/* SECTION 3: FAQ */}
       <section className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40">

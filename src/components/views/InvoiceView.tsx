@@ -40,7 +40,18 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
     if (!supabase) return;
     const channel = supabase
       .channel(`transaction-status-${transactionId}`)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'transactions', filter: `id=eq.${transactionId}` }, () => {
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'transactions', 
+        filter: `id=eq.${transactionId}` 
+      }, (payload: any) => {
+        if (payload.new?.status === 'success') {
+          toast.success("Pembayaran Berhasil Dikonfirmasi!", {
+            description: "Selamat belajar! Akses paket Anda kini telah terbuka penuh.",
+            duration: 5000
+          });
+        }
         fetchTransaction();
       })
       .subscribe();

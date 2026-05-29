@@ -45,6 +45,14 @@ serve(async (req: Request) => {
             package_id: transaction.package_id,
             status: 'active'
           }])
+
+          // Send notification
+          await supabase.from('notifications').insert([{
+            user_id: transaction.user_id,
+            title: "Pembayaran Otomatis Berhasil! 🎉",
+            message: `Pembayaran untuk invoice ${transaction.invoice_id || order_id} telah terkonfirmasi secara otomatis. Paket sudah bisa diakses.`,
+            is_read: false
+          }])
         }
       }
     } else if (transaction_status === 'cancel' || transaction_status === 'deny' || transaction_status === 'expire') {

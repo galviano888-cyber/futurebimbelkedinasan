@@ -147,7 +147,7 @@ export default function App() {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       if (s) {
         fetchAllData(s.user);
@@ -155,10 +155,14 @@ export default function App() {
         setProfile(null);
         setData([]);
         setLoading(false);
-        // If logout, clear persistence
+        // If logout, clear persistence and redirect to landing
         localStorage.removeItem("fbk_active_page");
         localStorage.removeItem("fbk_active_package_id");
         localStorage.removeItem("fbk_active_questions_id");
+        
+        if (event === 'SIGNED_OUT') {
+          navigate('/');
+        }
       }
     });
 

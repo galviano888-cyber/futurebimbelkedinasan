@@ -23,10 +23,24 @@ export function AdminUserManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUsers();
+    fetchCurrentUser();
   }, []);
+
+  const fetchCurrentUser = async () => {
+    if (!supabase) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserEmail(user.email || null);
+      }
+    } catch (err) {
+      console.error("Error fetching current user:", err);
+    }
+  };
 
   const fetchUsers = async () => {
     if (!supabase) return;
@@ -45,7 +59,11 @@ export function AdminUserManager() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setUsers(data || []);
+      // Filter out admin accounts from the student management view
+      const studentsOnly = (data || []).filter(
+        (u: any) => !['admin.utama@fbk-kedinasan.com', 'admin.soal@fbk-kedinasan.com'].includes(u.email)
+      );
+      setUsers(studentsOnly);
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan tidak terduga");
     } finally {
@@ -169,7 +187,7 @@ export function AdminUserManager() {
                       <div>
                         <div className="font-black text-slate-900 tracking-tight group-hover:text-indigo-700 transition-colors flex items-center gap-2">
                           {user.full_name}
-                          {user.email === 'admin.utama@fbk-kedinasan.com' && <ShieldCheck className="w-4 h-4 text-blue-500" />}
+                          {['admin.utama@fbk-kedinasan.com', 'admin.soal@fbk-kedinasan.com'].includes(user.email) && <ShieldCheck className="w-4 h-4 text-blue-500" />}
                         </div>
                         <div className="text-[11px] text-slate-400 font-bold flex items-center gap-1.5 mt-1">
                           <Mail className="w-3 h-3" /> {user.email}
@@ -219,14 +237,12 @@ export function AdminUserManager() {
                        <button className="p-2.5 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
                           <ExternalLink className="w-4 h-4" />
                        </button>
-                       {user.email !== "admin.utama@fbk-kedinasan.com" && (
-                         <button 
-                           onClick={() => handleDeleteUser(user.id, user.full_name)}
-                           className="p-2.5 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                         >
-                           <Trash2 className="w-4 h-4" />
-                         </button>
-                       )}
+                       <button 
+                         onClick={() => handleDeleteUser(user.id, user.full_name)}
+                         className="p-2.5 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                       >
+                         <Trash2 className="w-4 h-4" />
+                       </button>
                     </div>
                   </td>
                 </tr>

@@ -212,9 +212,27 @@ export function AdminTransactionManager() {
             package_id: trans.package_id,
             transaction_id: trans.id
           });
+
+          // Insert Notification
+          await supabase.from('notifications').insert([{
+            user_id: trans.user_id,
+            title: "Pembayaran Berhasil Dikonfirmasi! 🎉",
+            message: `Pembayaran untuk invoice ${trans.invoice_id} telah sukses. Paket ${trans.packages?.title} sekarang sudah bisa kamu akses. Selamat belajar!`,
+            is_read: false
+          }]);
         }
         // Refresh stats after success
         fetchStats();
+      } else if (newStatus === 'failed') {
+        const trans = transactions.find(t => t.id === id);
+        if (trans) {
+          await supabase.from('notifications').insert([{
+            user_id: trans.user_id,
+            title: "Pembayaran Ditolak ❌",
+            message: `Maaf, pembayaran untuk invoice ${trans.invoice_id} gagal atau ditolak. Silakan hubungi admin jika ini adalah sebuah kesalahan.`,
+            is_read: false
+          }]);
+        }
       }
 
       toast.success(`Transaksi berhasil diupdate ke ${newStatus}`);

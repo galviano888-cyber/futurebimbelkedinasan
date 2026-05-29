@@ -42,47 +42,47 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
   const [loading, setLoading] = useState(true);
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!supabase) return;
-      setLoading(true);
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        const { data: allPackages, error: pkgError } = await supabase
-          .from('packages')
-          .select('*, contents:package_contents(*)')
-          .eq('is_active', true);
+  const fetchData = async () => {
+    if (!supabase) return;
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const { data: allPackages, error: pkgError } = await supabase
+        .from('packages')
+        .select('*, contents:package_contents(*)')
+        .eq('is_active', true);
 
-        let ownedPackageIds: string[] = [];
+      let ownedPackageIds: string[] = [];
+      
+      if (user) {
+        const { data: owned } = await supabase
+          .from('user_packages')
+          .select('package_id')
+          .eq('user_id', user.id);
         
-        if (user) {
-          const { data: owned } = await supabase
-            .from('user_packages')
-            .select('package_id')
-            .eq('user_id', user.id);
-          
-          if (owned) {
-            ownedPackageIds = owned.map(item => item.package_id);
-          }
+        if (owned) {
+          ownedPackageIds = owned.map(item => item.package_id);
         }
-
-        if (!pkgError && allPackages) {
-          const filtered = allPackages
-            .filter((p: any) => p.id !== '11111111-1111-1111-1111-111111111111' && !ownedPackageIds.includes(p.id))
-            .map((p: any) => ({
-              ...p,
-              contents: (p.contents || []).sort((a: any, b: any) => a.order_index - b.order_index)
-            }));
-          setPackages(filtered as Package[]);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
       }
-    };
 
+      if (!pkgError && allPackages) {
+        const filtered = allPackages
+          .filter((p: any) => p.id !== '11111111-1111-1111-1111-111111111111' && !ownedPackageIds.includes(p.id))
+          .map((p: any) => ({
+            ...p,
+            contents: (p.contents || []).sort((a: any, b: any) => a.order_index - b.order_index)
+          }));
+        setPackages(filtered as Package[]);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [isAuthenticated]);
 
@@ -210,8 +210,12 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                             if (error.code === '23505') toast.error("Anda sudah memiliki paket ini!");
                             else throw error;
                           } else {
-                            toast.success("Selamat! Paket gratis berhasil ditambahkan ke akun Anda.");
-                            window.location.reload();
+                            toast.success("Selamat! Paket gratis berhasil ditambahkan ke akun Anda.", {
+                              description: "Silakan cek menu 'Paket Saya' untuk mulai belajar.",
+                              duration: 5000
+                            });
+                            // Refresh local state instead of hard reload
+                            fetchData();
                           }
                         } else {
                           // Ensure profile exists
@@ -257,6 +261,12 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                             .single();
 
                           if (txError) throw txError;
+                          
+                          toast.success("Invoice Berhasil Dibuat!", {
+                            description: "Silakan selesaikan pembayaran sesuai petunjuk pada invoice.",
+                            duration: 5000
+                          });
+
                           if (newTx && onPurchaseSuccess) onPurchaseSuccess(newTx.id);
                         }
                       } catch (err: any) {

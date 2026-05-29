@@ -9,7 +9,6 @@ import { Navbar } from "../landing/Navbar";
 import { HeroSection } from "../landing/HeroSection";
 import { FeaturesSection } from "../landing/FeaturesSection";
 import { PricingSection } from "../landing/PricingSection";
-import { TestimonialsSection } from "../landing/TestimonialsSection";
 import { FAQSection } from "../landing/FAQSection";
 import { Footer } from "../landing/Footer";
 import { GuideModal } from "../landing/GuideModal";
@@ -94,6 +93,11 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
     }
   };
 
+  const activePackages = useMemo(() => {
+    if (!Array.isArray(packages)) return [];
+    return packages.filter(p => p && p.name && p.name.trim() !== "");
+  }, [packages]);
+
   const containerVariants: Variants = useMemo(() => ({
     hidden: { opacity: 0 },
     show: {
@@ -137,7 +141,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
       <GuideModal isOpen={showGuide} onClose={handleCloseGuide} />
 
       <div className="relative z-10">
-        <Navbar onLogin={onLogin} onRegister={onRegister} />
+        <Navbar onLogin={onLogin} onRegister={onRegister} hasPackages={activePackages.length > 0} />
 
         <HeroSection 
           hero={hero} 
@@ -148,10 +152,9 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
         />
 
         <FeaturesSection features={features} />
-        <PricingSection packages={packages} onEnter={onRegister} />
-        <TestimonialsSection testimonials={testimonials} />
+        {activePackages.length > 0 && <PricingSection packages={activePackages} onEnter={onRegister} />}
         <FAQSection faqs={faqs} />
-        <Footer onLegalClick={handleLegalClick} />
+        <Footer onLegalClick={handleLegalClick} hasPackages={activePackages.length > 0} />
       </div>
 
       <LegalModal 

@@ -25,7 +25,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
   }
 
   const currentQuestion = questions[currentIndex];
-  const userAnswer = result.score_details?.[currentIndex]?.userAnswer;
+  const userAnswer = result.answers?.[currentQuestion.id] || result.score_details?.[currentIndex]?.userAnswer;
   const isCorrect = currentQuestion.category === 'TKP' ? true : currentQuestion.correct_answer === userAnswer;
 
   return (
@@ -78,7 +78,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
           <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
             <div className="grid grid-cols-5 gap-2.5">
               {questions.map((q, idx) => {
-                const ans = result.score_details?.[idx]?.userAnswer;
+                const ans = result.answers?.[q.id] || result.score_details?.[idx]?.userAnswer;
                 let statusClass = "bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400"; // Kosong
                 
                 if (q.category === 'TKP' && ans) {

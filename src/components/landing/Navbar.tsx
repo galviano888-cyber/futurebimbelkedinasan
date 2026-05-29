@@ -6,20 +6,20 @@ import { motion, AnimatePresence } from "framer-motion";
 interface NavbarProps {
   onLogin: () => void;
   onRegister: () => void;
+  hasPackages?: boolean;
 }
 
-export const Navbar = memo(function Navbar({ onLogin, onRegister }: NavbarProps) {
+export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
     { name: "Fitur", href: "#fitur" },
-    { name: "Paket SKD", href: "#paket" },
-    { name: "Testimoni", href: "#testimoni" },
+    ...(hasPackages !== false ? [{ name: "Paket SKD", href: "#paket" }] : []),
     { name: "FAQ", href: "#faq" },
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#050b18]/80 backdrop-blur-xl border-b border-white/5 transform-gpu will-change-[backdrop-filter]">
+    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#050b18]/80 backdrop-blur-xl border-b border-white/5 transform-gpu will-change-[backdrop-filter] pt-[env(safe-area-inset-top,0px)]">
       <div className="max-w-7xl mx-auto px-6 h-24 md:h-20 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2 sm:gap-3">

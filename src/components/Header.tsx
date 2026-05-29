@@ -91,12 +91,11 @@ export function Header({
   const handleLogout = async () => {
     if (supabase) {
       await supabase.auth.signOut();
-      window.location.reload();
     }
   };
 
   return (
-    <header className="h-20 lg:h-24 flex items-center justify-between px-4 lg:px-8 bg-slate-50/50 dark:bg-slate-950/50 backdrop-blur-xl border-b border-slate-200 dark:border-slate-900 sticky top-0 z-30">
+    <header className="min-h-20 lg:min-h-24 flex items-center justify-between px-4 lg:px-8 bg-slate-50/50 dark:bg-slate-950/50 backdrop-blur-xl border-b border-slate-200 dark:border-slate-900 sticky top-0 z-30 pt-[env(safe-area-inset-top,0px)]">
       <div className="flex items-center gap-3 lg:gap-6 flex-1">
         <button 
           onClick={onMenuToggle}

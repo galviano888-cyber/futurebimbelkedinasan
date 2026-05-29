@@ -8,9 +8,10 @@ import {
 
 interface FooterProps {
   onLegalClick: (type: 'terms' | 'privacy') => void;
+  hasPackages?: boolean;
 }
 
-export const Footer = memo(function Footer({ onLegalClick }: FooterProps) {
+export const Footer = memo(function Footer({ onLegalClick, hasPackages }: FooterProps) {
   return (
     <footer className="py-20 lg:py-24 bg-[#0a0f1d] border-t border-white/5 relative overflow-hidden">
       {/* Decorative Blur */}
@@ -56,8 +57,7 @@ export const Footer = memo(function Footer({ onLegalClick }: FooterProps) {
             <ul className="space-y-3 flex flex-col items-center lg:items-start">
               {[
                 { name: 'Fitur', id: 'fitur' },
-                { name: 'Paket SKD', id: 'paket' },
-                { name: 'Testimoni', id: 'testimoni' },
+                ...(hasPackages !== false ? [{ name: 'Paket SKD', id: 'paket' }] : []),
                 { name: 'FAQ', id: 'faq' }
               ].map((link) => (
                 <li key={link.name}>
