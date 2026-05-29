@@ -23,7 +23,7 @@ export function AdminUserManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+  const [_currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUsers();

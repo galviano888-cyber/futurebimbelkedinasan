@@ -33,7 +33,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
     cta: "Mulai Sekarang",
     image: "https://images.unsplash.com/photo-1523240715632-d984bb4b990a?q=80&w=2070&auto=format&fit=crop"
   });
-  const [testimonials, setTestimonials] = useState<any[]>([
+  const [_testimonials, setTestimonials] = useState<any[]>([
     { name: "Visi Kami", text: "Misi utama kami adalah mencetak ribuan taruna baru setiap tahunnya melalui metode belajar yang paling efisien dan tertarget sesuai standar BKN.", school: "FBK Commitment" },
     { name: "Jaminan Materi", text: "Kami menjamin semua bank soal yang Anda pelajari adalah materi yang 100% relevan dengan standar seleksi kedinasan terbaru dan terupdate.", school: "FBK Commitment" },
     { name: "Akses Belajar", text: "Di FBK, Anda bisa belajar kapan saja dan di mana saja tanpa hambatan. Tidak ada lagi kendala jarak untuk meraih seragam impian Anda.", school: "FBK Commitment" }

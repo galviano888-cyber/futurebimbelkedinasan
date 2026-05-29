@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Save, Plus, Trash2, Layout, MessageSquare, HelpCircle, Loader2, Phone, CreditCard, Zap } from "lucide-react";
+import { Save, Plus, Trash2, Layout, HelpCircle, Loader2, Phone, CreditCard, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 export function AdminLandingPageEditorView() {
@@ -20,7 +20,7 @@ export function AdminLandingPageEditorView() {
     { title: "Engine CAT Standar BKN", desc: "Uji kemampuan dengan platform simulasi presisi sesuai standar sistem CAT BKN asli." },
     { title: "Bank Soal Terupdate", desc: "Akses materi belajar dan bank soal yang telah disesuaikan dengan standar seleksi terbaru." }
   ]);
-  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [_testimonials, setTestimonials] = useState<any[]>([]);
   const [faqs, setFaqs] = useState<any[]>([]);
   const [contacts, setContacts] = useState({ whatsapp: "6287753646617", instagram: "futurebimbelkedinasan", tiktok: "futurebimbelkedinasan" });
   const [colors, setColors] = useState({
