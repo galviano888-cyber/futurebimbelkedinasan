@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { ArrowLeft, Save, Plus, Trash2, Loader2, Image as ImageIcon, CheckCircle2, AlertCircle, Edit2, Check, X, Globe, Lock } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Save, Plus, Trash2, Loader2, Image as ImageIcon, CheckCircle2, AlertCircle, Edit2, Check, X, Globe, Lock, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
@@ -163,6 +163,66 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
     setActiveQuestion({ ...activeQuestion, tkp_scores: newScores });
   };
 
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingOptionImage, setUploadingOptionImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const optionFileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const uploadImageToStorage = async (file: File, prefix: string): Promise<string> => {
+    if (!supabase) throw new Error('Supabase tidak tersedia');
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) throw new Error('Format tidak didukung. Gunakan JPG, PNG, WebP, atau GIF.');
+    if (file.size > 5 * 1024 * 1024) throw new Error('Ukuran file maksimal 5MB.');
+    const ext = file.name.split('.').pop();
+    const fileName = `${prefix}-${packageId}-${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from('question-images')
+      .upload(fileName, file, { upsert: true });
+    if (uploadError) throw uploadError;
+    const { data: urlData } = supabase.storage.from('question-images').getPublicUrl(fileName);
+    return urlData.publicUrl;
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const url = await uploadImageToStorage(file, 'soal');
+      setActiveQuestion({ ...activeQuestion, question_image_url: url });
+      toast.success('Gambar soal berhasil diupload');
+    } catch (err: any) {
+      toast.error('Gagal upload: ' + err.message);
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleOptionImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, label: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingOptionImage(label);
+    try {
+      const url = await uploadImageToStorage(file, `opsi-${label.toLowerCase()}`);
+      const newOptionImages = { ...(activeQuestion.option_images || {}), [label]: url };
+      setActiveQuestion({ ...activeQuestion, option_images: newOptionImages });
+      toast.success(`Gambar opsi ${label} berhasil diupload`);
+    } catch (err: any) {
+      toast.error('Gagal upload: ' + err.message);
+    } finally {
+      setUploadingOptionImage(null);
+      const ref = optionFileInputRefs.current[label];
+      if (ref) ref.value = '';
+    }
+  };
+
+  const removeOptionImage = (label: string) => {
+    const newOptionImages = { ...(activeQuestion.option_images || {}) };
+    delete newOptionImages[label];
+    setActiveQuestion({ ...activeQuestion, option_images: newOptionImages });
+  };
+
   if (loading) return <div className="flex flex-col items-center justify-center py-20 gap-4"><Loader2 className="w-10 h-10 animate-spin text-blue-600" /><p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Memuat Bank Soal...</p></div>;
 
   return (
@@ -296,17 +356,67 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">URL Gambar Soal (Optional)</label>
-                  <div className="flex gap-4">
-                    <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center shrink-0"><ImageIcon className="w-6 h-6 text-slate-400" /></div>
-                    <input 
-                      type="text"
-                      value={activeQuestion.question_image_url || ""}
-                      onChange={(e) => setActiveQuestion({ ...activeQuestion, question_image_url: e.target.value })}
-                      className="flex-1 bg-slate-50 border border-slate-100 rounded-xl px-4 text-xs font-bold outline-none"
-                      placeholder="https://..."
-                    />
-                  </div>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gambar Soal (Optional)</label>
+                  
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
+
+                  {activeQuestion.question_image_url ? (
+                    <div className="rounded-2xl overflow-hidden border border-slate-100 bg-slate-50 relative group">
+                      <img
+                        src={activeQuestion.question_image_url}
+                        alt="Gambar soal"
+                        className="w-full max-h-72 object-contain p-3"
+                        onError={(e) => {
+                          const el = e.currentTarget.parentElement;
+                          if (el) el.innerHTML = '<div class="p-6 text-center text-xs font-bold text-red-400">Gambar tidak bisa dimuat</div>';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="px-4 py-2 bg-white text-slate-800 rounded-xl text-xs font-black flex items-center gap-2 shadow-lg"
+                        >
+                          <Upload className="w-3.5 h-3.5" /> Ganti Gambar
+                        </button>
+                        <button
+                          onClick={() => setActiveQuestion({ ...activeQuestion, question_image_url: "" })}
+                          className="px-4 py-2 bg-red-500 text-white rounded-xl text-xs font-black flex items-center gap-2 shadow-lg"
+                        >
+                          <X className="w-3.5 h-3.5" /> Hapus
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingImage}
+                      className="w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-blue-400 hover:bg-blue-50/30 transition-all group"
+                    >
+                      {uploadingImage ? (
+                        <>
+                          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                          <span className="text-xs font-black text-blue-500 uppercase tracking-widest">Mengupload...</span>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-12 h-12 bg-slate-100 group-hover:bg-blue-100 rounded-xl flex items-center justify-center transition-colors">
+                            <ImageIcon className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                          </div>
+                          <div className="text-center">
+                            <p className="text-xs font-black text-slate-500 group-hover:text-blue-600 transition-colors">Klik untuk upload gambar</p>
+                            <p className="text-[10px] text-slate-300 mt-0.5">JPG, PNG, WebP, GIF — maks 5MB</p>
+                          </div>
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
 
                 {/* Options Grid */}
@@ -328,13 +438,69 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
                           {label}
                         </button>
                         <div className="flex-1 space-y-3">
-                          <textarea 
-                            value={activeQuestion.options?.[label] || ""}
-                            onChange={(e) => updateOption(label, e.target.value)}
-                            rows={1}
-                            className="w-full bg-transparent border-none text-sm font-bold text-slate-700 outline-none p-2 resize-none"
-                            placeholder={`Isi pilihan ${label}...`}
-                          />
+                          {/* Untuk TIU: bisa teks atau gambar */}
+                          {activeQuestion.category === 'TIU' ? (
+                            <div className="space-y-2">
+                              {/* Hidden file input per opsi */}
+                              <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/gif"
+                                className="hidden"
+                                ref={(el) => { optionFileInputRefs.current[label] = el; }}
+                                onChange={(e) => handleOptionImageUpload(e, label)}
+                              />
+                              <textarea
+                                value={activeQuestion.options?.[label] || ""}
+                                onChange={(e) => updateOption(label, e.target.value)}
+                                rows={1}
+                                className="w-full bg-transparent border-none text-sm font-bold text-slate-700 outline-none p-2 resize-none"
+                                placeholder={`Teks opsi ${label} (kosongkan jika pakai gambar)...`}
+                              />
+                              {activeQuestion.option_images?.[label] ? (
+                                <div className="relative group rounded-xl overflow-hidden border border-slate-100 bg-slate-50">
+                                  <img
+                                    src={activeQuestion.option_images[label]}
+                                    alt={`Opsi ${label}`}
+                                    className="w-full max-h-28 object-contain p-1.5"
+                                  />
+                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                                    <button
+                                      onClick={() => optionFileInputRefs.current[label]?.click()}
+                                      className="px-3 py-1.5 bg-white text-slate-800 rounded-lg text-[10px] font-black flex items-center gap-1.5 shadow"
+                                    >
+                                      <Upload className="w-3 h-3" /> Ganti
+                                    </button>
+                                    <button
+                                      onClick={() => removeOptionImage(label)}
+                                      className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-[10px] font-black flex items-center gap-1.5 shadow"
+                                    >
+                                      <X className="w-3 h-3" /> Hapus
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => optionFileInputRefs.current[label]?.click()}
+                                  disabled={uploadingOptionImage === label}
+                                  className="w-full h-14 border border-dashed border-slate-200 rounded-xl flex items-center justify-center gap-2 hover:border-blue-400 hover:bg-blue-50/20 transition-all text-slate-400 hover:text-blue-500"
+                                >
+                                  {uploadingOptionImage === label ? (
+                                    <><Loader2 className="w-4 h-4 animate-spin" /><span className="text-[10px] font-black">Upload...</span></>
+                                  ) : (
+                                    <><ImageIcon className="w-4 h-4" /><span className="text-[10px] font-black">Upload gambar opsi {label}</span></>
+                                  )}
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <textarea
+                              value={activeQuestion.options?.[label] || ""}
+                              onChange={(e) => updateOption(label, e.target.value)}
+                              rows={1}
+                              className="w-full bg-transparent border-none text-sm font-bold text-slate-700 outline-none p-2 resize-none"
+                              placeholder={`Isi pilihan ${label}...`}
+                            />
+                          )}
                           {activeQuestion.category === 'TKP' && (
                             <div className="flex items-center gap-4 pt-2 border-t border-slate-100">
                               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Skor TKP:</span>

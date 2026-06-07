@@ -388,60 +388,109 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
               {/* Question Section */}
               <div className="space-y-4 sm:space-y-6">
+                {currentQuestion?.question_image_url && (
+                  <div className="flex justify-center">
+                    <img
+                      src={currentQuestion.question_image_url}
+                      alt="Gambar soal"
+                      className="max-w-full max-h-64 h-auto rounded-2xl border border-slate-100 dark:border-slate-800 shadow-md"
+                    />
+                  </div>
+                )}
                 <p className="text-[14px] sm:text-[15px] text-slate-700 dark:text-slate-100 font-medium leading-relaxed text-justify">
                   {currentQuestion?.question_text}
                 </p>
-
-                {currentQuestion?.question_image_url && (
-                  <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-xl max-w-2xl mx-auto">
-                    <img src={currentQuestion.question_image_url} alt="Soal" className="w-full h-auto" />
-                  </div>
-                )}
               </div>
 
               {/* Options Grid */}
-              <div className="grid grid-cols-1 gap-2">
-                {['A', 'B', 'C', 'D', 'E'].map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => setAnswers({ ...answers, [currentQuestion.id]: opt })}
-                    className="group flex items-center gap-2 sm:gap-2.5 w-full text-left transition-all active:scale-[0.99]"
-                  >
-                    {/* Radio Circle */}
-                    <div className={cn(
-                      "w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all",
-                      answers[currentQuestion.id] === opt
-                        ? "border-blue-600 bg-blue-600"
-                        : "border-slate-300 dark:border-slate-600 group-hover:border-blue-400"
-                    )}>
-                      {answers[currentQuestion.id] === opt && <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-white" />}
-                    </div>
+              {(() => {
+                const opts = ['A', 'B', 'C', 'D', 'E'];
+                const allHaveImages = currentQuestion?.category === 'TIU' &&
+                  opts.every(o => !!currentQuestion?.option_images?.[o]);
 
-                    {/* Letter */}
-                    <span className={cn(
-                      "text-[10px] sm:text-xs font-black w-3 sm:w-4 transition-colors shrink-0",
-                      answers[currentQuestion.id] === opt ? "text-blue-600" : "text-slate-400"
-                    )}>
-                      {opt}.
-                    </span>
-
-                    {/* Content Pill */}
-                    <div className={cn(
-                      "flex-1 p-2 sm:p-2.5 px-3 sm:px-4 rounded-lg sm:rounded-xl border transition-all",
-                      answers[currentQuestion.id] === opt
-                        ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 shadow-sm"
-                        : "bg-[#f8f9fb] dark:bg-slate-900/50 border-slate-200/60 dark:border-slate-800 group-hover:bg-slate-100 dark:group-hover:bg-slate-800"
-                    )}>
-                      <p className={cn(
-                        "text-[12px] sm:text-[13px] font-medium leading-relaxed text-justify",
-                        answers[currentQuestion.id] === opt ? "text-blue-800 dark:text-blue-100" : "text-slate-600 dark:text-slate-300"
-                      )}>
-                        {currentQuestion?.options?.[opt]}
-                      </p>
+                if (allHaveImages) {
+                  // Grid 2-kolom untuk soal figural TIU
+                  return (
+                    <div className="grid grid-cols-2 gap-3">
+                      {opts.map((opt) => (
+                        <button
+                          key={opt}
+                          onClick={() => setAnswers({ ...answers, [currentQuestion.id]: opt })}
+                          className={cn(
+                            "relative rounded-2xl border-2 overflow-hidden transition-all active:scale-[0.98] flex flex-col",
+                            answers[currentQuestion.id] === opt
+                              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 shadow-lg shadow-blue-500/20"
+                              : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-blue-300"
+                          )}
+                        >
+                          <img
+                            src={currentQuestion.option_images[opt]}
+                            alt={`Opsi ${opt}`}
+                            className="w-auto max-w-full h-auto max-h-40 block mx-auto p-3"
+                          />
+                          <div className={cn(
+                            "py-1.5 text-center text-[11px] font-black uppercase tracking-widest border-t",
+                            answers[currentQuestion.id] === opt
+                              ? "bg-blue-500 text-white border-blue-500"
+                              : "bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-100 dark:border-slate-700"
+                          )}>
+                            {opt}
+                          </div>
+                        </button>
+                      ))}
                     </div>
-                  </button>
-                ))}
-              </div>
+                  );
+                }
+
+                // List vertikal untuk teks atau campuran
+                return (
+                  <div className="grid grid-cols-1 gap-2">
+                    {opts.map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => setAnswers({ ...answers, [currentQuestion.id]: opt })}
+                        className="group flex items-center gap-2 sm:gap-2.5 w-full text-left transition-all active:scale-[0.99]"
+                      >
+                        <div className={cn(
+                          "w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all",
+                          answers[currentQuestion.id] === opt
+                            ? "border-blue-600 bg-blue-600"
+                            : "border-slate-300 dark:border-slate-600 group-hover:border-blue-400"
+                        )}>
+                          {answers[currentQuestion.id] === opt && <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-white" />}
+                        </div>
+                        <span className={cn(
+                          "text-[10px] sm:text-xs font-black w-3 sm:w-4 transition-colors shrink-0",
+                          answers[currentQuestion.id] === opt ? "text-blue-600" : "text-slate-400"
+                        )}>
+                          {opt}.
+                        </span>
+                        <div className={cn(
+                          "flex-1 rounded-lg sm:rounded-xl border transition-all overflow-hidden",
+                          answers[currentQuestion.id] === opt
+                            ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 shadow-sm"
+                            : "bg-[#f8f9fb] dark:bg-slate-900/50 border-slate-200/60 dark:border-slate-800 group-hover:bg-slate-100 dark:group-hover:bg-slate-800"
+                        )}>
+                          {currentQuestion?.category === 'TIU' && currentQuestion?.option_images?.[opt] ? (
+                            <img
+                              src={currentQuestion.option_images[opt]}
+                              alt={`Opsi ${opt}`}
+                              className="max-w-full h-auto block mx-auto p-2"
+                            />
+                          ) : (
+                            <p className={cn(
+                              "p-2 sm:p-2.5 px-3 sm:px-4 text-[12px] sm:text-[13px] font-medium leading-relaxed text-justify",
+                              answers[currentQuestion.id] === opt ? "text-blue-800 dark:text-blue-100" : "text-slate-600 dark:text-slate-300"
+                            )}>
+                              {currentQuestion?.options?.[opt]}
+                            </p>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
 
               {/* Bottom Controls */}
               <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">

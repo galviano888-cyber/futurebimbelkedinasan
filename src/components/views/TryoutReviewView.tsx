@@ -162,37 +162,86 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
               <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 dark:bg-slate-800/30 rounded-full -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-110" />
               
               <div className="relative z-10">
-                <div className="text-[15px] text-slate-800 dark:text-white mb-8 font-bold whitespace-pre-wrap leading-relaxed text-justify">
-                  {currentQuestion.question_text}
-                </div>
-                
-                {currentQuestion.question_image_url && (
-                  <div className="mb-10 group/img overflow-hidden rounded-[2.5rem] border-4 border-slate-50 dark:border-slate-800 shadow-lg">
-                    <img src={currentQuestion.question_image_url} alt="Gambar Soal" className="w-full h-auto transition-transform duration-700 group-hover/img:scale-105" />
+                  {currentQuestion.question_image_url && (
+                  <div className="flex justify-center mb-6">
+                    <img
+                      src={currentQuestion.question_image_url}
+                      alt="Gambar Soal"
+                      className="max-w-full max-h-64 h-auto rounded-2xl border border-slate-100 dark:border-slate-800 shadow-md"
+                    />
                   </div>
                 )}
 
-                <div className="space-y-1.5">
-                  {Object.entries(currentQuestion.options || {}).map(([label, text]) => {
+                <div className="text-[15px] text-slate-800 dark:text-white mb-8 font-bold whitespace-pre-wrap leading-relaxed text-justify">
+                  {currentQuestion.question_text}
+                </div>
+
+                {(() => {
+                  const opts = ['A', 'B', 'C', 'D', 'E'];
+                  const allHaveImages = currentQuestion.category === 'TIU' &&
+                    opts.every(o => !!currentQuestion.option_images?.[o]);
+
+                  const getOptionClasses = (label: string) => {
                     const isUserSelected = userAnswer === label;
                     const isActuallyCorrect = currentQuestion.correct_answer === label;
-                    
                     let optionClass = "border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50";
                     let badgeClass = "bg-white dark:bg-slate-900 text-slate-400 border border-slate-200 dark:border-slate-700";
-
                     if (isActuallyCorrect && currentQuestion.category !== 'TKP') {
-                      optionClass = "border-emerald-500/50 dark:border-emerald-500/50 bg-emerald-50 dark:bg-emerald-900/10 ring-2 ring-emerald-500/10";
+                      optionClass = "border-emerald-500/50 bg-emerald-50 dark:bg-emerald-900/10 ring-2 ring-emerald-500/10";
                       badgeClass = "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30";
                     } else if (isUserSelected && !isCorrect && currentQuestion.category !== 'TKP') {
-                      optionClass = "border-red-500/50 dark:border-red-500/50 bg-red-50 dark:bg-red-900/10 ring-2 ring-red-500/10";
+                      optionClass = "border-red-500/50 bg-red-50 dark:bg-red-900/10 ring-2 ring-red-500/10";
                       badgeClass = "bg-red-500 text-white shadow-lg shadow-red-500/30";
                     } else if (isUserSelected && currentQuestion.category === 'TKP') {
-                      optionClass = "border-amber-500/50 dark:border-amber-500/50 bg-amber-50 dark:bg-amber-900/10 ring-2 ring-amber-500/10";
+                      optionClass = "border-amber-500/50 bg-amber-50 dark:bg-amber-900/10 ring-2 ring-amber-500/10";
                       badgeClass = "bg-amber-500 text-white shadow-lg shadow-amber-500/30";
                     }
+                    return { optionClass, badgeClass, isUserSelected, isActuallyCorrect };
+                  };
 
+                  if (allHaveImages) {
                     return (
-                      <div 
+                      <div className="grid grid-cols-2 gap-3">
+                        {opts.map((label) => {
+                          const { optionClass, badgeClass, isActuallyCorrect } = getOptionClasses(label);
+                          return (
+                            <div
+                              key={label}
+                              className={cn(
+                                "relative rounded-2xl border-2 overflow-hidden flex flex-col transition-all",
+                                optionClass
+                              )}
+                            >
+                              <img
+                                src={currentQuestion.option_images[label]}
+                                alt={`Opsi ${label}`}
+                                className="w-auto max-w-full h-auto max-h-40 block mx-auto p-3"
+                              />
+                              <div className={cn(
+                                "py-1.5 flex items-center justify-center gap-2 border-t text-[11px] font-black uppercase tracking-widest",
+                                badgeClass.includes('emerald') ? "bg-emerald-500 text-white border-emerald-500" :
+                                badgeClass.includes('red') ? "bg-red-500 text-white border-red-500" :
+                                "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700"
+                              )}>
+                                {label}
+                                {isActuallyCorrect && currentQuestion.category !== 'TKP' && (
+                                  <span className="ml-1 text-[8px] bg-white/20 px-1.5 py-0.5 rounded-full">Kunci</span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  }
+
+                  return (
+                  <div className="space-y-1.5">
+                  {opts.map((label) => {
+                    const text = (currentQuestion.options || {})[label];
+                    const { optionClass, badgeClass, isUserSelected, isActuallyCorrect } = getOptionClasses(label);
+                    return (
+                      <div
                         key={label}
                         className={cn(
                           "flex items-center gap-3 p-3 rounded-xl border-2 transition-all duration-300",
@@ -206,20 +255,28 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
                           {label.toUpperCase()}
                         </div>
                         <div className="flex-1">
-                           <p className={cn(
-                             "text-[13px] font-bold leading-relaxed text-justify",
-                             isActuallyCorrect && currentQuestion.category !== 'TKP' ? "text-emerald-900 dark:text-emerald-300" :
-                             isUserSelected && !isCorrect ? "text-red-900 dark:text-red-300" :
-                             "text-slate-700 dark:text-slate-300"
-                           )}>
-                             {String(text)}
-                           </p>
-                           {currentQuestion.category === 'TKP' && (
-                             <div className="mt-1 flex items-center gap-1.5">
-                               <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                               <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Skor: {currentQuestion.tkp_scores?.[label] || 0}</span>
-                             </div>
-                           )}
+                          {currentQuestion.category === 'TIU' && currentQuestion.option_images?.[label] ? (
+                            <img
+                              src={currentQuestion.option_images[label]}
+                              alt={`Opsi ${label}`}
+                              className="max-w-full h-auto block mx-auto rounded-lg p-1"
+                            />
+                          ) : (
+                            <p className={cn(
+                              "text-[13px] font-bold leading-relaxed text-justify",
+                              isActuallyCorrect && currentQuestion.category !== 'TKP' ? "text-emerald-900 dark:text-emerald-300" :
+                              isUserSelected && !isCorrect ? "text-red-900 dark:text-red-300" :
+                              "text-slate-700 dark:text-slate-300"
+                            )}>
+                              {String(text ?? '')}
+                            </p>
+                          )}
+                          {currentQuestion.category === 'TKP' && (
+                            <div className="mt-1 flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                              <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Skor: {currentQuestion.tkp_scores?.[label] || 0}</span>
+                            </div>
+                          )}
                         </div>
                         {isActuallyCorrect && currentQuestion.category !== 'TKP' && (
                           <div className="hidden sm:flex px-3 py-1 bg-emerald-500 text-white text-[9px] font-black rounded-full shadow-lg shadow-emerald-500/20 uppercase tracking-widest">Kunci</div>
@@ -227,9 +284,9 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
                       </div>
                     );
                   })}
-                </div>
-              </div>
-            </div>
+                  </div>
+                  );
+                })()}
 
             {/* Explanation Section */}
             {(currentQuestion.explanation || currentQuestion.explanation_image_url) && (
