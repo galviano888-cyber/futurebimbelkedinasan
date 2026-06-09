@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Award, ClipboardList, TrendingUp } from "lucide-react";
 import type { TryoutRecord } from "@/types";
 import { cn } from "@/lib/utils";
@@ -12,6 +11,7 @@ interface StatCardItem {
   value: string;
   subtitle: string;
   icon: React.ElementType;
+  accent: string;
   iconBg: string;
   iconColor: string;
   trend?: string;
@@ -19,26 +19,20 @@ interface StatCardItem {
 }
 
 export function StatCards({ data }: StatCardsProps) {
-  // Hanya hitung paket unik yang sudah dikerjakan
   const uniquePackages = new Set(data.map(item => item.packageName));
   const totalTryout = uniquePackages.size;
-
-  const averageScore =
-    data.length > 0
-      ? Math.round(data.reduce((sum, r) => sum + r.total, 0) / data.length)
-      : 0;
-
-  const bestScore =
-    data.length > 0 ? Math.max(...data.map((r) => r.total)) : 0;
+  const averageScore = data.length > 0 ? Math.round(data.reduce((sum, r) => sum + r.total, 0) / data.length) : 0;
+  const bestScore = data.length > 0 ? Math.max(...data.map((r) => r.total)) : 0;
 
   const cards: StatCardItem[] = [
     {
-      title: "Total Tryout Dikerjakan",
+      title: "Total Tryout",
       value: `${totalTryout}`,
       subtitle: "Sesi ujian selesai",
       icon: ClipboardList,
-      iconBg: "bg-blue-50",
-      iconColor: "text-blue-600",
+      accent: "indigo",
+      iconBg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20",
+      iconColor: "text-indigo-600 dark:text-indigo-400",
       trend: "+2 bulan ini",
       trendUp: true,
     },
@@ -47,10 +41,10 @@ export function StatCards({ data }: StatCardsProps) {
       value: averageScore.toLocaleString("id-ID"),
       subtitle: "Dari semua tryout",
       icon: TrendingUp,
-      iconBg: "bg-blue-50",
-      iconColor: "text-blue-600",
-      trend:
-        averageScore >= 300 ? "Di atas target" : "Perlu peningkatan",
+      accent: "blue",
+      iconBg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      trend: averageScore >= 300 ? "Di atas target" : "Perlu peningkatan",
       trendUp: averageScore >= 300,
     },
     {
@@ -58,65 +52,54 @@ export function StatCards({ data }: StatCardsProps) {
       value: bestScore.toLocaleString("id-ID"),
       subtitle: "Nilai tertinggi dicapai",
       icon: Award,
-      iconBg: "bg-emerald-50",
-      iconColor: "text-emerald-600",
+      accent: "emerald",
+      iconBg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20",
+      iconColor: "text-emerald-600 dark:text-emerald-400",
       trend: bestScore >= 350 ? "Luar biasa!" : "Terus tingkatkan",
       trendUp: bestScore >= 350,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
-      {cards.map((card, index) => {
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {cards.map((card) => {
         const Icon = card.icon;
         return (
-          <motion.div
+          <div
             key={card.title}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.08, duration: 0.4, ease: "easeOut" }}
-            className={cn(
-              "bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] p-5 sm:p-6 lg:p-7 shadow-sm relative overflow-hidden group",
-              "hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 cursor-default"
-            )}
+            className="bg-white dark:bg-[#0d0d14] border border-slate-200 dark:border-white/5 rounded-2xl p-6 group hover:border-indigo-200 dark:hover:border-indigo-500/20 transition-all duration-300"
           >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors duration-500" />
-            
-            <div className="relative z-10 flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <p className="text-slate-400 dark:text-slate-500 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] mb-2 truncate">
-                  {card.title}
-                </p>
-                <p className="text-slate-900 dark:text-white text-2xl sm:text-3xl lg:text-4xl font-black tracking-tighter leading-none mb-1">
-                  {card.value}
-                </p>
-                <p className="text-slate-400 dark:text-slate-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">{card.subtitle}</p>
+            <div className="flex items-start justify-between mb-5">
+              <div className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center border",
+                card.iconBg
+              )}>
+                <Icon className={cn("w-5 h-5", card.iconColor)} />
               </div>
-              <div
-                className={cn(
-                  "flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transform group-hover:rotate-6 transition-transform duration-500",
-                  card.iconBg === "bg-blue-50" ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-blue-200" : "bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-emerald-200"
-                )}
-              >
-                <Icon className="w-7 h-7" />
-              </div>
-            </div>
-
-            {card.trend && (
-              <div className="mt-6 pt-5 border-t border-slate-50 flex items-center gap-1.5">
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full",
-                    card.trendUp
-                      ? "bg-emerald-50 text-emerald-600"
-                      : "bg-blue-50 text-blue-600"
-                  )}
-                >
+              {card.trend && (
+                <span className={cn(
+                  "text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border",
+                  card.trendUp
+                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20"
+                    : "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-500/20"
+                )}>
                   {card.trend}
                 </span>
-              </div>
-            )}
-          </motion.div>
+              )}
+            </div>
+
+            <div>
+              <p className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-2">
+                {card.title}
+              </p>
+              <p className="text-slate-900 dark:text-white text-3xl font-black tracking-tighter leading-none mb-1.5">
+                {card.value}
+              </p>
+              <p className="text-slate-400 dark:text-slate-600 text-[10px] font-bold uppercase tracking-wider">
+                {card.subtitle}
+              </p>
+            </div>
+          </div>
         );
       })}
     </div>

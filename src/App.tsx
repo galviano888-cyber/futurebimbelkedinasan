@@ -385,9 +385,9 @@ export default function App() {
   if (isFullScreenPage) {
     // Background disesuaikan: tryout engine pakai #eef0f4, halaman lain pakai slate-50
     const isTryoutEngine = location.pathname === '/tryout-engine';
-    const bgClass = isTryoutEngine ? 'bg-[#eef0f4] dark:bg-slate-950' : 'bg-slate-50 dark:bg-slate-950';
+    const bgClass = isTryoutEngine ? 'bg-[#eef0f4] dark:bg-[#0a0a0f]' : 'bg-slate-50 dark:bg-[#0a0a0f]';
     const tryoutFallback = (
-      <div className="fixed inset-0 bg-[#eef0f4] dark:bg-slate-950 flex flex-col items-center justify-center">
+      <div className="fixed inset-0 bg-[#eef0f4] dark:bg-[#0a0a0f] flex flex-col items-center justify-center">
         <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
         <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Memuat Sesi Tryout...</p>
       </div>
@@ -407,7 +407,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-[100dvh] bg-slate-50 dark:bg-slate-950 flex flex-col lg:flex-row overflow-hidden transition-colors duration-500">
+    <div className="h-[100dvh] bg-slate-50 dark:bg-[#0a0a0f] flex flex-col lg:flex-row overflow-hidden transition-colors duration-500">
       <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={true} />
       <Toaster position="top-center" richColors />
       {isAuthenticated && (
@@ -431,7 +431,7 @@ export default function App() {
             setIsLoginOpen={setIsLoginOpen}
           />
         )}
-        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/20 p-4 lg:p-8 custom-scrollbar">
+        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-[#0a0a0f] p-4 lg:p-8 custom-scrollbar">
           {!isVerified && isAuthenticated && (
             <div className="mb-8 animate-in slide-in-from-top-4 duration-500">
               <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 p-6 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-amber-500/5">
