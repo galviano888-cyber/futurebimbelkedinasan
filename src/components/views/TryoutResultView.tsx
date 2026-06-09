@@ -96,7 +96,7 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
             </div>
             Hasil Tryout SKD
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 font-medium">Laporan analisis performa pengerjaan tryout kamu secara mendalam.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 font-medium">Laporan analisis performa pengerjaan tryout Anda secara mendalam.</p>
         </div>
         
         <div className="flex gap-3">
@@ -138,8 +138,8 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
               </h2>
               <p className={cn("text-sm font-bold px-4", allPass ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
                 {allPass
-                  ? "Selamat! Kamu berhasil menaklukkan passing grade nasional."
-                  : "Tetap semangat! Masih ada kategori yang perlu kamu perbaiki."}
+                  ? "Selamat! Anda berhasil melampaui passing grade nasional."
+                  : "Tetap semangat! Masih ada kategori yang perlu ditingkatkan."}
               </p>
             </div>
             <div className={`absolute top-0 right-0 w-32 h-32 blur-[60px] opacity-30 ${allPass ? 'bg-emerald-400' : 'bg-red-400'}`} />
@@ -320,7 +320,7 @@ function DetailedScoreCard({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="space-y-1">
-               <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Skor Kamu</div>
+               <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Skor Anda</div>
                <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
                  {score} <span className="text-sm font-bold text-slate-400 dark:text-slate-500">/ {max}</span>
                </div>

@@ -217,7 +217,7 @@ export function AdminTransactionManager() {
           await supabase.from('notifications').insert([{
             user_id: trans.user_id,
             title: "Pembayaran Berhasil Dikonfirmasi! 🎉",
-            message: `Pembayaran untuk invoice ${trans.invoice_id} telah sukses. Paket ${trans.packages?.title} sekarang sudah bisa kamu akses. Selamat belajar!`,
+            message: `Pembayaran untuk invoice ${trans.invoice_id} telah dikonfirmasi. Paket ${trans.packages?.title} kini dapat Anda akses. Selamat belajar!`,
             is_read: false
           }]);
         }

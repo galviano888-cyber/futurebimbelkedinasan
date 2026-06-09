@@ -138,7 +138,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
                     "text-xl font-black tracking-tight",
                     currentQuestion.category === 'TKP' ? 'text-amber-900 dark:text-amber-200' : isCorrect ? 'text-emerald-900 dark:text-emerald-200' : 'text-red-900 dark:text-red-200'
                   )}>
-                    {currentQuestion.category === 'TKP' ? 'Pembahasan TKP' : isCorrect ? 'Jawaban Kamu Benar!' : 'Jawaban Kamu Salah'}
+                    {currentQuestion.category === 'TKP' ? 'Pembahasan TKP' : isCorrect ? 'Jawaban Anda Benar' : 'Jawaban Anda Kurang Tepat'}
                   </h3>
                   <div className="flex items-center gap-2 mt-1">
                      <span className="text-[11px] font-black uppercase tracking-widest opacity-60">Kategori:</span>

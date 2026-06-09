@@ -44,7 +44,7 @@ export function ContactView() {
           Pusat Bantuan & Kontak
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-          Hubungi kami jika kamu memiliki pertanyaan atau kendala seputar aplikasi dan paket belajar.
+          Hubungi kami jika Anda memiliki pertanyaan atau kendala seputar aplikasi dan paket belajar.
         </p>
       </div>
 

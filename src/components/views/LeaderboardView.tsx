@@ -227,7 +227,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                   <div>
                     <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Ranking Terkunci! 🔒</h2>
                     <p className="text-slate-600 dark:text-slate-400 font-medium mt-3 leading-relaxed">
-                      Waduh! Kamu harus masuk ke akunmu dulu buat liat siapa aja jawara di Ranking Nasional Future Bimbel Kedinasan.
+                      Silakan masuk ke akun Anda untuk melihat Ranking Nasional Future Bimbel Kedinasan.
                     </p>
                   </div>
                   <div className="flex flex-col gap-3">
@@ -269,7 +269,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                             </div>
                          </div>
                          <div className="space-y-1">
-                            <p className="text-blue-400 text-[11px] font-black uppercase tracking-[0.3em]">Status Performa Kamu</p>
+                            <p className="text-blue-400 text-[11px] font-black uppercase tracking-[0.3em]">Status Performa Anda</p>
                             <h2 className="text-5xl font-black text-white tracking-tighter">
                               #{userRank.position} <span className="text-slate-500 text-2xl font-bold">/ {userRank.total}</span>
                             </h2>

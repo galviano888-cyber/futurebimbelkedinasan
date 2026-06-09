@@ -618,7 +618,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
             </div>
             <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">Selesai Mengerjakan?</h3>
             <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-              Kamu masih memiliki waktu <span className="text-blue-600 font-bold">{formatTime(timeLeft)}</span>. Pastikan semua jawaban sudah terisi dengan benar.
+              Anda masih memiliki waktu <span className="text-blue-600 font-bold">{formatTime(timeLeft)}</span>. Pastikan semua jawaban sudah terisi dengan benar.
             </p>
             <div className="flex flex-col gap-3">
               <button

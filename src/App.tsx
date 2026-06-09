@@ -218,7 +218,7 @@ export default function App() {
       
       setTimeout(() => {
         toast.success("Email Berhasil Diverifikasi!", {
-          description: "Akun kamu sudah aktif, Bro! Silakan masuk untuk mulai persiapan kedinasan.",
+          description: "Akun Anda sudah aktif. Silakan masuk untuk mulai persiapan kedinasan.",
           duration: 6000
         });
       }, 500);

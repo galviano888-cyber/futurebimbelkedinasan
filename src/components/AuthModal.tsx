@@ -70,7 +70,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
         });
         if (error) throw error;
         toast.success("Akun Berhasil Dibuat!", {
-          description: "Satu langkah lagi, Bro! Silakan cek email kamu dan klik link verifikasi untuk membuka akses penuh ke semua fitur FBK.",
+          description: "Satu langkah lagi. Silakan cek email Anda dan klik link verifikasi untuk mengaktifkan akun.",
           duration: 6000
         });
         setIsLogin(true);
@@ -78,7 +78,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
     } catch (error: any) {
       if (error.message === "Email not confirmed") {
         toast.error("Email Belum Terverifikasi", {
-          description: "Silakan cek kotak masuk email Anda dan klik link konfirmasi untuk mengaktifkan akun, Bro!",
+          description: "Silakan cek kotak masuk email Anda dan klik link konfirmasi untuk mengaktifkan akun.",
           duration: 5000
         });
       } else {
@@ -149,13 +149,13 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
                     type="button" 
                     onClick={async () => {
                       if (!supabase) return toast.error("Koneksi bermasalah, coba lagi nanti.");
-                      if (!email) return toast.error("Masukkan email kamu dulu ya Bro!");
+                      if (!email) return toast.error("Silakan masukkan alamat email Anda terlebih dahulu.");
                       try {
                         const { error } = await supabase.auth.resetPasswordForEmail(email, {
                           redirectTo: `${window.location.origin}/reset-password`,
                         });
                         if (error) throw error;
-                        toast.success("Link reset password sudah dikirim ke email kamu!");
+                        toast.success("Link reset password telah dikirim ke email Anda.");
                       } catch (err: any) {
                         toast.error(err.message || "Gagal mengirim link reset password");
                       }

@@ -83,7 +83,7 @@ export function RadarAnalysis({ data }: RadarAnalysisProps) {
 
       <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">
-            {twkScore > 70 && tiuScore > 70 ? "Kamu punya potensi besar di Intelegensia!" : "Terus tingkatkan latihan soal TIU & TWK!"}
+            {twkScore > 70 && tiuScore > 70 ? "Anda memiliki potensi besar di bidang Intelegensia!" : "Terus tingkatkan latihan soal TIU dan TWK Anda!"}
          </p>
       </div>
     </div>

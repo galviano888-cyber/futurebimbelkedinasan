@@ -741,7 +741,7 @@ export function AdminPanelView() {
                     <div className="flex items-start gap-3 bg-amber-500/5 border border-amber-500/15 rounded-xl p-4">
                       <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                       <div className="text-xs text-slate-400 leading-relaxed">
-                        <span className="font-black text-amber-400">Penting:</span> Download template di bawah sebagai panduan format yang benar. Isi dengan soal-soal kamu, lalu upload di sini. Jangan ubah nama field (<code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">number</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">category</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">options</code>, dll).
+                        <span className="font-black text-amber-400">Penting:</span> Unduh template di bawah sebagai panduan format yang benar. Isi dengan soal-soal yang tersedia, lalu upload di sini. Jangan ubah nama field (<code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">number</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">category</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">options</code>, dll).
                       </div>
                     </div>
 

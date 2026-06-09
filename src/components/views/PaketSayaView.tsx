@@ -40,6 +40,8 @@ interface UserPackage {
   description: string;
   product_type: 'SATUAN' | 'BUNDLE' | 'INTENSIF';
   contents: PackageContent[];
+  guide_text?: string;
+  guide_url?: string;
 }
 
 interface PaketSayaViewProps {
@@ -74,6 +76,8 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
             title,
             description,
             product_type,
+            guide_text,
+            guide_url,
             package_contents (
               id,
               type,
@@ -99,6 +103,8 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
         title: item.packages.title,
         description: item.packages.description,
         product_type: item.packages.product_type,
+        guide_text: item.packages.guide_text || '',
+        guide_url: item.packages.guide_url || '',
         contents: (item.packages.package_contents || []).sort((a: any, b: any) => a.order_index - b.order_index)
       }));
 
@@ -135,7 +141,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
         </div>
         <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Belum Ada Paket Aktif</h3>
         <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-sm text-sm">
-          Sepertinya kamu belum memiliki paket belajar. Jelajahi katalog dan mulai perjalanan suksesmu sekarang!
+          Anda belum memiliki paket belajar. Jelajahi katalog dan mulai perjalanan persiapan Anda sekarang.
         </p>
         <button 
           onClick={() => navigate('/paket')}
@@ -176,7 +182,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* SIDEBAR: Daftar Paket (Col 4) */}
         <div className="lg:col-span-4 space-y-4">
-          <h2 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-2">Paket Yang Kamu Miliki</h2>
+          <h2 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-2">Paket Yang Anda Miliki</h2>
           <div className="space-y-3">
             {packages.map((pkg) => (
               <button
@@ -508,6 +514,34 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                   </motion.div>
                 </AnimatePresence>
               </div>
+
+              {/* Link Komunitas untuk paket INTENSIF */}
+              {selectedPkg.product_type === 'INTENSIF' && selectedPkg.guide_url && (
+                <div className="px-6 py-4 bg-blue-50 dark:bg-blue-900/20 border-t border-blue-100 dark:border-blue-900/30">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center shrink-0">
+                        <ExternalLink className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-blue-900 dark:text-blue-100">
+                          {selectedPkg.guide_text || 'Bergabung ke Komunitas Belajar'}
+                        </p>
+                        <p className="text-[10px] text-blue-500 dark:text-blue-400 font-medium mt-0.5">Khusus siswa paket intensif</p>
+                      </div>
+                    </div>
+                    <a
+                      href={selectedPkg.guide_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-95 uppercase tracking-wider"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      Gabung Sekarang
+                    </a>
+                  </div>
+                </div>
+              )}
 
               {/* Footer Info */}
               <div className="p-6 bg-slate-50 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500 text-[10px] font-bold text-center uppercase tracking-widest">
