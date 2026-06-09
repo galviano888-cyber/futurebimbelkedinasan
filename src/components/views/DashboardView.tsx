@@ -29,23 +29,26 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
       const userId = sessionData?.session?.user?.id;
       if (!userId) return;
 
-      // 1. Check Pending Transactions
-      const { data: txData } = await supabase
-        .from('transactions')
-        .select('*, packages(title)')
-        .eq('user_id', userId)
-        .in('status', ['pending', 'verifying'])
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      
-      if (txData) setPendingTx(txData);
+      // Jalankan semua query secara paralel
+      const [txResult, pkgResult] = await Promise.all([
+        supabase
+          .from('transactions')
+          .select('*, packages(title)')
+          .eq('user_id', userId)
+          .in('status', ['pending', 'verifying'])
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from('user_packages')
+          .select('*, packages(*)')
+          .eq('user_id', userId)
+      ]);
 
-      // 2. Fetch User Packages
-      const { data: userPkgs, error } = await supabase
-        .from('user_packages')
-        .select('*, packages(*)')
-        .eq('user_id', userId);
+      if (txResult.data) setPendingTx(txResult.data);
+
+      const userPkgs = pkgResult.data;
+      const error = pkgResult.error;
 
       if (error) console.error("Dashboard fetch error:", error);
 

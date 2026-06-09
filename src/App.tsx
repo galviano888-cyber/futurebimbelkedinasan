@@ -150,7 +150,11 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       if (s) {
-        fetchAllData(s.user);
+        // Hanya fetch data saat event yang relevan, bukan saat TOKEN_REFRESHED
+        // TOKEN_REFRESHED terjadi setiap jam dan tidak perlu re-fetch data
+        if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
+          fetchAllData(s.user);
+        }
       } else {
         setProfile(null);
         setData([]);
@@ -296,7 +300,23 @@ export default function App() {
   };
 
   const renderRoutes = () => {
-    if (loading) return <DashboardSkeleton />;
+    // Untuk route tryout engine, jangan pakai DashboardSkeleton saat loading
+    const isTryoutRoute = location.pathname === '/tryout-engine' || 
+      location.pathname === '/tryout-result' || 
+      location.pathname === '/tryout-review' ||
+      location.pathname.startsWith('/tryout-pre');
+
+    if (loading) {
+      if (isTryoutRoute) {
+        return (
+          <div className="fixed inset-0 bg-[#eef0f4] dark:bg-slate-950 flex flex-col items-center justify-center z-50">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Memuat Sesi Tryout...</p>
+          </div>
+        );
+      }
+      return <DashboardSkeleton />;
+    }
 
     return (
       <Routes>
@@ -323,7 +343,15 @@ export default function App() {
         
         {/* Tryout Engine Routes */}
         <Route path="/tryout-pre/:pId/:qId" element={<TryoutPreView packageId={activePackageId} questionsId={questionsId} onStart={() => navigate("/tryout-engine")} onCancel={() => navigate("/paket-saya")} />} />
-        <Route path="/tryout-engine" element={activePackageId && questionsId ? <TryoutEngineView packageId={activePackageId} questionsId={questionsId} onFinish={handleTryoutComplete} onExit={() => navigate("/dashboard")} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/tryout-engine" element={
+          loading
+            ? <div className="fixed inset-0 bg-white dark:bg-slate-950 flex items-center justify-center"><div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div>
+            : !isAuthenticated
+              ? <Navigate to="/" replace />
+              : activePackageId && questionsId
+                ? <TryoutEngineView packageId={activePackageId} questionsId={questionsId} onFinish={handleTryoutComplete} onExit={() => navigate("/dashboard")} />
+                : <Navigate to="/dashboard" replace />
+        } />
         <Route path="/tryout-result" element={tryoutResult ? <TryoutResultView result={tryoutResult} packageId={activePackageId!} onBack={() => navigate("/dashboard")} onReview={() => navigate("/tryout-review")} /> : <Navigate to="/dashboard" replace />} />
         <Route path="/tryout-review" element={tryoutResult ? <TryoutReviewView result={tryoutResult} questions={tryoutResult.questions || []} onBack={() => navigate("/dashboard")} /> : <Navigate to="/dashboard" replace />} />
         
@@ -355,12 +383,22 @@ export default function App() {
                            location.pathname === '/reset-password';
 
   if (isFullScreenPage) {
+    // Background disesuaikan: tryout engine pakai #eef0f4, halaman lain pakai slate-50
+    const isTryoutEngine = location.pathname === '/tryout-engine';
+    const bgClass = isTryoutEngine ? 'bg-[#eef0f4] dark:bg-slate-950' : 'bg-slate-50 dark:bg-slate-950';
+    const tryoutFallback = (
+      <div className="fixed inset-0 bg-[#eef0f4] dark:bg-slate-950 flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Memuat Sesi Tryout...</p>
+      </div>
+    );
+
     return (
-      <div className="h-[100dvh] bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-500">
+      <div className={`h-[100dvh] ${bgClass} overflow-hidden transition-colors duration-500`}>
         <SEO title={`${activePage} | Future Bimbel`} />
         <Toaster position="top-center" richColors />
         <main className="h-full overflow-y-auto custom-scrollbar">
-          <Suspense fallback={<DashboardSkeleton />}>
+          <Suspense fallback={isTryoutEngine ? tryoutFallback : <DashboardSkeleton />}>
             {renderRoutes()}
           </Suspense>
         </main>

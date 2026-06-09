@@ -2,15 +2,14 @@ import { motion } from "framer-motion";
 import { Download, FileX, Trophy, FileText, ChevronRight } from "lucide-react";
 import type { TryoutRecord } from "@/types";
 import { cn } from "@/lib/utils";
+import { TRYOUT_CONFIG } from "@/data/tryoutQuestions";
 
 interface HistoryTableProps {
   data: TryoutRecord[];
   onReview?: (record: TryoutRecord) => void;
 }
 
-const TWK_PASSING = 65;
-const TIU_PASSING = 80;
-const TKP_PASSING = 166;
+const { twk: TWK_PASSING, tiu: TIU_PASSING, tkp: TKP_PASSING } = TRYOUT_CONFIG.passingScore;
 
 function isLulus(record: TryoutRecord): boolean {
   return (

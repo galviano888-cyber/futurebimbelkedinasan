@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import type { TryoutRecord } from "@/types";
+import { TRYOUT_CONFIG } from "@/data/tryoutQuestions";
 
 interface PerformanceChartProps {
   data: TryoutRecord[];
@@ -33,10 +34,11 @@ interface CustomTooltipProps {
   label?: string;
 }
 
+const { passingScore } = TRYOUT_CONFIG;
 const PASSING_GRADES: Record<string, number> = {
-  TWK: 65,
-  TIU: 80,
-  TKP: 166,
+  TWK: passingScore.twk,
+  TIU: passingScore.tiu,
+  TKP: passingScore.tkp,
 };
 
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {

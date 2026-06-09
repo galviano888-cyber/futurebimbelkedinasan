@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface PackageContent {
   id: string;
@@ -46,6 +47,7 @@ interface PaketSayaViewProps {
 }
 
 export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
+  const navigate = useNavigate();
   const [packages, setPackages] = useState<UserPackage[]>([]);
   const [selectedPkg, setSelectedPkg] = useState<UserPackage | null>(null);
   const [activeTab, setActiveTab] = useState<'materi' | 'liveclass' | 'tryout'>('tryout');
@@ -136,7 +138,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
           Sepertinya kamu belum memiliki paket belajar. Jelajahi katalog dan mulai perjalanan suksesmu sekarang!
         </p>
         <button 
-          onClick={() => window.location.hash = '#katalog'}
+          onClick={() => navigate('/paket')}
           className="mt-8 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-blue-500/30 active:scale-95"
         >
           Lihat Katalog

@@ -322,7 +322,18 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
       </div>
     );
   }
+
   const currentQuestion = questions[currentIdx];
+
+  // Guard: soal belum tersedia (misal refresh saat questions masih kosong)
+  if (!currentQuestion) {
+    return (
+      <div className="fixed inset-0 bg-white dark:bg-slate-950 z-50 flex flex-col items-center justify-center">
+        <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
+        <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Memuat Soal...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[100dvh] bg-[#eef0f4] dark:bg-slate-950 flex flex-col font-sans">
@@ -405,8 +416,10 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
               {/* Options Grid */}
               {(() => {
                 const opts = ['A', 'B', 'C', 'D', 'E'];
+                // Guard: pastikan option_images ada dan semua opsi punya gambar
+                const optionImages = currentQuestion?.option_images || {};
                 const allHaveImages = currentQuestion?.category === 'TIU' &&
-                  opts.every(o => !!currentQuestion?.option_images?.[o]);
+                  opts.every(o => !!(optionImages[o]));
 
                 if (allHaveImages) {
                   // Grid 2-kolom untuk soal figural TIU
@@ -423,11 +436,16 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                               : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-blue-300"
                           )}
                         >
-                          <img
-                            src={currentQuestion.option_images[opt]}
-                            alt={`Opsi ${opt}`}
-                            className="w-auto max-w-full h-auto max-h-40 block mx-auto p-3"
-                          />
+                          {optionImages[opt] ? (
+                            <img
+                              src={optionImages[opt]}
+                              alt={`Opsi ${opt}`}
+                              className="w-auto max-w-full h-auto max-h-40 block mx-auto p-3"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                            />
+                          ) : (
+                            <div className="h-20 flex items-center justify-center text-slate-400 text-sm">Gambar tidak tersedia</div>
+                          )}
                           <div className={cn(
                             "py-1.5 text-center text-[11px] font-black uppercase tracking-widest border-t",
                             answers[currentQuestion.id] === opt

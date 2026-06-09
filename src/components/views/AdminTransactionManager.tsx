@@ -277,198 +277,163 @@ export function AdminTransactionManager() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      {/* REVENUE OVERVIEW WIDGET */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-4 space-y-4">
-          <div className="bg-white p-7 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group hover:scale-[1.02] transition-all duration-500">
-            <div className="absolute -top-6 -right-6 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-700" />
-            <div className="relative z-10">
-              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Omzet</p>
-              <h3 className="text-3xl font-black text-slate-900 tracking-tight">Rp {stats.totalRevenue.toLocaleString()}</h3>
-              <div className="flex items-center gap-1.5 mt-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                <p className="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Periode Terpilih</p>
-              </div>
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
+      {/* STATS */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-4 space-y-3">
+          <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-6 relative overflow-hidden group hover:border-indigo-500/20 transition-all">
+            <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center justify-center mb-4">
+              <TrendingUp className="w-5 h-5 text-indigo-400" />
             </div>
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Total Omzet</p>
+            <h3 className="text-2xl font-black text-white tracking-tight">Rp {stats.totalRevenue.toLocaleString()}</h3>
+            <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mt-2">Periode Terpilih</p>
           </div>
-
-          <div className="bg-slate-900 p-7 rounded-[2.5rem] shadow-2xl shadow-blue-900/30 text-white relative overflow-hidden group hover:scale-[1.02] transition-all duration-500">
-             <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-blue-600/10 rounded-full group-hover:scale-150 transition-transform duration-700" />
-             <div className="relative z-10">
-               <div className="w-12 h-12 bg-white/10 text-blue-400 rounded-2xl flex items-center justify-center mb-4">
-                 <ShoppingCart className="w-6 h-6" />
-               </div>
-               <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Produk Terjual</p>
-               <h3 className="text-3xl font-black text-white tracking-tight">{stats.totalSalesCount}</h3>
-               <div className="flex items-center gap-1.5 mt-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                <p className="text-[9px] font-bold text-blue-400 uppercase tracking-widest">Penjualan Berhasil</p>
-              </div>
-             </div>
+          <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-6 group hover:border-indigo-500/20 transition-all">
+            <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center justify-center mb-4">
+              <ShoppingCart className="w-5 h-5 text-indigo-400" />
+            </div>
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Produk Terjual</p>
+            <h3 className="text-2xl font-black text-white tracking-tight">{stats.totalSalesCount}</h3>
+            <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-2">Penjualan Berhasil</p>
           </div>
-
-          <div className="bg-white p-7 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group hover:scale-[1.02] transition-all duration-500">
-             <div className="absolute -top-6 -right-6 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-700" />
-             <div className="relative z-10">
-               <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
-                 <Users className="w-6 h-6" />
-               </div>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Siswa</p>
-               <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stats.totalUsers}</h3>
-               <div className="flex items-center gap-1.5 mt-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Global Aktif</p>
-              </div>
-             </div>
+          <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-6 group hover:border-indigo-500/20 transition-all">
+            <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center mb-4">
+              <Users className="w-5 h-5 text-emerald-400" />
+            </div>
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Total Siswa</p>
+            <h3 className="text-2xl font-black text-white tracking-tight">{stats.totalUsers}</h3>
+            <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-2">Terdaftar</p>
           </div>
         </div>
 
-        <div className="lg:col-span-8 bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40 flex flex-col">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+        <div className="lg:col-span-8 bg-[#0d0d14] border border-white/5 rounded-2xl p-6 flex flex-col">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <div>
-              <h3 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
-                Tren Penjualan 
-                <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">
-                  {timeRange === '24h' ? '24 Jam' : timeRange === '7days' ? '7 Hari' : timeRange === '30days' ? '30 Hari' : '1 Tahun'}
-                </span>
-              </h3>
-              <p className="text-[11px] text-slate-400 font-bold mt-1">Visualisasi omzet harian berdasarkan transaksi lunas.</p>
+              <h3 className="text-sm font-black text-white tracking-tight">Tren Penjualan</h3>
+              <p className="text-[11px] text-slate-600 font-bold mt-0.5">Omzet berdasarkan transaksi lunas.</p>
             </div>
-            <div className="flex bg-slate-100 p-1.5 rounded-2xl">
+            <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
               {(['24h', '7days', '30days', '1year'] as const).map((range) => (
-                <button 
+                <button
                   key={range}
                   onClick={() => setTimeRange(range)}
-                  className={`px-4 py-2 text-[10px] font-black rounded-xl transition-all ${timeRange === range ? 'bg-white text-blue-600 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all ${timeRange === range ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}
                 >
                   {range === '24h' ? '24J' : range === '7days' ? '7H' : range === '30days' ? '30H' : '1T'}
                 </button>
               ))}
             </div>
           </div>
-          <div className="flex-1 min-h-[320px] w-full">
+          <div className="flex-1 min-h-[260px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={revenueData}>
                 <defs>
                   <linearGradient id="colorOmzet" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15}/>
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 700}} 
-                  dy={10}
-                />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{fontSize: 10, fill: '#94a3b8', fontWeight: 700}} 
-                  dx={-10}
-                />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '1rem' }}
-                  itemStyle={{ fontWeight: 900, color: '#1e293b' }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="omzet" 
-                  stroke="#2563eb" 
-                  strokeWidth={4} 
-                  fillOpacity={1} 
-                  fill="url(#colorOmzet)" 
-                  animationDuration={1500}
-                />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.04)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#4b5563', fontWeight: 700}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#4b5563', fontWeight: 700}} dx={-10} />
+                <Tooltip contentStyle={{ borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.08)', background: '#0d0d14', padding: '0.75rem' }} itemStyle={{ fontWeight: 900, color: '#a5b4fc' }} labelStyle={{ color: '#6b7280', fontSize: 10 }} />
+                <Area type="monotone" dataKey="omzet" stroke="#6366f1" strokeWidth={2.5} fillOpacity={1} fill="url(#colorOmzet)" animationDuration={1500} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pt-4 border-t border-slate-100">
+      {/* FILTER BAR */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pt-2 border-t border-white/5">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Verifikasi Transaksi</h2>
-            <div className="px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-black shadow-lg shadow-blue-500/20">
+            <h2 className="text-lg font-black text-white tracking-tight">Verifikasi Transaksi</h2>
+            <div className="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-[10px] font-black">
               {filteredTransactions.length} DATA
             </div>
-            <button onClick={fetchTransactions} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
-              <RotateCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+            <button onClick={fetchTransactions} className="p-1.5 text-slate-600 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all">
+              <RotateCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
-          <p className="text-sm text-slate-500 font-medium mt-1">Kelola aliran dana masuk dan aktivasi paket siswa secara real-time.</p>
+          <p className="text-xs text-slate-600 font-medium mt-1">Kelola aliran dana masuk dan aktivasi paket siswa.</p>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
-           <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-wider">Dari Tanggal</label>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="px-4 py-3 bg-white border border-slate-200 rounded-2xl w-full font-bold text-xs shadow-sm text-slate-900" />
-           </div>
-           <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-wider">Sampai Tanggal</label>
-              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="px-4 py-3 bg-white border border-slate-200 rounded-2xl w-full font-bold text-xs shadow-sm text-slate-900" />
-           </div>
-           <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-wider">Pencarian</label>
-              <input type="text" placeholder="Invoice / Nama..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="px-4 py-3 bg-white border border-slate-200 rounded-2xl w-full font-bold text-xs shadow-sm text-slate-900" />
-           </div>
-           <Button variant="outline" onClick={resetFilters} className="h-12 rounded-2xl border-slate-200 text-slate-500 hover:bg-slate-50 font-black text-[10px] tracking-widest gap-2"><FilterX className="w-4 h-4" /> RESET</Button>
-           <Button onClick={exportToCSV} disabled={filteredTransactions.length === 0} className="h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] tracking-widest gap-2 shadow-lg shadow-emerald-500/20"><Download className="w-4 h-4" /> EXPORT CSV</Button>
+          <div className="space-y-1">
+            <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Dari Tanggal</label>
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl w-full font-bold text-xs text-white outline-none focus:border-indigo-500/40" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Sampai Tanggal</label>
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl w-full font-bold text-xs text-white outline-none focus:border-indigo-500/40" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Cari</label>
+            <input type="text" placeholder="Invoice / Nama..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl w-full font-bold text-xs text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/40" />
+          </div>
+          <button onClick={resetFilters} className="h-10 px-4 rounded-xl border border-white/8 text-slate-500 hover:text-white hover:bg-white/5 font-black text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all">
+            <FilterX className="w-3.5 h-3.5" /> RESET
+          </button>
+          <button onClick={exportToCSV} disabled={filteredTransactions.length === 0} className="h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-40">
+            <Download className="w-3.5 h-3.5" /> EXPORT
+          </button>
         </div>
       </div>
 
-      <div className="flex bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit">
+      {/* FILTER TABS */}
+      <div className="flex bg-white/5 border border-white/5 p-1 rounded-xl w-fit">
         {(['all', 'verifying', 'pending', 'success'] as const).map((f) => (
-          <button key={f} onClick={() => setFilter(f)} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${filter === f ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25' : 'text-slate-500 hover:bg-slate-50'}`}>
-            {f === 'all' ? 'Semua' : f === 'verifying' ? 'Perlu Verifikasi' : f === 'pending' ? 'Pending' : 'Lunas'}
+          <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${filter === f ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>
+            {f === 'all' ? 'Semua' : f === 'verifying' ? 'Verifikasi' : f === 'pending' ? 'Pending' : 'Lunas'}
           </button>
         ))}
       </div>
 
+      {/* TABLE */}
       {loading ? (
-        <div className="py-32 text-center bg-white rounded-[2.5rem] border border-slate-100 shadow-sm"><Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" /><p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">Memuat Data...</p></div>
+        <div className="py-20 text-center bg-[#0d0d14] border border-white/5 rounded-2xl">
+          <Loader2 className="w-10 h-10 text-indigo-400 animate-spin mx-auto mb-3" />
+          <p className="text-slate-600 font-black text-[10px] uppercase tracking-widest">Memuat Data...</p>
+        </div>
       ) : filteredTransactions.length === 0 ? (
-        <div className="bg-white rounded-[3rem] border border-slate-100 p-24 text-center shadow-sm"><Clock className="w-12 h-12 text-slate-200 mx-auto mb-4" /><h3 className="text-xl font-black text-slate-800">Tidak Ada Data</h3></div>
+        <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-20 text-center">
+          <Clock className="w-10 h-10 text-slate-700 mx-auto mb-3" />
+          <h3 className="text-base font-black text-slate-500">Tidak Ada Data</h3>
+        </div>
       ) : (
-        <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-xl overflow-hidden">
+        <div className="bg-[#0d0d14] border border-white/5 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-100">
-              <thead className="bg-slate-50/50 uppercase text-[10px] font-black text-slate-400 tracking-widest">
-                <tr>
-                  <th className="px-6 py-4 text-left">Invoice & Paket</th>
-                  <th className="px-6 py-4 text-left">Siswa</th>
-                  <th className="px-6 py-4 text-left">Nominal</th>
-                  <th className="px-6 py-4 text-left">Status</th>
-                  <th className="px-6 py-4 text-left">Tanggal</th>
-                  <th className="px-6 py-4 text-center">Aksi</th>
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/5">
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Invoice & Paket</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Siswa</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Nominal</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Tanggal</th>
+                  <th className="px-6 py-4 text-center text-[10px] font-black text-slate-600 uppercase tracking-widest">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-white/[0.03]">
                 {filteredTransactions.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={t.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="px-6 py-4">
-                      <div className="font-black text-slate-900 text-sm">{t.invoice_id}</div>
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{t.packages?.title || 'Unknown Package'}</div>
+                      <div className="font-black text-white text-sm">{t.invoice_id}</div>
+                      <div className="text-[10px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">{t.packages?.title || 'Unknown Package'}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-bold text-slate-700 text-sm">{t.profiles?.full_name}</div>
-                      <div className="text-[10px] text-slate-400">{t.profiles?.email}</div>
+                      <div className="font-bold text-slate-300 text-sm">{t.profiles?.full_name}</div>
+                      <div className="text-[10px] text-slate-600">{t.profiles?.email}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-black text-slate-900">Rp {t.amount?.toLocaleString('id-ID')}</div>
+                      <div className="font-black text-white text-sm">Rp {t.amount?.toLocaleString('id-ID')}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                        t.status === 'success' ? 'bg-emerald-50 text-emerald-600' :
-                        t.status === 'verifying' ? 'bg-amber-50 text-amber-600 animate-pulse' :
-                        'bg-slate-50 text-slate-400'
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
+                        t.status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                        t.status === 'verifying' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse' :
+                        'bg-white/5 text-slate-500 border-white/8'
                       }`}>
                         {t.status === 'success' ? 'Lunas' : t.status === 'verifying' ? 'Verifikasi' : 'Pending'}
                       </span>
@@ -479,16 +444,16 @@ export function AdminTransactionManager() {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">
                         {t.payment_proof_url && (
-                          <a href={t.payment_proof_url} target="_blank" rel="noreferrer" className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all">
+                          <a href={t.payment_proof_url} target="_blank" rel="noreferrer" className="p-1.5 text-slate-600 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all">
                             <Eye className="w-4 h-4" />
                           </a>
                         )}
                         {t.status !== 'success' && (
                           <>
-                            <button onClick={() => handleUpdateStatus(t.id, 'success')} className="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-all">
+                            <button onClick={() => handleUpdateStatus(t.id, 'success')} className="p-1.5 text-slate-600 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-all">
                               <CheckCircle2 className="w-4 h-4" />
                             </button>
-                            <button onClick={() => handleUpdateStatus(t.id, 'failed')} className="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-all">
+                            <button onClick={() => handleUpdateStatus(t.id, 'failed')} className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
                               <XCircle className="w-4 h-4" />
                             </button>
                           </>
