@@ -390,10 +390,17 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg shadow-blue-600/20">
                     {currentIdx + 1}
                   </div>
-                  <div>
-                    <p className="text-[9px] sm:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] leading-none mb-1">Nomor Soal</p>
-                    <h2 className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{currentQuestion?.category || 'Umum'}</h2>
-                  </div>
+                   <div>
+                     <p className="text-[9px] sm:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] leading-none mb-1">Nomor Soal</p>
+                     <div className="flex items-center gap-2">
+                       <h2 className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{currentQuestion?.category || 'Umum'}</h2>
+                       {currentQuestion?.sub_category && (
+                         <span className="text-[9px] sm:text-[10px] font-black text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full uppercase tracking-widest">
+                           {currentQuestion.sub_category}
+                         </span>
+                       )}
+                     </div>
+                   </div>
                 </div>
               </div>
 

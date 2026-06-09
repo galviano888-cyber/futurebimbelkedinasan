@@ -325,15 +325,24 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
                         {activeQuestion.number}
                       </div>
                       <div>
-                        <select 
-                          value={activeQuestion.category}
-                          onChange={(e) => setActiveQuestion({ ...activeQuestion, category: e.target.value })}
-                          className="bg-slate-50 border-none text-[10px] font-black uppercase tracking-widest text-blue-600 rounded-lg px-3 py-1 outline-none"
-                        >
-                          <option>TWK</option>
-                          <option>TIU</option>
-                          <option>TKP</option>
-                        </select>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <select 
+                            value={activeQuestion.category}
+                            onChange={(e) => setActiveQuestion({ ...activeQuestion, category: e.target.value })}
+                            className="bg-slate-50 border-none text-[10px] font-black uppercase tracking-widest text-blue-600 rounded-lg px-3 py-1 outline-none"
+                          >
+                            <option>TWK</option>
+                            <option>TIU</option>
+                            <option>TKP</option>
+                          </select>
+                          <input
+                            type="text"
+                            value={activeQuestion.sub_category || ""}
+                            onChange={(e) => setActiveQuestion({ ...activeQuestion, sub_category: e.target.value })}
+                            className="bg-slate-50 border border-slate-200 text-[10px] font-black text-slate-500 rounded-lg px-3 py-1 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20 min-w-[120px]"
+                            placeholder="Subtema (cth: Nasionalisme)"
+                          />
+                        </div>
                         <h2 className="text-lg font-black text-slate-900 tracking-tight mt-1">Isi Butir Pertanyaan</h2>
                       </div>
                    </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, CheckCircle2, XCircle, ChevronLeft, ChevronRight, BookOpen, AlertCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TryoutReviewViewProps {
@@ -38,10 +38,16 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
           </button>
           <div>
             <h1 className="font-black text-slate-800 dark:text-white text-lg tracking-tight">Pembahasan Tryout</h1>
-            <div className="flex items-center gap-2 mt-0.5">
+             <div className="flex items-center gap-2 mt-0.5">
                <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Nomor {currentIndex + 1}</span>
                <span className="text-slate-300 dark:text-slate-700 text-xs">/</span>
                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{questions.length} Soal</span>
+               {currentQuestion.sub_category && (
+                 <>
+                   <span className="text-slate-300 dark:text-slate-700 text-xs">·</span>
+                   <span className="text-[10px] font-black text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full uppercase tracking-widest">{currentQuestion.sub_category}</span>
+                 </>
+               )}
             </div>
           </div>
         </div>
@@ -288,34 +294,30 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
                   );
                 })()}
 
-            {/* Explanation Section */}
-            {(currentQuestion.explanation || currentQuestion.explanation_image_url) && (
-              <div className="space-y-6">
-                <div className="flex items-center gap-4 px-6">
-                  <div className="w-1.5 h-8 bg-blue-600 rounded-full" />
-                  <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Pembahasan</h3>
-                </div>
-                
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-                  {currentQuestion.explanation && (
-                    <div className="text-[14px] text-slate-700 dark:text-slate-300 font-medium leading-relaxed text-justify whitespace-pre-wrap mb-6">
-                      {currentQuestion.explanation}
+                {/* Explanation Section */}
+                {(currentQuestion.explanation || currentQuestion.explanation_image_url) && (
+                  <div className="space-y-6 mt-6">
+                    <div className="flex items-center gap-4 px-6">
+                      <div className="w-1.5 h-8 bg-blue-600 rounded-full" />
+                      <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Pembahasan</h3>
                     </div>
-                  )}
-                  {currentQuestion.explanation_image_url && (
-                    <div className="rounded-[2.5rem] overflow-hidden border border-slate-100 dark:border-slate-800 shadow-lg">
-                      <img src={currentQuestion.explanation_image_url} alt="Gambar Pembahasan" className="w-full h-auto" />
+
+                    <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+                      {currentQuestion.explanation && (
+                        <div className="text-[14px] text-slate-700 dark:text-slate-300 font-medium leading-relaxed text-justify whitespace-pre-wrap mb-6">
+                          {currentQuestion.explanation}
+                        </div>
+                      )}
+                      {currentQuestion.explanation_image_url && (
+                        <div className="rounded-[2.5rem] overflow-hidden border border-slate-100 dark:border-slate-800 shadow-lg">
+                          <img src={currentQuestion.explanation_image_url} alt="Gambar Pembahasan" className="w-full h-auto" />
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {!currentQuestion.explanation && !currentQuestion.explanation_image_url && (
-                    <div className="flex flex-col items-center justify-center py-10 opacity-40">
-                       <AlertCircle className="w-10 h-10 mb-2" />
-                       <p className="text-sm font-bold uppercase tracking-widest">Belum ada penjelasan teknis</p>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </main>
       </div>

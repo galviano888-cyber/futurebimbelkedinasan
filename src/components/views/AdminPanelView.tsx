@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Globe, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, MessageSquare, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle } from "lucide-react";
+import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Globe, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { AdminPackageEditorView } from "./AdminPackageEditorView";
@@ -52,6 +52,7 @@ export function AdminPanelView() {
       {
         number: 1,
         category: "TWK",
+        sub_category: "Nasionalisme",
         question_text: "Pancasila sebagai dasar negara mengandung makna bahwa...",
         options: {
           A: "Pancasila menjadi sumber dari segala sumber hukum",
@@ -67,6 +68,7 @@ export function AdminPanelView() {
       {
         number: 2,
         category: "TIU",
+        sub_category: "Numerik",
         question_text: "Jika 2x + 3 = 11, maka nilai x adalah...",
         options: {
           A: "2",
@@ -82,6 +84,7 @@ export function AdminPanelView() {
       {
         number: 3,
         category: "TKP",
+        sub_category: "Profesionalisme",
         question_text: "Ketika rekan kerja Anda melakukan kesalahan yang berulang, sikap Anda adalah...",
         options: {
           A: "Melaporkan langsung ke atasan tanpa memberi tahu rekan tersebut",
@@ -741,7 +744,7 @@ export function AdminPanelView() {
                     <div className="flex items-start gap-3 bg-amber-500/5 border border-amber-500/15 rounded-xl p-4">
                       <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                       <div className="text-xs text-slate-400 leading-relaxed">
-                        <span className="font-black text-amber-400">Penting:</span> Unduh template di bawah sebagai panduan format yang benar. Isi dengan soal-soal yang tersedia, lalu upload di sini. Jangan ubah nama field (<code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">number</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">category</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">options</code>, dll).
+                        <span className="font-black text-amber-400">Penting:</span> Unduh template di bawah sebagai panduan format yang benar. Isi dengan soal-soal yang tersedia, lalu upload di sini. Jangan ubah nama field (<code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">number</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">category</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">sub_category</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">options</code>, dll).
                       </div>
                     </div>
 
@@ -753,14 +756,15 @@ export function AdminPanelView() {
                           { field: 'name', desc: 'Nama paket tryout', required: true },
                           { field: 'category', desc: 'SKD / TIU / TWK / TKP', required: true },
                           { field: 'number', desc: 'Nomor urut soal (1, 2, 3...)', required: true },
-                          { field: 'category (soal)', desc: 'TWK / TIU / TKP per soal', required: true },
-                          { field: 'question_text', desc: 'Teks pertanyaan', required: true },
-                          { field: 'options', desc: 'Pilihan A, B, C, D, E', required: true },
-                          { field: 'correct_answer', desc: 'Kunci jawaban (A/B/C/D/E)', required: true },
-                          { field: 'explanation', desc: 'Pembahasan jawaban', required: false },
-                          { field: 'fast_tips', desc: 'Tips cepat mengerjakan', required: false },
-                          { field: 'tkp_scores', desc: 'Skor per opsi khusus TKP', required: false },
-                          { field: 'question_image_url', desc: 'URL gambar soal (opsional)', required: false },
+                           { field: 'category (soal)', desc: 'TWK / TIU / TKP per soal', required: true },
+                           { field: 'sub_category', desc: 'Tema/subtopik soal (cth: Nasionalisme, Numerik, Profesionalisme)', required: false },
+                           { field: 'question_text', desc: 'Teks pertanyaan', required: true },
+                           { field: 'options', desc: 'Pilihan A, B, C, D, E', required: true },
+                           { field: 'correct_answer', desc: 'Kunci jawaban (A/B/C/D/E)', required: true },
+                           { field: 'explanation', desc: 'Pembahasan jawaban', required: false },
+                           { field: 'fast_tips', desc: 'Tips cepat mengerjakan', required: false },
+                           { field: 'tkp_scores', desc: 'Skor per opsi khusus TKP', required: false },
+                           { field: 'question_image_url', desc: 'URL gambar soal (opsional)', required: false },
                         ].map(({ field, desc, required }) => (
                           <div key={field} className="flex items-start gap-2">
                             <code className="text-[10px] font-black text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded shrink-0">{field}</code>

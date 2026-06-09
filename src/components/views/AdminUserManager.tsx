@@ -15,7 +15,6 @@ import {
   Download
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export function AdminUserManager() {

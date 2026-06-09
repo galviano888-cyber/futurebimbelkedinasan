@@ -11,6 +11,7 @@ export type QuestionCategory = 'TWK' | 'TIU' | 'TKP';
 export interface TryoutQuestion {
   id: string | number;
   category: string;
+  sub_category?: string;
   question_text: string;
   question_image_url?: string;
   options: { [key: string]: string };
