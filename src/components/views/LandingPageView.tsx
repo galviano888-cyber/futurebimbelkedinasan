@@ -134,9 +134,10 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
 
   return (
     <div className="min-h-[100dvh] bg-[#050b18] text-white font-sans selection:bg-blue-600/30 overflow-x-hidden">
-      <SEO 
-        title="Future Bimbel Kedinasan | Persiapan Tes SKD #1 Indonesia"
-        description="Partner strategis nomor satu untuk raih kursi sekolah kedinasan impianmu. Kami fokus memberikan pendampingan intensif dengan materi terakurat dan sistem simulasi CAT yang presisi demi mencetak calon abdi negara terbaik."
+      <SEO
+        title="Future Bimbel Kedinasan | Bimbel SKD CPNS & Sekolah Kedinasan Online"
+        description="Bimbel persiapan SKD CPNS dan sekolah kedinasan (IPDN, STAN, STIS, POLTEKIP) online. Tryout CAT BKN interaktif, bank soal TWK, TIU, TKP terlengkap, dan pembahasan detail. Mulai belajar gratis!"
+        keywords="bimbel kedinasan, tryout skd online, soal skd cpns, ipdn, stan, stis, poltekip, poltekim, bkn, cat bkn, twk, tiu, tkp, passing grade skd, bimbel online kedinasan, persiapan cpns 2026"
       />
       <GuideModal isOpen={showGuide} onClose={handleCloseGuide} />
 

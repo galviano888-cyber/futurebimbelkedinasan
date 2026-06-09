@@ -395,7 +395,7 @@ export default function App() {
 
     return (
       <div className={`h-[100dvh] ${bgClass} overflow-hidden transition-colors duration-500`}>
-        <SEO title={`${activePage} | Future Bimbel`} />
+        <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={true} />
         <Toaster position="top-center" richColors />
         <main className="h-full overflow-y-auto custom-scrollbar">
           <Suspense fallback={isTryoutEngine ? tryoutFallback : <DashboardSkeleton />}>
@@ -408,7 +408,7 @@ export default function App() {
 
   return (
     <div className="h-[100dvh] bg-slate-50 dark:bg-slate-950 flex flex-col lg:flex-row overflow-hidden transition-colors duration-500">
-      <SEO title={`${activePage} | Future Bimbel`} />
+      <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={true} />
       <Toaster position="top-center" richColors />
       {isAuthenticated && (
         <Sidebar

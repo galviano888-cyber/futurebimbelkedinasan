@@ -114,7 +114,11 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
 
   return (
     <div className="space-y-10">
-      <SEO title={`Dashboard ${userName}`} description="Pantau statistik belajar dan hasil tryout kamu di Future Bimbel Kedinasan." />
+      <SEO
+        title={`Dashboard ${userName} | Future Bimbel Kedinasan`}
+        description="Pantau statistik belajar, hasil tryout SKD, dan peringkat nasional kamu di Future Bimbel Kedinasan."
+        noIndex={true}
+      />
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div>
           <h1 className="text-slate-900 dark:text-white font-black text-3xl lg:text-4xl tracking-tight leading-none">
