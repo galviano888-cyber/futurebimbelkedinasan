@@ -195,13 +195,29 @@ export function AdminTransactionManager() {
   const handleUpdateStatus = async (id: string, newStatus: string) => {
     if (!supabase) return;
     try {
+      // Pre-check: re-fetch status terbaru dari DB untuk cegah race condition
+      // dengan webhook Pakasir yang mungkin sudah mengubah status
+      if (newStatus === 'success') {
+        const { data: current } = await supabase
+          .from('transactions')
+          .select('status, payment_method')
+          .eq('id', id)
+          .single();
+
+        if (current?.status === 'success') {
+          toast.info('Transaksi sudah dikonfirmasi otomatis via QRIS.');
+          fetchTransactions();
+          return;
+        }
+      }
+
       const { error } = await supabase
         .from('transactions')
         .update({ status: newStatus, updated_at: new Date().toISOString() })
         .eq('id', id);
 
       if (error) throw error;
-      
+
       // If success, automatically add to user_packages
       if (newStatus === 'success') {
         const trans = transactions.find(t => t.id === id);
@@ -409,6 +425,7 @@ export function AdminTransactionManager() {
                   <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Invoice & Paket</th>
                   <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Siswa</th>
                   <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Nominal</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Metode</th>
                   <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
                   <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Tanggal</th>
                   <th className="px-6 py-4 text-center text-[10px] font-black text-slate-600 uppercase tracking-widest">Aksi</th>
