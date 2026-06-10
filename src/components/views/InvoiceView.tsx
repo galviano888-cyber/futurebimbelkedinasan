@@ -148,14 +148,13 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
     await handleGenerateQris();
   };
 
-  // Tombol "Saya Sudah Bayar" — panggil pakasir-create Edge Function untuk verifikasi
-  // Menggunakan pakasir-status (authenticated) lalu aktifkan via webhook
+  // Tombol "Saya Sudah Bayar" — panggil pakasir-activate Edge Function
+  // Verify ke Pakasir + aktifkan paket dalam satu call, dengan JWT auth + service role
   const handleAlreadyPaid = async () => {
     if (!transaction || !supabase) return;
     setCheckingPayment(true);
 
     try {
-      // Gunakan pakasir-status (pakai JWT auth) untuk cek status ke Pakasir
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error("Sesi habis. Silakan login ulang.");
@@ -165,62 +164,32 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
 
       const functionsUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
-      // Step 1: Cek status ke Pakasir via Edge Function (authenticated)
-      const statusRes = await fetch(
-        `${functionsUrl}/pakasir-status?order_id=${encodeURIComponent(transaction.invoice_id)}`,
-        { headers: { "Authorization": `Bearer ${session.access_token}` } }
-      );
-
-      const statusJson = await statusRes.json();
-      console.log("Pakasir status response:", statusJson);
-
-      if (!statusRes.ok) {
-        toast.error("Gagal cek status pembayaran", {
-          description: statusJson.error ?? "Coba lagi.",
-        });
-        setCheckingPayment(false);
-        return;
-      }
-
-      if (statusJson.status !== "completed") {
-        toast.error("Pembayaran belum terdeteksi", {
-          description: "Pastikan scan QR dan pembayaran sudah berhasil, lalu coba lagi dalam beberapa detik.",
-        });
-        setCheckingPayment(false);
-        return;
-      }
-
-      // Step 2: Status completed — panggil webhook Edge Function (service role, bypass RLS)
-      const webhookRes = await fetch(`${functionsUrl}/pakasir-webhook`, {
+      const res = await fetch(`${functionsUrl}/pakasir-activate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: transaction.amount,
-          order_id: transaction.invoice_id,
-          project: import.meta.env.VITE_PAKASIR_SLUG,
-          status: "completed",
-          payment_method: "qris",
-          completed_at: new Date().toISOString(),
-        }),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ invoiceId: transaction.invoice_id }),
       });
 
-      const webhookJson = await webhookRes.json();
-      console.log("Webhook response:", webhookJson);
+      const json = await res.json();
+      console.log("pakasir-activate response:", json);
 
-      if (webhookJson.message === "OK" || webhookJson.message === "Sudah diproses sebelumnya") {
+      if (res.ok && json.message === "OK") {
         toast.success("Pembayaran Berhasil!", {
           description: "Akses paket sudah terbuka. Selamat belajar!",
           duration: 3000,
         });
         setTimeout(() => onBack(true), 2000);
-      } else {
-        // Webhook gagal — coba aktivasi manual via service role sebagai fallback
-        console.warn("Webhook gagal, mencoba fallback:", webhookJson);
-        toast.success("Pembayaran dikonfirmasi!", {
-          description: "Mengaktifkan paket...",
-          duration: 3000,
+      } else if (res.status === 402) {
+        toast.error("Pembayaran belum terkonfirmasi", {
+          description: "Pastikan pembayaran sudah berhasil di aplikasi kamu, lalu coba lagi.",
         });
-        setTimeout(() => onBack(true), 2000);
+      } else {
+        toast.error("Terjadi kesalahan", {
+          description: json.error ?? "Coba beberapa saat lagi.",
+        });
       }
     } catch (err: any) {
       console.error("handleAlreadyPaid error:", err);
