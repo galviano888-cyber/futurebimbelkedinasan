@@ -2,11 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { 
   Download, 
-  CheckCircle2, 
-  XCircle, 
   Clock, 
   RotateCw, 
-  Eye, 
   FilterX,
   Loader2,
   TrendingUp,
@@ -192,71 +189,7 @@ export function AdminTransactionManager() {
     setFilteredTransactions(result);
   };
 
-  const handleUpdateStatus = async (id: string, newStatus: string) => {
-    if (!supabase) return;
-    try {
-      // Pre-check: re-fetch status terbaru dari DB untuk cegah race condition
-      // dengan webhook Pakasir yang mungkin sudah mengubah status
-      if (newStatus === 'success') {
-        const { data: current } = await supabase
-          .from('transactions')
-          .select('status, payment_method')
-          .eq('id', id)
-          .single();
 
-        if (current?.status === 'success') {
-          toast.info('Transaksi sudah dikonfirmasi otomatis via QRIS.');
-          fetchTransactions();
-          return;
-        }
-      }
-
-      const { error } = await supabase
-        .from('transactions')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      // If success, automatically add to user_packages
-      if (newStatus === 'success') {
-        const trans = transactions.find(t => t.id === id);
-        if (trans) {
-          await supabase.from('user_packages').upsert({
-            user_id: trans.user_id,
-            package_id: trans.package_id,
-            transaction_id: trans.id
-          });
-
-          // Insert Notification
-          await supabase.from('notifications').insert([{
-            user_id: trans.user_id,
-            title: "Pembayaran Berhasil Dikonfirmasi! 🎉",
-            message: `Pembayaran untuk invoice ${trans.invoice_id} telah dikonfirmasi. Paket ${trans.packages?.title} kini dapat Anda akses. Selamat belajar!`,
-            is_read: false
-          }]);
-        }
-        // Refresh stats after success
-        fetchStats();
-      } else if (newStatus === 'failed') {
-        const trans = transactions.find(t => t.id === id);
-        if (trans) {
-          await supabase.from('notifications').insert([{
-            user_id: trans.user_id,
-            title: "Pembayaran Ditolak ❌",
-            message: `Maaf, pembayaran untuk invoice ${trans.invoice_id} gagal atau ditolak. Silakan hubungi admin jika ini adalah sebuah kesalahan.`,
-            is_read: false
-          }]);
-        }
-      }
-
-      toast.success(`Transaksi berhasil diupdate ke ${newStatus}`);
-      fetchTransactions();
-    } catch (error: any) {
-      toast.error('Gagal update status');
-      console.error(error);
-    }
-  };
 
   const resetFilters = () => {
     setSearchQuery('');
@@ -457,25 +390,15 @@ export function AdminTransactionManager() {
                     <td className="px-6 py-4 text-xs font-bold text-slate-500">
                       {new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        {t.payment_proof_url && (
-                          <a href={t.payment_proof_url} target="_blank" rel="noreferrer" className="p-1.5 text-slate-600 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all">
-                            <Eye className="w-4 h-4" />
-                          </a>
-                        )}
-                        {t.status !== 'success' && (
-                          <>
-                            <button onClick={() => handleUpdateStatus(t.id, 'success')} className="p-1.5 text-slate-600 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-all">
-                              <CheckCircle2 className="w-4 h-4" />
-                            </button>
-                            <button onClick={() => handleUpdateStatus(t.id, 'failed')} className="p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
-                              <XCircle className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
+                     <td className="px-6 py-4">
+                       <div className="flex items-center justify-center gap-2">
+                         {t.status === 'success' ? (
+                           <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider">Otomatis</span>
+                         ) : (
+                           <span className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Menunggu</span>
+                         )}
+                       </div>
+                     </td>
                   </tr>
                 ))}
               </tbody>

@@ -8,11 +8,12 @@ import {
   QrCode,
   RefreshCw,
   AlertCircle,
+  CheckCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
-import { createPakasirQris, checkPakasirStatus, type PakasirPaymentData } from "@/lib/pakasir";
+import { createPakasirQris, type PakasirPaymentData } from "@/lib/pakasir";
 
 interface InvoiceViewProps {
   transactionId: string;
@@ -22,6 +23,7 @@ interface InvoiceViewProps {
 export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
   const [transaction, setTransaction] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [checkingPayment, setCheckingPayment] = useState(false);
 
   // Pakasir QRIS state
   const [qrisData, setQrisData] = useState<PakasirPaymentData | null>(null);
@@ -29,6 +31,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
   const [qrisError, setQrisError] = useState<string | null>(null);
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Countdown timer — ikut QR expired_at kalau ada, fallback ke expiry_date transaksi
   const [timeLeft, setTimeLeft] = useState("");
 
   // ─── Fetch & Realtime ───────────────────────────────────────────────────────
@@ -72,65 +75,30 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
     }
   }, [transaction]);
 
-  // Countdown timer
+  // Countdown timer — pakai expired_at dari QR jika ada, fallback ke expiry_date transaksi
   useEffect(() => {
-    if (!transaction?.expiry_date || transaction.status !== "pending") return;
+    if (transaction?.status !== "pending") return;
+
+    // Prioritas: QR expired_at (lebih relevan untuk user), fallback expiry_date transaksi
+    const expirySource = qrisData?.expired_at ?? transaction?.expiry_date;
+    if (!expirySource) return;
+
     const timer = setInterval(() => {
       const now = new Date().getTime();
-      const expiry = new Date(transaction.expiry_date).getTime();
+      const expiry = new Date(expirySource).getTime();
       const diff = expiry - now;
       if (diff <= 0) {
-        setTimeLeft("EXPIRED");
+        setTimeLeft("KADALUARSA");
         clearInterval(timer);
       } else {
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        setTimeLeft(`${hours}j ${minutes}m ${seconds}d`);
+        setTimeLeft(`${hours > 0 ? hours + 'j ' : ''}${minutes}m ${seconds}d`);
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [transaction]);
-
-  // Render QR code to canvas when qrisData changes
-  useEffect(() => {
-    if (!qrisData?.payment_number || !qrCanvasRef.current) return;
-    qrCanvasRef.current.dataset.filled = "1";
-  }, [qrisData]);
-
-  // Polling otomatis — fallback jika webhook telat/gagal
-  useEffect(() => {
-    if (!transaction) return;
-    if (transaction.status !== "pending") return;
-    if (!transaction.pakasir_data) return;
-
-    const poll = setInterval(async () => {
-      const result = await checkPakasirStatus(transaction.invoice_id);
-      if (result.ok && result.status === "completed") {
-        clearInterval(poll);
-        try {
-          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-          await fetch(`${supabaseUrl}/functions/v1/pakasir-webhook`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              amount: transaction.amount,
-              order_id: transaction.invoice_id,
-              project: import.meta.env.VITE_PAKASIR_SLUG,
-              status: "completed",
-              payment_method: "qris",
-              completed_at: new Date().toISOString(),
-            }),
-          });
-        } catch (err) {
-          console.error("Gagal trigger webhook manual:", err);
-        }
-        fetchTransaction(true);
-      }
-    }, 5000);
-
-    return () => clearInterval(poll);
-  }, [transaction?.id, transaction?.status, transaction?.pakasir_data]);
+  }, [transaction?.status, qrisData?.expired_at, transaction?.expiry_date]);
 
   // ─── Data Fetchers ──────────────────────────────────────────────────────────
 
@@ -178,6 +146,52 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
   const handleRegenerateQris = async () => {
     setQrisData(null);
     await handleGenerateQris();
+  };
+
+  // Tombol "Saya Sudah Bayar" — trigger webhook Edge Function untuk cek & aktivasi
+  const handleAlreadyPaid = async () => {
+    if (!transaction) return;
+    setCheckingPayment(true);
+
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const res = await fetch(`${supabaseUrl}/functions/v1/pakasir-webhook`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: transaction.amount,
+          order_id: transaction.invoice_id,
+          project: import.meta.env.VITE_PAKASIR_SLUG,
+          status: "completed",
+          payment_method: "qris",
+          completed_at: new Date().toISOString(),
+        }),
+      });
+
+      const json = await res.json();
+
+      if (json.message === "OK") {
+        // Webhook berhasil aktivasi — realtime listener akan update UI
+        toast.success("Pembayaran dikonfirmasi!", {
+          description: "Akses paket sedang diaktifkan...",
+        });
+        await fetchTransaction(true);
+      } else if (json.message === "Sudah diproses sebelumnya") {
+        await fetchTransaction(true);
+      } else if (json.message === "Verifikasi gagal, diabaikan") {
+        toast.error("Pembayaran belum terdeteksi", {
+          description: "Pastikan pembayaran sudah berhasil di aplikasi kamu, lalu coba lagi.",
+        });
+      } else {
+        toast.error("Gagal memverifikasi", {
+          description: "Coba beberapa saat lagi atau hubungi admin.",
+        });
+      }
+    } catch (err) {
+      toast.error("Koneksi bermasalah. Coba lagi.");
+    } finally {
+      setCheckingPayment(false);
+    }
   };
 
   // ─── QR Image URL ──────────────────────────────────────────────────────────────
@@ -296,11 +310,17 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
         <div className="lg:col-span-5 space-y-6">
           {isPending && (
             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-xl p-8 space-y-6">
-              {/* Countdown */}
+              {/* Countdown — ikut QR timer kalau sudah generate */}
               <div className="text-center">
-                <p className="text-[10px] font-black text-slate-400 uppercase mb-2">Sisa Waktu</p>
-                <div className="inline-flex items-center gap-2 px-6 py-2 bg-slate-900 dark:bg-blue-600 text-white rounded-full font-mono text-xl font-black">
-                  {timeLeft}
+                <p className="text-[10px] font-black text-slate-400 uppercase mb-2">
+                  {qrisData ? "QR Berlaku" : "Sisa Waktu"}
+                </p>
+                <div className={`inline-flex items-center gap-2 px-6 py-2 rounded-full font-mono text-xl font-black ${
+                  timeLeft === "KADALUARSA"
+                    ? "bg-red-500 text-white"
+                    : "bg-slate-900 dark:bg-blue-600 text-white"
+                }`}>
+                  {timeLeft || "--:--"}
                 </div>
               </div>
 
@@ -391,8 +411,23 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                     </div>
                   </div>
 
+                  {/* Tombol Saya Sudah Bayar */}
+                  {!isQrisExpired && (
+                    <Button
+                      onClick={handleAlreadyPaid}
+                      disabled={checkingPayment}
+                      className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black shadow-lg shadow-emerald-500/30"
+                    >
+                      {checkingPayment ? (
+                        <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Mengecek Pembayaran...</>
+                      ) : (
+                        <><CheckCheck className="w-5 h-5 mr-2" /> Saya Sudah Bayar</>
+                      )}
+                    </Button>
+                  )}
+
                   <p className="text-[10px] text-slate-400 text-center font-medium leading-relaxed">
-                    Setelah pembayaran berhasil, akses paket akan otomatis terbuka dalam beberapa detik.
+                    Tekan tombol di atas setelah scan & bayar berhasil.
                   </p>
 
                   {isQrisExpired && (
