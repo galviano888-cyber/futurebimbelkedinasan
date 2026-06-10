@@ -86,8 +86,17 @@ serve(async (req: Request) => {
     }
 
     // ── 2. Idempotency check ─────────────────────────────────────────────────
+    // Kalau sudah success, tetap pastikan user_packages ada (upsert idempoten)
     if (transaction.status === "success") {
-      return new Response(JSON.stringify({ message: "Sudah diproses sebelumnya" }), {
+      await supabase.from("user_packages").upsert(
+        {
+          user_id: transaction.user_id,
+          package_id: transaction.package_id,
+          transaction_id: transaction.id,
+        },
+        { onConflict: "user_id,package_id" }
+      );
+      return new Response(JSON.stringify({ message: "OK" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
