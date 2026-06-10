@@ -17,7 +17,7 @@ import { createPakasirQris, type PakasirPaymentData } from "@/lib/pakasir";
 
 interface InvoiceViewProps {
   transactionId: string;
-  onBack: () => void;
+  onBack: (success?: boolean) => void;
 }
 
 export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
@@ -222,10 +222,11 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
 
       toast.success("Pembayaran Berhasil!", {
         description: "Akses paket sudah terbuka. Selamat belajar!",
-        duration: 5000,
+        duration: 3000,
       });
 
-      await fetchTransaction(true);
+      // Tunggu sebentar biar toast keliatan, lalu pindah ke Paket Saya
+      setTimeout(() => onBack(true), 2000);
     } catch (err: any) {
       console.error("handleAlreadyPaid error:", err);
       toast.error("Koneksi bermasalah. Coba lagi.");
@@ -267,7 +268,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <button
-            onClick={onBack}
+            onClick={() => onBack()}
             className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors mb-4 text-sm font-medium"
           >
             <ArrowLeft className="w-4 h-4" /> Kembali
@@ -497,7 +498,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
               </p>
               <Button
                 className="w-full h-14 bg-emerald-600 text-white rounded-2xl font-black"
-                onClick={onBack}
+                onClick={() => { onBack(true); }}
               >
                 Mulai Belajar
               </Button>

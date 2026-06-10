@@ -339,7 +339,7 @@ export default function App() {
         <Route path="/settings" element={isAuthenticated ? <SettingsView /> : <Navigate to="/" replace />} />
         <Route path="/transactions" element={isAuthenticated ? <PaymentHistory onBack={() => navigate("/dashboard")} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} /> : <Navigate to="/" replace />} />
         <Route path="/help" element={<ContactView />} />
-        <Route path="/invoice" element={selectedTransactionId ? <InvoiceView transactionId={selectedTransactionId} onBack={() => navigate("/paket")} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/invoice" element={selectedTransactionId ? <InvoiceView transactionId={selectedTransactionId} onBack={(success?: boolean) => { if (success) { setSelectedTransactionId(null); navigate("/paket-saya"); } else { navigate("/paket"); } }} /> : <Navigate to="/dashboard" replace />} />
         
         {/* Tryout Engine Routes */}
         <Route path="/tryout-pre/:pId/:qId" element={<TryoutPreView packageId={activePackageId} questionsId={questionsId} onStart={() => navigate("/tryout-engine")} onCancel={() => navigate("/paket-saya")} />} />
