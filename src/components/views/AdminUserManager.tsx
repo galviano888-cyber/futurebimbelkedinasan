@@ -46,20 +46,26 @@ export function AdminUserManager() {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase
+      const { data: profilesData, error } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_packages (
-            package_id,
-            packages (title)
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+
+      // Fetch user_packages secara terpisah karena FK ke auth.users bukan profiles
+      const { data: userPackagesData } = await supabase
+        .from('user_packages')
+        .select('user_id, package_id, packages (title)');
+
+      // Gabungkan user_packages ke profiles
+      const merged = (profilesData || []).map((profile: any) => ({
+        ...profile,
+        user_packages: (userPackagesData || []).filter((up: any) => up.user_id === profile.id)
+      }));
+
       // Filter out admin accounts from the student management view
-      const studentsOnly = (data || []).filter(
+      const studentsOnly = merged.filter(
         (u: any) => !['admin.utama@fbk-kedinasan.com', 'admin.soal@fbk-kedinasan.com'].includes(u.email)
       );
       setUsers(studentsOnly);
