@@ -157,10 +157,18 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                         }
                         if (pkg.price === 0) {
                           const { error } = await supabase.from('user_packages').insert([{ user_id: user.id, package_id: pkg.id }]);
-                          if (error) { if (error.code === '23505') toast.error("Anda sudah memiliki paket ini!"); else throw error; }
-                          else { toast.success("Paket gratis berhasil ditambahkan!", { description: "Cek menu 'Paket Saya' untuk mulai belajar.", duration: 5000 }); fetchData(); }
+                          if (error) {
+                            if (error.code === '23505') toast.error("Anda sudah memiliki paket ini!");
+                            else toast.error("Gagal menambahkan paket: " + error.message);
+                          } else {
+                            toast.success("Paket gratis berhasil ditambahkan!", { description: "Cek menu 'Paket Saya' untuk mulai belajar.", duration: 5000 });
+                            fetchData();
+                          }
                         } else {
                           await supabase.from('profiles').upsert({ id: user.id, full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User', email: user.email }, { onConflict: 'id' });
+                          // Cek apakah sudah ada transaksi success (tapi user_packages belum ada karena edge case)
+                          const { data: successTx } = await supabase.from('transactions').select('id').eq('user_id', user.id).eq('package_id', pkg.id).eq('status', 'success').maybeSingle();
+                          if (successTx) { toast.error('Anda sudah memiliki paket ini. Silakan cek menu Paket Saya.'); setLoading(false); return; }
                           const { data: existingTxs } = await supabase.from('transactions').select('id, status').eq('user_id', user.id).eq('package_id', pkg.id).eq('status', 'pending').order('created_at', { ascending: false });
                           if (existingTxs && existingTxs.length > 0) { if (onPurchaseSuccess) onPurchaseSuccess(existingTxs[0].id); setLoading(false); return; }
                           const invoice_id = `INV-SKD-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(100 + Math.random() * 900)}`;

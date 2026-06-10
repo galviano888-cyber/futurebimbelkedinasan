@@ -22,6 +22,8 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
   const [activePackageData, setActivePackageData] = useState<ActivePackageData | null>(null);
 
   useEffect(() => {
+    let channel: any = null;
+
     async function fetchData() {
       if (!supabase) return;
       const { data: sessionData } = await supabase.auth.getSession();
@@ -33,7 +35,24 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
         supabase.from('user_packages').select('*, packages(*)').eq('user_id', userId)
       ]);
 
-      if (txResult.data) setPendingTx(txResult.data);
+      if (txResult.data) {
+        setPendingTx(txResult.data);
+
+        // Realtime: hilangkan banner kalau transaksi berubah jadi success
+        channel = supabase
+          .channel(`dashboard-tx-${txResult.data.id}`)
+          .on('postgres_changes', {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'transactions',
+            filter: `id=eq.${txResult.data.id}`
+          }, (payload: any) => {
+            if (payload.new?.status === 'success') {
+              setPendingTx(null);
+            }
+          })
+          .subscribe();
+      }
 
       const userPkgs = pkgResult.data;
       if (pkgResult.error) console.error("Dashboard fetch error:", pkgResult.error);
@@ -67,6 +86,10 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
       }
     }
     fetchData();
+
+    return () => {
+      if (supabase && channel) supabase.removeChannel(channel);
+    };
   }, [data]);
 
   const isSiswaAktif = data.length > 0 || activePackageData !== null;

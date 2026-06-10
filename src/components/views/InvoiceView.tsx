@@ -67,13 +67,17 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
     };
   }, [transactionId]);
 
-  // Restore qrisData dari DB setelah fetch
+  // Restore qrisData dari DB setelah fetch, atau auto-generate kalau belum ada
   useEffect(() => {
     if (!transaction) return;
     if (transaction.pakasir_data) {
+      // QR sudah pernah dibuat, restore dari DB
       setQrisData(transaction.pakasir_data as PakasirPaymentData);
+    } else if (transaction.status === 'pending' && !qrisData && !generatingQris) {
+      // QR belum pernah dibuat, auto-generate
+      handleGenerateQris();
     }
-  }, [transaction]);
+  }, [transaction?.id]);
 
   // Countdown timer — pakai expired_at dari QR jika ada, fallback ke expiry_date transaksi
   useEffect(() => {

@@ -48,7 +48,10 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
         setSelectedPkg(formatted[0]);
         setActiveTab(formatted[0].product_type === 'INTENSIF' ? 'liveclass' : 'tryout');
       }
-    } catch (err: any) { console.error("Error:", err); }
+    } catch (err: any) {
+      console.error("Error:", err);
+      toast.error("Gagal memuat paket", { description: "Silakan refresh halaman atau coba lagi." });
+    }
     finally { setLoading(false); }
   };
 
