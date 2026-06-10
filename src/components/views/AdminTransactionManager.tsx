@@ -143,10 +143,24 @@ export function AdminTransactionManager() {
         .from('transactions')
         .select(`
           *,
-          profiles:user_id (full_name, email),
           packages:package_id (title)
         `)
         .order('created_at', { ascending: false });
+
+      // Fetch profiles secara terpisah karena FK user_id ke auth.users, bukan profiles
+      if (data && data.length > 0) {
+        const userIds = [...new Set(data.map((t: any) => t.user_id))];
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', userIds);
+
+        const profileMap: Record<string, any> = {};
+        if (profilesData) profilesData.forEach((p: any) => { profileMap[p.id] = p; });
+
+        // Gabungkan profiles ke transaksi
+        data.forEach((t: any) => { t.profiles = profileMap[t.user_id] || null; });
+      }
 
       if (error) throw error;
       setTransactions(data || []);
