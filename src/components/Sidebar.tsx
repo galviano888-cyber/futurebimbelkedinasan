@@ -59,7 +59,7 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
           </div>
           <button
             onClick={onClose}
-            className="lg:hidden p-1.5 text-slate-400 dark:text-slate-600 hover:text-slate-700 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-white/5"
+            className="lg:hidden w-11 h-11 flex items-center justify-center text-slate-400 dark:text-slate-600 hover:text-slate-700 dark:hover:text-white transition-colors rounded-xl hover:bg-slate-100 dark:hover:bg-white/5"
           >
             <X className="w-4 h-4" />
           </button>
@@ -69,7 +69,7 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
           {groups.map(group => (
             <div key={group}>
-              <p className="px-3 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.25em] mb-2">{group}</p>
+              <p className="px-3 text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.25em] mb-2">{group}</p>
               <div className="space-y-0.5">
                 {menuItems.filter(i => i.group === group).map((item) => {
                   const active = activePage === item.id;
@@ -78,7 +78,7 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
                       key={item.id}
                       onClick={() => { onPageChange(item.id); onClose(); }}
                       className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 group border",
+                        "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold transition-all duration-200 group border",
                         active
                           ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/20"
                           : "text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5 border-transparent"

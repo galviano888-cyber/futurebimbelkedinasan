@@ -92,7 +92,7 @@ export function Header({
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuToggle}
-          className="lg:hidden p-2 rounded-xl text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
+          className="lg:hidden w-11 h-11 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -118,7 +118,7 @@ export function Header({
         <div className="relative">
           <button
             onClick={() => { setShowNotifications(!showNotifications); setShowProfileMenu(false); }}
-            className="relative w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/8 flex items-center justify-center text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/5 transition-all"
+            className="relative w-11 h-11 rounded-xl bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/8 flex items-center justify-center text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/5 transition-all"
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
@@ -174,7 +174,7 @@ export function Header({
           <div className="relative">
             <button
               onClick={() => { setShowProfileMenu(!showProfileMenu); setShowNotifications(false); }}
-              className="flex items-center gap-2.5 px-2.5 py-1.5 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/8 rounded-xl hover:bg-slate-200 dark:hover:bg-white/5 hover:border-indigo-300 dark:hover:border-indigo-500/30 transition-all duration-200"
+              className="flex items-center gap-2.5 px-2.5 py-2.5 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/8 rounded-xl hover:bg-slate-200 dark:hover:bg-white/5 hover:border-indigo-300 dark:hover:border-indigo-500/30 transition-all duration-200"
             >
               <div className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xs">
                 {currentUser?.charAt(0)?.toUpperCase() || "U"}

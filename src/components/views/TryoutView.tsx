@@ -181,7 +181,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                       } catch (err: any) { toast.error(`Gagal memproses: ${err.message}`); }
                       finally { setLoading(false); }
                     }}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
+                    className="flex items-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
                   >
                     <Zap className="w-3.5 h-3.5" />
                     {pkg.price === 0 ? 'Ambil Gratis' : 'Beli'}

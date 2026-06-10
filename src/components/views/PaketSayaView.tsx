@@ -151,7 +151,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                   {tabs.map((tab) => (
                     <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                       className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all",
+                        "flex items-center gap-2 px-4 py-3 rounded-lg text-xs font-black uppercase tracking-widest transition-all",
                         activeTab === tab.id
                           ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20'
                           : 'text-slate-400 dark:text-slate-600 hover:text-slate-700 dark:hover:text-slate-300'
@@ -184,8 +184,8 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                                 <p className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase mt-0.5">{content.mentor_name || 'Mentor FBK'}</p>
                               </div>
                               <div className="grid grid-cols-2 gap-2">
-                                {content.zoom_link && <a href={content.zoom_link} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 py-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-lg text-[10px] font-black uppercase"><Video className="w-3.5 h-3.5" /> Zoom</a>}
-                                {content.recording_url && <a href={content.recording_url} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 py-2.5 bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 rounded-lg text-[10px] font-black uppercase"><Play className="w-3.5 h-3.5" /> Rekaman</a>}
+                {content.zoom_link && <a href={content.zoom_link} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 py-3 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-lg text-[10px] font-black uppercase"><Video className="w-3.5 h-3.5" /> Zoom</a>}
+                                 {content.recording_url && <a href={content.recording_url} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 py-3 bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 rounded-lg text-[10px] font-black uppercase"><Play className="w-3.5 h-3.5" /> Rekaman</a>}
                               </div>
                               {content.tryout_id && <button onClick={() => onStartTryout(selectedPkg?.package_id || '', content.tryout_id || '')} className="w-full flex items-center justify-center gap-2 py-2.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[10px] font-black uppercase"><Zap className="w-3.5 h-3.5" /> Mini Tes</button>}
                             </div>
@@ -219,7 +219,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                             <div className="w-9 h-9 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl flex items-center justify-center"><FileText className="w-4 h-4 text-blue-500 dark:text-blue-400" /></div>
                             <div><h4 className="font-bold text-slate-900 dark:text-white text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{content.title}</h4><p className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase mt-0.5">E-Book PDF</p></div>
                           </div>
-                          {content.url && <a href={content.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-[10px] font-black rounded-lg uppercase transition-all"><ExternalLink className="w-3 h-3" /> Download</a>}
+                          {content.url && <a href={content.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-3 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-[10px] font-black rounded-lg uppercase transition-all"><ExternalLink className="w-3 h-3" /> Download</a>}
                         </div>
                       )) : <div className="py-16 text-center text-slate-400 dark:text-slate-600 text-xs font-bold uppercase tracking-widest">Materi sedang disiapkan oleh tutor...</div>
                     )}
@@ -239,7 +239,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                           </div>
                           <button
                             onClick={() => { if (selectedPkg?.package_id && (content.tryout_id || content.id)) { onStartTryout(selectedPkg.package_id, content.tryout_id || content.id); } else { toast.error("Gagal memuat Tryout: Data tidak lengkap."); } }}
-                            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 shrink-0"
+                            className="flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 shrink-0"
                           >
                             <Play className="w-4 h-4" /> Mulai Tryout
                           </button>
@@ -259,7 +259,7 @@ export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
                       <p className="text-[10px] text-indigo-500 dark:text-indigo-400/70 font-medium">Khusus siswa paket intensif</p>
                     </div>
                   </div>
-                  <a href={selectedPkg.guide_url} target="_blank" rel="noreferrer" className="shrink-0 flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 uppercase tracking-wider">
+                   <a href={selectedPkg.guide_url} target="_blank" rel="noreferrer" className="shrink-0 flex items-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 uppercase tracking-wider">
                     <ExternalLink className="w-3.5 h-3.5" /> Gabung Sekarang
                   </a>
                 </div>

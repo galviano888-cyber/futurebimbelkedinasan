@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { DashboardView } from "@/components/views/DashboardView";
 import { TryoutView } from "@/components/views/TryoutView";
 import { PaketSayaView } from "@/components/views/PaketSayaView";
@@ -432,7 +433,7 @@ export default function App() {
             setIsLoginOpen={setIsLoginOpen}
           />
         )}
-        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-[#0a0a0f] p-4 lg:p-8 custom-scrollbar">
+        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-[#0a0a0f] p-4 lg:p-8 pb-[calc(1rem+56px+env(safe-area-inset-bottom,0px))] lg:pb-8 custom-scrollbar">
           {!isVerified && isAuthenticated && (
             <div className="mb-8 animate-in slide-in-from-top-4 duration-500">
               <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 p-6 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-amber-500/5">
@@ -469,6 +470,13 @@ export default function App() {
           </Suspense>
         </main>
       </div>
+      {isAuthenticated && (
+        <MobileBottomNav
+          activePage={activePage}
+          onPageChange={handleNavigate}
+          onMoreClick={() => setIsSidebarOpen(true)}
+        />
+      )}
       <AuthModal
         isOpen={isLoginOpen}
         onClose={() => { setIsLoginOpen(false); if (location.pathname === '/login' || location.pathname === '/register') navigate('/'); }}

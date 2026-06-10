@@ -282,7 +282,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                 <h4 className="font-black text-slate-900 dark:text-white">
                   {transaction.packages.title}
                 </h4>
-                <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 text-justify leading-relaxed">
+                <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 text-left leading-relaxed">
                   {transaction.packages.description}
                 </p>
               </div>
