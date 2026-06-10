@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Globe, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle } from "lucide-react";
+import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Globe, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { AdminPackageEditorView } from "./AdminPackageEditorView";
 import { AdminQuestionEditorView } from "./AdminQuestionEditorView";
 import { AdminProductEditorView } from "./AdminProductEditorView";
-import { AdminTransactionManager } from "./AdminTransactionManager";
+
 import { AdminUserManager } from "./AdminUserManager";
 import { AdminBroadcastView } from "./AdminBroadcastView";
 import { AdminLandingPageEditorView } from "./AdminLandingPageEditorView";
@@ -17,7 +17,6 @@ const navItems = [
   { id: 'sales-packages', label: 'Produk', icon: ShoppingCart, group: 'Konten' },
   { id: 'landing-page', label: 'Edit Website', icon: Globe, group: 'Konten' },
   { id: 'users', label: 'Siswa', icon: Users, group: 'Data' },
-  { id: 'transactions', label: 'Transaksi', icon: CreditCard, group: 'Data' },
   { id: 'broadcast', label: 'Pengumuman', icon: Bell, group: 'Data' },
 ];
 
@@ -27,7 +26,7 @@ export function AdminPanelView() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-package' | 'edit-questions' | 'sales-packages' | 'edit-product' | 'transactions' | 'users' | 'broadcast' | 'landing-page'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-package' | 'edit-questions' | 'sales-packages' | 'edit-product' | 'users' | 'broadcast' | 'landing-page'>('dashboard');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [packages, setPackages] = useState<any[]>([]);
@@ -872,7 +871,6 @@ export function AdminPanelView() {
             {currentView === 'users' && <AdminUserManager />}
             {currentView === 'broadcast' && <AdminBroadcastView />}
             {currentView === 'landing-page' && <AdminLandingPageEditorView />}
-            {currentView === 'transactions' && <AdminTransactionManager />}
 
             {currentView === 'edit-package' && selectedPackageId && (
               <AdminPackageEditorView packageId={selectedPackageId} onBack={() => { setCurrentView('sales-packages'); fetchSalesPackages(); }} />

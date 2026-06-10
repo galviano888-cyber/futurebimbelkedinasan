@@ -161,8 +161,8 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                           else { toast.success("Paket gratis berhasil ditambahkan!", { description: "Cek menu 'Paket Saya' untuk mulai belajar.", duration: 5000 }); fetchData(); }
                         } else {
                           await supabase.from('profiles').upsert({ id: user.id, full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User', email: user.email }, { onConflict: 'id' });
-                          const { data: existingTxs } = await supabase.from('transactions').select('id, status').eq('user_id', user.id).eq('package_id', pkg.id).in('status', ['pending', 'verifying']).order('created_at', { ascending: false });
-                          if (existingTxs && existingTxs.length > 0) { const bestTx = existingTxs.find(tx => tx.status === 'verifying') || existingTxs[0]; if (onPurchaseSuccess) onPurchaseSuccess(bestTx.id); setLoading(false); return; }
+                          const { data: existingTxs } = await supabase.from('transactions').select('id, status').eq('user_id', user.id).eq('package_id', pkg.id).eq('status', 'pending').order('created_at', { ascending: false });
+                          if (existingTxs && existingTxs.length > 0) { if (onPurchaseSuccess) onPurchaseSuccess(existingTxs[0].id); setLoading(false); return; }
                           const invoice_id = `INV-SKD-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(100 + Math.random() * 900)}`;
                           const expiry_date = new Date(); expiry_date.setHours(expiry_date.getHours() + 48);
                           const { data: newTx, error: txError } = await supabase.from('transactions').insert([{ id: crypto.randomUUID(), user_id: user.id, package_id: pkg.id, amount: pkg.price, invoice_id, status: 'pending', expiry_date: expiry_date.toISOString() }]).select().single();
