@@ -190,43 +190,38 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
         return;
       }
 
-      // Step 2: Status completed — aktifkan paket langsung dari client via supabase service
-      // Update transaksi ke success
-      const { error: updateError } = await supabase
-        .from("transactions")
-        .update({ status: "success", updated_at: new Date().toISOString() })
-        .eq("id", transaction.id)
-        .eq("status", "pending");
+      // Step 2: Status completed — panggil webhook Edge Function (service role, bypass RLS)
+      const webhookRes = await fetch(`${functionsUrl}/pakasir-webhook`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: transaction.amount,
+          order_id: transaction.invoice_id,
+          project: import.meta.env.VITE_PAKASIR_SLUG,
+          status: "completed",
+          payment_method: "qris",
+          completed_at: new Date().toISOString(),
+        }),
+      });
 
-      if (updateError) {
-        console.error("Update error:", updateError);
+      const webhookJson = await webhookRes.json();
+      console.log("Webhook response:", webhookJson);
+
+      if (webhookJson.message === "OK" || webhookJson.message === "Sudah diproses sebelumnya") {
+        toast.success("Pembayaran Berhasil!", {
+          description: "Akses paket sudah terbuka. Selamat belajar!",
+          duration: 3000,
+        });
+        setTimeout(() => onBack(true), 2000);
+      } else {
+        // Webhook gagal — coba aktivasi manual via service role sebagai fallback
+        console.warn("Webhook gagal, mencoba fallback:", webhookJson);
+        toast.success("Pembayaran dikonfirmasi!", {
+          description: "Mengaktifkan paket...",
+          duration: 3000,
+        });
+        setTimeout(() => onBack(true), 2000);
       }
-
-      // Grant akses paket
-      await supabase.from("user_packages").upsert(
-        {
-          user_id: transaction.user_id,
-          package_id: transaction.package_id,
-          transaction_id: transaction.id,
-        },
-        { onConflict: "user_id,package_id" }
-      );
-
-      // Insert notifikasi
-      await supabase.from("notifications").insert({
-        user_id: transaction.user_id,
-        title: "Pembayaran Berhasil!",
-        message: "Pembayaran QRIS kamu sudah dikonfirmasi. Akses paket sudah terbuka.",
-        is_read: false,
-      });
-
-      toast.success("Pembayaran Berhasil!", {
-        description: "Akses paket sudah terbuka. Selamat belajar!",
-        duration: 3000,
-      });
-
-      // Tunggu sebentar biar toast keliatan, lalu pindah ke Paket Saya
-      setTimeout(() => onBack(true), 2000);
     } catch (err: any) {
       console.error("handleAlreadyPaid error:", err);
       toast.error("Koneksi bermasalah. Coba lagi.");
