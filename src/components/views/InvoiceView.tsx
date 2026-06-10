@@ -148,46 +148,86 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
     await handleGenerateQris();
   };
 
-  // Tombol "Saya Sudah Bayar" — trigger webhook Edge Function untuk cek & aktivasi
+  // Tombol "Saya Sudah Bayar" — panggil pakasir-create Edge Function untuk verifikasi
+  // Menggunakan pakasir-status (authenticated) lalu aktifkan via webhook
   const handleAlreadyPaid = async () => {
-    if (!transaction) return;
+    if (!transaction || !supabase) return;
     setCheckingPayment(true);
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const res = await fetch(`${supabaseUrl}/functions/v1/pakasir-webhook`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: transaction.amount,
-          order_id: transaction.invoice_id,
-          project: import.meta.env.VITE_PAKASIR_SLUG,
-          status: "completed",
-          payment_method: "qris",
-          completed_at: new Date().toISOString(),
-        }),
+      // Gunakan pakasir-status (pakai JWT auth) untuk cek status ke Pakasir
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Sesi habis. Silakan login ulang.");
+        setCheckingPayment(false);
+        return;
+      }
+
+      const functionsUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+
+      // Step 1: Cek status ke Pakasir via Edge Function (authenticated)
+      const statusRes = await fetch(
+        `${functionsUrl}/pakasir-status?order_id=${encodeURIComponent(transaction.invoice_id)}`,
+        { headers: { "Authorization": `Bearer ${session.access_token}` } }
+      );
+
+      const statusJson = await statusRes.json();
+      console.log("Pakasir status response:", statusJson);
+
+      if (!statusRes.ok) {
+        toast.error("Gagal cek status pembayaran", {
+          description: statusJson.error ?? "Coba lagi.",
+        });
+        setCheckingPayment(false);
+        return;
+      }
+
+      if (statusJson.status !== "completed") {
+        toast.error("Pembayaran belum terdeteksi", {
+          description: "Pastikan scan QR dan pembayaran sudah berhasil, lalu coba lagi dalam beberapa detik.",
+        });
+        setCheckingPayment(false);
+        return;
+      }
+
+      // Step 2: Status completed — aktifkan paket langsung dari client via supabase service
+      // Update transaksi ke success
+      const { error: updateError } = await supabase
+        .from("transactions")
+        .update({ status: "success", updated_at: new Date().toISOString() })
+        .eq("id", transaction.id)
+        .eq("status", "pending");
+
+      if (updateError) {
+        console.error("Update error:", updateError);
+      }
+
+      // Grant akses paket
+      await supabase.from("user_packages").upsert(
+        {
+          user_id: transaction.user_id,
+          package_id: transaction.package_id,
+          transaction_id: transaction.id,
+        },
+        { onConflict: "user_id,package_id" }
+      );
+
+      // Insert notifikasi
+      await supabase.from("notifications").insert({
+        user_id: transaction.user_id,
+        title: "Pembayaran Berhasil!",
+        message: "Pembayaran QRIS kamu sudah dikonfirmasi. Akses paket sudah terbuka.",
+        is_read: false,
       });
 
-      const json = await res.json();
+      toast.success("Pembayaran Berhasil!", {
+        description: "Akses paket sudah terbuka. Selamat belajar!",
+        duration: 5000,
+      });
 
-      if (json.message === "OK") {
-        // Webhook berhasil aktivasi — realtime listener akan update UI
-        toast.success("Pembayaran dikonfirmasi!", {
-          description: "Akses paket sedang diaktifkan...",
-        });
-        await fetchTransaction(true);
-      } else if (json.message === "Sudah diproses sebelumnya") {
-        await fetchTransaction(true);
-      } else if (json.message === "Verifikasi gagal, diabaikan") {
-        toast.error("Pembayaran belum terdeteksi", {
-          description: "Pastikan pembayaran sudah berhasil di aplikasi kamu, lalu coba lagi.",
-        });
-      } else {
-        toast.error("Gagal memverifikasi", {
-          description: "Coba beberapa saat lagi atau hubungi admin.",
-        });
-      }
-    } catch (err) {
+      await fetchTransaction(true);
+    } catch (err: any) {
+      console.error("handleAlreadyPaid error:", err);
       toast.error("Koneksi bermasalah. Coba lagi.");
     } finally {
       setCheckingPayment(false);
