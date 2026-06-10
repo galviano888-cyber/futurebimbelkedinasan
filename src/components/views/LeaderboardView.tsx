@@ -136,11 +136,11 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
               </div>
               <div className="flex items-center gap-3">
                 <div className="px-6 py-4 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-xl text-center">
-                  <p className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-1">Skor</p>
+                  <p className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-1">Skor</p>
                   <p className="text-2xl font-black text-slate-900 dark:text-white">{userRank.score}</p>
                 </div>
                 <div className="px-6 py-4 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-xl text-center">
-                  <p className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-1">Persentil</p>
+                  <p className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-1">Persentil</p>
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-4 h-4 text-yellow-400 fill-current" />
                     <p className="text-2xl font-black text-slate-900 dark:text-white">{Math.round((1 - userRank.position / userRank.total) * 100)}%</p>
@@ -160,7 +160,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                   </div>
                   <h4 className="font-black text-slate-900 dark:text-white text-sm truncate mb-1">{leaderboard[1]?.profiles?.full_name || "Peserta FBK"}</h4>
                   <p className="text-2xl font-black text-slate-400 dark:text-slate-400 tracking-tighter mb-2">{leaderboard[1]?.total}</p>
-                  <span className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest border border-slate-200 dark:border-white/5 px-2 py-0.5 rounded">Runner Up</span>
+                  <span className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest border border-slate-200 dark:border-white/5 px-2 py-0.5 rounded">Runner Up</span>
                 </div>
               </div>
               <div className="relative -mt-4">
@@ -170,7 +170,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                   </div>
                   <h4 className="font-black text-white text-base truncate mb-1">{leaderboard[0]?.profiles?.full_name || "Peserta FBK"}</h4>
                   <p className="text-3xl font-black text-yellow-400 tracking-tighter mb-2">{leaderboard[0]?.total}</p>
-                  <span className="inline-flex items-center gap-1.5 text-[9px] font-black text-white/80 uppercase tracking-widest border border-white/20 px-3 py-1 rounded-lg">
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-white/80 uppercase tracking-widest border border-white/20 px-3 py-1 rounded-lg">
                     <Star className="w-3 h-3 text-yellow-400 fill-current" /> Champion
                   </span>
                 </div>
@@ -182,7 +182,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                   </div>
                   <h4 className="font-black text-slate-900 dark:text-white text-sm truncate mb-1">{leaderboard[2]?.profiles?.full_name || "Peserta FBK"}</h4>
                   <p className="text-2xl font-black text-orange-500 dark:text-amber-600 tracking-tighter mb-2">{leaderboard[2]?.total}</p>
-                  <span className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest border border-slate-200 dark:border-white/5 px-2 py-0.5 rounded">Third Place</span>
+                  <span className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest border border-slate-200 dark:border-white/5 px-2 py-0.5 rounded">Third Place</span>
                 </div>
               </div>
             </div>
@@ -236,7 +236,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                               <p className="text-sm font-black text-slate-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{item.profiles?.full_name || "Siswa FBK"}</p>
                               <div className="flex items-center gap-1 mt-0.5">
                                 <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider">
+                                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wider">
                                   {item.date && !isNaN(new Date(item.date).getTime()) ? new Date(item.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }).toUpperCase() : (item.last_active && !isNaN(new Date(item.last_active).getTime()) ? new Date(item.last_active).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }).toUpperCase() : 'BARU SAJA')}
                                 </span>
                               </div>

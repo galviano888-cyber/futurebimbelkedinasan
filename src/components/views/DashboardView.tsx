@@ -176,7 +176,8 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
           <button
             onClick={() => onViewInvoice?.(pendingTx.id)}
             className={cn(
-              "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shrink-0 border",
+              "flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all shrink-0 border min-h-[44px]",
+
               pendingTx.status === 'verifying'
                 ? 'bg-blue-100 dark:bg-blue-500/20 hover:bg-blue-200 dark:hover:bg-blue-500/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20'
                 : 'bg-amber-100 dark:bg-amber-500/20 hover:bg-amber-200 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20'

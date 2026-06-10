@@ -436,9 +436,9 @@ export default function App() {
         <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-[#0a0a0f] p-4 lg:p-8 pb-[calc(1rem+56px+env(safe-area-inset-bottom,0px))] lg:pb-8 custom-scrollbar">
           {!isVerified && isAuthenticated && (
             <div className="mb-8 animate-in slide-in-from-top-4 duration-500">
-              <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 p-6 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-amber-500/5">
+              <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 p-4 sm:p-6 rounded-2xl sm:rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 shadow-xl shadow-amber-500/5">
                 <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
                     <Mail className="w-7 h-7 text-white" />
                   </div>
                   <div>

@@ -364,7 +364,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           </div>
           <button
             onClick={() => setShowConfirmModal(true)}
-            className="px-3 sm:px-6 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-[9px] sm:text-xs font-bold uppercase tracking-widest rounded-lg sm:rounded-xl transition-all shadow-lg shadow-blue-500/20"
+            className="px-3 sm:px-6 py-2.5 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-lg sm:rounded-xl transition-all shadow-lg shadow-blue-500/20 min-h-[44px]"
           >
             Selesai
           </button>
@@ -415,7 +415,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                     />
                   </div>
                 )}
-                <p className="text-[14px] sm:text-[15px] text-slate-700 dark:text-slate-100 font-medium leading-relaxed text-justify">
+                <p className="text-[14px] sm:text-[15px] text-slate-700 dark:text-slate-100 font-medium leading-relaxed text-left sm:text-justify">
                   {currentQuestion?.question_text}
                 </p>
               </div>
@@ -504,7 +504,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                             />
                           ) : (
                             <p className={cn(
-                              "p-2 sm:p-2.5 px-3 sm:px-4 text-[12px] sm:text-[13px] font-medium leading-relaxed text-justify",
+                              "p-2 sm:p-2.5 px-3 sm:px-4 text-[12px] sm:text-[13px] font-medium leading-relaxed text-left sm:text-justify",
                               answers[currentQuestion.id] === opt ? "text-blue-800 dark:text-blue-100" : "text-slate-600 dark:text-slate-300"
                             )}>
                               {currentQuestion?.options?.[opt]}
