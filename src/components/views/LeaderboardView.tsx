@@ -152,7 +152,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
 
           {/* Podium */}
           {!loading && leaderboard.length >= 3 && (
-            <div className="grid grid-cols-3 gap-4 pt-6">
+            <div className="hidden sm:grid grid-cols-3 gap-4 pt-6">
               <div className="flex flex-col justify-end">
                 <div className="bg-white dark:bg-[#0d0d14] border border-slate-200 dark:border-white/5 p-5 rounded-2xl text-center group hover:border-slate-300 dark:hover:border-slate-500/30 transition-all">
                   <div className="w-12 h-12 bg-slate-100 dark:bg-slate-500/10 border border-slate-200 dark:border-slate-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -184,6 +184,45 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                   <p className="text-2xl font-black text-orange-500 dark:text-amber-600 tracking-tighter mb-2">{leaderboard[2]?.total}</p>
                   <span className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest border border-slate-200 dark:border-white/5 px-2 py-0.5 rounded">Third Place</span>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Podium Mobile — stack vertikal */}
+          {!loading && leaderboard.length >= 3 && (
+            <div className="sm:hidden flex flex-col gap-3 pt-4">
+              {/* Champion */}
+              <div className="bg-indigo-600 border border-indigo-500 p-4 rounded-2xl flex items-center gap-4 shadow-lg shadow-indigo-500/20">
+                <div className="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center border-4 border-indigo-500 shrink-0">
+                  <Trophy className="w-6 h-6 text-yellow-900" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Champion</span>
+                  <h4 className="font-black text-white text-sm truncate">{leaderboard[0]?.profiles?.full_name || "Peserta FBK"}</h4>
+                </div>
+                <span className="text-2xl font-black text-yellow-400 tracking-tighter shrink-0">{leaderboard[0]?.total}</span>
+              </div>
+              {/* Runner Up */}
+              <div className="bg-white dark:bg-[#0d0d14] border border-slate-200 dark:border-white/5 p-4 rounded-2xl flex items-center gap-4">
+                <div className="w-11 h-11 bg-slate-100 dark:bg-slate-500/10 border border-slate-200 dark:border-slate-500/20 rounded-xl flex items-center justify-center shrink-0">
+                  <Medal className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Runner Up</span>
+                  <h4 className="font-black text-slate-900 dark:text-white text-sm truncate">{leaderboard[1]?.profiles?.full_name || "Peserta FBK"}</h4>
+                </div>
+                <span className="text-xl font-black text-slate-400 tracking-tighter shrink-0">{leaderboard[1]?.total}</span>
+              </div>
+              {/* Third Place */}
+              <div className="bg-white dark:bg-[#0d0d14] border border-slate-200 dark:border-white/5 p-4 rounded-2xl flex items-center gap-4">
+                <div className="w-11 h-11 bg-orange-50 dark:bg-amber-600/10 border border-orange-100 dark:border-amber-600/20 rounded-xl flex items-center justify-center shrink-0">
+                  <Award className="w-5 h-5 text-orange-500 dark:text-amber-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Third Place</span>
+                  <h4 className="font-black text-slate-900 dark:text-white text-sm truncate">{leaderboard[2]?.profiles?.full_name || "Peserta FBK"}</h4>
+                </div>
+                <span className="text-xl font-black text-orange-500 dark:text-amber-600 tracking-tighter shrink-0">{leaderboard[2]?.total}</span>
               </div>
             </div>
           )}

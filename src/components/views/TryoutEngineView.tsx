@@ -32,6 +32,10 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   const [cheatAttempts, setCheatAttempts] = useState(0);
   const lastViolationTime = useRef<number>(0);
 
+  // Swipe gesture untuk mobile
+  const touchStartX = useRef<number>(0);
+  const touchStartY = useRef<number>(0);
+
   // Anti-Cheat Implementation
   useEffect(() => {
     const handleViolation = (msg: string) => {
@@ -374,7 +378,29 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col lg:flex-row relative">
+      <div
+        className="flex-1 flex flex-col lg:flex-row relative"
+        onTouchStart={(e) => {
+          touchStartX.current = e.touches[0].clientX;
+          touchStartY.current = e.touches[0].clientY;
+        }}
+        onTouchEnd={(e) => {
+          const dx = e.changedTouches[0].clientX - touchStartX.current;
+          const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
+          // Hanya trigger jika swipe horizontal (dx > 50px) dan tidak scroll vertikal (dy < 30px)
+          if (Math.abs(dx) > 50 && dy < 30) {
+            if (dx < 0 && currentIdx < questions.length - 1) {
+              // Swipe kiri = soal berikutnya
+              setCurrentIdx((prev) => prev + 1);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (dx > 0 && currentIdx > 0) {
+              // Swipe kanan = soal sebelumnya
+              setCurrentIdx((prev) => prev - 1);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }
+        }}
+      >
         {/* Main Content Area */}
         <div className="flex-1 p-4 sm:p-12 lg:p-16">
           <div className="max-w-4xl mx-auto">
