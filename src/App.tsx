@@ -57,6 +57,7 @@ export default function App() {
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(() => {
     return localStorage.getItem("fbk_selected_transaction_id");
   });
+  const [paketSayaKey, setPaketSayaKey] = useState(0);
 
   const isAuthenticated = !!session;
   const currentUser = profile?.full_name || session?.user?.email;
@@ -332,14 +333,14 @@ export default function App() {
         {/* User Protected Routes */}
         <Route path="/dashboard" element={isAuthenticated ? <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={handleNavigate} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onReview={handleHistoryReview} /> : <Navigate to="/" replace />} />
         <Route path="/paket" element={isAuthenticated ? <TryoutView isAuthenticated={isAuthenticated} onPurchaseSuccess={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onLoginClick={() => setIsLoginOpen(true)} /> : <Navigate to="/" replace />} />
-        <Route path="/paket-saya" element={isAuthenticated ? <PaketSayaView onStartTryout={handleStartTryout} /> : <Navigate to="/" replace />} />
+        <Route path="/paket-saya" element={isAuthenticated ? <PaketSayaView key={paketSayaKey} onStartTryout={handleStartTryout} /> : <Navigate to="/" replace />} />
         <Route path="/ranking" element={<LeaderboardView onLoginClick={() => setIsLoginOpen(true)} />} />
         <Route path="/events" element={isAuthenticated ? <EventsView /> : <Navigate to="/" replace />} />
         <Route path="/profile" element={isAuthenticated ? <ProfileView /> : <Navigate to="/" replace />} />
         <Route path="/settings" element={isAuthenticated ? <SettingsView /> : <Navigate to="/" replace />} />
         <Route path="/transactions" element={isAuthenticated ? <PaymentHistory onBack={() => navigate("/dashboard")} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} /> : <Navigate to="/" replace />} />
         <Route path="/help" element={<ContactView />} />
-        <Route path="/invoice" element={selectedTransactionId ? <InvoiceView transactionId={selectedTransactionId} onBack={(success?: boolean) => { if (success) { setSelectedTransactionId(null); navigate("/paket-saya"); } else { navigate("/paket"); } }} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/invoice" element={selectedTransactionId ? <InvoiceView transactionId={selectedTransactionId} onBack={(success?: boolean) => { if (success) { setSelectedTransactionId(null); setPaketSayaKey(k => k + 1); navigate("/paket-saya"); } else { navigate("/paket"); } }} /> : <Navigate to="/dashboard" replace />} />
         
         {/* Tryout Engine Routes */}
         <Route path="/tryout-pre/:pId/:qId" element={<TryoutPreView packageId={activePackageId} questionsId={questionsId} onStart={() => navigate("/tryout-engine")} onCancel={() => navigate("/paket-saya")} />} />
