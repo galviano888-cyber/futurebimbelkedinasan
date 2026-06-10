@@ -133,29 +133,27 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
       const result = await checkPakasirStatus(transaction.invoice_id);
       if (result.ok && result.status === "completed") {
         clearInterval(poll);
-        // Trigger webhook manual via re-fetch ke edge function
-        // Pakasir sudah confirmed, paksa update status di DB
-        if (!supabase) return;
-        await supabase
-          .from("transactions")
-          .update({ status: "success", updated_at: new Date().toISOString() })
-          .eq("id", transactionId)
-          .eq("status", "pending");
-
-        // Grant akses paket
-        await supabase.from("user_packages").upsert(
-          {
-            user_id: transaction.user_id,
-            package_id: transaction.package_id,
-            transaction_id: transaction.id,
-          },
-          { onConflict: "user_id,package_id" }
-        );
-
-        toast.success("Pembayaran Berhasil!", {
-          description: "Akses paket Anda kini telah terbuka penuh.",
-          duration: 5000,
-        });
+        // Panggil pakasir-webhook Edge Function secara manual
+        // Edge Function pakai service role key sehingga bisa bypass RLS
+        // dan insert ke user_packages
+        try {
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          await fetch(`${supabaseUrl}/functions/v1/pakasir-webhook`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              amount: transaction.amount,
+              order_id: transaction.invoice_id,
+              project: import.meta.env.VITE_PAKASIR_SLUG,
+              status: "completed",
+              payment_method: "qris",
+              completed_at: new Date().toISOString(),
+            }),
+          });
+        } catch (err) {
+          console.error("Gagal trigger webhook manual:", err);
+        }
+        // Refresh transaksi — realtime listener akan handle toast
         fetchTransaction(true);
       }
     }, 5000); // cek setiap 5 detik
