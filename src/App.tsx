@@ -31,6 +31,7 @@ const ProfileView = lazy(() => import("@/components/views/ProfileView").then(m =
 const PaymentHistory = lazy(() => import("@/components/views/PaymentHistoryView").then(m => ({ default: m.PaymentHistory })));
 const InvoiceView = lazy(() => import("@/components/views/InvoiceView").then(m => ({ default: m.InvoiceView })));
 const EventsView = lazy(() => import("@/components/views/EventsView").then(m => ({ default: m.EventsView })));
+const EventEngineView = lazy(() => import("@/components/views/EventEngineView").then(m => ({ default: m.EventEngineView })));
 
 export default function App() {
   const navigate = useNavigate();
@@ -200,6 +201,8 @@ export default function App() {
       setActivePage('TryoutPreView');
     } else if (path.startsWith('/tryout-engine')) {
       setActivePage('TryoutEngine');
+    } else if (path.startsWith('/event-engine')) {
+      setActivePage('EventEngine');
     } else if (path === '/login') {
       setIsLoginOpen(true);
       setAuthMode('login');
@@ -343,6 +346,9 @@ export default function App() {
         <Route path="/help" element={<ContactView />} />
         <Route path="/invoice" element={selectedTransactionId ? <InvoiceView transactionId={selectedTransactionId} onBack={(success?: boolean) => { if (success) { setSelectedTransactionId(null); setPaketSayaKey(k => k + 1); navigate("/paket-saya"); } else { navigate("/paket"); } }} /> : <Navigate to="/dashboard" replace />} />
         
+        {/* Event Engine Route */}
+        <Route path="/event-engine/:eventId" element={isAuthenticated ? <EventEngineView /> : <Navigate to="/" replace />} />
+
         {/* Tryout Engine Routes */}
         <Route path="/tryout-pre/:pId/:qId" element={<TryoutPreView packageId={activePackageId} questionsId={questionsId} onStart={() => navigate("/tryout-engine")} onCancel={() => navigate("/paket-saya")} />} />
         <Route path="/tryout-engine" element={
@@ -381,12 +387,13 @@ export default function App() {
 
   // Define full-screen pages based on pathname
   const isFullScreenPage = location.pathname.startsWith('/tryout') || 
+                           location.pathname.startsWith('/event-engine') ||
                            location.pathname === '/admin-panel' || 
                            location.pathname === '/reset-password';
 
   if (isFullScreenPage) {
     // Background disesuaikan: tryout engine pakai #eef0f4, halaman lain pakai slate-50
-    const isTryoutEngine = location.pathname === '/tryout-engine';
+    const isTryoutEngine = location.pathname === '/tryout-engine' || location.pathname.startsWith('/event-engine');
     const bgClass = isTryoutEngine ? 'bg-[#eef0f4] dark:bg-[#0a0a0f]' : 'bg-slate-50 dark:bg-[#0a0a0f]';
     const tryoutFallback = (
       <div className="fixed inset-0 bg-[#eef0f4] dark:bg-[#0a0a0f] flex flex-col items-center justify-center">
