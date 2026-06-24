@@ -530,7 +530,7 @@ export default function App() {
             setIsLoginOpen={setIsLoginOpen}
           />
         )}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6 pb-[calc(1rem+56px+env(safe-area-inset-bottom,0px))] lg:pb-6 custom-scrollbar">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 pb-[calc(1rem+56px+env(safe-area-inset-bottom,0px))] lg:pb-6 custom-scrollbar" style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' }}>
           {!isVerified && isAuthenticated && (
             <div className="mb-6 animate-in slide-in-from-top-2 duration-400">
               <div className="bg-amber-50 dark:bg-amber-500/[0.06] border border-amber-200 dark:border-amber-500/20 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">

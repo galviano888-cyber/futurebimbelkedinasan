@@ -508,14 +508,14 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         }}
       >
         {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-6 custom-scrollbar" style={{ scrollbarGutter: 'stable' }}>
+        <div className="flex-1 overflow-y-auto p-2 sm:p-5 lg:p-6 custom-scrollbar" style={{ scrollbarGutter: 'stable', WebkitOverflowScrolling: 'touch' }}>
           <div className="max-w-5xl mx-auto w-full">
             <motion.div
               key={currentIdx}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-white dark:bg-[#161616] rounded-2xl border border-slate-200/80 dark:border-white/[0.06] p-4 sm:p-6 shadow-sm"
+              className="bg-white dark:bg-[#161616] rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-white/[0.06] p-3 sm:p-6 shadow-sm"
             >
               {/* Question Info Header */}
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/[0.06] pb-3 mb-4">
@@ -548,7 +548,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                     />
                   </div>
                 )}
-                <p className="text-[14px] sm:text-[15px] text-slate-800 dark:text-slate-100 leading-[1.75] text-justify font-normal">
+                <p className="text-[13px] sm:text-[15px] text-slate-800 dark:text-slate-100 leading-[1.65] sm:leading-[1.75] text-justify font-normal">
                   {currentQuestion?.question_text}
                 </p>
               </div>
@@ -611,7 +611,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                         className="group flex items-center gap-3 w-full text-left transition-all active:scale-[0.99]"
                       >
                         <div className={cn(
-                          "flex-1 flex items-center gap-3 rounded-xl border transition-all overflow-hidden p-3 sm:p-3.5",
+                          "flex-1 flex items-center gap-2.5 rounded-lg sm:rounded-xl border transition-all overflow-hidden p-2.5 sm:p-3.5",
                           answers[currentQuestion.id] === opt
                             ? "bg-blue-50 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/40"
                             : "bg-slate-100 dark:bg-[#2a2a32] border-slate-200/80 dark:border-white/[0.08] group-hover:border-blue-200 dark:group-hover:border-blue-500/30 group-hover:bg-blue-50 dark:group-hover:bg-[#2e2e3a]"
@@ -632,7 +632,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                             />
                           ) : (
                             <p className={cn(
-                              "text-[12.5px] sm:text-[13px] leading-relaxed text-justify font-[500]",
+                              "text-[12px] sm:text-[13px] leading-relaxed text-justify font-[500]",
                               answers[currentQuestion.id] === opt
                                 ? "text-blue-900 dark:text-blue-100 font-semibold"
                                 : "text-slate-700 dark:text-slate-200"
@@ -649,7 +649,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
               </div>
 
               {/* Bottom Controls */}
-              <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="mt-3 pt-3 sm:mt-4 sm:pt-4 border-t border-slate-100 dark:border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
                 <button
                   onClick={() => {
                     const newAnswers = { ...answers };
@@ -671,7 +671,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     disabled={currentIdx === 0}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-300 rounded-xl font-medium text-[13px] hover:bg-slate-200 dark:hover:bg-white/[0.08] disabled:opacity-30 transition-all active:scale-[0.98]"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-300 rounded-xl font-medium text-[12px] sm:text-[13px] hover:bg-slate-200 dark:hover:bg-white/[0.08] disabled:opacity-30 transition-all active:scale-[0.98]"
                   >
                     Sebelumnya
                   </button>
@@ -679,7 +679,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                   {currentIdx === questions.length - 1 ? (
                     <button
                       onClick={() => setShowConfirmModal(true)}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-[13px] rounded-xl transition-all shadow-sm active:scale-[0.98]"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 sm:px-8 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-[12px] sm:text-[13px] rounded-xl transition-all shadow-sm active:scale-[0.98]"
                     >
                       Selesai
                     </button>
@@ -689,7 +689,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                         setCurrentIdx((prev) => Math.min(questions.length - 1, prev + 1));
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-[13px] rounded-xl transition-all shadow-sm active:scale-[0.98]"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 sm:px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-[12px] sm:text-[13px] rounded-xl transition-all shadow-sm active:scale-[0.98]"
                     >
                       Selanjutnya
                     </button>

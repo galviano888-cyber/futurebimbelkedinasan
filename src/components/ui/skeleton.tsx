@@ -52,25 +52,32 @@ export function Skeleton({ className = "", variant = "rect", ...props }: Skeleto
 
 export function DashboardSkeleton() {
   return (
-    <div className="p-8 space-y-10 animate-in fade-in duration-500">
+    <div className="p-4 lg:p-8 space-y-5 lg:space-y-10 animate-in fade-in duration-300">
       {/* Header Skeleton */}
       <div className="flex items-center justify-between">
-        <div className="space-y-3">
-          <Skeleton className="h-8 w-64" />
-          <Skeleton className="h-4 w-48" />
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-48 lg:h-8 lg:w-64" />
+          <Skeleton className="h-3 w-32 lg:h-4 lg:w-48" />
         </div>
-        <Skeleton className="h-12 w-12" variant="circle" />
+        <Skeleton className="h-10 w-10 lg:h-12 lg:w-12" variant="circle" />
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Stats Grid — mobile 2 col, desktop 3 col */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 lg:gap-6">
         {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-32 w-full rounded-3xl" />
+          <Skeleton key={i} className={`h-24 lg:h-32 w-full rounded-2xl lg:rounded-3xl ${i === 3 ? 'col-span-2 md:col-span-1' : ''}`} />
         ))}
       </div>
 
-      {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Content — mobile single col */}
+      <div className="space-y-3 lg:hidden">
+        {[1, 2].map((i) => (
+          <Skeleton key={i} className="h-36 w-full rounded-2xl" />
+        ))}
+      </div>
+
+      {/* Content Grid — desktop only */}
+      <div className="hidden lg:grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <Skeleton className="h-10 w-48" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
