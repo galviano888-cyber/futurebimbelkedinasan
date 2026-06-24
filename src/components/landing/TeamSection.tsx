@@ -84,6 +84,7 @@ export const TeamSection = memo(function TeamSection() {
                   src={member.photo}
                   alt={member.name}
                   className={`w-full h-full object-cover ${member.objectPosition} group-hover:scale-105 transition-transform duration-500`}
+                  loading="lazy"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}

@@ -114,7 +114,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                     {/* Cover image */}
                     {pkg.cover_image_url && (
                       <div className="relative h-36 rounded-t-3xl overflow-hidden shrink-0">
-                        <img src={pkg.cover_image_url} alt={pkg.title} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display='none'; }} />
+                        <img src={pkg.cover_image_url} alt={pkg.title} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display='none'; }} />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                       </div>
                     )}

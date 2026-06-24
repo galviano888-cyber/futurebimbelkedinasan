@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 
+const PAGE_SIZE = 20;
+
 export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void }) {
   const [loading, setLoading] = useState(true);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
@@ -11,12 +13,15 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
   const [selectedPackage, setSelectedPackage] = useState<string>("");
   const [userRank, setUserRank] = useState<{ position: number; total: number; score: number } | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
-    fetchPackages(); fetchLeaderboard(); fetchUserRank();
+    setPage(1);
+    fetchPackages(); fetchLeaderboard(1, false); fetchUserRank();
     if (!supabase) return;
     const channel = supabase.channel('leaderboard_live')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tryout_results' }, () => { fetchLeaderboard(); fetchUserRank(); })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tryout_results' }, () => { fetchLeaderboard(1, false); fetchUserRank(); })
       .subscribe();
     return () => { if (supabase) supabase.removeChannel(channel); };
   }, [selectedPackage]);
@@ -28,18 +33,34 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
     else setSelectedPackage("all");
   };
 
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = async (currentPage = 1, append = false) => {
     if (!supabase) return;
     setLoading(true);
     try {
+      const from = (currentPage - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
       if (selectedPackage === "all") {
-        const { data, error } = await supabase.from('leaderboard_averages').select('*').order('avg_total', { ascending: false }).limit(50);
+        const { data, error } = await supabase
+          .from('leaderboard_averages')
+          .select('user_id, full_name, avg_twk, avg_tiu, avg_tkp, avg_total, last_active')
+          .order('avg_total', { ascending: false })
+          .range(from, to);
         if (error) throw error;
-        setLeaderboard((data || []).map((item: any) => ({ ...item, twk: item.avg_twk, tiu: item.avg_tiu, tkp: item.avg_tkp, total: item.avg_total, profiles: { full_name: item.full_name } })));
+        const mapped = (data || []).map((item: any) => ({ ...item, twk: item.avg_twk, tiu: item.avg_tiu, tkp: item.avg_tkp, total: item.avg_total, profiles: { full_name: item.full_name } }));
+        setLeaderboard(prev => append ? [...prev, ...mapped] : mapped);
+        setHasMore((data || []).length === PAGE_SIZE);
       } else {
-        const { data, error } = await supabase.from('fair_package_leaderboard').select('*').eq('package_id', selectedPackage).order('total', { ascending: false }).limit(50);
+        const { data, error } = await supabase
+          .from('fair_package_leaderboard')
+          .select('user_id, full_name, package_id, twk, tiu, tkp, total, date')
+          .eq('package_id', selectedPackage)
+          .order('total', { ascending: false })
+          .range(from, to);
         if (error) throw error;
-        setLeaderboard((data || []).map((item: any) => ({ ...item, profiles: { full_name: item.full_name } })));
+        const mapped = (data || []).map((item: any) => ({ ...item, profiles: { full_name: item.full_name } }));
+        setLeaderboard(prev => append ? [...prev, ...mapped] : mapped);
+        setHasMore((data || []).length === PAGE_SIZE);
       }
     } catch (error) { console.error("Error:", error); setLeaderboard([]); }
     finally { setLoading(false); }
@@ -154,9 +175,12 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                 <h3 className="text-[14px] font-semibold text-slate-800 dark:text-white">Leaderboard</h3>
                 <span className="text-[11px] text-slate-400 dark:text-slate-500">Top 50</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Live</span>
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] text-slate-400 dark:text-slate-500">Menampilkan {leaderboard.length} peserta</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Live</span>
+                </div>
               </div>
             </div>
 
@@ -219,6 +243,22 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                 <Trophy className="w-10 h-10 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
                 <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400">Belum ada data ranking</p>
                 <p className="text-[12px] text-slate-400 dark:text-slate-600 mt-1">Jadilah yang pertama mengerjakan tryout!</p>
+              </div>
+            )}
+
+            {/* Load More */}
+            {hasMore && !loading && (
+              <div className="px-5 py-4 border-t border-slate-100 dark:border-white/[0.05] flex justify-center">
+                <button
+                  onClick={() => {
+                    const nextPage = page + 1;
+                    setPage(nextPage);
+                    fetchLeaderboard(nextPage, true);
+                  }}
+                  className="px-6 py-2.5 text-[13px] font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-xl transition-all border border-blue-200 dark:border-blue-500/20"
+                >
+                  Muat lebih banyak
+                </button>
               </div>
             )}
           </div>

@@ -100,6 +100,7 @@ export const HeroSection = memo(function HeroSection({
                   src="/hero-squad.png"
                   alt="Squad Kedinasan"
                   className="w-full h-full object-cover"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0f2750]/60 to-transparent" />
               </div>

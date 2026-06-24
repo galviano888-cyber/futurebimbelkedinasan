@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { ShoppingBag, ChevronRight, Loader2, FileEdit, Clock, Zap } from "lucide-react";
 import { ExpandableDesc } from "@/components/ExpandableDesc";
 import { supabase } from "@/lib/supabaseClient";
@@ -35,6 +35,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const lastPurchaseTime = useRef<Record<string, number>>({});
 
   const fetchData = useCallback(async () => {
     if (!supabase) return;
@@ -68,6 +69,10 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
   const handlePurchase = useCallback(async (pkg: Package) => {
     if (!isAuthenticated) { onLoginClick?.(); return; }
     if (!supabase) return;
+    // Rate limit: cegah double-click dalam 3 detik per paket
+    const now = Date.now();
+    if (lastPurchaseTime.current[pkg.id] && now - lastPurchaseTime.current[pkg.id] < 3000) return;
+    lastPurchaseTime.current[pkg.id] = now;
     setProcessingId(pkg.id);
     try {
       const { data: { user } } = await supabase.auth.getUser();

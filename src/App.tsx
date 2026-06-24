@@ -1,15 +1,18 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { DashboardView } from "@/components/views/DashboardView";
-import { TryoutView } from "@/components/views/TryoutView";
-import { PaketSayaView } from "@/components/views/PaketSayaView";
-import { ContactView } from "@/components/views/ContactView";
 import { DashboardSkeleton, FBKLoader } from "@/components/ui/skeleton";
 import { LandingPageView } from "@/components/views/LandingPageView";
+
+// Lazy loaded views
+const DashboardView = lazy(() => import("@/components/views/DashboardView").then(m => ({ default: m.DashboardView })));
+const TryoutView = lazy(() => import("@/components/views/TryoutView").then(m => ({ default: m.TryoutView })));
+const PaketSayaView = lazy(() => import("@/components/views/PaketSayaView").then(m => ({ default: m.PaketSayaView })));
+const ContactView = lazy(() => import("@/components/views/ContactView").then(m => ({ default: m.ContactView })));
 import { AuthModal } from "@/components/AuthModal";
 import { supabase } from "@/lib/supabaseClient";
 import { Mail, RefreshCcw } from "lucide-react";
@@ -66,6 +69,7 @@ export default function App() {
 
   const isAuthenticated = !!session;
   const currentUser = profile?.full_name || session?.user?.email;
+  const isOnline = useOnlineStatus();
 
   // 2. Persist State Changes
   useEffect(() => {
@@ -90,12 +94,21 @@ export default function App() {
 
   const [isVerified, setIsVerified] = useState<boolean>(true);
 
-  const checkVerification = async (user: any) => {
+  interface AuthUser {
+    id: string;
+    email?: string;
+    email_confirmed_at?: string | null;
+    confirmed_at?: string | null;
+    app_metadata?: { provider?: string };
+    user_metadata?: { full_name?: string; name?: string };
+  }
+
+  const checkVerification = (user: AuthUser) => {
     if (!user) return;
     setIsVerified(!!(user.email_confirmed_at || user.confirmed_at));
   };
 
-  const fetchAllData = async (user: any) => {
+  const fetchAllData = async (user: AuthUser) => {
     if (!supabase || !user) {
       setLoading(false);
       return;
@@ -105,14 +118,14 @@ export default function App() {
     try {
       const { data: pData } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, full_name, email, avatar_url, phone, created_at')
         .eq('id', user.id)
         .single();
       if (pData) setProfile(pData);
 
       const { data: results, error } = await supabase
         .from("fair_package_leaderboard")
-        .select(`*`)
+        .select('id, user_id, package_id, tryout_id, date, package_name, twk, tiu, tkp, total, answers, score_details')
         .eq("user_id", user.id);
 
       if (!error && Array.isArray(results)) {
@@ -433,6 +446,12 @@ export default function App() {
     <div className="h-[100dvh] app-surface dark:bg-[#0b0b0e] flex flex-col lg:flex-row overflow-hidden transition-colors duration-500">
       <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={true} />
       <Toaster position="top-center" richColors />
+      {/* Offline Banner */}
+      {!isOnline && (
+        <div className="fixed top-0 left-0 right-0 z-[100] bg-red-600 text-white text-center text-[13px] font-semibold py-2 px-4 animate-in slide-in-from-top-2 duration-300">
+          Tidak ada koneksi internet. Periksa jaringan Anda.
+        </div>
+      )}
       {isAuthenticated && (
         <Sidebar
           isOpen={isSidebarOpen}
