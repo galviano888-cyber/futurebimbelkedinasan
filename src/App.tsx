@@ -68,7 +68,10 @@ export default function App() {
   const [paketSayaKey, setPaketSayaKey] = useState(0);
 
   const isAuthenticated = !!session;
-  const currentUser = profile?.full_name || session?.user?.email;
+  const currentUser = profile?.full_name || 
+    session?.user?.user_metadata?.full_name || 
+    session?.user?.user_metadata?.name || 
+    session?.user?.email;
   const isOnline = useOnlineStatus();
 
   // 2. Persist State Changes
@@ -173,8 +176,20 @@ export default function App() {
             navigate('/dashboard', { replace: true });
             const { data: prof } = await supabase!.from('profiles').select('full_name').eq('id', s.user.id).single();
             if (!prof?.full_name) {
-              setForceNameModal(true);
-              setIsLoginOpen(true);
+              // Coba ambil nama dari Google user_metadata dulu
+              const googleName = s.user.user_metadata?.full_name || s.user.user_metadata?.name;
+              if (googleName) {
+                // Auto-simpan nama dari Google tanpa modal
+                await supabase!.from('profiles').upsert(
+                  { id: s.user.id, full_name: googleName },
+                  { onConflict: 'id' }
+                );
+                setProfile((prev: any) => ({ ...prev, full_name: googleName }));
+              } else {
+                // Tidak ada nama di Google metadata, minta user isi manual
+                setForceNameModal(true);
+                setIsLoginOpen(true);
+              }
             }
           }
         }
