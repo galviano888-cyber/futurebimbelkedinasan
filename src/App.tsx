@@ -186,9 +186,13 @@ export default function App() {
                 );
                 setProfile((prev: any) => ({ ...prev, full_name: googleName }));
               } else {
-                // Tidak ada nama di Google metadata, minta user isi manual
-                setForceNameModal(true);
-                setIsLoginOpen(true);
+                // Tidak ada nama dari Google, pakai email sebagai fallback
+                const fallbackName = s.user.email?.split('@')[0] || 'Siswa FBK';
+                await supabase!.from('profiles').upsert(
+                  { id: s.user.id, full_name: fallbackName },
+                  { onConflict: 'id' }
+                );
+                setProfile((prev: any) => ({ ...prev, full_name: fallbackName }));
               }
             }
           }
