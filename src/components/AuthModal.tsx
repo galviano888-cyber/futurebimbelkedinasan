@@ -102,7 +102,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', forceNameMod
         toast.success("Berhasil masuk!");
         onClose();
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -113,11 +113,24 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', forceNameMod
           },
         });
         if (error) throw error;
-        toast.success("Akun Berhasil Dibuat!", {
-          description: "Satu langkah lagi. Silakan cek email Anda dan klik link verifikasi untuk mengaktifkan akun.",
-          duration: 6000
+
+        // Supabase signUp langsung login user meski belum verifikasi email.
+        // Paksa sign out agar user tidak masuk sebelum verifikasi.
+        if (signUpData?.session) {
+          await supabase.auth.signOut();
+        }
+
+        toast.success("Cek Email Anda!", {
+          description: `Link verifikasi telah dikirim ke ${email}. Klik link tersebut untuk mengaktifkan akun, lalu login.`,
+          duration: 8000
         });
+        // Reset form dan kembali ke mode login
+        setEmail("");
+        setPassword("");
+        setFullName("");
+        setAgreed(false);
         setIsLogin(true);
+        onClose();
       }
     } catch (error: any) {
       if (error.message === "Email not confirmed") {
