@@ -163,8 +163,13 @@ export default function App() {
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
           fetchAllData(s.user);
 
-          // Google OAuth: navigate ke dashboard dan cek nama lengkap
-          if (event === 'SIGNED_IN' && s.user.app_metadata?.provider === 'google') {
+          // Google OAuth callback: INITIAL_SESSION atau SIGNED_IN setelah redirect
+          const isGoogleUser = s.user.app_metadata?.provider === 'google';
+          const isOAuthCallback = window.location.hash.includes('access_token') ||
+            document.referrer.includes('accounts.google.com') ||
+            sessionStorage.getItem('supabase.auth.token') !== null;
+
+          if (isGoogleUser && (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && isOAuthCallback))) {
             navigate('/dashboard', { replace: true });
             const { data: prof } = await supabase!.from('profiles').select('full_name').eq('id', s.user.id).single();
             if (!prof?.full_name) {
