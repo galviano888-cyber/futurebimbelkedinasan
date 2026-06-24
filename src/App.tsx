@@ -173,10 +173,12 @@ export default function App() {
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
           fetchAllData(s.user);
           // Google OAuth: cek apakah user baru (belum punya nama lengkap di profiles)
-          if (event === 'SIGNED_IN' && s.user.app_metadata?.provider === 'google') {
+          // Hanya trigger dari onAuthStateChange, bukan dari google_callback handler
+          // supaya tidak double-trigger
+          const isGoogleCallback = new URLSearchParams(window.location.search).get('google_callback') === 'true';
+          if (event === 'SIGNED_IN' && s.user.app_metadata?.provider === 'google' && !isGoogleCallback) {
             const { data: prof } = await supabase!.from('profiles').select('full_name').eq('id', s.user.id).single();
             if (!prof?.full_name) {
-              // User Google baru belum punya nama — tampilkan modal isi nama
               setForceNameModal(true);
               setIsLoginOpen(true);
             }
@@ -251,9 +253,20 @@ export default function App() {
         });
       }, 500);
     }
-    // Google OAuth callback — bersihkan param dari URL
+    // Google OAuth callback — bersihkan param dan arahkan ke dashboard jika sudah login
     if (params.get('google_callback') === 'true') {
-      navigate(location.pathname, { replace: true });
+      navigate('/dashboard', { replace: true });
+      // Cek apakah user Google baru (belum punya nama lengkap)
+      if (supabase) {
+        supabase.auth.getUser().then(async ({ data: { user } }) => {
+          if (!user) return;
+          const { data: prof } = await supabase!.from('profiles').select('full_name').eq('id', user.id).single();
+          if (!prof?.full_name) {
+            setForceNameModal(true);
+            setIsLoginOpen(true);
+          }
+        });
+      }
     }
   }, [isAuthenticated, navigate]);
 
