@@ -1,33 +1,6 @@
 import { useState, useEffect } from "react";
-import { BookOpen, Video, FileText, Play, Clock, CheckCircle2, Loader2, Package, ExternalLink, Award, ChevronLeft, BookMarked, Check, ChevronDown } from "lucide-react";
-
-function ExpandableDesc({ text }: { text: string }) {
-  const [expanded, setExpanded] = useState(false);
-  const items = text.split(/,|\n/).map(s => s.trim()).filter(s => s.length > 0);
-  const isLong = items.length > 3;
-  const visible = !expanded && isLong ? items.slice(0, 3) : items;
-  return (
-    <div className="mb-3 flex-1 space-y-1.5">
-      {visible.map((item, i) => (
-        <div key={i} className="flex items-start gap-2">
-          <span className="w-4 h-4 rounded-full bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center shrink-0 mt-px">
-            <Check className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" strokeWidth={3} />
-          </span>
-          <span className="text-[12px] text-slate-600 dark:text-slate-400 leading-snug">{item}</span>
-        </div>
-      ))}
-      {isLong && (
-        <button
-          onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-          className="flex items-center gap-1 mt-1 text-[11px] text-blue-500 hover:text-blue-600 font-medium transition-colors"
-        >
-          {expanded ? "Sembunyikan" : `+${items.length - 3} lainnya`}
-          <ChevronDown className={`w-3 h-3 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-        </button>
-      )}
-    </div>
-  );
-}
+import { BookOpen, Video, FileText, Play, Clock, CheckCircle2, Loader2, Package, ExternalLink, Award, ChevronLeft, BookMarked } from "lucide-react";
+import { ExpandableDesc } from "@/components/ExpandableDesc";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";

@@ -1,37 +1,6 @@
-import { useState, useEffect } from "react";
-import { ShoppingBag, ChevronRight, Loader2, FileEdit, Clock, Zap, Package, ChevronDown, Check } from "lucide-react";
-
-function ExpandableDesc({ text }: { text: string }) {
-  const [expanded, setExpanded] = useState(false);
-  // Pecah teks jadi item-item berdasarkan koma atau newline
-  const items = text
-    .split(/,|\n/)
-    .map(s => s.trim())
-    .filter(s => s.length > 0);
-  const isLong = items.length > 3;
-  const visible = !expanded && isLong ? items.slice(0, 3) : items;
-  return (
-    <div className="mb-5 flex-1 space-y-1.5">
-      {visible.map((item, i) => (
-        <div key={i} className="flex items-start gap-2">
-          <span className="w-4 h-4 rounded-full bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center shrink-0 mt-px">
-            <Check className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" strokeWidth={3} />
-          </span>
-          <span className="text-[12px] text-slate-600 dark:text-slate-400 leading-snug">{item}</span>
-        </div>
-      ))}
-      {isLong && (
-        <button
-          onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-          className="flex items-center gap-1 mt-1 text-[11px] text-blue-500 hover:text-blue-600 font-medium transition-colors"
-        >
-          {expanded ? "Sembunyikan" : `+${items.length - 3} lainnya`}
-          <ChevronDown className={cn("w-3 h-3 transition-transform", expanded && "rotate-180")} />
-        </button>
-      )}
-    </div>
-  );
-}
+import { useState, useEffect, useCallback } from "react";
+import { ShoppingBag, ChevronRight, Loader2, FileEdit, Clock, Zap } from "lucide-react";
+import { ExpandableDesc } from "@/components/ExpandableDesc";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -65,13 +34,17 @@ interface TryoutViewProps {
 export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }: TryoutViewProps) {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!supabase) return;
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const { data: allPackages, error: pkgError } = await supabase.from('packages').select('*, cover_image_url, contents:package_contents(*)').eq('is_active', true);
+      const { data: allPackages, error: pkgError } = await supabase
+        .from('packages')
+        .select('*, cover_image_url, contents:package_contents(*)')
+        .eq('is_active', true);
       let ownedPackageIds: string[] = [];
       if (user) {
         const { data: owned } = await supabase.from('user_packages').select('package_id').eq('user_id', user.id);
@@ -88,9 +61,91 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthenticated]);
 
-  useEffect(() => { fetchData(); }, [isAuthenticated]);
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const handlePurchase = useCallback(async (pkg: Package) => {
+    if (!isAuthenticated) { onLoginClick?.(); return; }
+    if (!supabase) return;
+    setProcessingId(pkg.id);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Silakan login kembali.");
+
+      if (!user.email_confirmed_at && !user.confirmed_at) {
+        toast.error("Email Belum Terverifikasi", {
+          description: "Silakan verifikasi email Anda sebelum melakukan pembelian.",
+          duration: 5000
+        });
+        return;
+      }
+
+      if (pkg.price === 0) {
+        const { error } = await supabase.from('user_packages').insert([{ user_id: user.id, package_id: pkg.id }]);
+        if (error) {
+          if (error.code === '23505') toast.error("Anda sudah memiliki paket ini!");
+          else toast.error("Gagal menambahkan paket: " + error.message);
+        } else {
+          toast.success("Paket gratis berhasil ditambahkan!", {
+            description: "Cek menu 'Paket Saya' untuk mulai belajar.",
+            duration: 5000
+          });
+          fetchData();
+        }
+        return;
+      }
+
+      // Paket berbayar
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        email: user.email
+      }, { onConflict: 'id' });
+
+      // Cek transaksi sukses sebelumnya (edge case)
+      const { data: successTx } = await supabase
+        .from('transactions').select('id')
+        .eq('user_id', user.id).eq('package_id', pkg.id).eq('status', 'success')
+        .maybeSingle();
+      if (successTx) {
+        toast.error('Anda sudah memiliki paket ini. Silakan cek menu Paket Saya.');
+        return;
+      }
+
+      // Cek transaksi pending yang sudah ada
+      const { data: existingTxs } = await supabase
+        .from('transactions').select('id, status')
+        .eq('user_id', user.id).eq('package_id', pkg.id).eq('status', 'pending')
+        .order('created_at', { ascending: false });
+      if (existingTxs && existingTxs.length > 0) {
+        onPurchaseSuccess?.(existingTxs[0].id);
+        return;
+      }
+
+      // Buat transaksi baru
+      const invoice_id = `INV-SKD-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(100 + Math.random() * 900)}`;
+      const expiry_date = new Date();
+      expiry_date.setHours(expiry_date.getHours() + 48);
+
+      const { data: newTx, error: txError } = await supabase
+        .from('transactions')
+        .insert([{ id: crypto.randomUUID(), user_id: user.id, package_id: pkg.id, amount: pkg.price, invoice_id, status: 'pending', expiry_date: expiry_date.toISOString() }])
+        .select().single();
+      if (txError) throw txError;
+
+      toast.success("Invoice Berhasil Dibuat!", {
+        description: "Selesaikan pembayaran sesuai petunjuk pada invoice.",
+        duration: 5000
+      });
+      if (newTx) onPurchaseSuccess?.(newTx.id);
+
+    } catch (err: any) {
+      toast.error(`Gagal memproses: ${err.message}`);
+    } finally {
+      setProcessingId(null);
+    }
+  }, [isAuthenticated, onLoginClick, onPurchaseSuccess, fetchData]);
 
   if (loading) {
     return (
@@ -128,6 +183,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
           </div>
         ) : (
           packages.map((pkg) => {
+            const isProcessing = processingId === pkg.id;
             return (
               <div key={pkg.id} className="bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden flex flex-col group hover:border-blue-200 dark:hover:border-blue-500/20 transition-all duration-300 hover:shadow-lg dark:hover:shadow-none">
                 {pkg.cover_image_url ? (
@@ -140,7 +196,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                   <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {pkg.title}
                   </h3>
-                   <ExpandableDesc text={pkg.description || "Dapatkan akses penuh ke materi dan tryout kualitas terbaik."} />
+                  <ExpandableDesc text={pkg.description || "Dapatkan akses penuh ke materi dan tryout kualitas terbaik."} />
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-600 text-[10px] font-bold">
                       <FileEdit className="w-3 h-3" /> {pkg.contents?.length || 0} Konten
@@ -166,46 +222,14 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                     </div>
                   </div>
                   <button
-                    onClick={async () => {
-                      if (!isAuthenticated) { onLoginClick?.(); return; }
-                      if (!supabase) return;
-                      setLoading(true);
-                      try {
-                        const { data: { user } } = await supabase.auth.getUser();
-                        if (!user) throw new Error("Silakan login kembali.");
-                        if (!user.email_confirmed_at && !user.confirmed_at) {
-                          toast.error("Email Belum Terverifikasi", { description: "Silakan verifikasi email Anda sebelum melakukan pembelian.", duration: 5000 });
-                          setLoading(false); return;
-                        }
-                        if (pkg.price === 0) {
-                          const { error } = await supabase.from('user_packages').insert([{ user_id: user.id, package_id: pkg.id }]);
-                          if (error) {
-                            if (error.code === '23505') toast.error("Anda sudah memiliki paket ini!");
-                            else toast.error("Gagal menambahkan paket: " + error.message);
-                          } else {
-                            toast.success("Paket gratis berhasil ditambahkan!", { description: "Cek menu 'Paket Saya' untuk mulai belajar.", duration: 5000 });
-                            fetchData();
-                          }
-                        } else {
-                          await supabase.from('profiles').upsert({ id: user.id, full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User', email: user.email }, { onConflict: 'id' });
-                          // Cek apakah sudah ada transaksi success (tapi user_packages belum ada karena edge case)
-                          const { data: successTx } = await supabase.from('transactions').select('id').eq('user_id', user.id).eq('package_id', pkg.id).eq('status', 'success').maybeSingle();
-                          if (successTx) { toast.error('Anda sudah memiliki paket ini. Silakan cek menu Paket Saya.'); setLoading(false); return; }
-                          const { data: existingTxs } = await supabase.from('transactions').select('id, status').eq('user_id', user.id).eq('package_id', pkg.id).eq('status', 'pending').order('created_at', { ascending: false });
-                          if (existingTxs && existingTxs.length > 0) { if (onPurchaseSuccess) onPurchaseSuccess(existingTxs[0].id); setLoading(false); return; }
-                          const invoice_id = `INV-SKD-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(100 + Math.random() * 900)}`;
-                          const expiry_date = new Date(); expiry_date.setHours(expiry_date.getHours() + 48);
-                          const { data: newTx, error: txError } = await supabase.from('transactions').insert([{ id: crypto.randomUUID(), user_id: user.id, package_id: pkg.id, amount: pkg.price, invoice_id, status: 'pending', expiry_date: expiry_date.toISOString() }]).select().single();
-                          if (txError) throw txError;
-                          toast.success("Invoice Berhasil Dibuat!", { description: "Selesaikan pembayaran sesuai petunjuk pada invoice.", duration: 5000 });
-                          if (newTx && onPurchaseSuccess) onPurchaseSuccess(newTx.id);
-                        }
-                      } catch (err: any) { toast.error(`Gagal memproses: ${err.message}`); }
-                      finally { setLoading(false); }
-                    }}
-                    className="flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-95"
+                    onClick={() => handlePurchase(pkg)}
+                    disabled={isProcessing}
+                    className="flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
                   >
-                    <Zap className="w-3.5 h-3.5" />
+                    {isProcessing
+                      ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      : <Zap className="w-3.5 h-3.5" />
+                    }
                     {pkg.price === 0 ? 'Ambil Gratis' : 'Beli'}
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>

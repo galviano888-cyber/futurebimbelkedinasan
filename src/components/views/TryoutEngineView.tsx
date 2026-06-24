@@ -86,6 +86,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   const [cheatAttempts, setCheatAttempts] = useState(0);
   const [cheatWarning, setCheatWarning] = useState<{ msg: string; count: number } | null>(null);
   const lastViolationTime = useRef<number>(0);
+  const mountTime = useRef<number>(Date.now());
   const [isDark, setIsDark] = useState(() =>
     typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
   );
@@ -127,7 +128,14 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
     };
 
     // Deteksi kehilangan fokus window (Alt+Tab, pindah aplikasi, dll)
+    // Hanya hitung pelanggaran jika halaman TIDAK tersembunyi (bukan tab switch
+    // yang sudah ditangani visibilitychange) dan blur terjadi lebih dari 1 detik
+    // setelah page load untuk menghindari false positive saat pertama mount.
     const handleWindowBlur = () => {
+      // Jika document.hidden = true, visibilitychange sudah menanganinya
+      if (document.hidden) return;
+      // Abaikan blur dalam 2 detik pertama setelah halaman dimuat
+      if (Date.now() - mountTime.current < 2000) return;
       handleViolation("Anda berpindah aplikasi atau jendela lain");
     };
 

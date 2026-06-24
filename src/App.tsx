@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { DashboardView } from "@/components/views/DashboardView";
 import { TryoutView } from "@/components/views/TryoutView";
@@ -418,9 +419,11 @@ export default function App() {
         <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={true} />
         <Toaster position="top-center" richColors />
         <main className="h-full overflow-y-auto custom-scrollbar">
-          <Suspense fallback={isTryoutEngine ? tryoutFallback : <DashboardSkeleton />}>
-            {renderRoutes()}
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={isTryoutEngine ? tryoutFallback : <DashboardSkeleton />}>
+              {renderRoutes()}
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
     );
@@ -483,9 +486,11 @@ export default function App() {
               </div>
             </div>
           )}
-          <Suspense fallback={<DashboardSkeleton />}>
-            {renderRoutes()}
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<DashboardSkeleton />}>
+              {renderRoutes()}
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
       {isAuthenticated && (
