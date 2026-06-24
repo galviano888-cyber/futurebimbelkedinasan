@@ -199,57 +199,94 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                 <p className="text-slate-400 text-[12px]">Memuat data ranking...</p>
               </div>
             ) : leaderboard.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[620px]">
-                  <thead>
-                    <tr className="border-b border-slate-100 dark:border-white/[0.05]">
-                      {['#', 'Nama', 'TWK', 'TIU', 'TKP', 'Avg SKD', 'Tryout'].map((h, i) => (
-                        <th key={h} className={cn(
-                          "px-5 py-3 text-[11px] font-medium text-slate-400 dark:text-slate-500",
-                          i === 0 ? 'text-left w-12' : i === 1 ? 'text-left' : i === 5 ? 'text-right' : 'text-center'
-                        )}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50 dark:divide-white/[0.03]">
-                    {leaderboard.map((item, index) => (
-                      <tr key={index} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
-                        <td className="px-5 py-3.5">
-                          <span className={cn("text-[14px]", rankColor(index))}>
-                            {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-slate-100 dark:bg-white/[0.05] rounded-lg flex items-center justify-center shrink-0 text-[12px] font-semibold text-slate-500 dark:text-slate-400">
-                              {(item.profiles?.full_name || 'S').charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <p className="text-[13.5px] font-medium text-slate-800 dark:text-white">{item.profiles?.full_name || 'Siswa FBK'}</p>
-                              <p className="text-[11px] text-slate-400 dark:text-slate-500">
-                                {item.date && !isNaN(new Date(item.date).getTime())
-                                  ? new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
-                                  : item.last_active && !isNaN(new Date(item.last_active).getTime())
-                                    ? new Date(item.last_active).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
-                                    : 'Baru saja'}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-5 py-3.5 text-center"><span className="text-[13px] text-slate-600 dark:text-slate-300">{item.twk || 0}</span></td>
-                        <td className="px-5 py-3.5 text-center"><span className="text-[13px] text-slate-600 dark:text-slate-300">{item.tiu || 0}</span></td>
-                        <td className="px-5 py-3.5 text-center"><span className="text-[13px] text-slate-600 dark:text-slate-300">{item.tkp || 0}</span></td>
-                        <td className="px-5 py-3.5 text-right">
-                          <span className="text-[15px] font-bold text-blue-600 dark:text-blue-400">{item.total}</span>
-                        </td>
-                        <td className="px-5 py-3.5 text-center">
-                          <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">{item.tryout_count ?? 1}x</span>
-                        </td>
+              <>
+                {/* Desktop: tabel */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-100 dark:border-white/[0.05]">
+                        {['#', 'Nama', 'TWK', 'TIU', 'TKP', 'Avg SKD', 'Tryout'].map((h, i) => (
+                          <th key={h} className={cn(
+                            "px-5 py-3 text-[11px] font-medium text-slate-400 dark:text-slate-500",
+                            i === 0 ? 'text-left w-12' : i === 1 ? 'text-left' : i === 6 ? 'text-right' : 'text-center'
+                          )}>{h}</th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50 dark:divide-white/[0.03]">
+                      {leaderboard.map((item, index) => (
+                        <tr key={index} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                          <td className="px-5 py-3.5">
+                            <span className={cn("text-[14px]", rankColor(index))}>
+                              {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-slate-100 dark:bg-white/[0.05] rounded-lg flex items-center justify-center shrink-0 text-[12px] font-semibold text-slate-500 dark:text-slate-400">
+                                {(item.profiles?.full_name || 'S').charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="text-[13.5px] font-medium text-slate-800 dark:text-white">{item.profiles?.full_name || 'Siswa FBK'}</p>
+                                <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                                  {item.date && !isNaN(new Date(item.date).getTime())
+                                    ? new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+                                    : 'Baru saja'}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-5 py-3.5 text-center"><span className="text-[13px] text-slate-600 dark:text-slate-300">{item.twk || 0}</span></td>
+                          <td className="px-5 py-3.5 text-center"><span className="text-[13px] text-slate-600 dark:text-slate-300">{item.tiu || 0}</span></td>
+                          <td className="px-5 py-3.5 text-center"><span className="text-[13px] text-slate-600 dark:text-slate-300">{item.tkp || 0}</span></td>
+                          <td className="px-5 py-3.5 text-center">
+                            <span className="text-[15px] font-bold text-blue-600 dark:text-blue-400">{item.total}</span>
+                          </td>
+                          <td className="px-5 py-3.5 text-right">
+                            <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">{item.tryout_count ?? 1}x</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile: card list */}
+                <div className="md:hidden divide-y divide-slate-50 dark:divide-white/[0.03]">
+                  {leaderboard.map((item, index) => (
+                    <div key={index} className="px-4 py-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                      {/* Rank */}
+                      <div className="w-8 shrink-0 text-center">
+                        <span className={cn("text-[14px]", rankColor(index))}>
+                          {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                        </span>
+                      </div>
+                      {/* Avatar */}
+                      <div className="w-8 h-8 bg-slate-100 dark:bg-white/[0.05] rounded-lg flex items-center justify-center shrink-0 text-[12px] font-semibold text-slate-500 dark:text-slate-400">
+                        {(item.profiles?.full_name || 'S').charAt(0).toUpperCase()}
+                      </div>
+                      {/* Nama + detail */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-medium text-slate-800 dark:text-white truncate">{item.profiles?.full_name || 'Siswa FBK'}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[10px] text-slate-400">TWK {item.twk || 0}</span>
+                          <span className="text-[10px] text-slate-300 dark:text-slate-600">·</span>
+                          <span className="text-[10px] text-slate-400">TIU {item.tiu || 0}</span>
+                          <span className="text-[10px] text-slate-300 dark:text-slate-600">·</span>
+                          <span className="text-[10px] text-slate-400">TKP {item.tkp || 0}</span>
+                          <span className="text-[10px] text-slate-300 dark:text-slate-600">·</span>
+                          <span className="text-[10px] text-slate-400">{item.tryout_count ?? 1}x tryout</span>
+                        </div>
+                      </div>
+                      {/* Skor */}
+                      <div className="shrink-0 text-right">
+                        <p className="text-[15px] font-bold text-blue-600 dark:text-blue-400">{item.total}</p>
+                        <p className="text-[10px] text-slate-400">Avg SKD</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="py-16 text-center">
                 <Trophy className="w-10 h-10 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
