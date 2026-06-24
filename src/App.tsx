@@ -157,19 +157,9 @@ export default function App() {
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-      if (s) {
-        fetchAllData(s.user);
-      } else {
-        setLoading(false);
-      }
-    });
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
       setSession(s);
       if (s) {
-        // Hanya fetch data saat event yang relevan, bukan saat TOKEN_REFRESHED
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
           fetchAllData(s.user);
 
@@ -187,7 +177,6 @@ export default function App() {
         setProfile(null);
         setData([]);
         setLoading(false);
-        // If logout, clear persistence and redirect to landing
         localStorage.removeItem("fbk_active_page");
         localStorage.removeItem("fbk_active_package_id");
         localStorage.removeItem("fbk_active_questions_id");
