@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { motion, type Variants } from "framer-motion";
-import { ArrowRight, Trophy, Zap, Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 interface HeroSectionProps {
   hero: {
@@ -163,39 +163,7 @@ export const HeroSection = memo(function HeroSection({
                 loading="eager"
               />
 
-              {/* Floating card - left */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute bottom-[26%] -left-4 bg-[#1a3a6e]/80 backdrop-blur-xl px-4 py-3 rounded-2xl border border-white/15 shadow-xl"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-amber-400/15 rounded-xl flex items-center justify-center shrink-0">
-                    <Trophy className="w-4 h-4 text-amber-300" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-blue-200/60 leading-none mb-1">Target Skor</p>
-                    <p className="text-[14px] font-bold text-white leading-none">SKD 450+</p>
-                  </div>
-                </div>
-              </motion.div>
 
-              {/* Floating card - right */}
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-                className="absolute top-[28%] -right-4 bg-[#1a3a6e]/80 backdrop-blur-xl px-4 py-3 rounded-2xl border border-white/15 shadow-xl"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-blue-400/15 rounded-xl flex items-center justify-center shrink-0">
-                    <Zap className="w-4 h-4 text-blue-300" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-blue-200/60 leading-none mb-1">Simulasi CAT</p>
-                    <p className="text-[14px] font-bold text-white leading-none">Standar BKN</p>
-                  </div>
-                </div>
-              </motion.div>
             </div>
           </motion.div>
 

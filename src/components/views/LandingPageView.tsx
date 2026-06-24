@@ -8,6 +8,7 @@ import { FBKLoader } from "@/components/ui/skeleton";
 import { Navbar } from "../landing/Navbar";
 import { HeroSection } from "../landing/HeroSection";
 import { FeaturesSection } from "../landing/FeaturesSection";
+import { TeamSection } from "../landing/TeamSection";
 import { TestimonialsSection } from "../landing/TestimonialsSection";
 import { PricingSection } from "../landing/PricingSection";
 import { FAQSection } from "../landing/FAQSection";
@@ -176,6 +177,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
           />
         )}
         <TestimonialsSection testimonials={_testimonials} />
+        <TeamSection />
         <FAQSection faqs={faqs} />
         <Footer onLegalClick={handleLegalClick} hasPackages={activePackages.length > 0} />
       </div>

@@ -58,6 +58,7 @@ export default function App() {
   const [tryoutResult, setTryoutResult] = useState<any>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [forceNameModal, setForceNameModal] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(() => {
     return localStorage.getItem("fbk_selected_transaction_id");
   });
@@ -162,8 +163,9 @@ export default function App() {
           if (event === 'SIGNED_IN' && s.user.app_metadata?.provider === 'google') {
             const { data: prof } = await supabase!.from('profiles').select('full_name').eq('id', s.user.id).single();
             if (!prof?.full_name) {
-              // Buka AuthModal di mode name-fill — set flag di sessionStorage
-              sessionStorage.setItem('google_needs_name', '1');
+              // User Google baru belum punya nama — tampilkan modal isi nama
+              setForceNameModal(true);
+              setIsLoginOpen(true);
             }
           }
         }
@@ -236,11 +238,9 @@ export default function App() {
         });
       }, 500);
     }
-    // Google OAuth callback — tampilkan modal isi nama jika user baru
-    if (params.get('google_callback') === 'true' && sessionStorage.getItem('google_needs_name')) {
-      sessionStorage.removeItem('google_needs_name');
-      setAuthMode('login');
-      setIsLoginOpen(true);
+    // Google OAuth callback — bersihkan param dari URL
+    if (params.get('google_callback') === 'true') {
+      navigate(location.pathname, { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
@@ -502,8 +502,9 @@ export default function App() {
       )}
       <AuthModal
         isOpen={isLoginOpen}
-        onClose={() => { setIsLoginOpen(false); if (location.pathname === '/login' || location.pathname === '/register') navigate('/'); }}
+        onClose={() => { setIsLoginOpen(false); setForceNameModal(false); if (location.pathname === '/login' || location.pathname === '/register') navigate('/'); }}
         initialMode={authMode}
+        forceNameModal={forceNameModal}
       />
       {!isAuthenticated && <FloatingWhatsApp number="087753646617" />}
     </div>
