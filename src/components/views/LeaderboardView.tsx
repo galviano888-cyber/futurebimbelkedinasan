@@ -48,7 +48,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
       if (!selectedPackage) return;
       const { data, error } = await supabase
         .from('fair_package_leaderboard')
-        .select('user_id, full_name, package_id, twk, tiu, tkp, total, date')
+        .select('user_id, full_name, package_id, twk, tiu, tkp, total, tryout_count, date')
         .eq('package_id', selectedPackage)
         .order('total', { ascending: false })
         .range(from, to);
@@ -203,7 +203,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                 <table className="w-full min-w-[620px]">
                   <thead>
                     <tr className="border-b border-slate-100 dark:border-white/[0.05]">
-                      {['#', 'Nama', selectedPackage === 'all' ? 'Avg TWK' : 'TWK', selectedPackage === 'all' ? 'Avg TIU' : 'TIU', selectedPackage === 'all' ? 'Avg TKP' : 'TKP', selectedPackage === 'all' ? 'Avg SKD' : 'Total'].map((h, i) => (
+                      {['#', 'Nama', 'TWK', 'TIU', 'TKP', 'Avg SKD', 'Tryout'].map((h, i) => (
                         <th key={h} className={cn(
                           "px-5 py-3 text-[11px] font-medium text-slate-400 dark:text-slate-500",
                           i === 0 ? 'text-left w-12' : i === 1 ? 'text-left' : i === 5 ? 'text-right' : 'text-center'
@@ -241,6 +241,9 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                         <td className="px-5 py-3.5 text-center"><span className="text-[13px] text-slate-600 dark:text-slate-300">{item.tkp || 0}</span></td>
                         <td className="px-5 py-3.5 text-right">
                           <span className="text-[15px] font-bold text-blue-600 dark:text-blue-400">{item.total}</span>
+                        </td>
+                        <td className="px-5 py-3.5 text-center">
+                          <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">{item.tryout_count ?? 1}x</span>
                         </td>
                       </tr>
                     ))}
