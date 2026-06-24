@@ -277,10 +277,10 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
               </div>
               <div>
                 <h4 className="font-bold text-slate-900 dark:text-white">
-                  {transaction.packages.title}
+                  {transaction.packages?.title ?? 'Paket tidak tersedia'}
                 </h4>
                 <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 text-left leading-relaxed">
-                  {transaction.packages.description}
+                  {transaction.packages?.description ?? '-'}
                 </p>
               </div>
             </div>

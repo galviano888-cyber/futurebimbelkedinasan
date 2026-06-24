@@ -20,10 +20,12 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
     setPage(1);
     fetchPackages(); fetchLeaderboard(1, false); fetchUserRank();
     if (!supabase) return;
-    const channel = supabase.channel('leaderboard_live')
+    // Gunakan channel name unik per selectedPackage agar tidak konflik saat cleanup
+    const channelName = `leaderboard_live_${selectedPackage}`;
+    const channel = supabase!.channel(channelName)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tryout_results' }, () => { fetchLeaderboard(1, false); fetchUserRank(); })
       .subscribe();
-    return () => { if (supabase) supabase.removeChannel(channel); };
+    return () => { supabase!.removeChannel(channel); };
   }, [selectedPackage]);
 
   const fetchPackages = async () => {

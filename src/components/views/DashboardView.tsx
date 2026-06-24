@@ -21,28 +21,39 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
   const [pendingTx, setPendingTx] = useState<any>(null);
   const [activePackageData, setActivePackageData] = useState<ActivePackageData | null>(null);
 
+  const [pendingTxId, setPendingTxId] = useState<string | null>(null);
+
+  // Channel setup terpisah — hanya re-subscribe saat pendingTxId berubah, bukan tiap data re-fetch
   useEffect(() => {
-    let channel: any = null;
+    if (!supabase || !pendingTxId) return;
+    const channel = supabase
+      .channel(`dashboard-tx-${pendingTxId}`)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'transactions', filter: `id=eq.${pendingTxId}` }, (payload: any) => {
+        if (payload.new?.status === 'success') setPendingTx(null);
+      })
+      .subscribe();
+    return () => { supabase!.removeChannel(channel); };
+  }, [pendingTxId]);
+
+  useEffect(() => {
+    let isMounted = true;
 
     async function fetchData() {
       if (!supabase) return;
       const { data: sessionData } = await supabase.auth.getSession();
       const userId = sessionData?.session?.user?.id;
-      if (!userId) return;
+      if (!userId || !isMounted) return;
 
       const [txResult, pkgResult] = await Promise.all([
         supabase.from('transactions').select('*, packages(title)').eq('user_id', userId).in('status', ['pending', 'verifying']).order('created_at', { ascending: false }).limit(1).maybeSingle(),
         supabase.from('user_packages').select('*, packages(*)').eq('user_id', userId)
       ]);
 
+      if (!isMounted) return;
+
       if (txResult.data) {
         setPendingTx(txResult.data);
-        channel = supabase
-          .channel(`dashboard-tx-${txResult.data.id}`)
-          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'transactions', filter: `id=eq.${txResult.data.id}` }, (payload: any) => {
-            if (payload.new?.status === 'success') setPendingTx(null);
-          })
-          .subscribe();
+        setPendingTxId(txResult.data.id);
       }
 
       const userPkgs = pkgResult.data;
@@ -79,7 +90,7 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
     fetchData();
 
     return () => {
-      if (supabase && channel) supabase.removeChannel(channel);
+      isMounted = false;
     };
   }, [data]);
 

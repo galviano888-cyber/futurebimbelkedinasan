@@ -129,15 +129,15 @@ export function AdminPanelView() {
     const checkSession = async () => {
       if (!supabase) { setLoading(false); return; }
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session && session.user) {
-          const isAdmin = session.user.app_metadata?.role === 'admin';
-          if (isAdmin) {
-            setEmail(session.user.email || "");
-            setIsLoggedIn(true);
-            fetchPackages();
-            fetchSalesPackages();
-          }
+        // getUser() verifikasi token ke server — lebih aman dari getSession() yang hanya baca localStorage
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) { setLoading(false); return; }
+        const isAdmin = user.app_metadata?.role === 'admin';
+        if (isAdmin) {
+          setEmail(user.email || "");
+          setIsLoggedIn(true);
+          fetchPackages();
+          fetchSalesPackages();
         }
       } catch (err) {
         console.error("Check session error:", err);
@@ -192,10 +192,16 @@ export function AdminPanelView() {
   const handleDeletePackage = async (id: string, name: string) => {
     setConfirmDialog({ open: true, title: 'Hapus Paket Tryout', message: `Hapus paket "${name}" dan semua soalnya secara permanen?`, onConfirm: async () => {
       if (!supabase) return;
-      await supabase.from('tryout_questions').delete().eq('package_id', id);
+      // Hapus soal dulu, baru hapus paket — validasi tiap langkah agar tidak partial delete
+      const { error: qError } = await supabase.from('tryout_questions').delete().eq('package_id', id);
+      if (qError) { toast.error('Gagal hapus soal: ' + qError.message); return; }
       const { error } = await supabase.from('tryout_packages').delete().eq('id', id);
       if (!error) { toast.success('Paket berhasil dihapus'); fetchPackages(); }
-      else toast.error('Gagal hapus: ' + error.message);
+      else {
+        // Paket gagal dihapus — data soal sudah terhapus, inform admin
+        toast.error('Gagal hapus paket: ' + error.message + '. Soal sudah terhapus, hapus paket manual via database.');
+        fetchPackages();
+      }
     }});
   };
 
@@ -896,7 +902,19 @@ export function AdminPanelView() {
                             name: packageName, category: data.category || 'SKD', status: 'Draft'
                           }).select().single();
                           if (pkgError) throw pkgError;
-                          const questionsToInsert = data.questions.map((q: any) => ({ ...q, package_id: pkgData.id }));
+                          const questionsToInsert = data.questions.map((q: any) => ({
+                            // Whitelist field yang diizinkan — jangan spread semua field dari JSON
+                            package_id: pkgData.id,
+                            number: typeof q.number === 'number' ? q.number : null,
+                            category: typeof q.category === 'string' ? q.category.slice(0, 50) : null,
+                            sub_category: typeof q.sub_category === 'string' ? q.sub_category.slice(0, 100) : null,
+                            question_text: typeof q.question_text === 'string' ? q.question_text : '',
+                            options: q.options && typeof q.options === 'object' ? q.options : {},
+                            correct_answer: typeof q.correct_answer === 'string' ? q.correct_answer.slice(0, 5) : null,
+                            explanation: typeof q.explanation === 'string' ? q.explanation : null,
+                            fast_tips: typeof q.fast_tips === 'string' ? q.fast_tips : null,
+                            tkp_scores: q.tkp_scores && typeof q.tkp_scores === 'object' ? q.tkp_scores : null,
+                          }));
                           const { error: qError } = await supabase!.from('tryout_questions').insert(questionsToInsert);
                           if (qError) throw qError;
                           toast.success(`Import berhasil! ${questionsToInsert.length} soal ditambahkan.`);

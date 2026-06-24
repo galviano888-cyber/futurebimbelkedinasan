@@ -128,8 +128,8 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
         return;
       }
 
-      // Buat transaksi baru
-      const invoice_id = `INV-SKD-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(100 + Math.random() * 900)}`;
+      // Buat transaksi baru — gunakan crypto.randomUUID() untuk entropy tinggi dan anti-collision
+      const invoice_id = `INV-SKD-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${crypto.randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()}`;
       const expiry_date = new Date();
       expiry_date.setHours(expiry_date.getHours() + 48);
 
@@ -137,7 +137,19 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
         .from('transactions')
         .insert([{ id: crypto.randomUUID(), user_id: user.id, package_id: pkg.id, amount: pkg.price, invoice_id, status: 'pending', expiry_date: expiry_date.toISOString() }])
         .select().single();
-      if (txError) throw txError;
+
+      // Handle race condition: jika insert gagal karena unique constraint (transaksi duplikat),
+      // ambil transaksi pending yang sudah ada dan lanjutkan
+      if (txError) {
+        if (txError.code === '23505') {
+          const { data: raceTx } = await supabase
+            .from('transactions').select('id')
+            .eq('user_id', user.id).eq('package_id', pkg.id).eq('status', 'pending')
+            .order('created_at', { ascending: false }).limit(1).maybeSingle();
+          if (raceTx) { onPurchaseSuccess?.(raceTx.id); return; }
+        }
+        throw txError;
+      }
 
       toast.success("Invoice Berhasil Dibuat!", {
         description: "Selesaikan pembayaran sesuai petunjuk pada invoice.",

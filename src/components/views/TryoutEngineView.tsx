@@ -256,10 +256,21 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
             if (saved - Date.now() <= 0) {
               // Auto finish if time is already up when loading
+              // Fetch soal dulu sebelum submit agar scoring tidak kosong
               toast.error("Waktu sudah habis! Mengirim jawaban otomatis...");
-              setTimeout(() => {
-                handleSubmit(restoredAnswers);
-              }, 1500);
+              const { data: expiredQData, error: expiredQError } = await supabase
+                .from('tryout_questions')
+                .select('id, number, category, sub_category, question_text, question_image_url, option_images, options, correct_answer, tkp_scores, explanation, fast_tips')
+                .eq('package_id', questionsId)
+                .order('number', { ascending: true });
+              if (!expiredQError && expiredQData && expiredQData.length > 0) {
+                setQuestions(expiredQData);
+                setTimeout(() => {
+                  handleSubmit(restoredAnswers);
+                }, 1500);
+              } else {
+                toast.error("Gagal memuat soal untuk submit otomatis. Silakan submit manual.");
+              }
               return;
             }
           } else {
@@ -274,7 +285,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
         const { data, error } = await supabase
           .from('tryout_questions')
-          .select('*')
+          .select('id, number, category, sub_category, question_text, question_image_url, option_images, options, correct_answer, tkp_scores, explanation, fast_tips')
           .eq('package_id', questionsId)
           .order('number', { ascending: true });
 

@@ -112,8 +112,10 @@ export default function App() {
       s.user.app_metadata?.providers?.includes('google');
     if (!isGoogleUser) return;
 
-    // Navigate ke dashboard
-    navigate('/dashboard', { replace: true });
+    // Navigate ke dashboard, kecuali kalau sedang di admin panel
+    if (location.pathname !== '/x7k2m9qp4n8vw3js') {
+      navigate('/dashboard', { replace: true });
+    }
 
     // Simpan nama dari Google metadata kalau belum ada di profiles
     const { data: prof } = await supabase.from('profiles').select('full_name').eq('id', s.user.id).single();
@@ -135,7 +137,7 @@ export default function App() {
     setIsVerified(!!(user.email_confirmed_at || user.confirmed_at));
   };
 
-  const fetchAllData = async (user: AuthUser) => {
+  const fetchAllData = async (user: AuthUser, signal?: AbortSignal) => {
     if (!supabase || !user) {
       setLoading(false);
       return;
@@ -148,6 +150,7 @@ export default function App() {
         .select('id, full_name, email, avatar_url, phone, created_at')
         .eq('id', user.id)
         .single();
+      if (signal?.aborted) return;
       if (pData) setProfile(pData);
 
       const { data: results, error } = await supabase
@@ -155,6 +158,7 @@ export default function App() {
         .select('id, user_id, package_id, tryout_id, date, package_name, twk, tiu, tkp, total, answers, score_details')
         .eq("user_id", user.id);
 
+      if (signal?.aborted) return;
       if (!error && Array.isArray(results)) {
         const normalized = results.map((row: any) => ({
           id: String(row.id),
@@ -172,9 +176,10 @@ export default function App() {
         setData(normalized);
       }
     } catch (err) {
+      if (signal?.aborted) return;
       console.error("Fetch data error:", err);
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   };
 
@@ -184,11 +189,19 @@ export default function App() {
       return;
     }
 
+    // AbortController untuk cancel fetchAllData jika komponen unmount atau user ganti session
+    let abortController = new AbortController();
+
     // Ambil session awal — penting untuk SSR/refresh dan Google OAuth callback
     supabase.auth.getSession().then(({ data: { session: s } }) => {
+      // Jangan ganggu admin panel sama sekali
+      if (window.location.pathname === '/x7k2m9qp4n8vw3js') {
+        setLoading(false);
+        return;
+      }
       setSession(s);
       if (s) {
-        fetchAllData(s.user);
+        fetchAllData(s.user, abortController.signal);
         // Handle Google OAuth callback saat pertama load
         handleGoogleCallback(s);
       } else {
@@ -197,15 +210,22 @@ export default function App() {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
+      // Jangan ganggu admin panel sama sekali — pakai window.location agar tidak stale
+      if (window.location.pathname === '/x7k2m9qp4n8vw3js') return;
+
       setSession(s);
       if (s) {
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
-          fetchAllData(s.user);
+          // Cancel fetch sebelumnya lalu buat controller baru
+          abortController.abort();
+          abortController = new AbortController();
+          fetchAllData(s.user, abortController.signal);
           if (event === 'SIGNED_IN') {
             handleGoogleCallback(s);
           }
         }
       } else {
+        abortController.abort();
         setProfile(null);
         setData([]);
         setLoading(false);
@@ -219,7 +239,10 @@ export default function App() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      abortController.abort();
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Sync activePage based on URL path
@@ -361,11 +384,20 @@ export default function App() {
       location.pathname === '/tryout-review' ||
       location.pathname.startsWith('/tryout-pre');
 
+    const isAdminRoute = location.pathname === '/x7k2m9qp4n8vw3js';
+
     if (loading) {
       if (isTryoutRoute) {
         return (
           <div className="fixed inset-0 bg-[#eef0f4] dark:bg-slate-950 flex flex-col items-center justify-center z-50">
             <FBKLoader text="Memuat sesi tryout..." />
+          </div>
+        );
+      }
+      if (isAdminRoute) {
+        return (
+          <div className="fixed inset-0 app-surface dark:bg-[#0b0b0e] flex items-center justify-center">
+            <FBKLoader text="Memuat panel admin..." />
           </div>
         );
       }
@@ -381,7 +413,7 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPasswordView />} />
         
         {/* Admin — requires authenticated session; AdminPanelView enforces role check internally */}
-        <Route path="/admin-panel" element={isAuthenticated ? <AdminPanelView /> : <Navigate to="/" replace />} />
+        <Route path="/x7k2m9qp4n8vw3js" element={<AdminPanelView />} />
 
         {/* User Protected Routes */}
         <Route path="/dashboard" element={isAuthenticated ? <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={handleNavigate} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onReview={handleHistoryReview} /> : <Navigate to="/" replace />} />
@@ -437,7 +469,7 @@ export default function App() {
   // Define full-screen pages based on pathname
   const isFullScreenPage = location.pathname.startsWith('/tryout') || 
                            location.pathname.startsWith('/event-engine') ||
-                           location.pathname === '/admin-panel' || 
+                           location.pathname === '/x7k2m9qp4n8vw3js' || 
                            location.pathname === '/reset-password';
 
   if (isFullScreenPage) {
