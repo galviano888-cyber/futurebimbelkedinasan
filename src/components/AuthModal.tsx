@@ -114,23 +114,25 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login', forceNameMod
         });
         if (error) throw error;
 
-        // Supabase signUp langsung login user meski belum verifikasi email.
-        // Paksa sign out agar user tidak masuk sebelum verifikasi.
         if (signUpData?.session) {
-          await supabase.auth.signOut();
+          // Verifikasi email dimatikan — user langsung aktif, tutup modal dan masuk dashboard
+          toast.success("Akun Berhasil Dibuat!", {
+            description: `Selamat datang, ${fullName || email}!`,
+            duration: 4000
+          });
+          onClose();
+        } else {
+          // Verifikasi email aktif — minta user cek email dulu
+          toast.success("Cek Email Anda!", {
+            description: `Link verifikasi telah dikirim ke ${email}. Klik link tersebut untuk mengaktifkan akun, lalu login.`,
+            duration: 8000
+          });
+          setEmail("");
+          setPassword("");
+          setFullName("");
+          setAgreed(false);
+          setIsLogin(true);
         }
-
-        toast.success("Cek Email Anda!", {
-          description: `Link verifikasi telah dikirim ke ${email}. Klik link tersebut untuk mengaktifkan akun, lalu login.`,
-          duration: 8000
-        });
-        // Reset form dan kembali ke mode login
-        setEmail("");
-        setPassword("");
-        setFullName("");
-        setAgreed(false);
-        setIsLogin(true);
-        onClose();
       }
     } catch (error: any) {
       if (error.message === "Email not confirmed") {
