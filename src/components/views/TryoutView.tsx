@@ -1,5 +1,37 @@
 import { useState, useEffect } from "react";
-import { ShoppingBag, ChevronRight, Loader2, FileEdit, Clock, Zap, Package } from "lucide-react";
+import { ShoppingBag, ChevronRight, Loader2, FileEdit, Clock, Zap, Package, ChevronDown, Check } from "lucide-react";
+
+function ExpandableDesc({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+  // Pecah teks jadi item-item berdasarkan koma atau newline
+  const items = text
+    .split(/,|\n/)
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+  const isLong = items.length > 3;
+  const visible = !expanded && isLong ? items.slice(0, 3) : items;
+  return (
+    <div className="mb-5 flex-1 space-y-1.5">
+      {visible.map((item, i) => (
+        <div key={i} className="flex items-start gap-2">
+          <span className="w-4 h-4 rounded-full bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center shrink-0 mt-px">
+            <Check className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" strokeWidth={3} />
+          </span>
+          <span className="text-[12px] text-slate-600 dark:text-slate-400 leading-snug">{item}</span>
+        </div>
+      ))}
+      {isLong && (
+        <button
+          onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+          className="flex items-center gap-1 mt-1 text-[11px] text-blue-500 hover:text-blue-600 font-medium transition-colors"
+        >
+          {expanded ? "Sembunyikan" : `+${items.length - 3} lainnya`}
+          <ChevronDown className={cn("w-3 h-3 transition-transform", expanded && "rotate-180")} />
+        </button>
+      )}
+    </div>
+  );
+}
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -20,6 +52,7 @@ interface Package {
   original_price?: number | null;
   product_type: 'SATUAN' | 'BUNDLE' | 'INTENSIF';
   is_active: boolean;
+  cover_image_url?: string | null;
   contents: PackageContent[];
 }
 
@@ -38,7 +71,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const { data: allPackages, error: pkgError } = await supabase.from('packages').select('*, contents:package_contents(*)').eq('is_active', true);
+      const { data: allPackages, error: pkgError } = await supabase.from('packages').select('*, cover_image_url, contents:package_contents(*)').eq('is_active', true);
       let ownedPackageIds: string[] = [];
       if (user) {
         const { data: owned } = await supabase.from('user_packages').select('package_id').eq('user_id', user.id);
@@ -59,17 +92,11 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
 
   useEffect(() => { fetchData(); }, [isAuthenticated]);
 
-  const typeConfig = {
-    INTENSIF: { label: 'Program Intensif', accent: 'text-purple-600 dark:text-purple-400', badge: 'bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20 text-purple-600 dark:text-purple-400', iconBg: 'bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20' },
-    BUNDLE: { label: 'Paket Tryout', accent: 'text-blue-600 dark:text-blue-400', badge: 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-blue-400', iconBg: 'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20' },
-    SATUAN: { label: 'Tryout Satuan', accent: 'text-emerald-600 dark:text-emerald-400', badge: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400', iconBg: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20' },
-  };
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <Loader2 className="w-8 h-8 text-indigo-500 dark:text-indigo-400 animate-spin" />
-        <p className="text-slate-400 dark:text-slate-600 font-bold uppercase text-[10px] tracking-widest">Memuat katalog...</p>
+        <Loader2 className="w-8 h-8 text-blue-500 dark:text-blue-400 animate-spin" />
+        <p className="text-slate-400 dark:text-slate-600 font-bold uppercase text-[10px] tracking-wide">Memuat katalog...</p>
       </div>
     );
   }
@@ -79,46 +106,41 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <p className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-[0.25em] mb-2">Katalog</p>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Paket Belajar &amp; Tryout</h1>
+          <p className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-[0.25em] mb-2">Katalog</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Katalog Paket</h1>
           <p className="text-slate-500 dark:text-slate-500 text-sm mt-1 font-medium">Pilih paket bimbingan dan uji kemampuan SKD kamu.</p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">{packages.length} Paket Tersedia</span>
+          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">{packages.length} Paket Tersedia</span>
         </div>
       </div>
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {packages.length === 0 ? (
-          <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white dark:bg-[#0d0d14] border border-slate-200 dark:border-white/5 rounded-2xl text-center px-6">
+          <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/5 rounded-2xl text-center px-6">
             <div className="w-14 h-14 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-2xl flex items-center justify-center mb-4">
               <ShoppingBag className="w-7 h-7 text-slate-300 dark:text-slate-700" />
             </div>
-            <h3 className="text-base font-black text-slate-900 dark:text-white">Belum Ada Paket Tersedia</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Belum Ada Paket Tersedia</h3>
             <p className="text-slate-500 dark:text-slate-600 mt-1 text-sm max-w-sm">Maaf, saat ini belum ada paket aktif. Silakan hubungi admin.</p>
           </div>
         ) : (
           packages.map((pkg) => {
-            const cfg = typeConfig[pkg.product_type] || typeConfig.SATUAN;
             return (
-              <div key={pkg.id} className="bg-white dark:bg-[#0d0d14] border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden flex flex-col group hover:border-indigo-200 dark:hover:border-indigo-500/20 transition-all duration-300 hover:shadow-lg dark:hover:shadow-none">
-                <div className="p-6 flex-1 flex flex-col">
-                  <div className="flex items-start justify-between mb-5">
-                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center border", cfg.iconBg)}>
-                      <Package className={cn("w-5 h-5", cfg.accent)} />
-                    </div>
-                    <span className={cn("text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border", cfg.badge)}>
-                      {cfg.label}
-                    </span>
+              <div key={pkg.id} className="bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden flex flex-col group hover:border-blue-200 dark:hover:border-blue-500/20 transition-all duration-300 hover:shadow-lg dark:hover:shadow-none">
+                {pkg.cover_image_url ? (
+                  <div className="relative h-36 overflow-hidden shrink-0">
+                    <img src={pkg.cover_image_url} alt={pkg.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                   </div>
-                  <h3 className="text-base font-black text-slate-900 dark:text-white leading-tight mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                ) : null}
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {pkg.title}
                   </h3>
-                  <p className="text-slate-500 dark:text-slate-500 text-xs font-medium leading-relaxed line-clamp-2 mb-5 flex-1">
-                    {pkg.description || "Dapatkan akses penuh ke materi dan tryout kualitas terbaik."}
-                  </p>
+                   <ExpandableDesc text={pkg.description || "Dapatkan akses penuh ke materi dan tryout kualitas terbaik."} />
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-600 text-[10px] font-bold">
                       <FileEdit className="w-3 h-3" /> {pkg.contents?.length || 0} Konten
@@ -133,9 +155,9 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
 
                 <div className="px-6 py-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
                   <div>
-                    <p className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-0.5">Harga</p>
+                    <p className="text-[9px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide mb-0.5">Harga</p>
                     <div className="flex items-center gap-2">
-                      <p className={cn("text-lg font-black tracking-tighter", pkg.price === 0 ? "text-emerald-600 dark:text-emerald-400" : "text-slate-900 dark:text-white")}>
+                      <p className={cn("text-lg font-bold tracking-tighter", pkg.price === 0 ? "text-emerald-600 dark:text-emerald-400" : "text-slate-900 dark:text-white")}>
                         {pkg.price === 0 ? "GRATIS" : `Rp ${pkg.price.toLocaleString('id-ID')}`}
                       </p>
                       {pkg.original_price && pkg.original_price > pkg.price && pkg.original_price > 0 && (
@@ -181,7 +203,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                       } catch (err: any) { toast.error(`Gagal memproses: ${err.message}`); }
                       finally { setLoading(false); }
                     }}
-                    className="flex items-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
+                    className="flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-95"
                   >
                     <Zap className="w-3.5 h-3.5" />
                     {pkg.price === 0 ? 'Ambil Gratis' : 'Beli'}

@@ -94,7 +94,7 @@ export function SettingsView() {
         className="space-y-8"
       >
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Pengaturan Akun</h1>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Pengaturan Akun</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 font-medium">Kustomisasi pengalaman belajar Anda di platform FBK.</p>
         </div>
 
@@ -106,8 +106,8 @@ export function SettingsView() {
                 <Palette className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <h2 className="text-lg font-black text-slate-900 dark:text-white leading-none">Tampilan</h2>
-                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Mode Visual</p>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white leading-none">Tampilan</h2>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide mt-1">Mode Visual</p>
               </div>
             </div>
 
@@ -157,8 +157,8 @@ export function SettingsView() {
                 <Shield className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h2 className="text-lg font-black text-slate-900 dark:text-white leading-none">Privasi</h2>
-                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Ranking Nasional</p>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white leading-none">Privasi</h2>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide mt-1">Ranking Nasional</p>
               </div>
             </div>
 
@@ -209,7 +209,7 @@ export function SettingsView() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-black px-10 py-4 rounded-2xl shadow-xl shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold px-10 py-4 rounded-2xl shadow-xl shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 className="w-5 h-5 animate-spin" />

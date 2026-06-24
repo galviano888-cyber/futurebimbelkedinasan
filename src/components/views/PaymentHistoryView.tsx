@@ -93,7 +93,7 @@ export function PaymentHistory({ onBack, onViewInvoice }: PaymentHistoryProps) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px]">
         <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
-        <p className="text-slate-500 font-bold mt-4 tracking-widest uppercase text-[10px]">Memuat Riwayat...</p>
+        <p className="text-slate-500 font-bold mt-4 tracking-wide uppercase text-[10px]">Memuat Riwayat...</p>
       </div>
     );
   }
@@ -109,7 +109,7 @@ export function PaymentHistory({ onBack, onViewInvoice }: PaymentHistoryProps) {
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="text-xs font-bold uppercase tracking-wider">Kembali</span>
           </button>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Riwayat Transaksi</h2>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Riwayat Transaksi</h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">Pantau semua status pemesanan paket belajar Anda.</p>
         </div>
       </div>
@@ -119,7 +119,7 @@ export function PaymentHistory({ onBack, onViewInvoice }: PaymentHistoryProps) {
           <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <CreditCard className="w-8 h-8 text-slate-300 dark:text-slate-600" />
           </div>
-          <h3 className="text-lg font-black text-slate-800 dark:text-white">Belum Ada Transaksi</h3>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white">Belum Ada Transaksi</h3>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 max-w-xs mx-auto font-medium">
             Anda belum pernah melakukan pemesanan paket. Silakan pilih paket di menu Katalog.
           </p>
@@ -137,8 +137,8 @@ export function PaymentHistory({ onBack, onViewInvoice }: PaymentHistoryProps) {
 
               <div className="flex-1 text-center sm:text-left">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
-                  <h3 className="font-black text-slate-900 dark:text-white">{tx.packages?.title}</h3>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase border ${getStatusStyle(tx.status)}`}>
+                  <h3 className="font-bold text-slate-900 dark:text-white">{tx.packages?.title}</h3>
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase border ${getStatusStyle(tx.status)}`}>
                     {getStatusIcon(tx.status)}
                     {getStatusLabel(tx.status)}
                   </span>
@@ -151,21 +151,21 @@ export function PaymentHistory({ onBack, onViewInvoice }: PaymentHistoryProps) {
               </div>
 
               <div className="flex flex-col items-center sm:items-end gap-3">
-                <div className="text-lg font-black text-slate-900 dark:text-white">
+                <div className="text-lg font-bold text-slate-900 dark:text-white">
                   Rp {tx.amount.toLocaleString('id-ID')}
                 </div>
                 
                 {tx.status === 'pending' ? (
                   <button 
                     onClick={() => onViewInvoice(tx.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/20"
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold uppercase tracking-wide rounded-xl transition-all shadow-lg shadow-blue-500/20"
                   >
                     Bayar Sekarang <ChevronRight className="w-3 h-3" />
                   </button>
                 ) : (
                   <button 
                     onClick={() => onViewInvoice(tx.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all"
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wide rounded-xl transition-all"
                   >
                     Detail Invoice <ExternalLink className="w-3 h-3" />
                   </button>

@@ -4,7 +4,7 @@ import { PerformanceChart } from "@/components/PerformanceChart";
 import { HistoryTable } from "@/components/HistoryTable";
 import { supabase } from "@/lib/supabaseClient";
 import type { TryoutRecord, ActivePackageData } from "@/types";
-import { Clock, Award, BookMarked, ArrowRight, ChevronRight, Zap } from "lucide-react";
+import { Clock, BookMarked, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SEO } from "@/components/SEO";
 
@@ -37,19 +37,10 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
 
       if (txResult.data) {
         setPendingTx(txResult.data);
-
-        // Realtime: hilangkan banner kalau transaksi berubah jadi success
         channel = supabase
           .channel(`dashboard-tx-${txResult.data.id}`)
-          .on('postgres_changes', {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'transactions',
-            filter: `id=eq.${txResult.data.id}`
-          }, (payload: any) => {
-            if (payload.new?.status === 'success') {
-              setPendingTx(null);
-            }
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'transactions', filter: `id=eq.${txResult.data.id}` }, (payload: any) => {
+            if (payload.new?.status === 'success') setPendingTx(null);
           })
           .subscribe();
       }
@@ -93,9 +84,10 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
   }, [data]);
 
   const isSiswaAktif = data.length > 0 || activePackageData !== null;
+  const firstName = userName.split(' ')[0];
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <SEO
         title={`Dashboard ${userName} | Future Bimbel Kedinasan`}
         description="Pantau statistik belajar, hasil tryout SKD, dan peringkat nasional Anda di Future Bimbel Kedinasan."
@@ -103,87 +95,67 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
       />
 
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <p className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-[0.25em] mb-2">Overview</p>
-          <h1 className="text-slate-900 dark:text-white font-black text-2xl lg:text-3xl tracking-tight leading-none">
-            Selamat Datang, <span className="text-indigo-600 dark:text-indigo-400">{userName}</span>
+          <p className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-[0.25em] mb-1.5">Overview</p>
+          <h1 className="text-slate-900 dark:text-white font-bold text-2xl tracking-tight">
+            Selamat datang, <span className="text-blue-600 dark:text-blue-400">{firstName}</span>
           </h1>
-          <p className="text-slate-500 dark:text-slate-500 text-sm mt-2 font-medium">
+          <p className="text-slate-500 dark:text-slate-500 text-sm mt-1 font-medium">
             Pantau perkembangan belajarmu dan persiapkan diri menaklukkan ujian kedinasan.
           </p>
         </div>
 
         <div className={cn(
-          "flex items-center gap-4 px-5 py-4 rounded-2xl border transition-all",
+          "inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-[12px] self-start sm:self-auto shrink-0",
           isSiswaAktif
-            ? "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20"
-            : "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20"
+            ? "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400"
+            : "bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] text-slate-400 dark:text-slate-500"
         )}>
-          <div className={cn(
-            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-            isSiswaAktif ? "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400" : "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-          )}>
-            <Award className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 leading-none mb-1">Status Belajar</p>
-            <p className={cn(
-              "text-sm font-black tracking-tight",
-              isSiswaAktif ? "text-indigo-600 dark:text-indigo-400" : "text-emerald-600 dark:text-emerald-400"
-            )}>
-              {isSiswaAktif ? "AKUN SISWA" : "SISWA GRATIS"}
-            </p>
-          </div>
-          <div className={cn(
-            "w-2 h-2 rounded-full animate-pulse ml-2",
-            isSiswaAktif ? "bg-indigo-500" : "bg-emerald-500"
+          <span className={cn(
+            "w-1.5 h-1.5 rounded-full shrink-0",
+            isSiswaAktif ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"
           )} />
+          {isSiswaAktif ? "Siswa Aktif" : "Siswa Gratis"}
         </div>
       </div>
 
       {/* Pending Transaction Banner */}
       {pendingTx && (
         <div className={cn(
-          "border rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-5",
+          "border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4",
           pendingTx.status === 'verifying'
-            ? 'bg-blue-50 dark:bg-blue-500/5 border-blue-200 dark:border-blue-500/20'
-            : 'bg-amber-50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/20'
+            ? 'bg-blue-50 dark:bg-blue-500/[0.05] border-blue-100 dark:border-blue-500/20'
+            : 'bg-amber-50 dark:bg-amber-500/[0.05] border-amber-100 dark:border-amber-500/20'
         )}>
-          <div className="flex items-center gap-4">
-            <div className={cn(
-              "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-              pendingTx.status === 'verifying'
-                ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400'
-                : 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400'
-            )}>
-              <Clock className="w-5 h-5" />
-            </div>
+          <div className="flex items-center gap-3">
+            <Clock className={cn(
+              "w-4 h-4 shrink-0",
+              pendingTx.status === 'verifying' ? 'text-blue-500' : 'text-amber-500'
+            )} />
             <div>
-              <h3 className={cn(
-                "text-sm font-black tracking-tight",
+              <p className={cn(
+                "text-[13px] font-medium",
                 pendingTx.status === 'verifying' ? 'text-blue-700 dark:text-blue-300' : 'text-amber-700 dark:text-amber-300'
               )}>
-                {pendingTx.status === 'verifying' ? 'Sedang Diverifikasi' : 'Menunggu Pembayaran'}
-              </h3>
-              <p className="text-slate-500 dark:text-slate-500 text-xs font-medium mt-0.5">
-                Paket: <span className="text-slate-700 dark:text-slate-300 font-bold">{pendingTx.packages?.title}</span>
-                {' · '}
-                <span className="font-mono text-slate-400 dark:text-slate-500 text-[10px]">{pendingTx.invoice_id}</span>
+                {pendingTx.status === 'verifying' ? 'Sedang diverifikasi' : 'Menunggu pembayaran'}
+              </p>
+              <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">
+                {pendingTx.packages?.title}
+                <span className="text-slate-400 dark:text-slate-600 ml-2 font-mono text-[11px]">{pendingTx.invoice_id}</span>
               </p>
             </div>
           </div>
           <button
             onClick={() => onViewInvoice?.(pendingTx.id)}
             className={cn(
-              "flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all shrink-0 border min-h-[44px]",
-
+              "flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-medium transition-colors shrink-0",
               pendingTx.status === 'verifying'
-                ? 'bg-blue-100 dark:bg-blue-500/20 hover:bg-blue-200 dark:hover:bg-blue-500/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20'
-                : 'bg-amber-100 dark:bg-amber-500/20 hover:bg-amber-200 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20'
+                ? 'bg-blue-100 dark:bg-blue-500/20 hover:bg-blue-200 dark:hover:bg-blue-500/30 text-blue-700 dark:text-blue-300'
+                : 'bg-amber-100 dark:bg-amber-500/20 hover:bg-amber-200 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300'
             )}
           >
-            Lihat Invoice <ChevronRight className="w-3.5 h-3.5" />
+            Lihat Invoice <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
@@ -194,19 +166,18 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
       {/* Chart / Empty State */}
       <div className="w-full">
         {isEmpty ? (
-          <div className="bg-white dark:bg-[#0d0d14] border border-slate-200 dark:border-white/5 rounded-2xl p-12 flex flex-col items-center justify-center text-center min-h-[360px]">
-            <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-2xl flex items-center justify-center mb-6">
-              <BookMarked className="w-8 h-8 text-indigo-400" />
+          <div className="bg-white dark:bg-[#181818] border border-slate-200/80 dark:border-white/[0.07] rounded-2xl p-10 flex flex-col items-center justify-center text-center min-h-[280px]">
+            <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl flex items-center justify-center mb-4">
+              <BookMarked className="w-6 h-6 text-blue-500" />
             </div>
-            <h3 className="text-slate-900 dark:text-white font-black text-xl mb-2 tracking-tight">Belum Ada Paket Aktif</h3>
-            <p className="text-slate-500 dark:text-slate-500 text-sm mb-8 max-w-sm leading-relaxed">
+            <h3 className="text-slate-900 dark:text-white font-semibold text-[15px] mb-1">Belum ada paket aktif</h3>
+            <p className="text-slate-400 dark:text-slate-500 text-[13px] mb-6 max-w-sm leading-relaxed">
               Tingkatkan peluang lulusmu ke sekolah kedinasan impian dengan mengikuti program bimbingan intensif kami.
             </p>
             <button
               onClick={() => onNavigate?.("Paket dan Tryout SKD")}
-              className="flex items-center gap-3 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-500/20"
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-[13px] rounded-xl transition-colors shadow-sm shadow-blue-600/25"
             >
-              <Zap className="w-4 h-4" />
               Lihat Katalog Paket
               <ArrowRight className="w-4 h-4" />
             </button>

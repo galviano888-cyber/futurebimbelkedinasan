@@ -7,7 +7,7 @@ import { DashboardView } from "@/components/views/DashboardView";
 import { TryoutView } from "@/components/views/TryoutView";
 import { PaketSayaView } from "@/components/views/PaketSayaView";
 import { ContactView } from "@/components/views/ContactView";
-import { DashboardSkeleton } from "@/components/ui/skeleton";
+import { DashboardSkeleton, FBKLoader } from "@/components/ui/skeleton";
 import { LandingPageView } from "@/components/views/LandingPageView";
 import { AuthModal } from "@/components/AuthModal";
 import { supabase } from "@/lib/supabaseClient";
@@ -48,6 +48,7 @@ export default function App() {
     return localStorage.getItem("fbk_active_questions_id");
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // default full/expanded
 
   const [session, setSession] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -150,13 +151,20 @@ export default function App() {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
       setSession(s);
       if (s) {
         // Hanya fetch data saat event yang relevan, bukan saat TOKEN_REFRESHED
-        // TOKEN_REFRESHED terjadi setiap jam dan tidak perlu re-fetch data
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
           fetchAllData(s.user);
+          // Google OAuth: cek apakah user baru (belum punya nama lengkap di profiles)
+          if (event === 'SIGNED_IN' && s.user.app_metadata?.provider === 'google') {
+            const { data: prof } = await supabase!.from('profiles').select('full_name').eq('id', s.user.id).single();
+            if (!prof?.full_name) {
+              // Buka AuthModal di mode name-fill — set flag di sessionStorage
+              sessionStorage.setItem('google_needs_name', '1');
+            }
+          }
         }
       } else {
         setProfile(null);
@@ -220,13 +228,18 @@ export default function App() {
         setIsLoginOpen(true);
       }
       navigate('/paket');
-      
       setTimeout(() => {
         toast.success("Email Berhasil Diverifikasi!", {
           description: "Akun Anda sudah aktif. Silakan masuk untuk mulai persiapan kedinasan.",
           duration: 6000
         });
       }, 500);
+    }
+    // Google OAuth callback — tampilkan modal isi nama jika user baru
+    if (params.get('google_callback') === 'true' && sessionStorage.getItem('google_needs_name')) {
+      sessionStorage.removeItem('google_needs_name');
+      setAuthMode('login');
+      setIsLoginOpen(true);
     }
   }, [isAuthenticated, navigate]);
 
@@ -315,8 +328,7 @@ export default function App() {
       if (isTryoutRoute) {
         return (
           <div className="fixed inset-0 bg-[#eef0f4] dark:bg-slate-950 flex flex-col items-center justify-center z-50">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
-            <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Memuat Sesi Tryout...</p>
+            <FBKLoader text="Memuat sesi tryout..." />
           </div>
         );
       }
@@ -353,7 +365,7 @@ export default function App() {
         <Route path="/tryout-pre/:pId/:qId" element={<TryoutPreView packageId={activePackageId} questionsId={questionsId} onStart={() => navigate("/tryout-engine")} onCancel={() => navigate("/paket-saya")} />} />
         <Route path="/tryout-engine" element={
           loading
-            ? <div className="fixed inset-0 bg-white dark:bg-slate-950 flex items-center justify-center"><div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div>
+            ? <div className="fixed inset-0 bg-white dark:bg-slate-950 flex items-center justify-center"><FBKLoader /></div>
             : !isAuthenticated
               ? <Navigate to="/" replace />
               : activePackageId && questionsId
@@ -394,11 +406,10 @@ export default function App() {
   if (isFullScreenPage) {
     // Background disesuaikan: tryout engine pakai #eef0f4, halaman lain pakai slate-50
     const isTryoutEngine = location.pathname === '/tryout-engine' || location.pathname.startsWith('/event-engine');
-    const bgClass = isTryoutEngine ? 'bg-[#eef0f4] dark:bg-[#0a0a0f]' : 'bg-slate-50 dark:bg-[#0a0a0f]';
+    const bgClass = isTryoutEngine ? 'engine-surface dark:bg-[#0b0b0e]' : 'app-surface dark:bg-[#0b0b0e]';
     const tryoutFallback = (
-      <div className="fixed inset-0 bg-[#eef0f4] dark:bg-[#0a0a0f] flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Memuat Sesi Tryout...</p>
+      <div className="fixed inset-0 engine-surface flex items-center justify-center">
+        <FBKLoader text="Memuat sesi tryout..." />
       </div>
     );
 
@@ -416,7 +427,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-[100dvh] bg-slate-50 dark:bg-[#0a0a0f] flex flex-col lg:flex-row overflow-hidden transition-colors duration-500">
+    <div className="h-[100dvh] app-surface dark:bg-[#0b0b0e] flex flex-col lg:flex-row overflow-hidden transition-colors duration-500">
       <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={true} />
       <Toaster position="top-center" richColors />
       {isAuthenticated && (
@@ -425,6 +436,8 @@ export default function App() {
           onClose={() => setIsSidebarOpen(false)}
           activePage={activePage}
           onPageChange={handleNavigate}
+          collapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
         />
       )}
       <div className="flex-1 flex flex-col h-full min-h-0 overflow-hidden">
@@ -440,17 +453,15 @@ export default function App() {
             setIsLoginOpen={setIsLoginOpen}
           />
         )}
-        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-[#0a0a0f] p-4 lg:p-8 pb-[calc(1rem+56px+env(safe-area-inset-bottom,0px))] lg:pb-8 custom-scrollbar">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 pb-[calc(1rem+56px+env(safe-area-inset-bottom,0px))] lg:pb-6 custom-scrollbar">
           {!isVerified && isAuthenticated && (
-            <div className="mb-8 animate-in slide-in-from-top-4 duration-500">
-              <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 p-4 sm:p-6 rounded-2xl sm:rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 shadow-xl shadow-amber-500/5">
-                <div className="flex items-center gap-5">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
-                    <Mail className="w-7 h-7 text-white" />
-                  </div>
+            <div className="mb-6 animate-in slide-in-from-top-2 duration-400">
+              <div className="bg-amber-50 dark:bg-amber-500/[0.06] border border-amber-200 dark:border-amber-500/20 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Mail className="w-4 h-4 text-amber-500 shrink-0" />
                   <div>
-                    <h4 className="text-amber-900 dark:text-amber-400 font-black text-xl tracking-tight">Verifikasi Email Anda</h4>
-                    <p className="text-amber-700 dark:text-amber-500/70 text-sm font-medium mt-1">Konfirmasi email diperlukan untuk membuka akses penuh dan fitur pembelian paket.</p>
+                    <p className="text-[13px] font-semibold text-amber-800 dark:text-amber-400">Verifikasi email diperlukan</p>
+                    <p className="text-[12px] text-amber-600/80 dark:text-amber-500/60 mt-0.5">Konfirmasi email untuk membuka akses penuh dan fitur pembelian paket.</p>
                   </div>
                 </div>
                 <button 
@@ -464,10 +475,10 @@ export default function App() {
                       else toast.error("Email masih belum terverifikasi. Silakan cek inbox Anda.");
                     }
                   }}
-                  className="flex items-center gap-3 px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg shadow-amber-500/20 transition-all active:scale-95 whitespace-nowrap group"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white font-medium text-[12px] rounded-lg transition-colors whitespace-nowrap shrink-0 group"
                 >
-                  <RefreshCcw className="w-4 h-4 group-active:rotate-180 transition-transform duration-500" />
-                  Cek Status Verifikasi
+                  <RefreshCcw className="w-3.5 h-3.5 group-active:rotate-180 transition-transform duration-300" />
+                  Cek Status
                 </button>
               </div>
             </div>

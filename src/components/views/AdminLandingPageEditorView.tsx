@@ -110,17 +110,17 @@ export function AdminLandingPageEditorView() {
     }
   };
 
-  const inputClass = "w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white font-bold text-sm placeholder:text-slate-600 outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/10 transition-all";
+  const inputClass = "w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white font-bold text-sm placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10 transition-all";
   const textareaClass = `${inputClass} resize-none`;
   const sectionClass = "bg-[#0d0d14] border border-white/5 rounded-2xl p-7 space-y-6";
   const sectionHeaderClass = "flex items-center justify-between pb-5 border-b border-white/5";
-  const iconBoxClass = "w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center justify-center shrink-0";
-  const labelClass = "text-[9px] font-black text-slate-600 uppercase tracking-widest block mb-1.5";
+  const iconBoxClass = "w-10 h-10 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center shrink-0";
+  const labelClass = "text-[9px] font-bold text-slate-600 uppercase tracking-widest block mb-1.5";
   const saveBtn = (onClick: () => void, label = 'Simpan') => (
     <button
       onClick={onClick}
       disabled={saving}
-      className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs shadow-lg shadow-indigo-500/20 disabled:opacity-40 transition-all"
+      className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-500/20 disabled:opacity-40 transition-all"
     >
       {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
       {label}
@@ -130,7 +130,7 @@ export function AdminLandingPageEditorView() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <Loader2 className="w-10 h-10 text-indigo-400 animate-spin mb-3" />
+        <Loader2 className="w-10 h-10 text-blue-400 animate-spin mb-3" />
         <p className="text-slate-600 font-bold text-xs uppercase tracking-widest">Memuat Konten CMS...</p>
       </div>
     );
@@ -143,9 +143,9 @@ export function AdminLandingPageEditorView() {
       <section className={sectionClass}>
         <div className={sectionHeaderClass}>
           <div className="flex items-center gap-3">
-            <div className={iconBoxClass}><Layout className="w-4 h-4 text-indigo-400" /></div>
+            <div className={iconBoxClass}><Layout className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-black text-white">Hero Section</h2>
+              <h2 className="text-sm font-bold text-white">Hero Section</h2>
               <p className="text-[10px] text-slate-600 font-bold">Header utama website</p>
             </div>
           </div>
@@ -166,21 +166,21 @@ export function AdminLandingPageEditorView() {
           </div>
           {/* Live Preview */}
           <div className="relative">
-            <div className="absolute top-0 right-0 px-2 py-1 bg-indigo-600 text-white text-[8px] font-black uppercase rounded-bl-xl rounded-tr-xl z-10">Preview</div>
+            <div className="absolute top-0 right-0 px-2 py-1 bg-blue-600 text-white text-[8px] font-bold uppercase rounded-bl-xl rounded-tr-xl z-10">Preview</div>
             <div className="bg-[#050b18] p-6 rounded-xl border border-white/5 min-h-full flex flex-col justify-center overflow-hidden">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[8px] font-black uppercase mb-3 w-fit" style={{color:colors.badge}}>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[8px] font-bold uppercase mb-3 w-fit" style={{color:colors.badge}}>
                 {hero.badge || '#1 Platform'}
               </div>
-              <h1 className="text-lg font-black leading-tight mb-2 tracking-tight" style={{color:colors.title}}>{hero.title || 'Wujudkan Mimpi...'}</h1>
+              <h1 className="text-lg font-bold leading-tight mb-2 tracking-tight" style={{color:colors.title}}>{hero.title || 'Wujudkan Mimpi...'}</h1>
               <p className="text-[9px] leading-relaxed" style={{color:colors.subtitle}}>{hero.subtitle || 'Deskripsi...'}</p>
               <div className="mt-4">
-                <span className="inline-block px-3 py-1.5 text-white font-black rounded-lg text-[8px] uppercase" style={{backgroundColor:colors.cta}}>{hero.cta || 'Mulai'}</span>
+                <span className="inline-block px-3 py-1.5 text-white font-bold rounded-lg text-[8px] uppercase" style={{backgroundColor:colors.cta}}>{hero.cta || 'Mulai'}</span>
               </div>
               <div className="mt-5 grid grid-cols-3 gap-1.5">
                 {features.map((f,i) => (
                   <div key={i} className="p-2 bg-white/[0.03] rounded-lg border border-white/5">
-                    <div className="w-3 h-3 bg-indigo-600 rounded mb-1" />
-                    <div className="text-[5px] font-black text-white truncate">{f.title}</div>
+                    <div className="w-3 h-3 bg-blue-600 rounded mb-1" />
+                    <div className="text-[5px] font-bold text-white truncate">{f.title}</div>
                   </div>
                 ))}
               </div>
@@ -193,9 +193,9 @@ export function AdminLandingPageEditorView() {
       <section className={sectionClass}>
         <div className={sectionHeaderClass}>
           <div className="flex items-center gap-3">
-            <div className={iconBoxClass}><Layout className="w-4 h-4 text-indigo-400" /></div>
+            <div className={iconBoxClass}><Layout className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-black text-white">Pengaturan Warna</h2>
+              <h2 className="text-sm font-bold text-white">Pengaturan Warna</h2>
               <p className="text-[10px] text-slate-600 font-bold">Kustomisasi skema warna landing page</p>
             </div>
           </div>
@@ -207,7 +207,7 @@ export function AdminLandingPageEditorView() {
               <label className={labelClass}>{label}</label>
               <div className="flex items-center gap-2 bg-white/5 border border-white/8 p-2 rounded-xl">
                 <input type="color" value={(colors as any)[key]} onChange={e => setColors({...colors,[key]:e.target.value})} className="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent" />
-                <input type="text" value={(colors as any)[key]} onChange={e => setColors({...colors,[key]:e.target.value})} className="flex-1 bg-transparent border-none text-[10px] font-black text-slate-400 outline-none uppercase" />
+                <input type="text" value={(colors as any)[key]} onChange={e => setColors({...colors,[key]:e.target.value})} className="flex-1 bg-transparent border-none text-[10px] font-bold text-slate-400 outline-none uppercase" />
               </div>
             </div>
           ))}
@@ -218,9 +218,9 @@ export function AdminLandingPageEditorView() {
       <section className={sectionClass}>
         <div className={sectionHeaderClass}>
           <div className="flex items-center gap-3">
-            <div className={iconBoxClass}><Zap className="w-4 h-4 text-indigo-400" /></div>
+            <div className={iconBoxClass}><Zap className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-black text-white">Fitur Utama</h2>
+              <h2 className="text-sm font-bold text-white">Fitur Utama</h2>
               <p className="text-[10px] text-slate-600 font-bold">3 kartu fitur di landing page</p>
             </div>
           </div>
@@ -230,8 +230,8 @@ export function AdminLandingPageEditorView() {
           {features.map((f,i) => (
             <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400 font-black text-[10px]">{i+1}</div>
-                <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Fitur {i+1}</span>
+                <div className="w-6 h-6 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 font-bold text-[10px]">{i+1}</div>
+                <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Fitur {i+1}</span>
               </div>
               <div>
                 <label className={labelClass}>Judul</label>
@@ -250,9 +250,9 @@ export function AdminLandingPageEditorView() {
       <section className={sectionClass}>
         <div className={sectionHeaderClass}>
           <div className="flex items-center gap-3">
-            <div className={iconBoxClass}><Phone className="w-4 h-4 text-indigo-400" /></div>
+            <div className={iconBoxClass}><Phone className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-black text-white">Kontak Resmi</h2>
+              <h2 className="text-sm font-bold text-white">Kontak Resmi</h2>
               <p className="text-[10px] text-slate-600 font-bold">WhatsApp, Instagram, TikTok</p>
             </div>
           </div>
@@ -272,9 +272,9 @@ export function AdminLandingPageEditorView() {
       <section className={sectionClass}>
         <div className={sectionHeaderClass}>
           <div className="flex items-center gap-3">
-            <div className={iconBoxClass}><HelpCircle className="w-4 h-4 text-indigo-400" /></div>
+            <div className={iconBoxClass}><HelpCircle className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-black text-white">FAQ</h2>
+              <h2 className="text-sm font-bold text-white">FAQ</h2>
               <p className="text-[10px] text-slate-600 font-bold">Pertanyaan yang sering diajukan siswa</p>
             </div>
           </div>
@@ -303,9 +303,9 @@ export function AdminLandingPageEditorView() {
       <section className={sectionClass}>
         <div className={sectionHeaderClass}>
           <div className="flex items-center gap-3">
-            <div className={iconBoxClass}><CreditCard className="w-4 h-4 text-indigo-400" /></div>
+            <div className={iconBoxClass}><CreditCard className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-black text-white">Daftar Paket SKD</h2>
+              <h2 className="text-sm font-bold text-white">Daftar Paket SKD</h2>
               <p className="text-[10px] text-slate-600 font-bold">Atur paket & harga di landing page</p>
             </div>
           </div>
@@ -313,12 +313,12 @@ export function AdminLandingPageEditorView() {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {packages.map((p,i) => (
-            <div key={i} className={`bg-white/[0.02] border rounded-xl p-5 space-y-4 ${p.isRecommended ? 'border-indigo-500/30' : 'border-white/5'}`}>
+            <div key={i} className={`bg-white/[0.02] border rounded-xl p-5 space-y-4 ${p.isRecommended ? 'border-blue-500/30' : 'border-white/5'}`}>
               <div className="flex items-center justify-between">
-                <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Paket {i+1}</span>
+                <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Paket {i+1}</span>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={p.isRecommended} onChange={e => { const n=[...packages]; n[i].isRecommended=e.target.checked; setPackages(n); }} className="w-3.5 h-3.5 rounded accent-indigo-500" />
-                  <span className="text-[9px] font-black text-slate-500 uppercase">Rekomendasi</span>
+                  <input type="checkbox" checked={p.isRecommended} onChange={e => { const n=[...packages]; n[i].isRecommended=e.target.checked; setPackages(n); }} className="w-3.5 h-3.5 rounded accent-blue-500" />
+                  <span className="text-[9px] font-bold text-slate-500 uppercase">Rekomendasi</span>
                 </label>
               </div>
               {[{label:'Nama Paket',key:'name'},{label:'Harga Tampil',key:'price'},{label:'Harga Asli (Coret)',key:'originalPrice'}].map(({label,key}) => (
@@ -340,9 +340,9 @@ export function AdminLandingPageEditorView() {
       <section className={sectionClass}>
         <div className={sectionHeaderClass}>
           <div className="flex items-center gap-3">
-            <div className={iconBoxClass}><CreditCard className="w-4 h-4 text-indigo-400" /></div>
+            <div className={iconBoxClass}><CreditCard className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-black text-white">Bank Details</h2>
+              <h2 className="text-sm font-bold text-white">Bank Details</h2>
               <p className="text-[10px] text-slate-600 font-bold">Informasi pembayaran siswa</p>
             </div>
           </div>
@@ -362,16 +362,16 @@ export function AdminLandingPageEditorView() {
       <section className={sectionClass}>
         <div className={sectionHeaderClass}>
           <div className="flex items-center gap-3">
-            <div className={iconBoxClass}><Phone className="w-4 h-4 text-indigo-400" /></div>
+            <div className={iconBoxClass}><Phone className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-black text-white">WhatsApp Template</h2>
+              <h2 className="text-sm font-bold text-white">WhatsApp Template</h2>
               <p className="text-[10px] text-slate-600 font-bold">Otomatisasi pesan konfirmasi pembayaran</p>
             </div>
           </div>
           {saveBtn(() => handleSave('whatsapp_template', waTemplate), 'Simpan Template')}
         </div>
-        <div className="bg-indigo-500/5 border border-indigo-500/15 rounded-xl p-4 text-xs text-slate-400">
-          Gunakan <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">{'{paket}'}</code> untuk nama paket dan <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">{'{invoice}'}</code> untuk nomor invoice.
+        <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl p-4 text-xs text-slate-400">
+          Gunakan <code className="text-blue-400 bg-blue-500/10 px-1 rounded">{'{paket}'}</code> untuk nama paket dan <code className="text-blue-400 bg-blue-500/10 px-1 rounded">{'{invoice}'}</code> untuk nomor invoice.
         </div>
         <div>
           <label className={labelClass}>Template Pesan</label>

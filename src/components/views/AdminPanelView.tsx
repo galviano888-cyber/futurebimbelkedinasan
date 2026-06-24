@@ -273,7 +273,7 @@ export function AdminPanelView() {
   // ─── LOGIN PAGE ───────────────────────────────────────────────
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="min-h-screen bg-[#0c1424] flex items-center justify-center p-6 relative overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(99,102,241,0.15),transparent_60%)]" />
         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
@@ -281,10 +281,10 @@ export function AdminPanelView() {
         <div className="w-full max-w-sm relative z-10">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex items-center justify-center mb-4 shadow-2xl shadow-indigo-500/25">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center mb-4 shadow-2xl shadow-blue-500/25">
               <Lock className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-black text-white tracking-tight">FBK Admin</h1>
+            <h1 className="text-2xl font-bold text-white tracking-tight">FBK Admin</h1>
             <p className="text-sm text-slate-500 mt-1 font-medium">Control Center</p>
           </div>
 
@@ -297,31 +297,31 @@ export function AdminPanelView() {
                 </div>
               )}
               <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Email</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm font-medium placeholder:text-slate-600 outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10 transition-all"
+                  className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm font-medium placeholder:text-slate-600 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all"
                   placeholder="admin@fbk-kedinasan.com"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Password</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Password</label>
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm font-medium placeholder:text-slate-600 outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10 transition-all"
+                  className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm font-medium placeholder:text-slate-600 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all"
                   placeholder="••••••••"
                 />
               </div>
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-11 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-sm mt-2 transition-all shadow-lg shadow-indigo-500/20"
+                className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-sm mt-2 transition-all shadow-lg shadow-blue-500/20"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Masuk ke Dashboard'}
               </Button>
@@ -336,20 +336,20 @@ export function AdminPanelView() {
   const groups = ['Konten', 'Data'];
 
   return (
-    <div className="flex h-screen bg-[#0a0a0f] overflow-hidden">
+    <div className="flex h-screen bg-[#0c1424] overflow-hidden">
       <Toaster theme="dark" position="top-right" />
 
       {/* ── SIDEBAR ─────────────────────────────────────── */}
-      <aside className="w-64 shrink-0 flex flex-col h-full bg-[#0d0d14] border-r border-white/5">
+      <aside className="w-64 shrink-0 flex flex-col h-full bg-[#0d1929] border-r border-white/5">
         {/* Brand */}
         <div className="px-6 py-6 border-b border-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
               <LayoutDashboard className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="text-sm font-black text-white leading-none">FBK Admin</p>
-              <p className="text-[10px] text-indigo-400 font-bold mt-0.5">Control Center</p>
+              <p className="text-sm font-bold text-white leading-none">FBK Admin</p>
+              <p className="text-[10px] text-blue-400 font-bold mt-0.5">Control Center</p>
             </div>
           </div>
         </div>
@@ -358,7 +358,7 @@ export function AdminPanelView() {
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
           {groups.map(group => (
             <div key={group}>
-              <p className="px-3 text-[9px] font-black text-slate-600 uppercase tracking-[0.25em] mb-2">{group}</p>
+              <p className="px-3 text-[9px] font-bold text-slate-600 uppercase tracking-[0.25em] mb-2">{group}</p>
               <div className="space-y-0.5">
                 {navItems.filter(i => i.group === group).map(item => {
                   const active = currentView === item.id;
@@ -369,13 +369,13 @@ export function AdminPanelView() {
                       className={cn(
                         'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 group',
                         active
-                          ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                          ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
                           : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
                       )}
                     >
-                      <item.icon className={cn('w-4 h-4 shrink-0', active ? 'text-indigo-400' : 'text-slate-600 group-hover:text-slate-400')} />
+                      <item.icon className={cn('w-4 h-4 shrink-0', active ? 'text-blue-400' : 'text-slate-600 group-hover:text-slate-400')} />
                       <span>{item.label}</span>
-                      {active && <ChevronRight className="w-3 h-3 ml-auto text-indigo-400/60" />}
+                      {active && <ChevronRight className="w-3 h-3 ml-auto text-blue-400/60" />}
                     </button>
                   );
                 })}
@@ -387,11 +387,11 @@ export function AdminPanelView() {
         {/* Footer */}
         <div className="px-3 py-4 border-t border-white/5">
           <div className="flex items-center gap-3 px-3 py-2 mb-3">
-            <div className="w-8 h-8 bg-indigo-500/10 rounded-lg flex items-center justify-center text-indigo-400 font-black text-xs border border-indigo-500/20">
+            <div className="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-400 font-bold text-xs border border-blue-500/20">
               {email.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-black text-white truncate">{email.split('@')[0]}</p>
+              <p className="text-xs font-bold text-white truncate">{email.split('@')[0]}</p>
               <p className="text-[9px] text-slate-500 font-bold">Superadmin</p>
             </div>
           </div>
@@ -408,9 +408,9 @@ export function AdminPanelView() {
       {/* ── MAIN CONTENT ────────────────────────────────── */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Header */}
-        <header className="h-16 shrink-0 border-b border-white/5 bg-[#0d0d14] flex items-center px-8 justify-between">
+        <header className="h-16 shrink-0 border-b border-white/5 bg-[#0d1929] flex items-center px-8 justify-between">
           <div>
-            <h1 className="text-base font-black text-white tracking-tight">
+            <h1 className="text-base font-bold text-white tracking-tight">
               {navItems.find(i => i.id === currentView)?.label || 'Dashboard'}
             </h1>
             <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5">
@@ -420,13 +420,13 @@ export function AdminPanelView() {
           <div className="flex items-center gap-3">
             <div className="h-8 px-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Live</span>
+              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Live</span>
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto p-8 bg-[#0a0a0f]">
+        <main className="flex-1 overflow-y-auto p-8 bg-[#0c1424]">
           <div className="max-w-6xl mx-auto">
 
             {/* ── BANK SOAL ─── */}
@@ -435,7 +435,7 @@ export function AdminPanelView() {
                 {/* Toolbar */}
                 <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-black text-white tracking-tight">Bank Soal Tryout</h2>
+                    <h2 className="text-xl font-bold text-white tracking-tight">Bank Soal Tryout</h2>
                     <p className="text-xs text-slate-500 font-bold mt-1">{filteredPackages.length} paket tersedia</p>
                   </div>
                   <div className="flex gap-3">
@@ -447,7 +447,7 @@ export function AdminPanelView() {
                     </button>
                     <button
                       onClick={() => setCurrentView('import')}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-indigo-500/20"
+                      className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-blue-500/20"
                     >
                       <Upload className="w-3.5 h-3.5" /> Import JSON
                     </button>
@@ -463,7 +463,7 @@ export function AdminPanelView() {
                       placeholder="Cari nama paket..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-sm text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-sm text-white placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
                     />
                   </div>
                   <div className="relative">
@@ -494,15 +494,15 @@ export function AdminPanelView() {
                 </div>
 
                 {/* Table */}
-                <div className="bg-[#0d0d14] border border-white/5 rounded-2xl overflow-hidden">
+                <div className="bg-[#0d1929] border border-white/5 rounded-2xl overflow-hidden">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-white/5">
-                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Nama Tryout</th>
-                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Kategori</th>
-                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Soal</th>
-                        <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
-                        <th className="px-6 py-4 text-right text-[10px] font-black text-slate-600 uppercase tracking-widest">Aksi</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Nama Tryout</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Kategori</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Soal</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Status</th>
+                        <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">Aksi</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/[0.03]">
@@ -521,7 +521,7 @@ export function AdminPanelView() {
                                     if (e.key === 'Enter') handleUpdatePackageName(pkg.id, editingName);
                                     if (e.key === 'Escape') setEditingPackageId(null);
                                   }}
-                                  className="bg-white/5 border border-indigo-500/40 rounded-lg px-3 py-1.5 text-sm font-bold text-white outline-none focus:ring-2 focus:ring-indigo-500/20 min-w-[200px]"
+                                  className="bg-white/5 border border-blue-500/40 rounded-lg px-3 py-1.5 text-sm font-bold text-white outline-none focus:ring-2 focus:ring-blue-500/20 min-w-[200px]"
                                 />
                                 <button onClick={() => handleUpdatePackageName(pkg.id, editingName)} className="p-1.5 text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"><Check className="w-3.5 h-3.5" /></button>
                                 <button onClick={() => setEditingPackageId(null)} className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"><X className="w-3.5 h-3.5" /></button>
@@ -531,7 +531,7 @@ export function AdminPanelView() {
                                 <span className="font-bold text-white text-sm">{pkg.name}</span>
                                 <button
                                   onClick={() => { setEditingPackageId(pkg.id); setEditingName(pkg.name); }}
-                                  className="opacity-0 group-hover:opacity-100 p-1 text-slate-600 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all"
+                                  className="opacity-0 group-hover:opacity-100 p-1 text-slate-600 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all"
                                 >
                                   <Edit2 className="w-3 h-3" />
                                 </button>
@@ -550,7 +550,7 @@ export function AdminPanelView() {
                                   toast.success("Kategori diubah");
                                 }
                               }}
-                              className="px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-lg text-[10px] font-black outline-none cursor-pointer hover:bg-indigo-500/20 transition-colors"
+                              className="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg text-[10px] font-bold outline-none cursor-pointer hover:bg-blue-500/20 transition-colors"
                             >
                               {['SKD','TIU','TWK','TKP'].map(c => <option key={c} className="bg-slate-900 text-white">{c}</option>)}
                             </select>
@@ -558,9 +558,9 @@ export function AdminPanelView() {
                           {/* Jumlah Soal */}
                           <td className="px-6 py-4">
                             <span className={cn(
-                              'px-2.5 py-1 rounded-lg text-[11px] font-black border',
+                              'px-2.5 py-1 rounded-lg text-[11px] font-bold border',
                               pkg.question_count > 0
-                                ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                                ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
                                 : 'bg-red-500/10 text-red-400 border-red-500/20'
                             )}>
                               {pkg.question_count} soal
@@ -571,7 +571,7 @@ export function AdminPanelView() {
                             <button
                               onClick={() => handleTogglePublish(pkg)}
                               className={cn(
-                                'flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black border transition-all',
+                                'flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all',
                                 pkg.status === 'Published'
                                   ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
                                   : 'bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20'
@@ -586,7 +586,7 @@ export function AdminPanelView() {
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-end gap-2">
                               <button
-                                className="px-3 py-1.5 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white border border-indigo-500/20 rounded-lg text-xs font-black transition-all"
+                                className="px-3 py-1.5 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white border border-blue-500/20 rounded-lg text-xs font-bold transition-all"
                                 onClick={() => { setSelectedPackageId(pkg.id); setCurrentView('edit-questions'); }}
                               >
                                 Edit Soal
@@ -618,62 +618,106 @@ export function AdminPanelView() {
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-black text-white tracking-tight">Katalog Produk</h2>
+                    <h2 className="text-xl font-bold text-white tracking-tight">Katalog Produk</h2>
                     <p className="text-xs text-slate-500 font-bold mt-1">{salesPackages.length} produk aktif</p>
                   </div>
                   <button
                     onClick={() => { setSelectedProductId(null); setCurrentView('edit-product'); }}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-indigo-500/20"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-blue-500/20"
                   >
                     <Plus className="w-3.5 h-3.5" /> Tambah Produk
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {salesPackages.map(pkg => (
-                    <div key={pkg.id} className="bg-[#0d0d14] border border-white/5 rounded-2xl p-6 group hover:border-indigo-500/20 transition-all">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center justify-center">
-                          <Package className="w-5 h-5 text-indigo-400" />
-                        </div>
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => { setSelectedProductId(pkg.id); setCurrentView('edit-product'); }}
-                            className="p-2 text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProduct(pkg.id)}
-                            className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">{pkg.product_type}</span>
-                        <h3 className="text-base font-black text-white mt-1 leading-tight">{pkg.title}</h3>
-                        <p className="text-lg font-black text-white mt-3">
-                          {pkg.price === 0 ? <span className="text-emerald-400">Gratis</span> : `Rp ${pkg.price.toLocaleString('id-ID')}`}
-                        </p>
-                        {pkg.original_price > 0 && pkg.original_price > pkg.price && (
-                          <p className="text-xs text-slate-600 line-through">Rp {pkg.original_price.toLocaleString('id-ID')}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {salesPackages.map(pkg => {
+                    const descItems = pkg.description
+                      ? pkg.description.split(/,|\n/).map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+                      : [];
+                    return (
+                      <div key={pkg.id} className="bg-[#0d1929] border border-white/5 rounded-2xl overflow-hidden group hover:border-blue-500/20 transition-all flex flex-col">
+                        {/* Cover image */}
+                        {pkg.cover_image_url ? (
+                          <div className="relative h-32 overflow-hidden shrink-0">
+                            <img src={pkg.cover_image_url} alt={pkg.title} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button onClick={() => { setSelectedProductId(pkg.id); setCurrentView('edit-product'); }} className="p-1.5 bg-black/60 text-blue-400 hover:text-blue-300 rounded-lg backdrop-blur-sm">
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              <button onClick={() => handleDeleteProduct(pkg.id)} className="p-1.5 bg-black/60 text-slate-400 hover:text-red-400 rounded-lg backdrop-blur-sm">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="h-16 bg-blue-500/5 border-b border-white/5 flex items-center px-5 justify-between">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-center justify-center">
+                                <Package className="w-4 h-4 text-blue-400" />
+                              </div>
+                              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">{pkg.product_type}</span>
+                            </div>
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button onClick={() => { setSelectedProductId(pkg.id); setCurrentView('edit-product'); }} className="p-1.5 text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              <button onClick={() => handleDeleteProduct(pkg.id)} className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
                         )}
+
+                        <div className="p-5 flex-1 flex flex-col">
+                          {pkg.cover_image_url && (
+                            <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">{pkg.product_type}</span>
+                          )}
+                          <h3 className="text-[14px] font-bold text-white leading-tight mb-2">{pkg.title}</h3>
+
+                          {/* Harga */}
+                          <div className="flex items-baseline gap-2 mb-3">
+                            <span className={cn('text-[18px] font-bold', pkg.price === 0 ? 'text-emerald-400' : 'text-white')}>
+                              {pkg.price === 0 ? 'Gratis' : `Rp ${pkg.price.toLocaleString('id-ID')}`}
+                            </span>
+                            {pkg.original_price > 0 && pkg.original_price > pkg.price && (
+                              <span className="text-[11px] text-slate-600 line-through">Rp {pkg.original_price.toLocaleString('id-ID')}</span>
+                            )}
+                          </div>
+
+                          {/* Deskripsi checklist */}
+                          {descItems.length > 0 && (
+                            <div className="space-y-1.5 mb-4 flex-1">
+                              {descItems.slice(0, 3).map((item: string, i: number) => (
+                                <div key={i} className="flex items-start gap-2">
+                                  <div className="w-3.5 h-3.5 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 mt-px">
+                                    <Check className="w-2 h-2 text-blue-400" strokeWidth={3} />
+                                  </div>
+                                  <span className="text-[11px] text-slate-400 leading-snug">{item}</span>
+                                </div>
+                              ))}
+                              {descItems.length > 3 && (
+                                <p className="text-[10px] text-slate-600">+{descItems.length - 3} lainnya</p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Footer */}
+                          <div className="pt-3 border-t border-white/5 flex items-center justify-between mt-auto">
+                            <span className={cn('text-[10px] font-bold px-2 py-1 rounded-lg border', pkg.is_active ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-500/10 text-slate-500 border-slate-500/20')}>
+                              {pkg.is_active ? 'Aktif' : 'Nonaktif'}
+                            </span>
+                            <button
+                              onClick={() => { setSelectedProductId(pkg.id); setCurrentView('edit-product'); }}
+                              className="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
+                            >
+                              Edit →
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-                        <span className={cn('text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-lg', pkg.is_active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-500/10 text-slate-500 border border-slate-500/20')}>
-                          {pkg.is_active ? 'Aktif' : 'Nonaktif'}
-                        </span>
-                        <button
-                          onClick={() => { setSelectedProductId(pkg.id); setCurrentView('edit-product'); }}
-                          className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
-                        >
-                          Edit →
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -681,23 +725,23 @@ export function AdminPanelView() {
             {/* ── BUAT MANUAL ─── */}
             {currentView === 'manual' && (
               <div className="max-w-lg mx-auto animate-in fade-in zoom-in-95 duration-300">
-                <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-8">
+                <div className="bg-[#0d1929] border border-white/5 rounded-2xl p-8">
                   <div className="mb-8">
-                    <h2 className="text-xl font-black text-white tracking-tight">Buat Paket Baru</h2>
+                    <h2 className="text-xl font-bold text-white tracking-tight">Buat Paket Baru</h2>
                     <p className="text-sm text-slate-500 mt-1">Siapkan wadah untuk bank soal baru.</p>
                   </div>
                   <div className="space-y-5">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nama Paket</label>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nama Paket</label>
                       <input
                         id="new-pkg-name"
                         type="text"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm font-medium placeholder:text-slate-600 outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+                        className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm font-medium placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
                         placeholder="Contoh: Tryout Akbar SKD 2026"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Kategori</label>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Kategori</label>
                       <select
                         id="new-pkg-cat"
                         className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm font-bold outline-none appearance-none"
@@ -710,7 +754,7 @@ export function AdminPanelView() {
                         Batal
                       </Button>
                       <Button
-                        className="flex-1 h-11 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black shadow-lg shadow-indigo-500/20"
+                        className="flex-1 h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20"
                         onClick={async () => {
                           const name = (document.getElementById('new-pkg-name') as HTMLInputElement).value;
                           const cat = (document.getElementById('new-pkg-cat') as HTMLSelectElement).value;
@@ -732,10 +776,10 @@ export function AdminPanelView() {
             {/* ── IMPORT JSON ─── */}
             {currentView === 'import' && (
               <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-8 space-y-6">
+                <div className="bg-[#0d1929] border border-white/5 rounded-2xl p-8 space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-xl font-black text-white tracking-tight">Import JSON</h2>
+                      <h2 className="text-xl font-bold text-white tracking-tight">Import JSON</h2>
                       <p className="text-sm text-slate-500 mt-1">Upload file JSON untuk bulk import soal.</p>
                     </div>
                     <Button variant="outline" onClick={() => setCurrentView('dashboard')} className="rounded-xl font-bold text-slate-400 border-white/8 bg-transparent hover:bg-white/5 text-sm">Kembali</Button>
@@ -747,13 +791,13 @@ export function AdminPanelView() {
                     <div className="flex items-start gap-3 bg-amber-500/5 border border-amber-500/15 rounded-xl p-4">
                       <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                       <div className="text-xs text-slate-400 leading-relaxed">
-                        <span className="font-black text-amber-400">Penting:</span> Unduh template di bawah sebagai panduan format yang benar. Isi dengan soal-soal yang tersedia, lalu upload di sini. Jangan ubah nama field (<code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">number</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">category</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">sub_category</code>, <code className="text-indigo-400 bg-indigo-500/10 px-1 rounded">options</code>, dll).
+                        <span className="font-bold text-amber-400">Penting:</span> Unduh template di bawah sebagai panduan format yang benar. Isi dengan soal-soal yang tersedia, lalu upload di sini. Jangan ubah nama field (<code className="text-blue-400 bg-blue-500/10 px-1 rounded">number</code>, <code className="text-blue-400 bg-blue-500/10 px-1 rounded">category</code>, <code className="text-blue-400 bg-blue-500/10 px-1 rounded">sub_category</code>, <code className="text-blue-400 bg-blue-500/10 px-1 rounded">options</code>, dll).
                       </div>
                     </div>
 
                     {/* Field guide */}
-                    <div className="bg-[#0d0d14] border border-white/5 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Panduan Field</p>
+                    <div className="bg-[#0d1929] border border-white/5 rounded-xl p-4">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Panduan Field</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {[
                           { field: 'name', desc: 'Nama paket tryout', required: true },
@@ -770,21 +814,21 @@ export function AdminPanelView() {
                            { field: 'question_image_url', desc: 'URL gambar soal (opsional)', required: false },
                         ].map(({ field, desc, required }) => (
                           <div key={field} className="flex items-start gap-2">
-                            <code className="text-[10px] font-black text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded shrink-0">{field}</code>
+                            <code className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded shrink-0">{field}</code>
                             <span className="text-[11px] text-slate-500">{desc}</span>
-                            {required && <span className="text-[9px] font-black text-red-400 shrink-0">*</span>}
+                            {required && <span className="text-[9px] font-bold text-red-400 shrink-0">*</span>}
                           </div>
                         ))}
                       </div>
                     </div>
 
                     {/* Template preview + actions */}
-                    <div className="bg-[#0d0d14] border border-white/5 rounded-xl overflow-hidden">
+                    <div className="bg-[#0d1929] border border-white/5 rounded-xl overflow-hidden">
                       <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
                         <div className="flex items-center gap-2">
-                          <FileJson className="w-4 h-4 text-indigo-400" />
-                          <span className="text-xs font-black text-white">template-soal-fbk.json</span>
-                          <span className="text-[9px] font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">3 contoh soal</span>
+                          <FileJson className="w-4 h-4 text-blue-400" />
+                          <span className="text-xs font-bold text-white">template-soal-fbk.json</span>
+                          <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">3 contoh soal</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
@@ -796,7 +840,7 @@ export function AdminPanelView() {
                           </button>
                           <button
                             onClick={handleDownloadTemplate}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-black transition-all shadow-lg shadow-indigo-500/20"
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px] font-bold transition-all shadow-lg shadow-blue-500/20"
                           >
                             <Download className="w-3 h-3" />
                             Download Template
@@ -812,7 +856,7 @@ export function AdminPanelView() {
                   {/* Drop zone */}
                   <div className={cn(
                     'relative border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer group',
-                    selectedJsonFile ? 'border-indigo-500/40 bg-indigo-500/5' : 'border-white/8 hover:border-indigo-500/30 hover:bg-white/[0.02]'
+                    selectedJsonFile ? 'border-blue-500/40 bg-blue-500/5' : 'border-white/8 hover:border-blue-500/30 hover:bg-white/[0.02]'
                   )}>
                     <input
                       type="file"
@@ -820,11 +864,11 @@ export function AdminPanelView() {
                       onChange={(e) => setSelectedJsonFile(e.target.files?.[0] || null)}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
-                    <FileJson className={cn('w-10 h-10 mx-auto mb-3 transition-colors', selectedJsonFile ? 'text-indigo-400' : 'text-slate-700 group-hover:text-slate-600')} />
+                    <FileJson className={cn('w-10 h-10 mx-auto mb-3 transition-colors', selectedJsonFile ? 'text-blue-400' : 'text-slate-700 group-hover:text-slate-600')} />
                     {selectedJsonFile ? (
                       <>
-                        <p className="text-sm font-black text-white">{selectedJsonFile.name}</p>
-                        <p className="text-xs text-indigo-400 font-bold mt-1">{(selectedJsonFile.size / 1024).toFixed(1)} KB</p>
+                        <p className="text-sm font-bold text-white">{selectedJsonFile.name}</p>
+                        <p className="text-xs text-blue-400 font-bold mt-1">{(selectedJsonFile.size / 1024).toFixed(1)} KB</p>
                       </>
                     ) : (
                       <>
@@ -835,7 +879,7 @@ export function AdminPanelView() {
                   </div>
 
                   <Button
-                    className="w-full h-12 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black shadow-lg shadow-indigo-500/20 disabled:opacity-40"
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 disabled:opacity-40"
                     disabled={!selectedJsonFile || loading}
                     onClick={async () => {
                       if (!selectedJsonFile) return;
@@ -893,10 +937,10 @@ export function AdminPanelView() {
                     Bank Soal
                   </button>
                   <span className="text-slate-700">/</span>
-                  <span className="text-white font-black">
+                  <span className="text-white font-bold">
                     {packages.find(p => p.id === selectedPackageId)?.name || 'Edit Soal'}
                   </span>
-                  <span className="ml-2 px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-[10px] font-black">
+                  <span className="ml-2 px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-[10px] font-bold">
                     {packages.find(p => p.id === selectedPackageId)?.question_count ?? 0} soal
                   </span>
                 </div>
@@ -914,11 +958,11 @@ export function AdminPanelView() {
       {/* ── CONFIRM DIALOG ─────────────────────────────── */}
       {confirmDialog.open && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-6">
-          <div className="bg-[#0d0d14] border border-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl">
+          <div className="bg-[#0d1929] border border-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl">
             <div className="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center mb-5">
               <AlertTriangle className="w-6 h-6 text-red-400" />
             </div>
-            <h3 className="text-base font-black text-white mb-2">{confirmDialog.title}</h3>
+            <h3 className="text-base font-bold text-white mb-2">{confirmDialog.title}</h3>
             <p className="text-sm text-slate-500 mb-7">{confirmDialog.message}</p>
             <div className="flex gap-3">
               <button
@@ -932,7 +976,7 @@ export function AdminPanelView() {
                   confirmDialog.onConfirm();
                   setConfirmDialog(prev => ({ ...prev, open: false }));
                 }}
-                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-sm transition-all shadow-lg shadow-red-500/20"
+                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition-all shadow-lg shadow-red-500/20"
               >
                 Hapus
               </button>

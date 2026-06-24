@@ -1,10 +1,5 @@
 import { memo } from "react";
-import { 
-  Mail, 
-  MessageCircle, 
-  MapPin, 
-  Phone
-} from "lucide-react";
+import { Mail, MessageCircle, MapPin, Phone, ArrowRight } from "lucide-react";
 
 interface FooterProps {
   onLegalClick: (type: 'terms' | 'privacy') => void;
@@ -13,120 +8,143 @@ interface FooterProps {
 
 export const Footer = memo(function Footer({ onLegalClick, hasPackages }: FooterProps) {
   return (
-    <footer className="py-20 lg:py-24 bg-[#0a0f1d] border-t border-white/5 relative overflow-hidden">
-      {/* Decorative Blur */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/5 blur-[120px] rounded-full -translate-y-1/2" />
-      
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="flex flex-col lg:flex-row justify-between gap-x-12 gap-y-16 mb-20 items-center lg:items-start text-center lg:text-left">
-          
+    <footer className="bg-[#091b38] text-slate-300 border-t border-white/[0.07]">
+      {/* CTA strip */}
+      <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-16 lg:pt-20">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 to-blue-700 px-8 py-10 lg:px-12 lg:py-14">
+          <div className="absolute -top-10 -right-10 w-60 h-60 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div>
+              <h3 className="text-[20px] lg:text-[24px] font-extrabold text-white tracking-tight leading-tight">
+                Siap raih seragam impianmu?
+              </h3>
+              <p className="text-[13px] lg:text-[14px] text-blue-100 mt-2 max-w-md">
+                Gabung bersama ribuan calon abdi negara dan mulai persiapan terbaikmu hari ini.
+              </p>
+            </div>
+            <a
+              href="#paket"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-blue-700 font-semibold text-[15px] rounded-xl hover:bg-blue-50 transition-all shadow-lg active:scale-[0.98] shrink-0"
+            >
+              Mulai Sekarang
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-5 sm:px-6 py-14 lg:py-16">
+        <div className="flex flex-col lg:flex-row justify-between gap-12 mb-12">
+
           {/* Brand Column */}
-          <div className="flex-[1.5] space-y-6 flex flex-col items-center lg:items-start">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-blue-600 text-white font-black text-[10px] flex items-center justify-center shadow-xl shadow-blue-600/20">
+          <div className="max-w-sm space-y-5">
+            <div className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-blue-600 text-white font-bold text-[12px] flex items-center justify-center shadow-lg shadow-blue-600/25">
                 FBK
               </div>
-              <div className="flex flex-col -space-y-1 text-left">
-                <span className="text-lg font-black text-white tracking-tight">Future Bimbel</span>
-                <span className="text-lg font-black text-blue-500 tracking-tight">Kedinasan</span>
-              </div>
+              <span className="text-[15px] font-semibold text-white tracking-tight">
+                Future Bimbel Kedinasan
+              </span>
             </div>
-            <p className="text-slate-400 text-sm leading-relaxed font-medium max-w-sm text-center lg:text-justify">
-              Partner strategis nomor satu untuk raih kursi sekolah kedinasan impianmu. Kami fokus memberikan pendampingan intensif dengan materi terakurat dan sistem simulasi CAT yang presisi demi mencetak calon abdi negara terbaik.
+            <p className="text-[13.5px] text-slate-400 leading-relaxed text-justify">
+              Partner strategis untuk raih kursi sekolah kedinasan impianmu. Simulasi CAT standar BKN dengan materi terakurat.
             </p>
-            <div className="flex items-center gap-3">
-              {[
-                { icon: <MessageCircle className="w-4 h-4" />, href: "https://wa.me/6287753646617", label: "WhatsApp" },
-                { icon: <Mail className="w-4 h-4" />, href: "mailto:support@futurebimbelkedinasan.com", label: "Email" }
-              ].map((social, i) => (
-                <a 
-                  key={i}
-                  href={social.href}
-                  className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-blue-400 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all duration-300"
-                  aria-label={social.label}
-                >
-                  {social.icon}
-                </a>
-              ))}
+            <div className="flex items-center gap-2.5">
+              <a
+                href="https://wa.me/6287753646617"
+                className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 transition-all duration-200"
+                aria-label="WhatsApp"
+              >
+                <MessageCircle className="w-4 h-4" />
+              </a>
+              <a
+                href="mailto:support@futurebimbelkedinasan.com"
+                className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 transition-all duration-200"
+                aria-label="Email"
+              >
+                <Mail className="w-4 h-4" />
+              </a>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="flex-1 space-y-6">
-            <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Tautan Cepat</h4>
-            <ul className="space-y-3 flex flex-col items-center lg:items-start">
-              {[
-                { name: 'Fitur', id: 'fitur' },
-                ...(hasPackages !== false ? [{ name: 'Paket SKD', id: 'paket' }] : []),
-                { name: 'FAQ', id: 'faq' }
-              ].map((link) => (
-                <li key={link.name}>
-                  <a href={`#${link.id}`} className="group flex items-center justify-center lg:justify-start gap-2.5 text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                    <div className="hidden lg:block w-1.5 h-1.5 rounded-full bg-blue-500 scale-0 group-hover:scale-100 transition-transform duration-300" />
-                    {link.name}
-                  </a>
+          <div className="flex flex-wrap gap-10 lg:gap-16">
+            {/* Quick Links */}
+            <div className="space-y-4">
+              <h4 className="text-[12px] font-semibold text-white uppercase tracking-wide">Navigasi</h4>
+              <ul className="space-y-3">
+                {[
+                  { name: 'Keunggulan', id: 'fitur' },
+                  ...(hasPackages !== false ? [{ name: 'Paket SKD', id: 'paket' }] : []),
+                  { name: 'FAQ', id: 'faq' }
+                ].map((link) => (
+                  <li key={link.name}>
+                    <a
+                      href={`#${link.id}`}
+                      className="text-[13.5px] text-slate-400 hover:text-blue-400 transition-colors"
+                    >
+                      {link.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Legal Links */}
+            <div className="space-y-4">
+              <h4 className="text-[12px] font-semibold text-white uppercase tracking-wide">Legal</h4>
+              <ul className="space-y-3">
+                <li>
+                  <button
+                    onClick={() => onLegalClick('terms')}
+                    className="text-[13.5px] text-slate-400 hover:text-blue-400 transition-colors"
+                  >
+                    Syarat &amp; Ketentuan
+                  </button>
                 </li>
-              ))}
-            </ul>
-          </div>
+                <li>
+                  <button
+                    onClick={() => onLegalClick('privacy')}
+                    className="text-[13.5px] text-slate-400 hover:text-blue-400 transition-colors"
+                  >
+                    Kebijakan Privasi
+                  </button>
+                </li>
+              </ul>
+            </div>
 
-          {/* Legal Links */}
-          <div className="flex-1 space-y-6">
-            <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Bantuan & Legal</h4>
-            <ul className="space-y-3 flex flex-col items-center lg:items-start">
-              <li>
-                <button onClick={() => onLegalClick('terms')} className="group flex items-center justify-center lg:justify-start gap-2.5 text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                  <div className="hidden lg:block w-1.5 h-1.5 rounded-full bg-blue-500 scale-0 group-hover:scale-100 transition-transform duration-300" />
-                  Syarat & Ketentuan
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onLegalClick('privacy')} className="group flex items-center justify-center lg:justify-start gap-2.5 text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                  <div className="hidden lg:block w-1.5 h-1.5 rounded-full bg-blue-500 scale-0 group-hover:scale-100 transition-transform duration-300" />
-                  Kebijakan Privasi
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact Info */}
-          <div className="flex-[1.5] space-y-6">
-            <h4 className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Hubungi Kami</h4>
-            <div className="space-y-4 flex flex-col items-center lg:items-start">
-              <div className="flex items-start gap-4 group">
-                <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
-                  <MapPin className="w-4 h-4" />
+            {/* Contact Info */}
+            <div className="space-y-4">
+              <h4 className="text-[12px] font-semibold text-white uppercase tracking-wide">Kontak</h4>
+              <div className="space-y-3">
+                <div className="flex items-start gap-2.5">
+                  <MapPin className="w-3.5 h-3.5 text-blue-400 mt-0.5 shrink-0" />
+                  <span className="text-[13px] text-slate-400 leading-relaxed">
+                    Komp Kehakiman Jl. Kumdang 3 No 4,<br />
+                    Tanah Tinggi, Tangerang
+                  </span>
                 </div>
-                <div className="text-sm text-slate-400 leading-relaxed font-medium pt-1 text-center lg:text-left">
-                  Komp Kehakiman Jl. Kumdang 3 No 4 <br />
-                  Rt 05/13 Tanah Tinggi, Tangerang
+                <div className="flex items-center gap-2.5">
+                  <Mail className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                  <span className="text-[13px] text-slate-400">
+                    support@futurebimbelkedinasan.com
+                  </span>
                 </div>
-              </div>
-              <div className="flex items-center gap-4 group">
-                <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
-                  <Mail className="w-4 h-4" />
-                </div>
-                <div className="text-sm text-slate-400 font-medium">
-                  support@futurebimbelkedinasan.com
-                </div>
-              </div>
-              <div className="flex items-center gap-4 group">
-                <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
-                  <Phone className="w-4 h-4" />
-                </div>
-                <div className="text-sm text-slate-400 font-medium">
-                  0877-5364-6617
+                <div className="flex items-center gap-2.5">
+                  <Phone className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                  <span className="text-[13px] text-slate-400">0877-5364-6617</span>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/5">
-          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] text-center md:text-left">
-            © 2026 <span className="text-white">Future Bimbel Kedinasan</span>. All Rights Reserved.
+        <div className="pt-6 border-t border-white/[0.08] flex flex-col md:flex-row items-center justify-between gap-2">
+          <p className="text-[12.5px] text-slate-500">
+            © 2026 Future Bimbel Kedinasan. Seluruh hak cipta dilindungi.
+          </p>
+          <p className="text-[12.5px] text-slate-500">
+            Dibuat untuk calon abdi negara terbaik.
           </p>
         </div>
       </div>

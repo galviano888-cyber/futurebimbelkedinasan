@@ -5,8 +5,8 @@ import {
   Trophy, 
   Calendar, 
   HelpCircle,
-  Zap,
   X,
+  ChevronLeft,
   ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,8 @@ interface SidebarProps {
   onClose: () => void;
   activePage: string;
   onPageChange: (page: string) => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 const menuItems = [
@@ -29,67 +31,88 @@ const menuItems = [
 
 const groups = ["Menu", "Lainnya"];
 
-export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChange }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChange, collapsed = false, onToggleCollapse }: SidebarProps) {
   return (
     <>
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-40 lg:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed lg:static inset-y-0 left-0 w-64 shrink-0 flex flex-col h-full z-50 transition-transform duration-300 ease-in-out",
-        "bg-white dark:bg-[#0d0d14] border-r border-slate-200 dark:border-white/5",
+        "fixed lg:static inset-y-0 left-0 shrink-0 flex flex-col h-full z-50 transition-all duration-300 ease-in-out",
+        "bg-blue-950 dark:bg-[#1a1f2e] border-r border-blue-900/50 dark:border-white/[0.07]",
+        collapsed ? "w-[68px]" : "w-64",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         {/* Brand */}
-        <div className="px-6 py-6 border-b border-slate-200 dark:border-white/5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
-              <Zap className="w-4 h-4 text-white" />
+        <div className={cn(
+          "px-3 py-5 border-b border-blue-900/50 dark:border-white/[0.06] flex items-center justify-between",
+          collapsed && "px-0 justify-center"
+        )}>
+          <div className={cn("flex items-center gap-2.5", collapsed && "justify-center w-full")}>
+            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-[12px] tracking-tight shrink-0 shadow-sm shadow-blue-600/25">
+              FBK
             </div>
-            <div>
-              <p className="text-sm font-black text-slate-900 dark:text-white leading-none">FBK</p>
-              <p className="text-[10px] text-indigo-500 dark:text-indigo-400 font-bold mt-0.5 tracking-widest uppercase">Bimbel Kedinasan</p>
-            </div>
+            {!collapsed && (
+              <div>
+                <p className="text-[13px] font-semibold text-white leading-none">Future Bimbel</p>
+                <p className="text-[11px] text-blue-300 mt-1 font-medium">Kedinasan</p>
+              </div>
+            )}
           </div>
-          <button
-            onClick={onClose}
-            className="lg:hidden w-11 h-11 flex items-center justify-center text-slate-400 dark:text-slate-600 hover:text-slate-700 dark:hover:text-white transition-colors rounded-xl hover:bg-slate-100 dark:hover:bg-white/5"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          {!collapsed && (
+            <button
+              onClick={onClose}
+              className="lg:hidden w-8 h-8 flex items-center justify-center text-blue-300 hover:text-white transition-colors rounded-lg hover:bg-white/10"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-5 custom-scrollbar">
           {groups.map(group => (
             <div key={group}>
-              <p className="px-3 text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.25em] mb-2">{group}</p>
-              <div className="space-y-0.5">
+              {!collapsed && (
+                <p className="px-3 text-[11px] font-semibold uppercase tracking-wide text-blue-400/60 dark:text-slate-600 mb-1.5">{group}</p>
+              )}
+              {collapsed && <div className="mb-1.5 border-t border-white/10" />}
+              <div className="space-y-1">
                 {menuItems.filter(i => i.group === group).map((item) => {
                   const active = activePage === item.id;
                   return (
                     <button
                       key={item.id}
                       onClick={() => { onPageChange(item.id); onClose(); }}
+                      title={collapsed ? item.label : undefined}
                       className={cn(
-                        "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold transition-all duration-200 group border",
+                        "group relative w-full flex items-center rounded-xl text-[13px] font-medium transition-all duration-150",
+                        collapsed ? "justify-center px-0 py-2.5" : "gap-3 px-3 py-2.5",
                         active
-                          ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/20"
-                          : "text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5 border-transparent"
+                          ? "bg-white/15 text-white dark:bg-blue-500/20 dark:text-blue-300"
+                          : "text-blue-200/70 dark:text-slate-400 hover:text-white dark:hover:text-white hover:bg-white/10 dark:hover:bg-white/[0.06]"
                       )}
                     >
+                      {active && !collapsed && (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-white dark:bg-blue-400" />
+                      )}
+                      {active && collapsed && (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-full w-0.5 rounded-r-full bg-white dark:bg-blue-400" />
+                      )}
                       <item.icon className={cn(
-                        "w-4 h-4 shrink-0",
-                        active ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400 dark:text-slate-600 group-hover:text-slate-600 dark:group-hover:text-slate-400"
+                        "shrink-0 transition-colors",
+                        collapsed ? "w-5 h-5" : "w-[18px] h-[18px]",
+                        active
+                          ? "text-white dark:text-blue-400"
+                          : "text-blue-300/60 dark:text-slate-500 group-hover:text-white dark:group-hover:text-slate-300"
                       )} />
-                      <span className="flex-1 text-left">{item.label}</span>
-                      {active && <ChevronRight className="w-3 h-3 text-indigo-500 dark:text-indigo-400/60" />}
+                      {!collapsed && <span>{item.label}</span>}
                     </button>
                   );
                 })}
@@ -98,12 +121,17 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
           ))}
         </nav>
 
-        {/* Live indicator */}
-        <div className="px-4 py-4 border-t border-slate-200 dark:border-white/5">
-          <div className="flex items-center gap-2 px-3 py-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest">Sistem Online</span>
-          </div>
+        {/* Collapse Toggle Button (desktop only) */}
+        <div className="hidden lg:flex px-2 pb-4 justify-center">
+          <button
+            onClick={onToggleCollapse}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-blue-300/60 hover:text-white hover:bg-white/10 transition-all text-[12px] font-medium"
+            title={collapsed ? "Perlebar sidebar" : "Lipat sidebar"}
+          >
+            {collapsed
+              ? <ChevronRight className="w-4 h-4" />
+              : <><ChevronLeft className="w-4 h-4" /><span>Lipat</span></>}
+          </button>
         </div>
       </aside>
     </>

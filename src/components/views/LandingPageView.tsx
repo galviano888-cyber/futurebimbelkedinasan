@@ -1,13 +1,14 @@
-import { Loader2 } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Variants } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { SEO } from "@/components/SEO";
+import { FBKLoader } from "@/components/ui/skeleton";
 
 // Landing Sub-components
 import { Navbar } from "../landing/Navbar";
 import { HeroSection } from "../landing/HeroSection";
 import { FeaturesSection } from "../landing/FeaturesSection";
+import { TestimonialsSection } from "../landing/TestimonialsSection";
 import { PricingSection } from "../landing/PricingSection";
 import { FAQSection } from "../landing/FAQSection";
 import { Footer } from "../landing/Footer";
@@ -47,7 +48,10 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   const [features, setFeatures] = useState<any[]>([
     { title: "Mentor Kedinasan Eksklusif", desc: "Jangan menebak-nebak. Belajar langsung dari praktisi yang sudah menaklukkan gerbang kedinasan dengan strategi teruji." },
     { title: "Simulasi CAT Super Presisi", desc: "Rasakan atmosfer ujian sesungguhnya dengan sistem CAT yang 100% mengikuti standar sistem BKN terbaru." },
-    { title: "Bank Soal Prediksi Akurat", desc: "Berhenti membuang waktu dengan soal lama. Kami menyediakan ribuan bank soal terupdate yang diprediksi keluar di seleksi tahun ini." }
+    { title: "Bank Soal Prediksi Akurat", desc: "Berhenti membuang waktu dengan soal lama. Kami menyediakan ribuan bank soal terupdate yang diprediksi keluar di seleksi tahun ini." },
+    { title: "Sistem Anti-Cheat Canggih", desc: "Tryout kami dilindungi sistem anti-cheat otomatis yang mendeteksi tab switching, copy-paste, dan aktivitas mencurigakan. Hasilmu murni kemampuan sendiri — valid dan bisa dipercaya sebagai tolak ukur kesiapan sesungguhnya." },
+    { title: "Ranking Nasional Real-Time", desc: "Tahu persis di mana posisimu dibanding ribuan peserta seluruh Indonesia. Lihat persentil skormu, pantau perkembangan tiap tryout, dan jadikan ranking sebagai motivasi nyata untuk terus meningkat." },
+    { title: "Akses Belajar Tanpa Batas", desc: "Belajar kapan saja, di mana saja, dari perangkat apa pun. Platform FBK dioptimalkan untuk HP, tablet, dan laptop — tanpa hambatan jarak dan waktu. Satu akun, akses penuh ke seluruh materi dan tryout yang kamu miliki." }
   ]);
   const [colors, setColors] = useState({
     badge: "#3b82f6",
@@ -56,15 +60,27 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
     logo: "#3b82f6",
     cta: "#2563eb"
   });
-  const [packages, setPackages] = useState<any[]>([
-    { name: "Paket Mandiri", price: "Gratis", originalPrice: "", benefits: ["Akses 1 Tryout SKD", "Hasil Skor Instan", "Pembahasan Soal"], isRecommended: false },
-    { name: "Paket Premium", price: "Rp 149.000", originalPrice: "Rp 499.000", benefits: ["Akses Semua Tryout", "Ranking Nasional", "Materi Eksklusif", "Grup Konsultasi"], isRecommended: true },
-    { name: "Paket Platinum", price: "Rp 299.000", originalPrice: "Rp 999.000", benefits: ["Semua Fitur Premium", "Bimbingan Live Zoom", "Prediksi Soal Akurat", "Sertifikat Kelulusan"], isRecommended: false }
-  ]);
+  const [packages, setPackages] = useState<any[]>([]);
+  const [realPackages, setRealPackages] = useState<any[]>([]);
 
   useEffect(() => {
     fetchSiteSettings();
+    fetchRealPackages();
   }, []);
+
+  const fetchRealPackages = async () => {
+    if (!supabase) return;
+    try {
+      const { data } = await supabase
+        .from('packages')
+        .select('id, title, description, price, original_price, product_type, cover_image_url')
+        .eq('is_active', true)
+        .order('price', { ascending: true });
+      if (data && data.length > 0) setRealPackages(data);
+    } catch (err) {
+      console.error('Failed to fetch packages:', err);
+    }
+  };
 
   const fetchSiteSettings = async () => {
     if (!supabase) return;
@@ -125,15 +141,14 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
 
   if (loading) {
     return (
-      <div className="min-h-[100dvh] bg-[#050b18] flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
-        <p className="text-blue-500 font-black text-[10px] uppercase tracking-[0.3em] animate-pulse">Menyiapkan Pengalaman Belajar...</p>
+      <div className="min-h-[100dvh] bg-[#0f2750] flex flex-col items-center justify-center">
+        <FBKLoader text="Memuat..." dark />
       </div>
     );
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#050b18] text-white font-sans selection:bg-blue-600/30 overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-[#0f2750] text-white font-sans selection:bg-blue-400/40 overflow-x-hidden">
       <SEO
         title="Future Bimbel Kedinasan | Bimbel SKD CPNS & Sekolah Kedinasan Online"
         description="Bimbel persiapan SKD CPNS dan sekolah kedinasan (IPDN, STAN, STIS, POLTEKIP) online. Tryout CAT BKN interaktif, bank soal TWK, TIU, TKP terlengkap, dan pembahasan detail. Mulai belajar gratis!"
@@ -153,7 +168,14 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
         />
 
         <FeaturesSection features={features} />
-        {activePackages.length > 0 && <PricingSection packages={activePackages} onEnter={onRegister} />}
+        {(realPackages.length > 0 || activePackages.length > 0) && (
+          <PricingSection
+            packages={realPackages.length > 0 ? realPackages : activePackages}
+            isRealPackages={realPackages.length > 0}
+            onEnter={onRegister}
+          />
+        )}
+        <TestimonialsSection testimonials={_testimonials} />
         <FAQSection faqs={faqs} />
         <Footer onLegalClick={handleLegalClick} hasPackages={activePackages.length > 0} />
       </div>

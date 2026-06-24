@@ -243,28 +243,28 @@ export function AdminTransactionManager() {
       {/* STATS */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-4 space-y-3">
-          <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-6 relative overflow-hidden group hover:border-indigo-500/20 transition-all">
-            <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center justify-center mb-4">
-              <TrendingUp className="w-5 h-5 text-indigo-400" />
+          <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-6 relative overflow-hidden group hover:border-blue-500/20 transition-all">
+            <div className="w-10 h-10 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center mb-4">
+              <TrendingUp className="w-5 h-5 text-blue-400" />
             </div>
-            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Total Omzet</p>
-            <h3 className="text-2xl font-black text-white tracking-tight">Rp {stats.totalRevenue.toLocaleString()}</h3>
-            <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mt-2">Periode Terpilih</p>
+            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Total Omzet</p>
+            <h3 className="text-2xl font-bold text-white tracking-tight">Rp {stats.totalRevenue.toLocaleString()}</h3>
+            <p className="text-[9px] font-bold text-blue-400 uppercase tracking-widest mt-2">Periode Terpilih</p>
           </div>
-          <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-6 group hover:border-indigo-500/20 transition-all">
-            <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center justify-center mb-4">
-              <ShoppingCart className="w-5 h-5 text-indigo-400" />
+          <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-6 group hover:border-blue-500/20 transition-all">
+            <div className="w-10 h-10 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center mb-4">
+              <ShoppingCart className="w-5 h-5 text-blue-400" />
             </div>
-            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Produk Terjual</p>
-            <h3 className="text-2xl font-black text-white tracking-tight">{stats.totalSalesCount}</h3>
+            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Produk Terjual</p>
+            <h3 className="text-2xl font-bold text-white tracking-tight">{stats.totalSalesCount}</h3>
             <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-2">Penjualan Berhasil</p>
           </div>
-          <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-6 group hover:border-indigo-500/20 transition-all">
+          <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-6 group hover:border-blue-500/20 transition-all">
             <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center mb-4">
               <Users className="w-5 h-5 text-emerald-400" />
             </div>
-            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Total Siswa</p>
-            <h3 className="text-2xl font-black text-white tracking-tight">{stats.totalUsers}</h3>
+            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Total Siswa</p>
+            <h3 className="text-2xl font-bold text-white tracking-tight">{stats.totalUsers}</h3>
             <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-2">Terdaftar</p>
           </div>
         </div>
@@ -272,7 +272,7 @@ export function AdminTransactionManager() {
         <div className="lg:col-span-8 bg-[#0d0d14] border border-white/5 rounded-2xl p-6 flex flex-col">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <div>
-              <h3 className="text-sm font-black text-white tracking-tight">Tren Penjualan</h3>
+              <h3 className="text-sm font-bold text-white tracking-tight">Tren Penjualan</h3>
               <p className="text-[11px] text-slate-600 font-bold mt-0.5">Omzet berdasarkan transaksi lunas.</p>
             </div>
             <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
@@ -280,7 +280,7 @@ export function AdminTransactionManager() {
                 <button
                   key={range}
                   onClick={() => setTimeRange(range)}
-                  className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all ${timeRange === range ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}
+                  className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${timeRange === range ? 'bg-blue-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}
                 >
                   {range === '24h' ? '24J' : range === '7days' ? '7H' : range === '30days' ? '30H' : '1T'}
                 </button>
@@ -311,11 +311,11 @@ export function AdminTransactionManager() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pt-2 border-t border-white/5">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-black text-white tracking-tight">Verifikasi Transaksi</h2>
-            <div className="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg text-[10px] font-black">
+            <h2 className="text-lg font-bold text-white tracking-tight">Verifikasi Transaksi</h2>
+            <div className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-[10px] font-bold">
               {filteredTransactions.length} DATA
             </div>
-            <button onClick={fetchTransactions} className="p-1.5 text-slate-600 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all">
+            <button onClick={fetchTransactions} className="p-1.5 text-slate-600 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all">
               <RotateCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
@@ -323,21 +323,21 @@ export function AdminTransactionManager() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
           <div className="space-y-1">
-            <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Dari Tanggal</label>
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl w-full font-bold text-xs text-white outline-none focus:border-indigo-500/40" />
+            <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Dari Tanggal</label>
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl w-full font-bold text-xs text-white outline-none focus:border-blue-500/40" />
           </div>
           <div className="space-y-1">
-            <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Sampai Tanggal</label>
-            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl w-full font-bold text-xs text-white outline-none focus:border-indigo-500/40" />
+            <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Sampai Tanggal</label>
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl w-full font-bold text-xs text-white outline-none focus:border-blue-500/40" />
           </div>
           <div className="space-y-1">
-            <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Cari</label>
-            <input type="text" placeholder="Invoice / Nama..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl w-full font-bold text-xs text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/40" />
+            <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Cari</label>
+            <input type="text" placeholder="Invoice / Nama..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl w-full font-bold text-xs text-white placeholder:text-slate-600 outline-none focus:border-blue-500/40" />
           </div>
-          <button onClick={resetFilters} className="h-10 px-4 rounded-xl border border-white/8 text-slate-500 hover:text-white hover:bg-white/5 font-black text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all">
+          <button onClick={resetFilters} className="h-10 px-4 rounded-xl border border-white/8 text-slate-500 hover:text-white hover:bg-white/5 font-bold text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all">
             <FilterX className="w-3.5 h-3.5" /> RESET
           </button>
-          <button onClick={exportToCSV} disabled={filteredTransactions.length === 0} className="h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-40">
+          <button onClick={exportToCSV} disabled={filteredTransactions.length === 0} className="h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-40">
             <Download className="w-3.5 h-3.5" /> EXPORT
           </button>
         </div>
@@ -346,7 +346,7 @@ export function AdminTransactionManager() {
       {/* FILTER TABS */}
       <div className="flex bg-white/5 border border-white/5 p-1 rounded-xl w-fit">
         {(['all', 'verifying', 'pending', 'success'] as const).map((f) => (
-          <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${filter === f ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>
+          <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-blue-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>
             {f === 'all' ? 'Semua' : f === 'verifying' ? 'Verifikasi' : f === 'pending' ? 'Pending' : 'Lunas'}
           </button>
         ))}
@@ -355,13 +355,13 @@ export function AdminTransactionManager() {
       {/* TABLE */}
       {loading ? (
         <div className="py-20 text-center bg-[#0d0d14] border border-white/5 rounded-2xl">
-          <Loader2 className="w-10 h-10 text-indigo-400 animate-spin mx-auto mb-3" />
-          <p className="text-slate-600 font-black text-[10px] uppercase tracking-widest">Memuat Data...</p>
+          <Loader2 className="w-10 h-10 text-blue-400 animate-spin mx-auto mb-3" />
+          <p className="text-slate-600 font-bold text-[10px] uppercase tracking-widest">Memuat Data...</p>
         </div>
       ) : filteredTransactions.length === 0 ? (
         <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-20 text-center">
           <Clock className="w-10 h-10 text-slate-700 mx-auto mb-3" />
-          <h3 className="text-base font-black text-slate-500">Tidak Ada Data</h3>
+          <h3 className="text-base font-bold text-slate-500">Tidak Ada Data</h3>
         </div>
       ) : (
         <div className="bg-[#0d0d14] border border-white/5 rounded-2xl overflow-hidden">
@@ -369,20 +369,20 @@ export function AdminTransactionManager() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/5">
-                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Invoice & Paket</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Siswa</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Nominal</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Metode</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Tanggal</th>
-                  <th className="px-6 py-4 text-center text-[10px] font-black text-slate-600 uppercase tracking-widest">Aksi</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Invoice & Paket</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Siswa</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Nominal</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Metode</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Status</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Tanggal</th>
+                  <th className="px-6 py-4 text-center text-[10px] font-bold text-slate-600 uppercase tracking-widest">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.03]">
                 {filteredTransactions.map((t) => (
                   <tr key={t.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="px-6 py-4">
-                      <div className="font-black text-white text-sm">{t.invoice_id}</div>
+                      <div className="font-bold text-white text-sm">{t.invoice_id}</div>
                       <div className="text-[10px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">{t.packages?.title || 'Unknown Package'}</div>
                     </td>
                     <td className="px-6 py-4">
@@ -390,10 +390,10 @@ export function AdminTransactionManager() {
                       <div className="text-[10px] text-slate-600">{t.profiles?.email}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-black text-white text-sm">Rp {t.amount?.toLocaleString('id-ID')}</div>
+                      <div className="font-bold text-white text-sm">Rp {t.amount?.toLocaleString('id-ID')}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${
                         t.status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
                         t.status === 'verifying' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse' :
                         'bg-white/5 text-slate-500 border-white/8'
@@ -407,9 +407,9 @@ export function AdminTransactionManager() {
                      <td className="px-6 py-4">
                        <div className="flex items-center justify-center gap-2">
                          {t.status === 'success' ? (
-                           <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider">Otomatis</span>
+                           <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Otomatis</span>
                          ) : (
-                           <span className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Menunggu</span>
+                           <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Menunggu</span>
                          )}
                        </div>
                      </td>

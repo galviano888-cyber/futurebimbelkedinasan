@@ -1,5 +1,32 @@
 import { motion, type HTMLMotionProps } from "framer-motion";
 
+/** Spinner dengan logo FBK kecil di tengah — dipakai di semua loading screen utama */
+export function FBKLoader({ text, dark = false }: { text?: string; dark?: boolean }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3">
+      <div className="relative w-12 h-12">
+        {/* Ring spinner */}
+        <div className={`absolute inset-0 rounded-full border-2 animate-spin ${
+          dark
+            ? 'border-blue-400/20 border-t-blue-400'
+            : 'border-blue-500/20 border-t-blue-500'
+        }`} />
+        {/* Logo FBK di tengah */}
+        <div className={`absolute inset-0 flex items-center justify-center text-[9px] font-bold tracking-tight ${
+          dark ? 'text-blue-300' : 'text-blue-600'
+        }`}>
+          FBK
+        </div>
+      </div>
+      {text && (
+        <p className={`text-[12px] ${
+          dark ? 'text-blue-200/60' : 'text-slate-400'
+        }`}>{text}</p>
+      )}
+    </div>
+  );
+}
+
 interface SkeletonProps extends HTMLMotionProps<"div"> {
   className?: string;
   variant?: "rect" | "circle" | "text";

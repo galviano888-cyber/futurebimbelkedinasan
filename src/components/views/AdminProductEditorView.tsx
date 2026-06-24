@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { ArrowLeft, Save, Plus, X, Video, FileText, FileEdit, Loader2, ShoppingCart } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Save, Plus, X, Video, FileText, FileEdit, Loader2, ShoppingCart, ImagePlus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
@@ -18,6 +18,9 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
   const [description, setDescription] = useState("");
   const [guideText, setGuideText] = useState("Masuk grup dan baca langkah-langkah panduan Bimbel");
   const [guideUrl, setGuideUrl] = useState("");
+  const [coverImageUrl, setCoverImageUrl] = useState("");
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(true);
   const [contents, setContents] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -35,9 +38,10 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
       setPrice(editingProduct.price);
       setOriginalPrice(editingProduct.original_price || null);
       setDescription(editingProduct.description);
-      setIsActive(editingProduct.is_active ?? true);
-      setContents(editingProduct.contents || []);
-    }
+        setIsActive(editingProduct.is_active ?? true);
+        setCoverImageUrl(editingProduct.cover_image_url || "");
+        setContents(editingProduct.contents || []);
+      }
   }, [packageId, editingProduct]);
 
   const fetchProductDetails = async () => {
@@ -63,6 +67,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
         setIsActive(data.is_active);
         setGuideText(data.guide_text || "Masuk grup dan baca langkah-langkah panduan Bimbel");
         setGuideUrl(data.guide_url || "");
+        setCoverImageUrl(data.cover_image_url || "");
         // Sort contents by order_index if available
         const sortedContents = data.contents ? [...data.contents].sort((a, b) => (a.order_index || 0) - (b.order_index || 0)) : [];
         setContents(sortedContents);
@@ -92,6 +97,34 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
     }
   };
 
+  const handleCoverUpload = async (file: File) => {
+    if (!supabase) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('File harus berupa gambar (JPG, PNG, WebP)');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Ukuran gambar maksimal 5MB');
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const fileName = `package-covers/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(fileName, file, { cacheControl: '3600', upsert: false });
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from('media').getPublicUrl(fileName);
+      setCoverImageUrl(urlData.publicUrl);
+      toast.success('Gambar berhasil diupload!');
+    } catch (err: any) {
+      toast.error('Gagal upload: ' + (err.message || 'Coba lagi'));
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!supabase) return;
     setSaving(true);
@@ -104,7 +137,8 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
         product_type: productType,
         is_active: isActive,
         guide_text: guideText,
-        guide_url: guideUrl
+        guide_url: guideUrl,
+        cover_image_url: coverImageUrl || null,
       };
 
       let pkgId = packageId || editingProduct?.id;
@@ -311,6 +345,43 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
                   placeholder="Jelaskan keunggulan paket ini..."
                   className="w-full px-5 py-4 bg-white border border-slate-200 text-slate-900 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all resize-none outline-none"
                 />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Gambar Header Paket (Opsional)</label>
+                <input
+                  ref={coverInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverUpload(f); }}
+                />
+                {coverImageUrl ? (
+                  <div className="relative rounded-xl overflow-hidden border border-slate-200">
+                    <img src={coverImageUrl} alt="Cover" className="w-full h-32 object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                      <button type="button" onClick={() => coverInputRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 bg-white text-slate-800 rounded-lg text-xs font-bold">
+                        <ImagePlus className="w-3.5 h-3.5" /> Ganti
+                      </button>
+                      <button type="button" onClick={() => setCoverImageUrl('')} className="flex items-center gap-1.5 px-3 py-2 bg-red-500 text-white rounded-lg text-xs font-bold">
+                        <Trash2 className="w-3.5 h-3.5" /> Hapus
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => coverInputRef.current?.click()}
+                    disabled={uploadingCover}
+                    className="w-full h-28 border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl flex flex-col items-center justify-center gap-2 transition-colors group"
+                  >
+                    {uploadingCover ? (
+                      <><Loader2 className="w-6 h-6 text-blue-500 animate-spin" /><span className="text-xs text-slate-400">Mengupload...</span></>
+                    ) : (
+                      <><ImagePlus className="w-6 h-6 text-slate-300 group-hover:text-blue-400 transition-colors" /><span className="text-xs text-slate-400 group-hover:text-blue-500">Klik untuk upload gambar</span><span className="text-[10px] text-slate-300">JPG, PNG, WebP &middot; Maks 5MB</span></>
+                    )}
+                  </button>
+                )}
               </div>
 
               <label className="flex items-center gap-3 cursor-pointer group mt-4">

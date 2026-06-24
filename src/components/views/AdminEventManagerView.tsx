@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import {
-  Plus, Trash2, Edit2, Check, X, Loader2, Calendar,
+  Plus, Trash2, Edit2, Loader2, Calendar,
   Clock, ToggleLeft, ToggleRight, ChevronLeft, AlertTriangle,
-  BookOpen, Users, Trophy
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
@@ -222,41 +222,41 @@ export function AdminEventManagerView() {
             Daftar Event
           </button>
           <span className="text-slate-700">/</span>
-          <span className="text-white font-black text-sm">{editingId ? "Edit Event" : "Buat Event Baru"}</span>
+          <span className="text-white font-bold text-sm">{editingId ? "Edit Event" : "Buat Event Baru"}</span>
         </div>
 
         <div className="bg-[#0d0d14] border border-white/5 rounded-2xl p-8 space-y-6">
           {/* Judul */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Judul Event *</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Judul Event *</label>
             <input
               type="text"
               value={form.title}
               onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
               placeholder="Contoh: Tryout Akbar TWK Seri 1"
-              className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm placeholder:text-slate-600 outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+              className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
             />
           </div>
 
           {/* Deskripsi */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Deskripsi</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Deskripsi</label>
             <textarea
               value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               placeholder="Deskripsi singkat event ini..."
               rows={3}
-              className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm placeholder:text-slate-600 outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/20 transition-all resize-none"
+              className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all resize-none"
             />
           </div>
 
           {/* Paket Soal */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Paket Soal (Bank Soal) *</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Paket Soal (Bank Soal) *</label>
             <select
               value={form.package_id}
               onChange={e => setForm(f => ({ ...f, package_id: e.target.value }))}
-              className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm outline-none appearance-none cursor-pointer focus:border-indigo-500/40 transition-all"
+              className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm outline-none appearance-none cursor-pointer focus:border-blue-500/40 transition-all"
             >
               <option value="" className="bg-slate-900">-- Pilih paket soal --</option>
               {packages.map(p => (
@@ -270,36 +270,36 @@ export function AdminEventManagerView() {
 
           {/* Durasi */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Durasi Pengerjaan (menit) *</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Durasi Pengerjaan (menit) *</label>
             <input
               type="number"
               min={5}
               max={300}
               value={form.duration_minutes}
               onChange={e => setForm(f => ({ ...f, duration_minutes: parseInt(e.target.value) || 90 }))}
-              className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+              className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
             />
           </div>
 
           {/* Tanggal Mulai & Selesai */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tanggal Mulai</label>
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tanggal Mulai</label>
               <input
                 type="datetime-local"
                 value={form.start_date}
                 onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))}
-                className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm outline-none focus:border-indigo-500/40 transition-all [color-scheme:dark]"
+                className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm outline-none focus:border-blue-500/40 transition-all [color-scheme:dark]"
               />
               <p className="text-[11px] text-slate-600">Kosongkan jika bisa dimulai kapan saja.</p>
             </div>
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tanggal Selesai (Countdown)</label>
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tanggal Selesai (Countdown)</label>
               <input
                 type="datetime-local"
                 value={form.end_date}
                 onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))}
-                className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm outline-none focus:border-indigo-500/40 transition-all [color-scheme:dark]"
+                className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm outline-none focus:border-blue-500/40 transition-all [color-scheme:dark]"
               />
               <p className="text-[11px] text-slate-600">Event otomatis nonaktif setelah waktu ini.</p>
             </div>
@@ -308,7 +308,7 @@ export function AdminEventManagerView() {
           {/* Status Aktif */}
           <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-xl">
             <div>
-              <p className="text-sm font-black text-white">Status Aktif</p>
+              <p className="text-sm font-bold text-white">Status Aktif</p>
               <p className="text-xs text-slate-500 mt-0.5">Event akan tampil dan bisa diikuti siswa</p>
             </div>
             <button
@@ -333,7 +333,7 @@ export function AdminEventManagerView() {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 h-11 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black shadow-lg shadow-indigo-500/20"
+              className="flex-1 h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editingId ? "Simpan Perubahan" : "Buat Event"}
             </Button>
@@ -348,12 +348,12 @@ export function AdminEventManagerView() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-black text-white tracking-tight">Manajemen Event</h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">Manajemen Event</h2>
           <p className="text-xs text-slate-500 font-bold mt-1">{events.length} event terdaftar</p>
         </div>
         <button
           onClick={handleOpenCreate}
-          className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-indigo-500/20"
+          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-blue-500/20"
         >
           <Plus className="w-3.5 h-3.5" /> Buat Event
         </button>
@@ -361,7 +361,7 @@ export function AdminEventManagerView() {
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+          <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
         </div>
       ) : events.length === 0 ? (
         <div className="py-20 text-center bg-[#0d0d14] border border-white/5 rounded-2xl">
@@ -373,12 +373,12 @@ export function AdminEventManagerView() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/5">
-                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Event</th>
-                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Paket Soal</th>
-                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Jadwal</th>
-                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Peserta</th>
-                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-widest">Status</th>
-                <th className="px-6 py-4 text-right text-[10px] font-black text-slate-600 uppercase tracking-widest">Aksi</th>
+                <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Event</th>
+                <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Paket Soal</th>
+                <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Jadwal</th>
+                <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Peserta</th>
+                <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Status</th>
+                <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
@@ -393,7 +393,7 @@ export function AdminEventManagerView() {
                     <td className="px-6 py-4">
                       {ev.tryout_packages ? (
                         <div>
-                          <span className="text-[9px] font-black text-indigo-400 uppercase">{ev.tryout_packages.category}</span>
+                          <span className="text-[9px] font-bold text-blue-400 uppercase">{ev.tryout_packages.category}</span>
                           <p className="text-xs text-slate-400 mt-0.5 max-w-[150px] truncate">{ev.tryout_packages.name}</p>
                         </div>
                       ) : (
@@ -413,7 +413,7 @@ export function AdminEventManagerView() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-1.5 text-sm font-black text-white">
+                      <div className="flex items-center gap-1.5 text-sm font-bold text-white">
                         <Users className="w-3.5 h-3.5 text-slate-600" />
                         {participantCounts[ev.id] ?? 0}
                       </div>
@@ -422,7 +422,7 @@ export function AdminEventManagerView() {
                       <button
                         onClick={() => handleToggleActive(ev)}
                         className={cn(
-                          "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black border transition-all",
+                          "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all",
                           status.color
                         )}
                       >
@@ -436,7 +436,7 @@ export function AdminEventManagerView() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleOpenEdit(ev)}
-                          className="p-1.5 text-slate-600 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                          className="p-1.5 text-slate-600 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
@@ -463,7 +463,7 @@ export function AdminEventManagerView() {
             <div className="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center mb-5">
               <AlertTriangle className="w-6 h-6 text-red-400" />
             </div>
-            <h3 className="text-base font-black text-white mb-2">Hapus Event</h3>
+            <h3 className="text-base font-bold text-white mb-2">Hapus Event</h3>
             <p className="text-sm text-slate-500 mb-7">Hapus event "{confirmDelete.title}" beserta semua data hasil peserta secara permanen?</p>
             <div className="flex gap-3">
               <button
@@ -474,7 +474,7 @@ export function AdminEventManagerView() {
               </button>
               <button
                 onClick={() => handleDelete(confirmDelete.id)}
-                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-sm transition-all shadow-lg shadow-red-500/20"
+                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition-all shadow-lg shadow-red-500/20"
               >
                 Hapus
               </button>

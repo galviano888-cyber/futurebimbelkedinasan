@@ -6,99 +6,74 @@ interface StatCardsProps {
   data: TryoutRecord[];
 }
 
-interface StatCardItem {
-  title: string;
-  value: string;
-  subtitle: string;
-  icon: React.ElementType;
-  accent: string;
-  iconBg: string;
-  iconColor: string;
-  trend?: string;
-  trendUp?: boolean;
-}
-
 export function StatCards({ data }: StatCardsProps) {
   const uniquePackages = new Set(data.map(item => item.packageName));
   const totalTryout = uniquePackages.size;
-  const averageScore = data.length > 0 ? Math.round(data.reduce((sum, r) => sum + r.total, 0) / data.length) : 0;
+  const averageScore = data.length > 0
+    ? Math.round(data.reduce((sum, r) => sum + r.total, 0) / data.length)
+    : 0;
   const bestScore = data.length > 0 ? Math.max(...data.map((r) => r.total)) : 0;
 
-  const cards: StatCardItem[] = [
+  const cards = [
     {
       title: "Total Tryout",
-      value: `${totalTryout}`,
-      subtitle: "Sesi ujian selesai",
+      value: totalTryout,
+      desc: "Sesi ujian selesai",
       icon: ClipboardList,
-      accent: "indigo",
-      iconBg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20",
-      iconColor: "text-indigo-600 dark:text-indigo-400",
-      trend: "+2 bulan ini",
-      trendUp: true,
+      iconClass: "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400",
+      badge: "Aktif belajar",
+      badgeClass: "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400",
     },
     {
-      title: "Rata-rata Skor SKD",
+      title: "Rata-rata Skor",
       value: averageScore.toLocaleString("id-ID"),
-      subtitle: "Dari semua tryout",
+      desc: "Dari semua tryout",
       icon: TrendingUp,
-      accent: "blue",
-      iconBg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20",
-      iconColor: "text-blue-600 dark:text-blue-400",
-      trend: averageScore >= 300 ? "Di atas target" : "Perlu peningkatan",
-      trendUp: averageScore >= 300,
+      iconClass: "bg-violet-50 dark:bg-violet-500/10 text-violet-500 dark:text-violet-400",
+      badge: averageScore >= 300 ? "Di atas target" : "Perlu peningkatan",
+      badgeClass: averageScore >= 300
+        ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+        : "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400",
     },
     {
       title: "Skor Terbaik",
       value: bestScore.toLocaleString("id-ID"),
-      subtitle: "Nilai tertinggi dicapai",
+      desc: "Nilai tertinggi",
       icon: Award,
-      accent: "emerald",
-      iconBg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20",
-      iconColor: "text-emerald-600 dark:text-emerald-400",
-      trend: bestScore >= 350 ? "Luar biasa!" : "Terus tingkatkan",
-      trendUp: bestScore >= 350,
+      iconClass: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+      badge: bestScore >= 350 ? "Luar biasa" : "Terus tingkatkan",
+      badgeClass: bestScore >= 350
+        ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+        : "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
           <div
             key={card.title}
-            className="bg-white dark:bg-[#0d0d14] border border-slate-200 dark:border-white/5 rounded-2xl p-6 group hover:border-indigo-200 dark:hover:border-indigo-500/20 transition-all duration-300"
+            className="bg-white dark:bg-[#181818] border border-slate-200/80 dark:border-white/[0.07] rounded-2xl p-5 hover:shadow-sm hover:border-slate-300 dark:hover:border-white/12 transition-all duration-200"
           >
-            <div className="flex items-start justify-between mb-5">
-              <div className={cn(
-                "w-10 h-10 rounded-xl flex items-center justify-center border",
-                card.iconBg
-              )}>
-                <Icon className={cn("w-5 h-5", card.iconColor)} />
+            <div className="flex items-start justify-between mb-4">
+              <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", card.iconClass)}>
+                <Icon className="w-4 h-4" />
               </div>
-              {card.trend && (
-                <span className={cn(
-                  "text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border",
-                  card.trendUp
-                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20"
-                    : "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-500/20"
-                )}>
-                  {card.trend}
-                </span>
-              )}
+              <span className={cn(
+                "text-[11px] font-medium px-2.5 py-1 rounded-lg",
+                card.badgeClass
+              )}>
+                {card.badge}
+              </span>
             </div>
 
-            <div>
-              <p className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] mb-2">
-                {card.title}
-              </p>
-              <p className="text-slate-900 dark:text-white text-3xl font-black tracking-tighter leading-none mb-1.5">
-                {card.value}
-              </p>
-              <p className="text-slate-400 dark:text-slate-600 text-[10px] font-bold uppercase tracking-wider">
-                {card.subtitle}
-              </p>
-            </div>
+            <p className="text-[12px] text-slate-400 dark:text-slate-500 mb-1.5">{card.title}</p>
+            <p className="text-slate-900 dark:text-white text-[26px] font-bold tracking-tight leading-none mb-1">
+              {card.value}
+            </p>
+            <p className="text-slate-400 dark:text-slate-500 text-[11px]">{card.desc}</p>
           </div>
         );
       })}

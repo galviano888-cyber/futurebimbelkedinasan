@@ -106,14 +106,14 @@ export function ProfileView() {
       <div className="relative">
         <div className="h-48 bg-slate-900 dark:bg-slate-800 rounded-[3rem] shadow-2xl relative overflow-hidden">
           {/* Abstract pattern/gradient for premium feel */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-900/40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-blue-900/40" />
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -mr-20 -mt-20" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -ml-20 -mb-20" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -ml-20 -mb-20" />
         </div>
         
         <div className="absolute -bottom-12 left-8">
           <div className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-slate-900 rounded-[2.5rem] sm:rounded-[3rem] p-2 shadow-2xl border-4 border-white dark:border-slate-800 overflow-hidden relative">
-            <div className="w-full h-full bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] flex items-center justify-center text-blue-600 dark:text-blue-400 font-black text-5xl">
+            <div className="w-full h-full bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-5xl">
               {profile?.full_name?.charAt(0).toUpperCase() || "S"}
             </div>
           </div>
@@ -122,11 +122,11 @@ export function ProfileView() {
 
       {/* Name and Status Section (Always Below Banner) */}
       <div className="px-8 pt-12 sm:pt-14">
-        <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
           {profile?.full_name}
         </h1>
         <div className="flex items-center gap-2 mt-3">
-          <div className="px-3 py-1 bg-blue-600 dark:bg-blue-500 rounded-xl text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-blue-500/20">
+          <div className="px-3 py-1 bg-blue-600 dark:bg-blue-500 rounded-xl text-[10px] font-bold text-white uppercase tracking-wide flex items-center gap-2 shadow-lg shadow-blue-500/20">
             <ShieldCheck className="w-3.5 h-3.5" /> Siswa Aktif FBK
           </div>
         </div>
@@ -137,19 +137,19 @@ export function ProfileView() {
         <div className="lg:col-span-1 space-y-6">
           {/* Activity Cards */}
           <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 space-y-4">
-             <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">Aktivitas Belajar</h3>
+             <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">Aktivitas Belajar</h3>
              <div className="flex items-center gap-5 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100/50 dark:border-blue-900/30">
                 <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm"><Package className="w-6 h-6" /></div>
                 <div>
-                  <div className="text-xl font-black text-slate-800 dark:text-white leading-none">{stats.packages}</div>
-                  <div className="text-[10px] font-black text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-widest">Paket Belajar</div>
+                  <div className="text-xl font-bold text-slate-800 dark:text-white leading-none">{stats.packages}</div>
+                  <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-wide">Paket Belajar</div>
                 </div>
              </div>
              <div className="flex items-center gap-5 p-5 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-100/50 dark:border-emerald-900/30">
                 <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm"><Award className="w-6 h-6" /></div>
                 <div>
-                  <div className="text-xl font-black text-slate-800 dark:text-white leading-none">{stats.tryouts}</div>
-                  <div className="text-[10px] font-black text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-widest">Tryout Selesai</div>
+                  <div className="text-xl font-bold text-slate-800 dark:text-white leading-none">{stats.tryouts}</div>
+                  <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-wide">Tryout Selesai</div>
                 </div>
              </div>
           </div>
@@ -161,19 +161,19 @@ export function ProfileView() {
              <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 dark:bg-slate-800/30 rounded-full -mr-32 -mt-32 pointer-events-none" />
              
              <div className="relative z-10">
-              <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight mb-10 flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight mb-10 flex items-center gap-3">
                 <User className="w-6 h-6 text-blue-600" /> Informasi Akun
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
                 <div className="space-y-2">
-                  <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Nama Lengkap</p>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Nama Lengkap</p>
                   <p className="text-base font-bold text-slate-700 dark:text-slate-200 flex items-center gap-3">
                     {profile?.full_name || "Belum diatur"}
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Nomor WhatsApp</p>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Nomor WhatsApp</p>
                   <div className="flex items-center gap-3">
                     {isEditingPhone ? (
                       <div className="flex items-center gap-2">
@@ -211,7 +211,7 @@ export function ProfileView() {
                             setTempPhone(profile?.phone_number || "");
                             setIsEditingPhone(true);
                           }}
-                          className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest hover:underline"
+                          className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide hover:underline"
                         >
                           Ubah
                         </button>
@@ -220,7 +220,7 @@ export function ProfileView() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Alamat Email</p>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Alamat Email</p>
                   <p className="text-base font-bold text-slate-700 dark:text-slate-200 flex items-center gap-3">
                     <Mail className="w-4 h-4 text-slate-300" /> {profile?.email || "Belum diatur"}
                   </p>

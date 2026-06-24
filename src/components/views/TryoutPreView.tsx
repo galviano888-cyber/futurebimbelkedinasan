@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AlertCircle, Clock, FileText, Target, BookOpen, ArrowLeft, Loader2 } from "lucide-react";
+import { AlertCircle, Clock, FileText, Target, BookOpen, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -75,9 +75,9 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32">
-        <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
-        <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Menyiapkan Lembar Ujian...</p>
+      <div className="flex flex-col items-center justify-center py-32 gap-3">
+        <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+        <p className="text-slate-400 text-[12px]">Menyiapkan lembar ujian...</p>
       </div>
     );
   }
@@ -85,16 +85,16 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
   if (error || !pkg) {
     return (
       <div className="max-w-md mx-auto py-20 text-center">
-        <div className="w-16 h-16 bg-red-50 dark:bg-red-900/30 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <div className="w-16 h-16 bg-red-50 dark:bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
           <AlertCircle className="w-8 h-8 text-red-500" />
         </div>
-        <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2">Paket Tidak Ditemukan</h2>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">
+        <h2 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">Paket Tidak Ditemukan</h2>
+        <p className="text-slate-500 dark:text-slate-400 text-[14px] mb-7 leading-relaxed">
           {error || "Maaf, data paket tryout tidak dapat dimuat. Silakan coba lagi atau hubungi admin."}
         </p>
         <button
           onClick={onCancel}
-          className="px-8 py-3 bg-slate-900 dark:bg-slate-800 text-white rounded-xl font-bold text-sm hover:bg-slate-800 dark:hover:bg-slate-700 transition-all active:scale-95 shadow-lg shadow-slate-200 dark:shadow-none"
+          className="px-7 py-3 bg-blue-600 text-white rounded-xl font-medium text-[14px] hover:bg-blue-500 transition-all active:scale-[0.98]"
         >
           Kembali ke Katalog
         </button>
@@ -103,91 +103,90 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
   }
 
   return (
-    <div className="min-h-[100dvh] bg-slate-50 dark:bg-slate-950 px-6 py-12 transition-colors duration-500 overflow-y-auto">
-      <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="mb-8">
+    <div className="min-h-[100dvh] bg-[#f6f8fc] dark:bg-[#0d1929] px-5 sm:px-6 py-10 transition-colors duration-500 overflow-y-auto">
+      <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-3 duration-500">
+        <div className="mb-7">
           <button
             onClick={onCancel}
-            className="flex items-center gap-2 text-slate-500 hover:text-blue-600 text-sm font-semibold mb-6 transition-colors group"
+            className="flex items-center gap-2 text-slate-500 hover:text-blue-600 text-[13px] font-medium mb-5 transition-colors group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Kembali ke Katalog
           </button>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-black uppercase rounded-lg tracking-widest">SIMULASI LIVE</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700" />
-            <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">SKD KEDINASAN 2026</span>
+          <div className="flex items-center gap-2.5 mb-3">
+            <span className="px-2.5 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-semibold rounded-md">Simulasi Live</span>
+            <span className="text-slate-400 text-[12px]">SKD Kedinasan 2026</span>
           </div>
-          <h1 className="text-slate-900 dark:text-white font-black text-3xl sm:text-4xl tracking-tight mb-4">
+          <h1 className="text-slate-800 dark:text-white font-bold text-[26px] sm:text-[32px] tracking-tight mb-3">
             Persiapan Tryout SKD
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-base text-justify leading-relaxed max-w-2xl">
-            Pastikan Anda telah siap secara mental dan perangkat sebelum memulai simulasi ini. Waktu akan berjalan otomatis saat tryout dimulai.
+          <p className="text-slate-500 dark:text-slate-400 text-[15px] leading-relaxed max-w-2xl">
+            Pastikan kamu siap secara mental dan perangkat sebelum memulai. Waktu akan berjalan otomatis saat tryout dimulai.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           {/* Informasi Paket */}
-          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none p-8 group hover:border-blue-200 dark:hover:border-blue-800 transition-colors duration-500">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          <div className="bg-white dark:bg-[#161616] rounded-2xl border border-slate-200/80 dark:border-white/[0.06] p-6 sm:p-7 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <h2 className="text-lg font-black text-slate-900 dark:text-white leading-none">Informasi Paket</h2>
-                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Detail Teknis</p>
+                <h2 className="text-[15px] font-semibold text-slate-800 dark:text-white leading-none">Informasi Paket</h2>
+                <p className="text-[11px] text-slate-400 mt-1.5">Detail teknis ujian</p>
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center shrink-0">
+            <div className="space-y-5">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-white/[0.04] flex items-center justify-center shrink-0">
                   <BookOpen className="w-4 h-4 text-slate-400" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Nama Paket</p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{pkg.name}</p>
+                  <p className="text-[11px] text-slate-400 mb-1">Nama Paket</p>
+                  <p className="text-[14px] font-medium text-slate-800 dark:text-white leading-tight">{pkg.name}</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center shrink-0">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-white/[0.04] flex items-center justify-center shrink-0">
                   <FileText className="w-4 h-4 text-slate-400" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Jumlah Soal</p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">110 Butir Soal SKD</p>
+                  <p className="text-[11px] text-slate-400 mb-1">Jumlah Soal</p>
+                  <p className="text-[14px] font-medium text-slate-800 dark:text-white leading-tight">110 Butir Soal SKD</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center shrink-0">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-white/[0.04] flex items-center justify-center shrink-0">
                   <Clock className="w-4 h-4 text-slate-400" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Durasi Pengerjaan</p>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                  <p className="text-[11px] text-slate-400 mb-1">Durasi Pengerjaan</p>
+                  <p className="text-[14px] font-medium text-slate-800 dark:text-white leading-tight">
                     {pkg.duration_minutes} Menit
-                    <span className="text-slate-400 font-medium text-xs ml-2">({Math.floor(pkg.duration_minutes / 60)} Jam {pkg.duration_minutes % 60} Menit)</span>
+                    <span className="text-slate-400 font-normal text-[12px] ml-2">({Math.floor(pkg.duration_minutes / 60)}j {pkg.duration_minutes % 60}m)</span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center shrink-0">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-white/[0.04] flex items-center justify-center shrink-0">
                   <Target className="w-4 h-4 text-slate-400" />
                 </div>
                 <div className="w-full">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Ambang Batas (Passing Grade)</p>
+                  <p className="text-[11px] text-slate-400 mb-2.5">Ambang Batas (Passing Grade)</p>
                   <div className="flex flex-wrap gap-2">
-                    <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-xl text-[10px] font-black border border-emerald-100 dark:border-emerald-800">
-                      TWK: {pkg.passing_grade_twk || 65}
+                    <div className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-lg text-[12px] font-medium">
+                      TWK {pkg.passing_grade_twk || 65}
                     </div>
-                    <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-xl text-[10px] font-black border border-emerald-100 dark:border-emerald-800">
-                      TIU: {pkg.passing_grade_tiu || 80}
+                    <div className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-lg text-[12px] font-medium">
+                      TIU {pkg.passing_grade_tiu || 80}
                     </div>
-                    <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-xl text-[10px] font-black border border-emerald-100 dark:border-emerald-800">
-                      TKP: {pkg.passing_grade_tkp || 166}
+                    <div className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-lg text-[12px] font-medium">
+                      TKP {pkg.passing_grade_tkp || 166}
                     </div>
                   </div>
                 </div>
@@ -196,32 +195,32 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
           </div>
 
           {/* Panduan Pengerjaan */}
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-blue-500/30 flex flex-col relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl group-hover:scale-110 transition-transform duration-700" />
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 sm:p-7 text-white shadow-lg shadow-blue-600/20 flex flex-col relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-3xl" />
 
             <div className="relative z-10">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                  <AlertCircle className="w-6 h-6 text-white" />
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur-sm">
+                  <AlertCircle className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-black text-white leading-none">Panduan Ujian</h2>
-                  <p className="text-[10px] text-white/60 font-black uppercase tracking-widest mt-1">Harap Perhatikan</p>
+                  <h2 className="text-[15px] font-semibold text-white leading-none">Panduan Ujian</h2>
+                  <p className="text-[11px] text-white/60 mt-1.5">Harap diperhatikan</p>
                 </div>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {[
                   "Disarankan menggunakan PC/Laptop dengan koneksi charger.",
                   "Pastikan koneksi internet stabil & kuota mencukupi.",
                   "Gunakan browser terbaru (Chrome/Firefox/Safari).",
                   "Dilarang membuka tab lain atau login di perangkat lain."
                 ].map((text, i) => (
-                  <div key={i} className="flex gap-4 items-start">
-                    <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-[10px] font-black shrink-0 backdrop-blur-sm">
+                  <div key={i} className="flex gap-3 items-start">
+                    <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center text-[11px] font-semibold shrink-0 backdrop-blur-sm mt-0.5">
                       {i + 1}
                     </div>
-                    <p className="text-xs font-bold text-white/90 leading-relaxed text-justify">
+                    <p className="text-[13px] text-white/90 leading-relaxed">
                       {text}
                     </p>
                   </div>
@@ -229,31 +228,31 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
               </div>
             </div>
 
-            <div className="mt-auto pt-8">
-              <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/10">
-                <p className="text-[9px] font-bold text-white/80 leading-relaxed text-center">
-                  Sistem akan mengunci jawaban secara otomatis jika waktu pengerjaan telah habis.
+            <div className="mt-auto pt-6 relative z-10">
+              <div className="p-3.5 bg-white/10 rounded-xl backdrop-blur-sm border border-white/10">
+                <p className="text-[11.5px] text-white/80 leading-relaxed text-center">
+                  Sistem mengunci jawaban otomatis saat waktu pengerjaan habis.
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
-              <ShieldCheck className="w-6 h-6 text-emerald-500" />
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-5 p-6 bg-white dark:bg-[#161616] rounded-2xl border border-slate-200/80 dark:border-white/[0.06] shadow-sm">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 text-emerald-500" />
             </div>
             <div>
-              <p className="text-sm font-black text-slate-900 dark:text-white">Ujian Siap Dimulai</p>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Semua data teknis berhasil dimuat</p>
+              <p className="text-[14px] font-semibold text-slate-800 dark:text-white">Ujian siap dimulai</p>
+              <p className="text-[12px] text-slate-400">Semua data teknis berhasil dimuat</p>
             </div>
           </div>
           <Button
             onClick={onStart}
-            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-black text-lg py-8 px-16 rounded-2xl transition-all shadow-2xl shadow-blue-500/30 hover:scale-[1.03] active:scale-[0.97]"
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-semibold text-[15px] py-6 px-10 rounded-xl transition-all shadow-md active:scale-[0.98]"
           >
-            MULAI TRYOUT SEKARANG
+            Mulai Tryout Sekarang
           </Button>
         </div>
       </div>

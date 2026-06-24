@@ -241,7 +241,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
           >
             <ArrowLeft className="w-4 h-4" /> Kembali
           </button>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tighter flex items-center gap-3">
             <FileText className="w-8 h-8 text-blue-600" /> Invoice Pembayaran
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
@@ -261,7 +261,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
           <div className={`w-3 h-3 rounded-full animate-pulse ${
             isPending ? "bg-amber-500" : "bg-emerald-500"
           }`} />
-          <span className="text-sm font-black uppercase tracking-widest">
+          <span className="text-sm font-bold uppercase tracking-widest">
             {isPending ? "Menunggu Pembayaran" : "Pembayaran Berhasil"}
           </span>
         </div>
@@ -271,7 +271,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
         {/* Left: Order Summary */}
         <div className="lg:col-span-7 space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-xl p-8">
-            <h3 className="text-lg font-black text-slate-800 dark:text-white mb-6">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6">
               Ringkasan Pesanan
             </h3>
             <div className="flex items-start gap-4 p-6 bg-slate-50 dark:bg-white/5 rounded-3xl border border-slate-100 dark:border-white/5">
@@ -279,7 +279,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                 <CreditCard className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h4 className="font-black text-slate-900 dark:text-white">
+                <h4 className="font-bold text-slate-900 dark:text-white">
                   {transaction.packages.title}
                 </h4>
                 <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 text-left leading-relaxed">
@@ -290,7 +290,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
             <div className="mt-8 pt-8 border-t border-slate-100 dark:border-white/5">
               <div className="flex justify-between items-center">
                 <span className="text-base font-bold text-slate-500 dark:text-slate-400">Harga Paket</span>
-                <span className="text-base font-black text-slate-900 dark:text-white">
+                <span className="text-base font-bold text-slate-900 dark:text-white">
                   Rp {transaction.amount.toLocaleString("id-ID")}
                 </span>
               </div>
@@ -299,14 +299,14 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                   <span className="text-base font-bold text-slate-500 dark:text-slate-400">
                     Biaya Layanan QRIS
                   </span>
-                  <span className="text-base font-black text-orange-500">
+                  <span className="text-base font-bold text-orange-500">
                     +Rp {qrisData.fee.toLocaleString("id-ID")}
                   </span>
                 </div>
               )}
               <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
-                <span className="text-lg font-black text-slate-900 dark:text-white">Total Tagihan</span>
-                <span className="text-2xl font-black text-blue-600">
+                <span className="text-lg font-bold text-slate-900 dark:text-white">Total Tagihan</span>
+                <span className="text-2xl font-bold text-blue-600">
                   Rp{" "}
                   {(qrisData ? qrisData.total_payment : transaction.amount).toLocaleString("id-ID")}
                 </span>
@@ -321,10 +321,10 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-xl p-8 space-y-6">
               {/* Countdown — ikut QR timer kalau sudah generate */}
               <div className="text-center">
-                <p className="text-[10px] font-black text-slate-400 uppercase mb-2">
+                <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">
                   {qrisData ? "QR Berlaku" : "Sisa Waktu"}
                 </p>
-                <div className={`inline-flex items-center gap-2 px-6 py-2 rounded-full font-mono text-xl font-black ${
+                <div className={`inline-flex items-center gap-2 px-6 py-2 rounded-full font-mono text-xl font-bold ${
                   timeLeft === "KADALUARSA"
                     ? "bg-red-500 text-white"
                     : "bg-slate-900 dark:bg-blue-600 text-white"
@@ -336,11 +336,11 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
               {/* Belum generate QR */}
               {!qrisData && !generatingQris && (
                 <div className="text-center space-y-4">
-                  <div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-500/10 rounded-3xl flex items-center justify-center mx-auto border border-indigo-100 dark:border-indigo-500/20">
-                    <QrCode className="w-10 h-10 text-indigo-500" />
+                  <div className="w-20 h-20 bg-blue-50 dark:bg-blue-500/10 rounded-3xl flex items-center justify-center mx-auto border border-blue-100 dark:border-blue-500/20">
+                    <QrCode className="w-10 h-10 text-blue-500" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black text-slate-900 dark:text-white">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                       Bayar via QRIS
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
@@ -358,7 +358,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                   )}
                   <Button
                     onClick={handleGenerateQris}
-                    className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black shadow-lg shadow-indigo-500/30"
+                    className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/30"
                   >
                     <QrCode className="w-5 h-5 mr-2" />
                     Buat QR Code
@@ -369,7 +369,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
               {/* Loading generate */}
               {generatingQris && (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
-                  <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+                  <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
                   <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
                     Membuat QR Code...
                   </p>
@@ -400,16 +400,16 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                     <canvas ref={qrCanvasRef} className="hidden" />
                   </div>
 
-                  <div className="bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl p-4 space-y-2 border border-indigo-100 dark:border-indigo-500/20">
+                  <div className="bg-blue-50 dark:bg-blue-500/10 rounded-2xl p-4 space-y-2 border border-blue-100 dark:border-blue-500/20">
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Total Bayar</span>
-                      <span className="text-lg font-black text-indigo-700 dark:text-indigo-300">
+                      <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Total Bayar</span>
+                      <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
                         Rp {qrisData.total_payment.toLocaleString("id-ID")}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Berlaku Hingga</span>
-                      <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                      <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Berlaku Hingga</span>
+                      <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
                         {new Date(qrisData.expired_at).toLocaleString("id-ID", {
                           day: "numeric",
                           month: "short",
@@ -425,7 +425,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                     <Button
                       onClick={handleAlreadyPaid}
                       disabled={checkingPayment}
-                      className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black shadow-lg shadow-emerald-500/30"
+                      className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold shadow-lg shadow-emerald-500/30"
                     >
                       {checkingPayment ? (
                         <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Mengecek Pembayaran...</>
@@ -443,7 +443,7 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                     <Button
                       onClick={handleRegenerateQris}
                       variant="outline"
-                      className="w-full h-12 rounded-2xl font-black text-xs"
+                      className="w-full h-12 rounded-2xl font-bold text-xs"
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
                       Buat QR Baru
@@ -458,14 +458,14 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
           {isSuccess && (
             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-xl p-12 text-center space-y-6">
               <CheckCircle2 className="w-20 h-20 text-emerald-600 mx-auto" />
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                 Pembayaran Berhasil!
               </h3>
               <p className="text-slate-500 dark:text-slate-400 text-sm">
                 Selamat! Akses paket sudah terbuka.
               </p>
               <Button
-                className="w-full h-14 bg-emerald-600 text-white rounded-2xl font-black"
+                className="w-full h-14 bg-emerald-600 text-white rounded-2xl font-bold"
                 onClick={() => { onBack(true); }}
               >
                 Mulai Belajar

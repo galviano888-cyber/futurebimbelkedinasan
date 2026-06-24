@@ -13,13 +13,13 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
 
   if (!questions || questions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[100dvh] bg-slate-50 dark:bg-slate-950 p-6 text-center">
-        <div className="w-20 h-20 bg-slate-100 dark:bg-slate-900 rounded-[2rem] flex items-center justify-center mb-6">
-          <BookOpen className="w-10 h-10 text-slate-300 dark:text-slate-700" />
+      <div className="flex flex-col items-center justify-center h-[100dvh] bg-slate-50 dark:bg-[#0b0b0e] p-6 text-center">
+        <div className="w-16 h-16 bg-slate-100 dark:bg-white/[0.04] rounded-2xl flex items-center justify-center mb-5">
+          <BookOpen className="w-8 h-8 text-slate-300 dark:text-slate-600" />
         </div>
-        <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2">Data Review Tidak Ada</h2>
-        <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-sm">Maaf, terjadi kesalahan saat memuat data pembahasan. Silakan coba buka kembali.</p>
-        <button onClick={onBack} className="px-10 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-500/20 active:scale-95 transition-all">Kembali</button>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Data Review Tidak Ada</h2>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mb-7 max-w-sm">Maaf, terjadi kesalahan saat memuat data pembahasan. Silakan coba buka kembali.</p>
+        <button onClick={onBack} className="px-7 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-[14px] rounded-xl transition-all active:scale-[0.98]">Kembali</button>
       </div>
     );
   }
@@ -29,70 +29,65 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
   const isCorrect = currentQuestion.category === 'TKP' ? true : currentQuestion.correct_answer === userAnswer;
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans">
+    <div className="h-[100dvh] flex flex-col bg-slate-50 dark:bg-[#0b0b0e] overflow-hidden font-sans">
       {/* Header */}
-      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between shrink-0 shadow-sm relative z-20">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2.5 -ml-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all active:scale-90">
+      <div className="bg-white dark:bg-[#161616] border-b border-slate-200/80 dark:border-white/[0.06] px-4 sm:px-6 py-3 flex items-center justify-between shrink-0 z-20">
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} className="p-2 -ml-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.05] rounded-lg transition-all">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="font-black text-slate-800 dark:text-white text-lg tracking-tight">Pembahasan Tryout</h1>
-             <div className="flex items-center gap-2 mt-0.5">
-               <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Nomor {currentIndex + 1}</span>
-               <span className="text-slate-300 dark:text-slate-700 text-xs">/</span>
-               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{questions.length} Soal</span>
-               {currentQuestion.sub_category && (
-                 <>
-                   <span className="text-slate-300 dark:text-slate-700 text-xs">·</span>
-                   <span className="text-[10px] font-black text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full uppercase tracking-widest">{currentQuestion.sub_category}</span>
-                 </>
-               )}
+            <h1 className="font-bold text-slate-800 dark:text-white text-[15px] leading-none">Pembahasan Tryout</h1>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400">Soal {currentIndex + 1} / {questions.length}</span>
+              {currentQuestion.sub_category && (
+                <span className="text-[10px] font-medium text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded-md">{currentQuestion.sub_category}</span>
+              )}
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-           <button 
-             disabled={currentIndex === 0}
-             onClick={() => setCurrentIndex(prev => prev - 1)}
-             className="p-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition-all"
-           >
-             <ChevronLeft className="w-5 h-5" />
-           </button>
-           <button 
-             disabled={currentIndex === questions.length - 1}
-             onClick={() => setCurrentIndex(prev => prev + 1)}
-             className="p-2.5 bg-slate-900 dark:bg-slate-800 text-white rounded-xl hover:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-lg shadow-slate-200 dark:shadow-none"
-           >
-             <ChevronRight className="w-5 h-5" />
-           </button>
+          <button
+            disabled={currentIndex === 0}
+            onClick={() => setCurrentIndex(prev => prev - 1)}
+            className="p-2 border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-30 disabled:pointer-events-none transition-all"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            disabled={currentIndex === questions.length - 1}
+            onClick={() => setCurrentIndex(prev => prev + 1)}
+            className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg disabled:opacity-30 disabled:pointer-events-none transition-all"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden relative">
-        {/* Left: Navigation Grid (Sidebar) */}
-        <aside className="hidden lg:flex w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col shrink-0 z-10 shadow-xl dark:shadow-none">
-          <div className="p-8 border-b border-slate-50 dark:border-slate-800">
-            <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-5">Navigasi Review</h3>
-            <div className="flex flex-wrap gap-4 text-[10px] font-black uppercase tracking-widest">
-              <span className="flex items-center gap-2 text-emerald-600"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/30"></div> Benar</span>
-              <span className="flex items-center gap-2 text-red-600"><div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/30"></div> Salah</span>
-              <span className="flex items-center gap-2 text-slate-400"><div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></div> Kosong</span>
+      <div className="flex-1 flex overflow-hidden">
+        {/* Sidebar Navigasi */}
+        <aside className="hidden lg:flex w-64 bg-white dark:bg-[#161616] border-r border-slate-200/80 dark:border-white/[0.06] flex-col shrink-0">
+          <div className="p-5 border-b border-slate-100 dark:border-white/[0.06]">
+            <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">Navigasi Soal</p>
+            <div className="flex flex-wrap gap-3 text-[10px] font-medium">
+              <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"><div className="w-2 h-2 rounded-full bg-emerald-500" /> Benar</span>
+              <span className="flex items-center gap-1.5 text-red-500 dark:text-red-400"><div className="w-2 h-2 rounded-full bg-red-500" /> Salah</span>
+              <span className="flex items-center gap-1.5 text-slate-400"><div className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600" /> Kosong</span>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
-            <div className="grid grid-cols-5 gap-2.5">
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div className="grid grid-cols-5 gap-1.5">
               {questions.map((q, idx) => {
                 const ans = result.answers?.[q.id] || result.score_details?.[idx]?.userAnswer;
-                let statusClass = "bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400"; // Kosong
-                
+                let statusClass = "bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.06] text-slate-400";
+
                 if (q.category === 'TKP' && ans) {
-                  statusClass = "bg-amber-50 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400 font-black";
+                  statusClass = "bg-amber-50 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/40 text-amber-600 dark:text-amber-400";
                 } else if (ans) {
-                  statusClass = q.correct_answer === ans 
-                    ? "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 font-black" 
-                    : "bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 font-black";
+                  statusClass = q.correct_answer === ans
+                    ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/40 text-emerald-600 dark:text-emerald-400"
+                    : "bg-red-50 dark:bg-red-500/10 border-red-300 dark:border-red-500/40 text-red-500 dark:text-red-400";
                 }
 
                 return (
@@ -100,9 +95,9 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
                     key={q.id}
                     onClick={() => setCurrentIndex(idx)}
                     className={cn(
-                      "aspect-square rounded-xl flex items-center justify-center text-[11px] transition-all duration-300 border-2",
-                      currentIndex === idx 
-                        ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30 scale-110 z-10" 
+                      "h-9 rounded-lg text-[11px] font-semibold border transition-all",
+                      currentIndex === idx
+                        ? "bg-blue-600 border-blue-600 text-white scale-105 shadow-sm"
                         : statusClass
                     )}
                   >
@@ -114,229 +109,192 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
           </div>
         </aside>
 
-        {/* Center/Right: Question and Explanation */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 bg-slate-50/50 dark:bg-slate-950/50 scroll-smooth">
-          <div className="max-w-3xl mx-auto space-y-6 pb-20">
-            {/* Status Header Overlay */}
+        {/* Konten Utama */}
+        <main className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="max-w-3xl mx-auto p-4 sm:p-6 pb-10 space-y-4">
+
+            {/* Status Banner */}
             <div className={cn(
-              "p-8 rounded-[2.5rem] border-2 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-500",
-              currentQuestion.category === 'TKP' 
-                ? 'bg-amber-50/50 dark:bg-amber-900/10 border-amber-200/50 dark:border-amber-800/30 shadow-amber-500/5' 
-                : isCorrect 
-                  ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200/50 dark:border-emerald-800/30 shadow-emerald-500/5' 
-                  : 'bg-red-50/50 dark:bg-red-900/10 border-red-200/50 dark:border-red-800/30 shadow-red-500/5'
+              "flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl border",
+              currentQuestion.category === 'TKP'
+                ? 'bg-amber-50 dark:bg-amber-500/[0.07] border-amber-200 dark:border-amber-500/20'
+                : isCorrect
+                  ? 'bg-emerald-50 dark:bg-emerald-500/[0.07] border-emerald-200 dark:border-emerald-500/20'
+                  : 'bg-red-50 dark:bg-red-500/[0.07] border-red-200 dark:border-red-500/20'
             )}>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
                 <div className={cn(
-                  "w-16 h-16 rounded-[1.5rem] flex items-center justify-center shrink-0 shadow-lg transition-transform hover:scale-105",
+                  "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
                   currentQuestion.category === 'TKP' ? 'bg-amber-500 text-white' : isCorrect ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
                 )}>
-                  {currentQuestion.category === 'TKP' ? (
-                    <BookOpen className="w-8 h-8" />
-                  ) : isCorrect ? (
-                    <CheckCircle2 className="w-8 h-8" />
-                  ) : (
-                    <XCircle className="w-8 h-8" />
-                  )}
+                  {currentQuestion.category === 'TKP' ? <BookOpen className="w-5 h-5" /> : isCorrect ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
                 </div>
                 <div>
-                  <h3 className={cn(
-                    "text-xl font-black tracking-tight",
-                    currentQuestion.category === 'TKP' ? 'text-amber-900 dark:text-amber-200' : isCorrect ? 'text-emerald-900 dark:text-emerald-200' : 'text-red-900 dark:text-red-200'
+                  <p className={cn(
+                    "text-[14px] font-bold",
+                    currentQuestion.category === 'TKP' ? 'text-amber-800 dark:text-amber-300' : isCorrect ? 'text-emerald-800 dark:text-emerald-300' : 'text-red-800 dark:text-red-300'
                   )}>
-                    {currentQuestion.category === 'TKP' ? 'Pembahasan TKP' : isCorrect ? 'Jawaban Anda Benar' : 'Jawaban Anda Kurang Tepat'}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                     <span className="text-[11px] font-black uppercase tracking-widest opacity-60">Kategori:</span>
-                     <span className="px-2.5 py-0.5 bg-white/40 dark:bg-slate-800/40 rounded-full text-[10px] font-black uppercase tracking-wider border border-white/20">
-                       {currentQuestion.category}
-                     </span>
-                  </div>
+                    {currentQuestion.category === 'TKP' ? 'Soal TKP' : isCorrect ? 'Jawaban Benar' : 'Jawaban Kurang Tepat'}
+                  </p>
+                  <span className={cn(
+                    "text-[11px] font-medium px-2 py-0.5 rounded-md inline-block mt-0.5",
+                    currentQuestion.category === 'TKP' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : isCorrect ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400'
+                  )}>
+                    {currentQuestion.category}
+                  </span>
                 </div>
               </div>
-              
+
               {!isCorrect && currentQuestion.category !== 'TKP' && (
-                <div className="px-4 py-2 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-white/20 backdrop-blur-sm">
-                   <p className="text-[9px] font-black text-red-800 dark:text-red-400 uppercase tracking-widest mb-0.5">Kunci Jawaban</p>
-                   <p className="text-lg font-black text-red-900 dark:text-red-200 uppercase leading-none">Opsi {currentQuestion.correct_answer}</p>
+                <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-white/[0.05] rounded-xl border border-red-100 dark:border-red-500/20">
+                  <p className="text-[11px] text-slate-400">Kunci Jawaban:</p>
+                  <p className="text-[15px] font-bold text-red-600 dark:text-red-400">Opsi {currentQuestion.correct_answer}</p>
                 </div>
               )}
             </div>
 
-            {/* Question Card */}
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 dark:bg-slate-800/30 rounded-full -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-110" />
-              
-              <div className="relative z-10">
-                  {currentQuestion.question_image_url && (
-                  <div className="flex justify-center mb-6">
-                    <img
-                      src={currentQuestion.question_image_url}
-                      alt="Gambar Soal"
-                      className="max-w-full max-h-64 h-auto rounded-2xl border border-slate-100 dark:border-slate-800 shadow-md"
-                    />
-                  </div>
-                )}
-
-                <div className="text-[15px] text-slate-800 dark:text-white mb-8 font-bold whitespace-pre-wrap leading-relaxed text-justify">
-                  {currentQuestion.question_text}
+            {/* Kartu Soal */}
+            <div className="bg-white dark:bg-[#161616] rounded-2xl border border-slate-200/80 dark:border-white/[0.06] p-5 sm:p-6">
+              {currentQuestion.question_image_url && (
+                <div className="flex justify-center mb-5">
+                  <img
+                    src={currentQuestion.question_image_url}
+                    alt="Gambar Soal"
+                    className="max-w-full max-h-60 h-auto rounded-xl border border-slate-100 dark:border-white/[0.06]"
+                  />
                 </div>
+              )}
 
-                {(() => {
-                  const opts = ['A', 'B', 'C', 'D', 'E'];
-                  const allHaveImages = currentQuestion.category === 'TIU' &&
-                    opts.every(o => !!currentQuestion.option_images?.[o]);
+              <p className="text-[15px] text-slate-800 dark:text-slate-100 font-medium leading-relaxed mb-5 whitespace-pre-wrap text-justify">
+                {currentQuestion.question_text}
+              </p>
 
-                  const getOptionClasses = (label: string) => {
-                    const isUserSelected = userAnswer === label;
-                    const isActuallyCorrect = currentQuestion.correct_answer === label;
-                    let optionClass = "border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50";
-                    let badgeClass = "bg-white dark:bg-slate-900 text-slate-400 border border-slate-200 dark:border-slate-700";
-                    if (isActuallyCorrect && currentQuestion.category !== 'TKP') {
-                      optionClass = "border-emerald-500/50 bg-emerald-50 dark:bg-emerald-900/10 ring-2 ring-emerald-500/10";
-                      badgeClass = "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30";
-                    } else if (isUserSelected && !isCorrect && currentQuestion.category !== 'TKP') {
-                      optionClass = "border-red-500/50 bg-red-50 dark:bg-red-900/10 ring-2 ring-red-500/10";
-                      badgeClass = "bg-red-500 text-white shadow-lg shadow-red-500/30";
-                    } else if (isUserSelected && currentQuestion.category === 'TKP') {
-                      optionClass = "border-amber-500/50 bg-amber-50 dark:bg-amber-900/10 ring-2 ring-amber-500/10";
-                      badgeClass = "bg-amber-500 text-white shadow-lg shadow-amber-500/30";
-                    }
-                    return { optionClass, badgeClass, isUserSelected, isActuallyCorrect };
-                  };
+              {/* Opsi Jawaban */}
+              {(() => {
+                const opts = ['A', 'B', 'C', 'D', 'E'];
+                const allHaveImages = currentQuestion.category === 'TIU' &&
+                  opts.every(o => !!currentQuestion.option_images?.[o]);
 
-                  if (allHaveImages) {
-                    return (
-                      <div className="grid grid-cols-2 gap-3">
-                        {opts.map((label) => {
-                          const { optionClass, badgeClass, isActuallyCorrect } = getOptionClasses(label);
-                          return (
-                            <div
-                              key={label}
-                              className={cn(
-                                "relative rounded-2xl border-2 overflow-hidden flex flex-col transition-all",
-                                optionClass
-                              )}
-                            >
-                              <img
-                                src={currentQuestion.option_images[label]}
-                                alt={`Opsi ${label}`}
-                                className="w-auto max-w-full h-auto max-h-40 block mx-auto p-3"
-                              />
-                              <div className={cn(
-                                "py-1.5 flex items-center justify-center gap-2 border-t text-[11px] font-black uppercase tracking-widest",
-                                badgeClass.includes('emerald') ? "bg-emerald-500 text-white border-emerald-500" :
-                                badgeClass.includes('red') ? "bg-red-500 text-white border-red-500" :
-                                "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700"
-                              )}>
-                                {label}
-                                {isActuallyCorrect && currentQuestion.category !== 'TKP' && (
-                                  <span className="ml-1 text-[8px] bg-white/20 px-1.5 py-0.5 rounded-full">Kunci</span>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
+                const getOptionClasses = (label: string) => {
+                  const isUserSelected = userAnswer === label;
+                  const isActuallyCorrect = currentQuestion.correct_answer === label;
+                  let optionClass = "border-slate-200/80 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.03]";
+                  let badgeClass = "bg-slate-200 dark:bg-white/[0.08] text-slate-500 dark:text-slate-400";
+                  if (isActuallyCorrect && currentQuestion.category !== 'TKP') {
+                    optionClass = "border-emerald-400/60 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/[0.07]";
+                    badgeClass = "bg-emerald-500 text-white";
+                  } else if (isUserSelected && !isCorrect && currentQuestion.category !== 'TKP') {
+                    optionClass = "border-red-400/60 dark:border-red-500/30 bg-red-50 dark:bg-red-500/[0.07]";
+                    badgeClass = "bg-red-500 text-white";
+                  } else if (isUserSelected && currentQuestion.category === 'TKP') {
+                    optionClass = "border-amber-400/60 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/[0.07]";
+                    badgeClass = "bg-amber-500 text-white";
                   }
+                  return { optionClass, badgeClass, isUserSelected, isActuallyCorrect };
+                };
 
+                if (allHaveImages) {
                   return (
-                  <div className="space-y-1.5">
-                  {opts.map((label) => {
-                    const text = (currentQuestion.options || {})[label];
-                    const { optionClass, badgeClass, isUserSelected, isActuallyCorrect } = getOptionClasses(label);
-                    return (
-                      <div
-                        key={label}
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-xl border-2 transition-all duration-300",
-                          optionClass
-                        )}
-                      >
-                        <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 transition-all",
-                          badgeClass
-                        )}>
-                          {label.toUpperCase()}
-                        </div>
-                        <div className="flex-1">
-                          {currentQuestion.category === 'TIU' && currentQuestion.option_images?.[label] ? (
-                            <img
-                              src={currentQuestion.option_images[label]}
-                              alt={`Opsi ${label}`}
-                              className="max-w-full h-auto block mx-auto rounded-lg p-1"
-                            />
-                          ) : (
-                            <p className={cn(
-                              "text-[13px] font-bold leading-relaxed text-justify",
-                              isActuallyCorrect && currentQuestion.category !== 'TKP' ? "text-emerald-900 dark:text-emerald-300" :
-                              isUserSelected && !isCorrect ? "text-red-900 dark:text-red-300" :
-                              "text-slate-700 dark:text-slate-300"
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {opts.map((label) => {
+                        const { optionClass, badgeClass, isActuallyCorrect } = getOptionClasses(label);
+                        return (
+                          <div key={label} className={cn("relative rounded-xl border-2 overflow-hidden flex flex-col transition-all", optionClass)}>
+                            <img src={currentQuestion.option_images[label]} alt={`Opsi ${label}`} className="w-auto max-w-full h-auto max-h-36 block mx-auto p-2" />
+                            <div className={cn(
+                              "py-1.5 flex items-center justify-center gap-1.5 border-t text-[11px] font-semibold",
+                              badgeClass.includes('emerald') ? "bg-emerald-500 text-white border-emerald-500" :
+                              badgeClass.includes('red') ? "bg-red-500 text-white border-red-500" :
+                              "bg-slate-50 dark:bg-white/[0.04] text-slate-400 border-slate-100 dark:border-white/[0.06]"
                             )}>
-                              {String(text ?? '')}
-                            </p>
-                          )}
-                          {currentQuestion.category === 'TKP' && (
-                            <div className="mt-1 flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                              <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Skor: {currentQuestion.tkp_scores?.[label] || 0}</span>
+                              {label}
+                              {isActuallyCorrect && currentQuestion.category !== 'TKP' && <span className="text-[9px] opacity-80">✓ Kunci</span>}
                             </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="space-y-2">
+                    {opts.map((label) => {
+                      const text = (currentQuestion.options || {})[label];
+                      const { optionClass, badgeClass, isUserSelected, isActuallyCorrect } = getOptionClasses(label);
+                      return (
+                        <div key={label} className={cn("flex items-center gap-3 p-3 rounded-xl border-2 transition-all", optionClass)}>
+                          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center font-bold text-[13px] shrink-0", badgeClass)}>
+                            {label}
+                          </div>
+                          <div className="flex-1">
+                            {currentQuestion.category === 'TIU' && currentQuestion.option_images?.[label] ? (
+                              <img src={currentQuestion.option_images[label]} alt={`Opsi ${label}`} className="max-w-full h-auto rounded-lg p-1" />
+                            ) : (
+                              <p className={cn(
+                                "text-[13.5px] leading-relaxed text-justify",
+                                isActuallyCorrect && currentQuestion.category !== 'TKP' ? "text-emerald-800 dark:text-emerald-300 font-medium" :
+                                isUserSelected && !isCorrect ? "text-red-800 dark:text-red-300 font-medium" :
+                                "text-slate-700 dark:text-slate-300"
+                              )}>
+                                {String(text ?? '')}
+                              </p>
+                            )}
+                            {currentQuestion.category === 'TKP' && (
+                              <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 mt-0.5 inline-block">Skor: {currentQuestion.tkp_scores?.[label] || 0}</span>
+                            )}
+                          </div>
+                          {isActuallyCorrect && currentQuestion.category !== 'TKP' && (
+                            <span className="shrink-0 px-2.5 py-1 bg-emerald-500 text-white text-[10px] font-semibold rounded-lg">Kunci</span>
                           )}
                         </div>
-                        {isActuallyCorrect && currentQuestion.category !== 'TKP' && (
-                          <div className="hidden sm:flex px-3 py-1 bg-emerald-500 text-white text-[9px] font-black rounded-full shadow-lg shadow-emerald-500/20 uppercase tracking-widest">Kunci</div>
-                        )}
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                   </div>
-                  );
-                })()}
-
-                {/* Explanation Section */}
-                {(currentQuestion.explanation || currentQuestion.explanation_image_url) && (
-                  <div className="space-y-6 mt-6">
-                    <div className="flex items-center gap-4 px-6">
-                      <div className="w-1.5 h-8 bg-blue-600 rounded-full" />
-                      <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Pembahasan</h3>
-                    </div>
-
-                    <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-                      {currentQuestion.explanation && (
-                        <div className="text-[14px] text-slate-700 dark:text-slate-300 font-medium leading-relaxed text-justify whitespace-pre-wrap mb-6">
-                          {currentQuestion.explanation}
-                        </div>
-                      )}
-                      {currentQuestion.explanation_image_url && (
-                        <div className="rounded-[2.5rem] overflow-hidden border border-slate-100 dark:border-slate-800 shadow-lg">
-                          <img src={currentQuestion.explanation_image_url} alt="Gambar Pembahasan" className="w-full h-auto" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+                );
+              })()}
             </div>
+
+            {/* Pembahasan */}
+            {(currentQuestion.explanation || currentQuestion.explanation_image_url) && (
+              <div className="bg-white dark:bg-[#161616] rounded-2xl border border-slate-200/80 dark:border-white/[0.06] overflow-hidden">
+                <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.02]">
+                  <div className="w-1 h-5 bg-blue-500 rounded-full" />
+                  <h3 className="text-[13px] font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide">Pembahasan</h3>
+                </div>
+                <div className="p-5 sm:p-6">
+                  {currentQuestion.explanation && (
+                    <p className="text-[13.5px] text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap mb-4 text-justify">
+                      {currentQuestion.explanation}
+                    </p>
+                  )}
+                  {currentQuestion.explanation_image_url && (
+                    <div className="rounded-xl overflow-hidden border border-slate-100 dark:border-white/[0.06]">
+                      <img src={currentQuestion.explanation_image_url} alt="Gambar Pembahasan" className="w-full h-auto" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
 
-      {/* FOOTER MOBILE NAV */}
-      <div className="lg:hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-4 flex justify-between gap-4 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-30">
-        <button 
+      {/* Mobile Footer Nav */}
+      <div className="lg:hidden bg-white dark:bg-[#161616] border-t border-slate-200/80 dark:border-white/[0.06] px-4 py-3 flex gap-3 shrink-0">
+        <button
           disabled={currentIndex === 0}
           onClick={() => setCurrentIndex(prev => prev - 1)}
-          className="flex-1 py-4 border border-slate-200 dark:border-slate-700 rounded-2xl text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest"
+          className="flex-1 py-3 border border-slate-200 dark:border-white/[0.08] rounded-xl text-[12px] font-semibold text-slate-600 dark:text-slate-400 disabled:opacity-30 transition-all"
         >
-          Mundur
+          Sebelumnya
         </button>
-        <button 
+        <button
           disabled={currentIndex === questions.length - 1}
           onClick={() => setCurrentIndex(prev => prev + 1)}
-          className="flex-1 py-4 bg-slate-900 dark:bg-slate-800 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-slate-200 dark:shadow-none"
+          className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[12px] font-semibold disabled:opacity-30 transition-all"
         >
-          Lanjut
+          Selanjutnya
         </button>
       </div>
     </div>
