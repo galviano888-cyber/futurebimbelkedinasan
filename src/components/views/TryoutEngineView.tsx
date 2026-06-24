@@ -88,6 +88,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   const [cheatWarning, setCheatWarning] = useState<{ msg: string; count: number } | null>(null);
   const lastViolationTime = useRef<number>(0);
   const mountTime = useRef<number>(Date.now());
+  const isSubmittingRef = useRef<boolean>(false); // synchronous flag to prevent double-submit
   const { theme, setTheme } = useTheme();
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const toggleTheme = useCallback(() => setTheme(isDark ? 'light' : 'dark'), [isDark, setTheme]);
@@ -313,7 +314,10 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   }, [cheatAttempts, isSubmitting]);
 
   const handleSubmit = async (answersOverride?: Record<string, string>) => {
-    if (isSubmitting || !supabase) return;
+    // Use ref for synchronous guard — prevents race condition from multiple simultaneous callers
+    // (timer expire, anti-cheat trigger, and manual button can all fire concurrently)
+    if (isSubmittingRef.current || !supabase) return;
+    isSubmittingRef.current = true;
     const finalAnswers = answersOverride || answers;
     setIsSubmitting(true);
     setLoading(true);
@@ -380,6 +384,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
     } catch (err: any) {
       console.error("Error submitting tryout:", err);
       toast.error("Gagal mengirim jawaban: " + (err.message || "Unknown error"));
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     } finally {
       setLoading(false);

@@ -5,13 +5,18 @@
 // Deploy: supabase functions deploy pakasir-webhook
 // Set Webhook URL di dashboard Pakasir -> Edit Proyek:
 // https://lglqbxaoxkdsfrqvuplq.supabase.co/functions/v1/pakasir-webhook
+//
+// Required env vars:
+//   PAKASIR_SLUG, PAKASIR_API_KEY, PAKASIR_WEBHOOK_SECRET,
+//   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const PAKASIR_SLUG = Deno.env.get("PAKASIR_SLUG");
-const PAKASIR_API_KEY = Deno.env.get("PAKASIR_API_KEY");
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const PAKASIR_SLUG             = Deno.env.get("PAKASIR_SLUG");
+const PAKASIR_API_KEY          = Deno.env.get("PAKASIR_API_KEY");
+const PAKASIR_WEBHOOK_SECRET   = Deno.env.get("PAKASIR_WEBHOOK_SECRET"); // shared secret set di Pakasir dashboard
+const SUPABASE_URL             = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 const corsHeaders = {
@@ -32,9 +37,25 @@ serve(async (req: Request) => {
   }
 
   try {
+    // ── 0. Shared secret verification ────────────────────────────────────────
+    // Pakasir mengirim secret via header X-Pakasir-Secret (atur di dashboard)
+    // Jika PAKASIR_WEBHOOK_SECRET diset, wajib cocok
+    if (PAKASIR_WEBHOOK_SECRET) {
+      const incomingSecret = req.headers.get("x-pakasir-secret") ??
+                             req.headers.get("x-webhook-secret") ??
+                             req.headers.get("authorization")?.replace("Bearer ", "");
+      if (!incomingSecret || incomingSecret !== PAKASIR_WEBHOOK_SECRET) {
+        console.warn("Webhook: secret tidak valid atau tidak ada");
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401,
+        });
+      }
+    }
+
     const payload = await req.json();
 
-    // Validasi payload dasar
+    // ── 1. Validasi payload dasar ─────────────────────────────────────────────
     if (!payload?.order_id || !payload?.amount || !payload?.status) {
       console.warn("Webhook: payload tidak valid", payload);
       return new Response(JSON.stringify({ error: "Payload tidak valid" }), {
@@ -69,7 +90,7 @@ serve(async (req: Request) => {
 
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-    // ── 1. Cari transaksi di DB ──────────────────────────────────────────────
+    // ── 2. Cari transaksi di DB ──────────────────────────────────────────────
     const { data: transaction, error: txError } = await supabase
       .from("transactions")
       .select("id, user_id, package_id, amount, status, invoice_id")
@@ -85,8 +106,7 @@ serve(async (req: Request) => {
       });
     }
 
-    // ── 2. Idempotency check ─────────────────────────────────────────────────
-    // Kalau sudah success, tetap pastikan user_packages ada (upsert idempoten)
+    // ── 3. Idempotency check ─────────────────────────────────────────────────
     if (transaction.status === "success") {
       await supabase.from("user_packages").upsert(
         {
@@ -102,7 +122,7 @@ serve(async (req: Request) => {
       });
     }
 
-    // ── 3. VERIFY BY RE-FETCH — cegah fake webhook ───────────────────────────
+    // ── 4. VERIFY BY RE-FETCH — cegah fake webhook ───────────────────────────
     const verifyUrl = new URL("https://app.pakasir.com/api/transactiondetail");
     verifyUrl.searchParams.set("project", PAKASIR_SLUG);
     verifyUrl.searchParams.set("order_id", transaction.invoice_id);
@@ -112,37 +132,31 @@ serve(async (req: Request) => {
     const verifyRes = await fetch(verifyUrl.toString());
     const verifyJson = await verifyRes.json();
 
-    // Log detail untuk diagnosa
-    console.log(`Webhook verify response untuk ${payload.order_id}:`, JSON.stringify(verifyJson));
-    console.log(`DB amount: ${transaction.amount}, Pakasir amount: ${verifyJson.transaction?.amount}`);
-
     if (!verifyRes.ok || verifyJson.transaction?.status !== "completed") {
       console.warn(
         `Webhook: verifikasi ulang gagal untuk ${payload.order_id}. ` +
         `HTTP ${verifyRes.status}, Status Pakasir: ${verifyJson.transaction?.status ?? "unknown"}`
       );
-      return new Response(JSON.stringify({ message: "Verifikasi gagal, diabaikan", detail: verifyJson }), {
+      return new Response(JSON.stringify({ message: "Verifikasi gagal, diabaikan" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
     }
 
-    // ── 4. Validasi amount ────────────────────────────────────────────────────
-    // Pakasir mengembalikan amount sebelum fee, bandingkan dengan DB amount
-    // Gunakan Number() untuk handle kemungkinan string vs number
+    // ── 5. Validasi amount — hard reject jika tidak cocok ────────────────────
     const pakasirAmount = Number(verifyJson.transaction.amount);
     const dbAmount = Number(transaction.amount);
     if (pakasirAmount !== dbAmount) {
       console.error(
-        `Webhook: amount mismatch ${payload.order_id}: ` +
-        `DB=${dbAmount}, Pakasir=${pakasirAmount}`
+        `Webhook: amount mismatch ${payload.order_id}: DB=${dbAmount}, Pakasir=${pakasirAmount}. Ditolak.`
       );
-      // Tetap proses jika status completed dan order_id cocok — amount mismatch
-      // bisa terjadi karena perbedaan representasi data, tapi payment sudah verified
-      console.warn("Amount mismatch tapi tetap diproses karena status sudah verified completed");
+      return new Response(JSON.stringify({ error: "Amount tidak sesuai" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
 
-    // ── 5. Update transaksi ke success (optimistic lock) ──────────────────────
+    // ── 6. Update transaksi ke success (optimistic lock) ──────────────────────
     const { error: updateError } = await supabase
       .from("transactions")
       .update({
@@ -160,7 +174,7 @@ serve(async (req: Request) => {
       });
     }
 
-    // ── 6. Grant akses paket ─────────────────────────────────────────────────
+    // ── 7. Grant akses paket ─────────────────────────────────────────────────
     await supabase
       .from("user_packages")
       .upsert(
@@ -172,8 +186,7 @@ serve(async (req: Request) => {
         { onConflict: "user_id,package_id" }
       );
 
-    // ── 7. Notifikasi in-app ─────────────────────────────────────────────────
-    // Kolom 'type' tidak ada di tabel notifications, jadi tidak di-include
+    // ── 8. Notifikasi in-app ─────────────────────────────────────────────────
     const { error: notifError } = await supabase.from("notifications").insert({
       user_id: transaction.user_id,
       title: "Pembayaran Berhasil!",

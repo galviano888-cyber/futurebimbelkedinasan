@@ -357,8 +357,8 @@ export default function App() {
         <Route path="/register" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/dashboard" replace />} />
         <Route path="/reset-password" element={<ResetPasswordView />} />
         
-        {/* Admin */}
-        <Route path="/admin-panel" element={<AdminPanelView />} />
+        {/* Admin — requires authenticated session; AdminPanelView enforces role check internally */}
+        <Route path="/admin-panel" element={isAuthenticated ? <AdminPanelView /> : <Navigate to="/" replace />} />
 
         {/* User Protected Routes */}
         <Route path="/dashboard" element={isAuthenticated ? <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={handleNavigate} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onReview={handleHistoryReview} /> : <Navigate to="/" replace />} />
