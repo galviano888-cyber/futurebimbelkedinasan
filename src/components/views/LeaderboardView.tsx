@@ -10,7 +10,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
   const [loading, setLoading] = useState(true);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [packages, setPackages] = useState<any[]>([]);
-  const [selectedPackage, setSelectedPackage] = useState<string>("all");
+  const [selectedPackage, setSelectedPackage] = useState<string>("");
   const [userRank, setUserRank] = useState<{ position: number; total: number; score: number } | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [page, setPage] = useState(1);
@@ -31,8 +31,11 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
   const fetchPackages = async () => {
     if (!supabase) return;
     const { data } = await supabase.from('packages').select('id, title').eq('is_active', true);
-    if (data && data.length > 0) { setPackages(data); if (!selectedPackage) setSelectedPackage("all"); }
-    else setSelectedPackage("all");
+    if (data && data.length > 0) {
+      setPackages(data);
+      // Default ke paket pertama, bukan "all"
+      if (!selectedPackage) setSelectedPackage(data[0].id);
+    }
   };
 
   const fetchLeaderboard = async (currentPage = 1, append = false) => {
@@ -42,28 +45,17 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
       const from = (currentPage - 1) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 
-      if (selectedPackage === "all") {
-        const { data, error } = await supabase
-          .from('leaderboard_averages')
-          .select('user_id, full_name, avg_twk, avg_tiu, avg_tkp, avg_total, last_active')
-          .order('avg_total', { ascending: false })
-          .range(from, to);
-        if (error) throw error;
-        const mapped = (data || []).map((item: any) => ({ ...item, twk: item.avg_twk, tiu: item.avg_tiu, tkp: item.avg_tkp, total: item.avg_total, profiles: { full_name: item.full_name } }));
-        setLeaderboard(prev => append ? [...prev, ...mapped] : mapped);
-        setHasMore((data || []).length === PAGE_SIZE);
-      } else {
-        const { data, error } = await supabase
-          .from('fair_package_leaderboard')
-          .select('user_id, full_name, package_id, twk, tiu, tkp, total, date')
-          .eq('package_id', selectedPackage)
-          .order('total', { ascending: false })
-          .range(from, to);
-        if (error) throw error;
-        const mapped = (data || []).map((item: any) => ({ ...item, profiles: { full_name: item.full_name } }));
-        setLeaderboard(prev => append ? [...prev, ...mapped] : mapped);
-        setHasMore((data || []).length === PAGE_SIZE);
-      }
+      if (!selectedPackage) return;
+      const { data, error } = await supabase
+        .from('fair_package_leaderboard')
+        .select('user_id, full_name, package_id, twk, tiu, tkp, total, date')
+        .eq('package_id', selectedPackage)
+        .order('total', { ascending: false })
+        .range(from, to);
+      if (error) throw error;
+      const mapped = (data || []).map((item: any) => ({ ...item, profiles: { full_name: item.full_name } }));
+      setLeaderboard(prev => append ? [...prev, ...mapped] : mapped);
+      setHasMore((data || []).length === PAGE_SIZE);
     } catch (error) { console.error("Error:", error); setLeaderboard([]); }
     finally { setLoading(false); }
   };
@@ -75,27 +67,32 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
       setCurrentUser(userData.user);
       if (!userData.user) return;
 
-      const table = selectedPackage === "all" ? 'leaderboard_averages' : 'fair_package_leaderboard';
-      const scoreCol = selectedPackage === "all" ? 'avg_total' : 'total';
+      if (!selectedPackage) { setUserRank(null); return; }
 
       // Fetch only the current user's row
-      const userQuery = supabase.from(table).select(`user_id, ${scoreCol}`).eq('user_id', userData.user.id);
-      if (selectedPackage !== "all") userQuery.eq('package_id', selectedPackage);
-      const { data: userRows } = await userQuery.limit(1);
+      const { data: userRows } = await supabase
+        .from('fair_package_leaderboard')
+        .select('user_id, total')
+        .eq('user_id', userData.user.id)
+        .eq('package_id', selectedPackage)
+        .limit(1);
       const userStats: any = userRows?.[0];
       if (!userStats) { setUserRank(null); return; }
 
       // Count how many users scored strictly higher to determine rank
-      const countQuery = supabase.from(table).select('user_id', { count: 'exact', head: true }).gt(scoreCol, userStats[scoreCol]);
-      if (selectedPackage !== "all") countQuery.eq('package_id', selectedPackage);
-      const { count: above } = await countQuery;
+      const { count: above } = await supabase
+        .from('fair_package_leaderboard')
+        .select('user_id', { count: 'exact', head: true })
+        .eq('package_id', selectedPackage)
+        .gt('total', userStats.total);
 
       // Total participants
-      const totalQuery = supabase.from(table).select('user_id', { count: 'exact', head: true });
-      if (selectedPackage !== "all") totalQuery.eq('package_id', selectedPackage);
-      const { count: total } = await totalQuery;
+      const { count: total } = await supabase
+        .from('fair_package_leaderboard')
+        .select('user_id', { count: 'exact', head: true })
+        .eq('package_id', selectedPackage);
 
-      setUserRank({ position: (above ?? 0) + 1, total: total ?? 0, score: userStats[scoreCol] });
+      setUserRank({ position: (above ?? 0) + 1, total: total ?? 0, score: userStats.total });
     } catch (error) { console.error("Error:", error); }
   };
 
@@ -122,7 +119,6 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
             onChange={(e) => setSelectedPackage(e.target.value)}
             className="bg-transparent text-sm font-medium text-slate-700 dark:text-white focus:outline-none cursor-pointer appearance-none"
           >
-            <option value="all" className="bg-white dark:bg-slate-900">Semua Paket</option>
             {packages.map(pkg => <option key={pkg.id} value={pkg.id} className="bg-white dark:bg-slate-900">{pkg.title}</option>)}
           </select>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
