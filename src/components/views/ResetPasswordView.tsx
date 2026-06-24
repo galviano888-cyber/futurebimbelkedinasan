@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Lock, Loader2, CheckCircle2, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ export function ResetPasswordView() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  useState(() => {
+  useEffect(() => {
     // Check for error in hash (Supabase puts errors in hash fragment)
     const hash = window.location.hash;
     if (hash.includes("error_description=")) {
@@ -24,7 +24,7 @@ export function ResetPasswordView() {
       setUrlError(errorMsg);
       toast.error(errorMsg);
     }
-  });
+  }, []);
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();

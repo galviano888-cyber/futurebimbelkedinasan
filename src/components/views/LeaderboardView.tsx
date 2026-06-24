@@ -72,17 +72,28 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
       const { data: userData } = await supabase.auth.getUser();
       setCurrentUser(userData.user);
       if (!userData.user) return;
+
       const table = selectedPackage === "all" ? 'leaderboard_averages' : 'fair_package_leaderboard';
       const scoreCol = selectedPackage === "all" ? 'avg_total' : 'total';
-      const query = supabase.from(table).select(`user_id, ${scoreCol}`).order(scoreCol, { ascending: false });
-      if (selectedPackage !== "all") query.eq('package_id', selectedPackage);
-      const { data: allRanks } = await query;
-      if (allRanks) {
-        const position = allRanks.findIndex(r => r.user_id === userData.user?.id) + 1;
-        const userStats: any = allRanks.find(r => r.user_id === userData.user?.id);
-        if (position > 0 && userStats) setUserRank({ position, total: allRanks.length, score: userStats[scoreCol] });
-        else setUserRank(null);
-      }
+
+      // Fetch only the current user's row
+      const userQuery = supabase.from(table).select(`user_id, ${scoreCol}`).eq('user_id', userData.user.id);
+      if (selectedPackage !== "all") userQuery.eq('package_id', selectedPackage);
+      const { data: userRows } = await userQuery.limit(1);
+      const userStats: any = userRows?.[0];
+      if (!userStats) { setUserRank(null); return; }
+
+      // Count how many users scored strictly higher to determine rank
+      const countQuery = supabase.from(table).select('user_id', { count: 'exact', head: true }).gt(scoreCol, userStats[scoreCol]);
+      if (selectedPackage !== "all") countQuery.eq('package_id', selectedPackage);
+      const { count: above } = await countQuery;
+
+      // Total participants
+      const totalQuery = supabase.from(table).select('user_id', { count: 'exact', head: true });
+      if (selectedPackage !== "all") totalQuery.eq('package_id', selectedPackage);
+      const { count: total } = await totalQuery;
+
+      setUserRank({ position: (above ?? 0) + 1, total: total ?? 0, score: userStats[scoreCol] });
     } catch (error) { console.error("Error:", error); }
   };
 
@@ -173,7 +184,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
               <div className="flex items-center gap-2.5">
                 <TrendingUp className="w-4 h-4 text-blue-500" />
                 <h3 className="text-[14px] font-semibold text-slate-800 dark:text-white">Leaderboard</h3>
-                <span className="text-[11px] text-slate-400 dark:text-slate-500">Top 50</span>
+                <span className="text-[11px] text-slate-400 dark:text-slate-500">Top {PAGE_SIZE}</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-[11px] text-slate-400 dark:text-slate-500">Menampilkan {leaderboard.length} peserta</span>

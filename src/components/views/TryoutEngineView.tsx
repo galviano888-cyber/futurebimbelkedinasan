@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
+import { useTheme } from "@/components/theme-provider";
 
 interface TryoutEngineViewProps {
   packageId: string;
@@ -87,17 +88,9 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   const [cheatWarning, setCheatWarning] = useState<{ msg: string; count: number } | null>(null);
   const lastViolationTime = useRef<number>(0);
   const mountTime = useRef<number>(Date.now());
-  const [isDark, setIsDark] = useState(() =>
-    typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
-  );
-
-  const toggleTheme = useCallback(() => {
-    const root = document.documentElement;
-    const next = !root.classList.contains('dark');
-    root.classList.toggle('dark', next);
-    localStorage.setItem('theme', next ? 'dark' : 'light');
-    setIsDark(next);
-  }, []);
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const toggleTheme = useCallback(() => setTheme(isDark ? 'light' : 'dark'), [isDark, setTheme]);
 
   const remainingSeconds = () => (endTime ? Math.max(0, Math.floor((endTime - Date.now()) / 1000)) : 0);
 

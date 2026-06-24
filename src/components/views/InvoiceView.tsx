@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   Loader2,
@@ -29,8 +29,6 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
   const [qrisData, setQrisData] = useState<PakasirPaymentData | null>(null);
   const [generatingQris, setGeneratingQris] = useState(false);
   const [qrisError, setQrisError] = useState<string | null>(null);
-  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
-
   // Countdown timer — ikut QR expired_at kalau ada, fallback ke expiry_date transaksi
   const [timeLeft, setTimeLeft] = useState("");
 
@@ -178,7 +176,6 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
       });
 
       const json = await res.json();
-      console.log("pakasir-activate response:", json);
 
       if (res.ok && json.message === "OK") {
         toast.success("Pembayaran Berhasil!", {
@@ -397,7 +394,6 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
                         />
                       )}
                     </div>
-                    <canvas ref={qrCanvasRef} className="hidden" />
                   </div>
 
                   <div className="bg-blue-50 dark:bg-blue-500/10 rounded-2xl p-4 space-y-2 border border-blue-100 dark:border-blue-500/20">

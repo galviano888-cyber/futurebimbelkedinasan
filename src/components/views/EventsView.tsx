@@ -324,19 +324,19 @@ export function EventsView() {
       const uid = user?.id || null;
       setCurrentUserId(uid);
 
-      // Auto-expire
-      await supabase
-        .from("events")
-        .update({ is_active: false })
-        .eq("is_active", true)
-        .lt("end_date", new Date().toISOString());
-
       const { data: evData } = await supabase
         .from("events")
         .select("*, tryout_packages(id, name, category)")
         .order("created_at", { ascending: false });
 
-      setEvents(evData || []);
+      // Derive is_active from end_date client-side — auto-expire via DB trigger or cron, not from client
+      const now = new Date().toISOString();
+      const normalized = (evData || []).map((e: FBKEvent) => ({
+        ...e,
+        is_active: e.is_active && (!e.end_date || e.end_date > now),
+      }));
+
+      setEvents(normalized);
 
       // Fetch user's own results for all events
       if (uid && evData && evData.length > 0) {

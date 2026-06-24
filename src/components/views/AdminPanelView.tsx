@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
@@ -47,6 +47,8 @@ export function AdminPanelView() {
   const [selectedJsonFile, setSelectedJsonFile] = useState<File | null>(null);
   const [copiedTemplate, setCopiedTemplate] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({ open: false, title: '', message: '', onConfirm: () => {} });
+  const newPkgNameRef = useRef<HTMLInputElement>(null);
+  const newPkgCatRef = useRef<HTMLSelectElement>(null);
 
   const templateJSON = JSON.stringify({
     name: "Tryout SKD Seri 1 - 2026",
@@ -734,7 +736,7 @@ export function AdminPanelView() {
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nama Paket</label>
                       <input
-                        id="new-pkg-name"
+                        ref={newPkgNameRef}
                         type="text"
                         className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm font-medium placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
                         placeholder="Contoh: Tryout Akbar SKD 2026"
@@ -743,7 +745,7 @@ export function AdminPanelView() {
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Kategori</label>
                       <select
-                        id="new-pkg-cat"
+                        ref={newPkgCatRef}
                         className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm font-bold outline-none appearance-none"
                       >
                         {['SKD','TIU','TWK','TKP'].map(c => <option key={c} className="bg-slate-900">{c}</option>)}
@@ -756,8 +758,8 @@ export function AdminPanelView() {
                       <Button
                         className="flex-1 h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20"
                         onClick={async () => {
-                          const name = (document.getElementById('new-pkg-name') as HTMLInputElement).value;
-                          const cat = (document.getElementById('new-pkg-cat') as HTMLSelectElement).value;
+                          const name = newPkgNameRef.current?.value?.trim() ?? '';
+                          const cat = newPkgCatRef.current?.value ?? 'SKD';
                           if (!name) return toast.error("Nama paket harus diisi!");
                           const { data, error } = await supabase!.from('tryout_packages').insert({ name, category: cat, status: 'Draft' }).select().single();
                           if (error) return toast.error(error.message);

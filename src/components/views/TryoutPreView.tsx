@@ -50,6 +50,16 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
           techData = tech;
         }
 
+        // 3. Hitung jumlah soal dari tryout_questions
+        let questionCount = 0;
+        if (questionsId) {
+          const { count } = await supabase
+            .from('tryout_questions')
+            .select('id', { count: 'exact', head: true })
+            .eq('package_id', questionsId);
+          questionCount = count ?? 0;
+        }
+
         // Gabungkan data
         if (mainPkg) {
           setPkg({
@@ -58,7 +68,8 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
             duration_minutes: techData?.duration_minutes || 100,
             passing_grade_twk: techData?.passing_grade_twk || 65,
             passing_grade_tiu: techData?.passing_grade_tiu || 80,
-            passing_grade_tkp: techData?.passing_grade_tkp || 166
+            passing_grade_tkp: techData?.passing_grade_tkp || 166,
+            question_count: questionCount
           });
         } else {
           setError(`Paket dengan ID ${packageId.slice(0, 8)}... tidak ditemukan di sistem.`);
@@ -155,7 +166,9 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
                 </div>
                 <div>
                   <p className="text-[11px] text-slate-400 mb-1">Jumlah Soal</p>
-                  <p className="text-[14px] font-medium text-slate-800 dark:text-white leading-tight">110 Butir Soal SKD</p>
+                  <p className="text-[14px] font-medium text-slate-800 dark:text-white leading-tight">
+                    {pkg.question_count > 0 ? `${pkg.question_count} Butir Soal SKD` : 'Soal SKD'}
+                  </p>
                 </div>
               </div>
 
