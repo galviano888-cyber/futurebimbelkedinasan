@@ -172,11 +172,10 @@ export default function App() {
         // Hanya fetch data saat event yang relevan, bukan saat TOKEN_REFRESHED
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
           fetchAllData(s.user);
-          // Google OAuth: cek apakah user baru (belum punya nama lengkap di profiles)
-          // Hanya trigger dari onAuthStateChange, bukan dari google_callback handler
-          // supaya tidak double-trigger
-          const isGoogleCallback = new URLSearchParams(window.location.search).get('google_callback') === 'true';
-          if (event === 'SIGNED_IN' && s.user.app_metadata?.provider === 'google' && !isGoogleCallback) {
+
+          // Google OAuth: navigate ke dashboard dan cek nama lengkap
+          if (event === 'SIGNED_IN' && s.user.app_metadata?.provider === 'google') {
+            navigate('/dashboard', { replace: true });
             const { data: prof } = await supabase!.from('profiles').select('full_name').eq('id', s.user.id).single();
             if (!prof?.full_name) {
               setForceNameModal(true);
@@ -253,20 +252,10 @@ export default function App() {
         });
       }, 500);
     }
-    // Google OAuth callback — bersihkan param dan arahkan ke dashboard jika sudah login
+    // Google OAuth callback — bersihkan param dari URL, biarkan onAuthStateChange yang navigate
     if (params.get('google_callback') === 'true') {
-      navigate('/dashboard', { replace: true });
-      // Cek apakah user Google baru (belum punya nama lengkap)
-      if (supabase) {
-        supabase.auth.getUser().then(async ({ data: { user } }) => {
-          if (!user) return;
-          const { data: prof } = await supabase!.from('profiles').select('full_name').eq('id', user.id).single();
-          if (!prof?.full_name) {
-            setForceNameModal(true);
-            setIsLoginOpen(true);
-          }
-        });
-      }
+      // Hapus query param tanpa navigate dulu — session belum tentu siap saat ini
+      window.history.replaceState({}, '', window.location.pathname + window.location.hash);
     }
   }, [isAuthenticated, navigate]);
 
