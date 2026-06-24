@@ -106,6 +106,30 @@ export default function App() {
     user_metadata?: { full_name?: string; name?: string };
   }
 
+  const handleGoogleCallback = async (s: any) => {
+    if (!supabase || !s?.user) return;
+    const isGoogleUser = s.user.app_metadata?.provider === 'google' ||
+      s.user.app_metadata?.providers?.includes('google');
+    if (!isGoogleUser) return;
+
+    // Navigate ke dashboard
+    navigate('/dashboard', { replace: true });
+
+    // Simpan nama dari Google metadata kalau belum ada di profiles
+    const { data: prof } = await supabase.from('profiles').select('full_name').eq('id', s.user.id).single();
+    if (!prof?.full_name) {
+      const googleName = s.user.user_metadata?.full_name ||
+        s.user.user_metadata?.name ||
+        s.user.email?.split('@')[0] ||
+        'Siswa FBK';
+      await supabase.from('profiles').upsert(
+        { id: s.user.id, full_name: googleName },
+        { onConflict: 'id' }
+      );
+      setProfile((prev: any) => ({ ...prev, full_name: googleName }));
+    }
+  };
+
   const checkVerification = (user: AuthUser) => {
     if (!user) return;
     setIsVerified(!!(user.email_confirmed_at || user.confirmed_at));
@@ -160,41 +184,25 @@ export default function App() {
       return;
     }
 
+    // Ambil session awal — penting untuk SSR/refresh dan Google OAuth callback
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+      if (s) {
+        fetchAllData(s.user);
+        // Handle Google OAuth callback saat pertama load
+        handleGoogleCallback(s);
+      } else {
+        setLoading(false);
+      }
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
       setSession(s);
       if (s) {
-        if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
+        if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
           fetchAllData(s.user);
-
-          // Google OAuth callback: INITIAL_SESSION atau SIGNED_IN setelah redirect
-          const isGoogleUser = s.user.app_metadata?.provider === 'google';
-          const isOAuthCallback = window.location.hash.includes('access_token') ||
-            document.referrer.includes('accounts.google.com') ||
-            sessionStorage.getItem('supabase.auth.token') !== null;
-
-          if (isGoogleUser && (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && isOAuthCallback))) {
-            navigate('/dashboard', { replace: true });
-            const { data: prof } = await supabase!.from('profiles').select('full_name').eq('id', s.user.id).single();
-            if (!prof?.full_name) {
-              // Coba ambil nama dari Google user_metadata dulu
-              const googleName = s.user.user_metadata?.full_name || s.user.user_metadata?.name;
-              if (googleName) {
-                // Auto-simpan nama dari Google tanpa modal
-                await supabase!.from('profiles').upsert(
-                  { id: s.user.id, full_name: googleName },
-                  { onConflict: 'id' }
-                );
-                setProfile((prev: any) => ({ ...prev, full_name: googleName }));
-              } else {
-                // Tidak ada nama dari Google, pakai email sebagai fallback
-                const fallbackName = s.user.email?.split('@')[0] || 'Siswa FBK';
-                await supabase!.from('profiles').upsert(
-                  { id: s.user.id, full_name: fallbackName },
-                  { onConflict: 'id' }
-                );
-                setProfile((prev: any) => ({ ...prev, full_name: fallbackName }));
-              }
-            }
+          if (event === 'SIGNED_IN') {
+            handleGoogleCallback(s);
           }
         }
       } else {
