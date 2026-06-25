@@ -16,7 +16,7 @@ export function AdminLandingPageEditorView() {
     image: "https://images.unsplash.com/photo-1523240715632-d984bb4b990a?q=80&w=2070&auto=format&fit=crop"
   });
   const [features, setFeatures] = useState<any[]>([
-    { title: "Eksklusif: Mentor Kedinasan", desc: "Dibimbing langsung oleh Kakak tingkat yang telah berhasil lolos seleksi dengan strategi efektif." },
+    { title: "Tentor Berpengalaman Lolos SKD", desc: "Dibimbing langsung oleh tentor yang telah berhasil lolos SKD dengan skor tinggi dan strategi efektif." },
     { title: "Engine CAT Standar BKN", desc: "Uji kemampuan dengan platform simulasi presisi sesuai standar sistem CAT BKN asli." },
     { title: "Bank Soal Terupdate", desc: "Akses materi belajar dan bank soal yang telah disesuaikan dengan standar seleksi terbaru." }
   ]);

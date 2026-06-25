@@ -8,7 +8,7 @@ import { FBKLoader } from "@/components/ui/skeleton";
 import { Navbar } from "../landing/Navbar";
 import { HeroSection } from "../landing/HeroSection";
 import { FeaturesSection } from "../landing/FeaturesSection";
-import { TeamSection } from "../landing/TeamSection";
+
 import { TestimonialsSection } from "../landing/TestimonialsSection";
 import { PricingSection } from "../landing/PricingSection";
 import { FAQSection } from "../landing/FAQSection";
@@ -44,10 +44,10 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
     { q: "Apakah materi sesuai standar seleksi terbaru?", a: "Ya, seluruh materi dan bank soal kami diperbarui secara berkala mengikuti pola soal asli SKD dan FR (Field Report) terbaru." },
     { q: "Bagaimana sistem belajarnya?", a: "Sistem belajar dilakukan secara online melalui Dashboard khusus yang dilengkapi Simulasi CAT standar BKN, materi terstruktur, dan analisis hasil yang mendalam." },
     { q: "Apakah bisa diakses melalui Smartphone?", a: "Tentu saja! Platform FBK dirancang 100% responsif sehingga Anda bisa belajar dengan nyaman kapan saja dan di mana saja melalui HP, Tablet, maupun Laptop." },
-    { q: "Apakah ada grup diskusi atau mentor?", a: "Ya, untuk member Premium dan Platinum akan mendapatkan akses eksklusif ke grup diskusi dan pendampingan langsung oleh mentor berpengalaman." }
+    { q: "Apakah ada grup diskusi atau tentor?", a: "Ya, untuk member Premium dan Platinum akan mendapatkan akses eksklusif ke grup diskusi dan pendampingan langsung oleh tentor berpengalaman yang sudah lolos SKD." }
   ]);
   const [features, setFeatures] = useState<any[]>([
-    { title: "Mentor Kedinasan Eksklusif", desc: "Jangan menebak-nebak. Belajar langsung dari praktisi yang sudah menaklukkan gerbang kedinasan dengan strategi teruji." },
+    { title: "Tentor Berpengalaman Lolos SKD", desc: "Jangan menebak-nebak. Belajar langsung dari tentor yang sudah terbukti berhasil lolos SKD dengan skor tinggi dan strategi teruji." },
     { title: "Simulasi CAT Super Presisi", desc: "Rasakan atmosfer ujian sesungguhnya dengan sistem CAT yang 100% mengikuti standar sistem BKN terbaru." },
     { title: "Bank Soal Prediksi Akurat", desc: "Berhenti membuang waktu dengan soal lama. Kami menyediakan ribuan bank soal terupdate yang diprediksi keluar di seleksi tahun ini." },
     { title: "Sistem Anti-Cheat Canggih", desc: "Tryout kami dilindungi sistem anti-cheat otomatis yang mendeteksi tab switching, copy-paste, dan aktivitas mencurigakan. Hasilmu murni kemampuan sendiri — valid dan bisa dipercaya sebagai tolak ukur kesiapan sesungguhnya." },
@@ -152,7 +152,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
     <div className="min-h-[100dvh] bg-[#0f2750] text-white font-sans selection:bg-blue-400/40 overflow-x-hidden">
       <SEO
         title="Future Bimbel Kedinasan | Platform Tryout SKD & Bimbel Kedinasan Online Terpercaya"
-        description="Persiapan SKD kedinasan dengan tentor berpengalaman yang telah terbukti lolos. Simulasi tryout CAT standar BKN, bank soal TWK TIU TKP lengkap, dan pembahasan detail. Daftar gratis sekarang!"
+        description="Persiapan SKD kedinasan dengan tentor berpengalaman yang telah terbukti lolos SKD dengan skor tinggi. Simulasi tryout CAT standar BKN, bank soal TWK TIU TKP lengkap, dan pembahasan detail. Daftar gratis sekarang!"
         keywords="bimbel kedinasan, tryout skd online, simulasi cat bkn, soal twk tiu tkp, stmkg, ipdn, stan, stis, poltekip, poltekim, passing grade skd 2025 2026, bimbel online kedinasan, persiapan cpns kedinasan, ranking skd nasional"
         url="https://futurebimbelkedinasan.com"
         type="website"
@@ -179,7 +179,6 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
           />
         )}
         <TestimonialsSection testimonials={_testimonials} />
-        <TeamSection />
         <FAQSection faqs={faqs} />
         <Footer onLegalClick={handleLegalClick} hasPackages={activePackages.length > 0} />
       </div>
