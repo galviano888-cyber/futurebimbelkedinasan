@@ -47,8 +47,8 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
 
       if (!selectedPackage) return;
       const { data, error } = await supabase
-        .from('fair_package_leaderboard')
-        .select('user_id, full_name, package_id, twk, tiu, tkp, total, tryout_count, date')
+        .from('leaderboard_public')
+        .select('full_name, package_id, twk, tiu, tkp, total, tryout_count, date')
         .eq('package_id', selectedPackage)
         .order('total', { ascending: false })
         .range(from, to);
@@ -69,30 +69,21 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
 
       if (!selectedPackage) { setUserRank(null); return; }
 
-      // Fetch only the current user's row
-      const { data: userRows } = await supabase
-        .from('fair_package_leaderboard')
-        .select('user_id, total')
-        .eq('user_id', userData.user.id)
-        .eq('package_id', selectedPackage)
-        .limit(1);
-      const userStats: any = userRows?.[0];
-      if (!userStats) { setUserRank(null); return; }
+      const { data, error } = await supabase.rpc('get_user_rank', {
+        target_user_id: userData.user.id,
+        target_package_id: selectedPackage,
+      });
 
-      // Count how many users scored strictly higher to determine rank
-      const { count: above } = await supabase
-        .from('fair_package_leaderboard')
-        .select('user_id', { count: 'exact', head: true })
-        .eq('package_id', selectedPackage)
-        .gt('total', userStats.total);
+      if (error) throw error;
 
-      // Total participants
-      const { count: total } = await supabase
-        .from('fair_package_leaderboard')
-        .select('user_id', { count: 'exact', head: true })
-        .eq('package_id', selectedPackage);
+      const row: any = Array.isArray(data) ? data[0] : data;
+      if (!row) { setUserRank(null); return; }
 
-      setUserRank({ position: (above ?? 0) + 1, total: total ?? 0, score: userStats.total });
+      setUserRank({
+        position: Number(row.rank_position),
+        total: Number(row.total_participants),
+        score: Number(row.score),
+      });
     } catch (error) { console.error("Error:", error); }
   };
 

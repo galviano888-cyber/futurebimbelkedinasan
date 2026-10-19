@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import {
   Bell,
   LogOut,
@@ -81,7 +81,7 @@ export function Header({
     if (!supabase) return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    await supabase.from('notifications').update({ is_read: true }).eq('user_id', user.id);
+    await supabase.from('notifications').update({ read: true }).eq('user_id', user.id);
     fetchNotifications();
   };
 
@@ -89,7 +89,7 @@ export function Header({
     if (supabase) await supabase.auth.signOut();
   };
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <header className="h-14 shrink-0 flex items-center px-5 justify-between sticky top-0 z-30 pt-[env(safe-area-inset-top,0px)] bg-blue-950 dark:bg-[#1a1f2e] backdrop-blur-sm border-b border-blue-900/50 dark:border-white/[0.07]">
@@ -148,11 +148,11 @@ export function Header({
                   notifications.map((n) => (
                     <div key={n.id} className={cn(
                       "px-4 py-3 border-b border-slate-50 dark:border-white/[0.03] last:border-0 hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors",
-                      !n.is_read && "bg-blue-50/40 dark:bg-blue-500/[0.04]"
+                      !n.read && "bg-blue-50/40 dark:bg-blue-500/[0.04]"
                     )}>
                       <div className="flex items-start gap-2.5">
-                        {!n.is_read && <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />}
-                        <div className={!n.is_read ? "" : "ml-4"}>
+                        {!n.read && <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />}
+                        <div className={!n.read ? "" : "ml-4"}>
                           <p className="text-[13px] font-medium text-slate-800 dark:text-white">{n.title}</p>
                           <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{n.message}</p>
                           <p className="text-[11px] text-slate-400 dark:text-slate-600 mt-1.5">

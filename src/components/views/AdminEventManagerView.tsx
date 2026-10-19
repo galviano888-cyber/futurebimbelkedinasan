@@ -82,7 +82,7 @@ export function AdminEventManagerView() {
           data.map(async (ev: Event) => {
             const { count } = await supabase!
               .from("event_results")
-              .select("*", { count: "exact", head: true })
+              .select("id", { count: "exact", head: true })
               .eq("event_id", ev.id);
             counts[ev.id] = count || 0;
           })
@@ -100,11 +100,15 @@ export function AdminEventManagerView() {
     if (!supabase) return;
     const { data } = await supabase
       .from("tryout_packages")
-      .select("id, name, category, tryout_questions(count)")
+      .select("id, name, category")
       .eq("status", "Published")
       .order("name");
     if (data) {
-      setPackages(data.map((p: any) => ({ ...p, question_count: p.tryout_questions?.[0]?.count ?? 0 })));
+      const { data: counts } = await supabase
+        .from("tryout_question_counts")
+        .select("package_id, question_count");
+      const countMap = new Map((counts || []).map((c: any) => [c.package_id, c.question_count]));
+      setPackages(data.map((p: any) => ({ ...p, question_count: countMap.get(p.id) ?? 0 })));
     }
   };
 

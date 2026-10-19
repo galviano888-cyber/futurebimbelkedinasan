@@ -22,6 +22,7 @@ interface Package {
   product_type: 'SATUAN' | 'BUNDLE' | 'INTENSIF';
   is_active: boolean;
   cover_image_url?: string | null;
+  content_count?: number;
   contents: PackageContent[];
 }
 
@@ -44,7 +45,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
       const { data: { user } } = await supabase.auth.getUser();
       const { data: allPackages, error: pkgError } = await supabase
         .from('packages')
-        .select('*, cover_image_url, contents:package_contents(*)')
+        .select('*, cover_image_url')
         .eq('is_active', true);
       let ownedPackageIds: string[] = [];
       if (user) {
@@ -52,9 +53,17 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
         if (owned) ownedPackageIds = owned.map(item => item.package_id);
       }
       if (!pkgError && allPackages) {
+        const { data: counts } = await supabase
+          .from('package_content_counts')
+          .select('package_id, content_count');
+        const countMap = new Map((counts || []).map((c: any) => [c.package_id, c.content_count]));
         const filtered = allPackages
           .filter((p: any) => p.id !== '11111111-1111-1111-1111-111111111111' && !ownedPackageIds.includes(p.id))
-          .map((p: any) => ({ ...p, contents: (p.contents || []).sort((a: any, b: any) => a.order_index - b.order_index) }));
+          .map((p: any) => ({
+            ...p,
+            content_count: countMap.get(p.id) ?? 0,
+            contents: [],
+          }));
         setPackages(filtered as Package[]);
       }
     } catch (error) {
@@ -87,10 +96,9 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
       }
 
       if (pkg.price === 0) {
-        const { error } = await supabase.from('user_packages').insert([{ user_id: user.id, package_id: pkg.id }]);
+        const { error } = await supabase.rpc('claim_free_package', { p_package_id: pkg.id });
         if (error) {
-          if (error.code === '23505') toast.error("Anda sudah memiliki paket ini!");
-          else toast.error("Gagal menambahkan paket: " + error.message);
+          toast.error("Gagal menambahkan paket: " + error.message);
         } else {
           toast.success("Paket gratis berhasil ditambahkan!", {
             description: "Cek menu 'Paket Saya' untuk mulai belajar.",
@@ -128,34 +136,21 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
         return;
       }
 
-      // Buat transaksi baru — gunakan crypto.randomUUID() untuk entropy tinggi dan anti-collision
-      const invoice_id = `INV-SKD-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${crypto.randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()}`;
-      const expiry_date = new Date();
-      expiry_date.setHours(expiry_date.getHours() + 48);
+      // Harga dan invoice dibuat di server. Client tidak pernah mengirim amount.
+      const { data: orderData, error: txError } = await supabase.rpc('create_order', {
+        p_package_id: pkg.id,
+      });
 
-      const { data: newTx, error: txError } = await supabase
-        .from('transactions')
-        .insert([{ id: crypto.randomUUID(), user_id: user.id, package_id: pkg.id, amount: pkg.price, invoice_id, status: 'pending', expiry_date: expiry_date.toISOString() }])
-        .select().single();
+      if (txError) throw txError;
 
-      // Handle race condition: jika insert gagal karena unique constraint (transaksi duplikat),
-      // ambil transaksi pending yang sudah ada dan lanjutkan
-      if (txError) {
-        if (txError.code === '23505') {
-          const { data: raceTx } = await supabase
-            .from('transactions').select('id')
-            .eq('user_id', user.id).eq('package_id', pkg.id).eq('status', 'pending')
-            .order('created_at', { ascending: false }).limit(1).maybeSingle();
-          if (raceTx) { onPurchaseSuccess?.(raceTx.id); return; }
-        }
-        throw txError;
-      }
+      const newTx = Array.isArray(orderData) ? orderData[0] : orderData;
+      if (!newTx?.transaction_id) throw new Error("Gagal membuat invoice.");
 
       toast.success("Invoice Berhasil Dibuat!", {
         description: "Selesaikan pembayaran sesuai petunjuk pada invoice.",
         duration: 5000
       });
-      if (newTx) onPurchaseSuccess?.(newTx.id);
+      onPurchaseSuccess?.(newTx.transaction_id);
 
     } catch (err: any) {
       toast.error(`Gagal memproses: ${err.message}`);
@@ -216,7 +211,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                   <ExpandableDesc text={pkg.description || "Dapatkan akses penuh ke materi dan tryout kualitas terbaik."} />
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-600 text-[10px] font-bold">
-                      <FileEdit className="w-3 h-3" /> {pkg.contents?.length || 0} Konten
+                      <FileEdit className="w-3 h-3" /> {pkg.content_count ?? pkg.contents?.length ?? 0} Konten
                     </div>
                     {pkg.product_type === 'SATUAN' && (
                       <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-600 text-[10px] font-bold">

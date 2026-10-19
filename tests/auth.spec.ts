@@ -20,8 +20,8 @@ test('can open login modal', async ({ page }) => {
   // Wait for loading screen to disappear
   await expect(page.getByText(/Menyiapkan Pengalaman Belajar/i)).not.toBeVisible({ timeout: 15000 });
 
-  // Click login/enter button (matches "MASUK SEKARANG")
-  await page.getByRole('button', { name: /MASUK SEKARANG/i }).first().click();
+  // Click the navbar login button.
+  await page.getByRole('button', { name: /^Masuk$/i }).first().click();
 
   // Check if Auth Modal is visible
   await expect(page.getByText(/Selamat Datang Kembali/i)).toBeVisible();

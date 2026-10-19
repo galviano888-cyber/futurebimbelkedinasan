@@ -259,10 +259,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
               // Fetch soal dulu sebelum submit agar scoring tidak kosong
               toast.error("Waktu sudah habis! Mengirim jawaban otomatis...");
               const { data: expiredQData, error: expiredQError } = await supabase
-                .from('tryout_questions')
-                .select('id, number, category, sub_category, question_text, question_image_url, option_images, options, correct_answer, tkp_scores, explanation, fast_tips')
-                .eq('package_id', questionsId)
-                .order('number', { ascending: true });
+                .rpc('get_exam_questions', { p_tryout_id: questionsId });
               if (!expiredQError && expiredQData && expiredQData.length > 0) {
                 setQuestions(expiredQData);
                 setTimeout(() => {
@@ -284,10 +281,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         }
 
         const { data, error } = await supabase
-          .from('tryout_questions')
-          .select('id, number, category, sub_category, question_text, question_image_url, option_images, options, correct_answer, tkp_scores, explanation, fast_tips')
-          .eq('package_id', questionsId)
-          .order('number', { ascending: true });
+          .rpc('get_exam_questions', { p_tryout_id: questionsId });
 
         if (error) throw error;
         if (!data || data.length === 0) {
@@ -364,21 +358,35 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
       if (rpcError) throw rpcError;
 
+      // Set-returning functions come back as an array from PostgREST.
+      const resultRow: any = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (!resultRow) throw new Error("Hasil tryout tidak diterima dari server.");
+
       // Clear persistence on success
       if (user) {
         localStorage.removeItem(`to_endtime_${user.id}_${questionsId}`);
         localStorage.removeItem(`to_answers_${user.id}_${questionsId}`);
       }
 
+      let reviewQuestions = questions;
+      if (resultRow.id) {
+        const { data: reviewData } = await supabase.rpc('get_tryout_review', {
+          p_result_id: resultRow.id,
+        });
+        if (Array.isArray(reviewData) && reviewData.length > 0) {
+          reviewQuestions = reviewData;
+        }
+      }
+
       onFinish({
-        ...rpcData,
-        twkScore: rpcData?.twk || 0,
-        tiuScore: rpcData?.tiu || 0,
-        tkpScore: rpcData?.tkp || 0,
-        totalScore: rpcData?.total || 0,
-        twkCorrect: rpcData?.twk_correct || 0,
-        tiuCorrect: rpcData?.tiu_correct || 0,
-        tkpCorrect: rpcData?.tkp_correct || 0,
+        ...resultRow,
+        twkScore: resultRow.twk || 0,
+        tiuScore: resultRow.tiu || 0,
+        tkpScore: resultRow.tkp || 0,
+        totalScore: resultRow.total || 0,
+        twkCorrect: resultRow.twk_correct || 0,
+        tiuCorrect: resultRow.tiu_correct || 0,
+        tkpCorrect: resultRow.tkp_correct || 0,
         package_id: packageId,
         tryout_id: questionsId,
         user_id: user.id,
@@ -390,7 +398,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         twkMax: questions.filter(q => q.category === 'TWK').length * 5,
         tiuMax: questions.filter(q => q.category === 'TIU').length * 5,
         tkpMax: questions.filter(q => q.category === 'TKP').length * 5,
-        questions: questions // Pass questions for review
+        questions: reviewQuestions // Full questions (with keys) for review
       });
     } catch (err: any) {
       console.error("Error submitting tryout:", err);

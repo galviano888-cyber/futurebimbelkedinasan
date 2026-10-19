@@ -25,7 +25,10 @@
   - DELETE: authenticated users can only delete their own records
 */
 
-CREATE TABLE IF NOT EXISTS tryout_results (
+DO $$
+BEGIN
+  IF to_regclass('public.tryout_results') IS NULL THEN
+    CREATE TABLE public.tryout_results (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   date date NOT NULL,
   package_name text NOT NULL,
@@ -35,30 +38,33 @@ CREATE TABLE IF NOT EXISTS tryout_results (
   total integer GENERATED ALWAYS AS (twk + tiu + tkp) STORED,
   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
   created_at timestamptz DEFAULT now()
-);
+    );
 
-ALTER TABLE tryout_results ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.tryout_results ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view own tryout results"
-  ON tryout_results FOR SELECT
+      ON public.tryout_results FOR SELECT
   TO authenticated
   USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can insert own tryout results"
-  ON tryout_results FOR INSERT
+      ON public.tryout_results FOR INSERT
   TO authenticated
   WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can update own tryout results"
-  ON tryout_results FOR UPDATE
+      ON public.tryout_results FOR UPDATE
   TO authenticated
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can delete own tryout results"
-  ON tryout_results FOR DELETE
+      ON public.tryout_results FOR DELETE
   TO authenticated
   USING (auth.uid() = user_id);
 
-CREATE INDEX IF NOT EXISTS tryout_results_user_id_idx ON tryout_results(user_id);
-CREATE INDEX IF NOT EXISTS tryout_results_date_idx ON tryout_results(date);
+    CREATE INDEX IF NOT EXISTS tryout_results_user_id_idx ON public.tryout_results(user_id);
+    CREATE INDEX IF NOT EXISTS tryout_results_date_idx ON public.tryout_results(date);
+  END IF;
+END;
+$$;

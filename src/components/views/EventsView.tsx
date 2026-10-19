@@ -30,7 +30,7 @@ interface EventResult {
   twk: number;
   tiu: number;
   tkp: number;
-  answers: Record<string, string>;
+  answers?: Record<string, string>;
   finished_at: string;
   profiles?: { full_name: string | null; email: string };
 }
@@ -88,13 +88,14 @@ function EventLeaderboard({ eventId, currentUserId }: { eventId: string; current
     if (!supabase) return;
     setLoading(true);
     try {
-      const { data } = await supabase
-        .from("event_results")
-        .select("*, profiles(full_name, email)")
-        .eq("event_id", eventId)
-        .order("total", { ascending: false })
-        .limit(50);
-      setResults(data || []);
+      const { data } = await supabase.rpc("get_event_leaderboard", {
+        p_event_id: eventId,
+      });
+      const mapped = (data || []).map((row: any) => ({
+        ...row,
+        profiles: { full_name: row.full_name, email: "" },
+      }));
+      setResults(mapped);
     } finally {
       setLoading(false);
     }
@@ -342,7 +343,7 @@ export function EventsView() {
       if (uid && evData && evData.length > 0) {
         const { data: resultData } = await supabase
           .from("event_results")
-          .select("*")
+          .select("id, event_id, user_id, total, twk, tiu, tkp, finished_at")
           .eq("user_id", uid)
           .in("event_id", evData.map((e: FBKEvent) => e.id));
         if (resultData) {

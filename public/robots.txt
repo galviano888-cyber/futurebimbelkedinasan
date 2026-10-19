@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /paket-saya
+Disallow: /profile
+Disallow: /settings
+Disallow: /transactions
+Disallow: /invoice
+Disallow: /tryout-pre
+Disallow: /tryout-engine
+Disallow: /tryout-result
+Disallow: /tryout-review
+Disallow: /event-engine
+Disallow: /x7k2m9qp4n8vw3js
+
+Sitemap: https://futurebimbelkedinasan.com/sitemap.xml

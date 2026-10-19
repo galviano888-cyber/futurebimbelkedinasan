@@ -84,7 +84,10 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   };
 
   const fetchSiteSettings = async () => {
-    if (!supabase) return;
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
     try {
       const { data, error } = await supabase.from('site_settings').select('*');
       

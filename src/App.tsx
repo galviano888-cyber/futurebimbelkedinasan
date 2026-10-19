@@ -58,7 +58,14 @@ export default function App() {
   const [profile, setProfile] = useState<any>(null);
   const [data, setData] = useState<TryoutRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tryoutResult, setTryoutResult] = useState<any>(null);
+  const [tryoutResult, setTryoutResult] = useState<any>(() => {
+    try {
+      const raw = sessionStorage.getItem("fbk_tryout_result");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [forceNameModal, setForceNameModal] = useState(false);
@@ -147,16 +154,17 @@ export default function App() {
     try {
       const { data: pData } = await supabase
         .from('profiles')
-        .select('id, full_name, email, avatar_url, phone, created_at')
+        .select('id, full_name, email, phone, created_at')
         .eq('id', user.id)
         .single();
       if (signal?.aborted) return;
       if (pData) setProfile(pData);
 
       const { data: results, error } = await supabase
-        .from("fair_package_leaderboard")
+        .from("tryout_results")
         .select('id, user_id, package_id, tryout_id, date, package_name, twk, tiu, tkp, total, answers, score_details')
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
 
       if (signal?.aborted) return;
       if (!error && Array.isArray(results)) {
@@ -232,7 +240,9 @@ export default function App() {
         localStorage.removeItem("fbk_active_page");
         localStorage.removeItem("fbk_active_package_id");
         localStorage.removeItem("fbk_active_questions_id");
-        
+        sessionStorage.removeItem("fbk_tryout_result");
+        setTryoutResult(null);
+
         if (event === 'SIGNED_OUT') {
           navigate('/');
         }
@@ -311,6 +321,11 @@ export default function App() {
 
   const handleTryoutComplete = (result: any) => {
     setTryoutResult(result);
+    try {
+      sessionStorage.setItem("fbk_tryout_result", JSON.stringify(result));
+    } catch {
+      // Ignore quota/storage errors.
+    }
     navigate('/tryout-result');
     // Clear tryout session persistence
     localStorage.removeItem("fbk_active_page");
@@ -320,27 +335,31 @@ export default function App() {
     if (session?.user) fetchAllData(session.user);
   };
 
+  const clearTryoutResult = () => {
+    sessionStorage.removeItem("fbk_tryout_result");
+    setTryoutResult(null);
+  };
+
   const handleHistoryReview = async (record: TryoutRecord) => {
     if (!supabase) return;
     const toastId = toast.loading("Memuat pembahasan...");
     try {
-      let { data: questionsData, error } = await supabase
-        .rpc('get_tryout_review', { target_result_id: record.id });
+      const { data: questionsData, error } = await supabase
+        .rpc('get_tryout_review', { p_result_id: record.id });
 
-      if (error || !questionsData || questionsData.length === 0) {
-        const { data: manualData } = await supabase
-          .from('tryout_questions')
-          .select('*')
-          .eq('package_id', record.tryoutId)
-          .order('number', { ascending: true });
-        questionsData = manualData;
-      }
+      if (error) throw error;
 
       if (questionsData) {
-        setTryoutResult({
+        const reviewPayload = {
           ...record,
           questions: questionsData,
-        });
+        };
+        setTryoutResult(reviewPayload);
+        try {
+          sessionStorage.setItem("fbk_tryout_result", JSON.stringify(reviewPayload));
+        } catch {
+          // Ignore quota/storage errors.
+        }
         toast.success("Pembahasan siap!", { id: toastId });
         navigate("/tryout-review");
       } else {
@@ -441,8 +460,8 @@ export default function App() {
                 ? <TryoutEngineView packageId={activePackageId} questionsId={questionsId} onFinish={handleTryoutComplete} onExit={() => navigate("/dashboard")} />
                 : <Navigate to="/dashboard" replace />
         } />
-        <Route path="/tryout-result" element={tryoutResult ? <TryoutResultView result={tryoutResult} packageId={activePackageId!} onBack={() => navigate("/dashboard")} onReview={() => navigate("/tryout-review")} /> : <Navigate to="/dashboard" replace />} />
-        <Route path="/tryout-review" element={tryoutResult ? <TryoutReviewView result={tryoutResult} questions={tryoutResult.questions || []} onBack={() => navigate("/dashboard")} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/tryout-result" element={tryoutResult ? <TryoutResultView result={tryoutResult} packageId={activePackageId!} onBack={() => { clearTryoutResult(); navigate("/dashboard"); }} onReview={() => navigate("/tryout-review")} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/tryout-review" element={tryoutResult ? <TryoutReviewView result={tryoutResult} questions={tryoutResult.questions || []} onBack={() => { clearTryoutResult(); navigate("/dashboard"); }} /> : <Navigate to="/dashboard" replace />} />
         
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -68,14 +68,20 @@ export function InvoiceView({ transactionId, onBack }: InvoiceViewProps) {
   // Restore qrisData dari DB setelah fetch, atau auto-generate kalau belum ada
   useEffect(() => {
     if (!transaction) return;
-    if (transaction.pakasir_data) {
-      // QR sudah pernah dibuat, restore dari DB
-      setQrisData(transaction.pakasir_data as PakasirPaymentData);
+
+    const expectedAmount = Number(transaction.price_snapshot ?? transaction.amount);
+    const stored = transaction.pakasir_data as PakasirPaymentData | null;
+    const storedIsValid = !!stored && Number(stored.total_payment) >= expectedAmount;
+
+    if (storedIsValid) {
+      // QR sudah pernah dibuat untuk nominal yang benar.
+      setQrisData(stored);
     } else if (transaction.status === 'pending' && !qrisData && !generatingQris) {
-      // QR belum pernah dibuat, auto-generate
+      // QR belum ada, atau nominalnya sudah tidak sesuai.
+      setQrisData(null);
       handleGenerateQris();
     }
-  }, [transaction?.id]);
+  }, [transaction?.id, transaction?.amount, transaction?.price_snapshot]);
 
   // Countdown timer — pakai expired_at dari QR jika ada, fallback ke expiry_date transaksi
   useEffect(() => {

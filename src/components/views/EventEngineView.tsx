@@ -35,21 +35,15 @@ export function EventEngineView() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user");
 
-      // Save result to event_results
-      const { error } = await supabase.from("event_results").insert({
-        event_id: context.eventId,
-        user_id: user.id,
-        total: result.totalScore ?? result.total ?? 0,
-        twk: result.twkScore ?? result.twk ?? 0,
-        tiu: result.tiuScore ?? result.tiu ?? 0,
-        tkp: result.tkpScore ?? result.tkp ?? 0,
-        answers: result.answers || {},
-        score_details: result.score_details || null,
-        finished_at: new Date().toISOString(),
+      if (!result.id) throw new Error("Hasil tryout belum tersimpan.");
+
+      // The event result copies the server-scored tryout result.
+      const { error } = await supabase.rpc("submit_event_result", {
+        p_event_id: context.eventId,
+        p_result_id: result.id,
       });
 
       if (error) {
-        // If duplicate (user already submitted), just continue
         if (error.code === "23505") {
           toast.info("Kamu sudah pernah mengikuti event ini.");
         } else {

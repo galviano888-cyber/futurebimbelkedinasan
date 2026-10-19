@@ -79,7 +79,7 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
       if (foundPackage) {
         const pkg = Array.isArray(foundPackage.packages) ? foundPackage.packages[0] : foundPackage.packages;
         if (pkg) {
-          const expiryDate = new Date(foundPackage.created_at || new Date());
+          const expiryDate = new Date(foundPackage.activated_at || foundPackage.created_at || new Date());
           expiryDate.setFullYear(expiryDate.getFullYear() + 1);
           setActivePackageData({ id: pkg.id, name: pkg.title, description: pkg.description || "Program bimbingan intensif persiapan sekolah kedinasan.", totalSoal: 0, duration: 100, expiresAt: expiryDate.toISOString(), category: "Paket SKD" });
           const { data: contents } = await supabase.from('package_contents').select('id').eq('package_id', pkg.id);

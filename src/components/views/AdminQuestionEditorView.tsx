@@ -68,21 +68,9 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
     if (!supabase) return;
     setLoading(true);
     try {
-      // Try both tables for backward compatibility
-      let { data, error } = await supabase
-        .from('tryout_questions')
-        .select('*')
-        .eq('package_id', packageId)
-        .order('number', { ascending: true });
-
-      if ((!data || data.length === 0) && !error) {
-        const { data: oldData } = await supabase
-          .from('questions')
-          .select('*')
-          .eq('package_id', packageId)
-          .order('order_index', { ascending: true });
-        if (oldData) data = oldData;
-      }
+      const { data, error } = await supabase.rpc('admin_get_questions', {
+        p_package_id: packageId,
+      });
 
       if (error) throw error;
       setQuestions(data || []);

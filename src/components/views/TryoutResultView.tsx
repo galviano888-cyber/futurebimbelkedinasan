@@ -53,19 +53,22 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
   const fetchRank = async () => {
     if (!supabase) return;
     try {
-      const { count: totalCount } = await supabase
-        .from('fair_package_leaderboard')
-        .select('*', { count: 'exact', head: true })
-        .eq('package_id', packageId);
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
 
-      const { count: rankPosition } = await supabase
-        .from('fair_package_leaderboard')
-        .select('*', { count: 'exact', head: true })
-        .eq('package_id', packageId)
-        .gte('total', result.totalScore);
+      const { data, error } = await supabase.rpc('get_user_rank', {
+        target_user_id: userData.user.id,
+        target_package_id: packageId,
+      });
 
-      if (totalCount !== null && rankPosition !== null) {
-        setRank({ position: rankPosition, total: totalCount });
+      if (error) throw error;
+
+      const row: any = Array.isArray(data) ? data[0] : data;
+      if (row) {
+        setRank({
+          position: Number(row.rank_position),
+          total: Number(row.total_participants),
+        });
       }
     } catch (err) {
       console.error("Error fetching rank:", err);

@@ -1,0 +1,43 @@
+project_id = "lglqbxaoxkdsfrqvuplq"
+
+[api]
+enabled = true
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[studio]
+enabled = true
+
+[functions.pakasir-create]
+verify_jwt = true
+
+[functions.pakasir-status]
+verify_jwt = true
+
+[functions.pakasir-activate]
+verify_jwt = true
+
+[functions.pakasir-webhook]
+verify_jwt = false
+
+[auth]
+enabled = true
+site_url = "https://futurebimbelkedinasan.com"
+additional_redirect_urls = [
+  "https://futurebimbelkedinasan.com",
+  "https://futurebimbelkedinasan.com/**",
+  "http://localhost:5173",
+  "http://localhost:5173/**"
+]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true

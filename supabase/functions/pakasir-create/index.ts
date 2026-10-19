@@ -57,7 +57,7 @@ serve(async (req: Request) => {
     // ── 3. Ambil transaksi dari DB (amount dari DB, bukan dari client) ──────
     const { data: transaction, error: txError } = await supabase
       .from("transactions")
-      .select("id, user_id, invoice_id, amount, status, payment_method")
+      .select("id, user_id, invoice_id, amount, price_snapshot, status, payment_method")
       .eq("invoice_id", invoiceId)
       .single();
 
@@ -91,6 +91,22 @@ serve(async (req: Request) => {
       });
     }
 
+    // Amount selalu dari snapshot harga saat order dibuat.
+    const expectedAmount = Number(transaction.price_snapshot ?? transaction.amount);
+    if (!Number.isFinite(expectedAmount) || expectedAmount <= 0) {
+      return new Response(JSON.stringify({ error: "Nominal transaksi tidak valid" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 409,
+      });
+    }
+
+    if (Number(transaction.amount) !== expectedAmount) {
+      await supabase
+        .from("transactions")
+        .update({ amount: expectedAmount, updated_at: new Date().toISOString() })
+        .eq("id", transaction.id);
+    }
+
     // ── 4. Buat QRIS di Pakasir ──────────────────────────────────────────
     const pakasirRes = await fetch(
       "https://app.pakasir.com/api/transactioncreate/qris",
@@ -100,7 +116,7 @@ serve(async (req: Request) => {
         body: JSON.stringify({
           project: PAKASIR_SLUG,
           order_id: transaction.invoice_id, // dari DB
-          amount: transaction.amount,        // dari DB
+          amount: expectedAmount,            // dari DB (snapshot)
           api_key: PAKASIR_API_KEY,
         }),
       }
@@ -134,6 +150,12 @@ serve(async (req: Request) => {
         updated_at: new Date().toISOString(),
       })
       .eq("id", transaction.id);
+
+    await supabase.from("payment_events").insert({
+      transaction_id: transaction.id,
+      event_type: "qris_created",
+      payload: { amount: expectedAmount, total_payment: p.total_payment },
+    });
 
     return new Response(JSON.stringify({ data: pakasirData }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

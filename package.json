@@ -9,7 +9,11 @@
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "test:e2e": "playwright test",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "db:push": "supabase db push --linked",
+    "db:diff": "supabase db diff --linked",
+    "db:reset": "supabase db reset",
+    "functions:deploy": "supabase functions deploy pakasir-create pakasir-status pakasir-activate && supabase functions deploy pakasir-webhook --no-verify-jwt"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

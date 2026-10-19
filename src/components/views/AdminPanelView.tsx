@@ -9,6 +9,7 @@ import { AdminProductEditorView } from "./AdminProductEditorView";
 import { AdminUserManager } from "./AdminUserManager";
 import { AdminTransactionManager } from "./AdminTransactionManager";
 import { AdminBroadcastView } from "./AdminBroadcastView";
+import { AdminLandingPageEditorView } from "./AdminLandingPageEditorView";
 
 import { AdminEventManagerView } from "./AdminEventManagerView";
 import { Toaster, toast } from "sonner";
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { id: 'dashboard', label: 'Bank Soal', icon: Database, group: 'Konten' },
   { id: 'sales-packages', label: 'Produk', icon: ShoppingCart, group: 'Konten' },
+  { id: 'landing', label: 'Landing Page', icon: Edit2, group: 'Konten' },
   { id: 'events', label: 'Events', icon: Calendar, group: 'Konten' },
 
   { id: 'users', label: 'Siswa', icon: Users, group: 'Data' },
@@ -30,7 +32,7 @@ export function AdminPanelView() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-package' | 'edit-questions' | 'sales-packages' | 'edit-product' | 'transactions' | 'users' | 'broadcast' | 'events'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-package' | 'edit-questions' | 'sales-packages' | 'edit-product' | 'transactions' | 'users' | 'broadcast' | 'events' | 'landing'>('dashboard');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [packages, setPackages] = useState<any[]>([]);
@@ -162,12 +164,16 @@ export function AdminPanelView() {
     // Ambil jumlah soal per paket sekaligus
     const { data, error } = await supabase
       .from('tryout_packages')
-      .select('*, tryout_questions(count)')
+      .select('*')
       .order('created_at', { ascending: false });
     if (!error && data) {
+      const { data: counts } = await supabase
+        .from('tryout_question_counts')
+        .select('package_id, question_count');
+      const countMap = new Map((counts || []).map((c: any) => [c.package_id, c.question_count]));
       const enriched = data.map((p: any) => ({
         ...p,
-        question_count: p.tryout_questions?.[0]?.count ?? 0
+        question_count: countMap.get(p.id) ?? 0
       }));
       setPackages(enriched);
       setFilteredPackages(enriched);
@@ -940,6 +946,7 @@ export function AdminPanelView() {
             {currentView === 'transactions' && <AdminTransactionManager />}
             {currentView === 'broadcast' && <AdminBroadcastView />}
             {currentView === 'events' && <AdminEventManagerView />}
+            {currentView === 'landing' && <AdminLandingPageEditorView />}
 
             {currentView === 'edit-package' && selectedPackageId && (
               <AdminPackageEditorView packageId={selectedPackageId} onBack={() => { setCurrentView('sales-packages'); fetchSalesPackages(); }} />
