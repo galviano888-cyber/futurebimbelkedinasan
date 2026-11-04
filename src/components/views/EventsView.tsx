@@ -25,7 +25,7 @@ interface FBKEvent {
 interface EventResult {
   id: string;
   event_id: string;
-  user_id: string;
+  user_id?: string;
   total: number;
   twk: number;
   tiu: number;
@@ -343,7 +343,7 @@ export function EventsView() {
       if (uid && evData && evData.length > 0) {
         const { data: resultData } = await supabase
           .from("event_results")
-          .select("id, event_id, user_id, total, twk, tiu, tkp, finished_at")
+          .select("id, event_id, total, twk, tiu, tkp, finished_at")
           .eq("user_id", uid)
           .in("event_id", evData.map((e: FBKEvent) => e.id));
         if (resultData) {
