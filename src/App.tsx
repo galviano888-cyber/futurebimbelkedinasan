@@ -507,7 +507,7 @@ export default function App() {
 
     return (
       <div className={`h-[100dvh] ${bgClass} overflow-hidden transition-colors duration-500`}>
-        <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={isPrivatePage} />
+      {isPrivatePage && <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex />}
         <Toaster position="top-center" richColors />
         <main className="h-full overflow-y-auto custom-scrollbar">
           <ErrorBoundary>
@@ -522,7 +522,7 @@ export default function App() {
 
   return (
     <div className="h-[100dvh] app-surface dark:bg-[#0b0b0e] flex flex-col lg:flex-row overflow-hidden transition-colors duration-500">
-      <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={isPrivatePage} />
+      {isPrivatePage && <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex />}
       <Toaster position="top-center" richColors />
       {/* Offline Banner */}
       {!isOnline && (

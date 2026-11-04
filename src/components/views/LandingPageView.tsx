@@ -157,7 +157,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
         title="Future Bimbel Kedinasan | Platform Tryout SKD & Bimbel Kedinasan Online Terpercaya"
         description="Persiapan SKD kedinasan dengan tentor berpengalaman yang telah terbukti lolos SKD dengan skor tinggi. Simulasi tryout CAT standar BKN, bank soal TWK TIU TKP lengkap, dan pembahasan detail. Daftar gratis sekarang!"
         keywords="bimbel kedinasan, tryout skd online, simulasi cat bkn, soal twk tiu tkp, stmkg, ipdn, stan, stis, poltekip, poltekim, passing grade skd 2025 2026, bimbel online kedinasan, persiapan cpns kedinasan, ranking skd nasional"
-        url="https://futurebimbelkedinasan.com"
+        url="https://www.futurebimbelkedinasan.com"
         type="website"
       />
       <GuideModal isOpen={showGuide} onClose={handleCloseGuide} />
