@@ -6,6 +6,8 @@ Disallow: /profile
 Disallow: /settings
 Disallow: /transactions
 Disallow: /invoice
+Disallow: /paket
+Disallow: /ranking
 Disallow: /tryout-pre
 Disallow: /tryout-engine
 Disallow: /tryout-result

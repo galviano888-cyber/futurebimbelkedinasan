@@ -491,6 +491,10 @@ export default function App() {
                            location.pathname === '/x7k2m9qp4n8vw3js' || 
                            location.pathname === '/reset-password';
 
+  // Only authenticated/private screens are excluded from search indexes.
+  const PUBLIC_PATHS = ['/', '/login', '/register', '/help'];
+  const isPrivatePage = !PUBLIC_PATHS.includes(location.pathname);
+
   if (isFullScreenPage) {
     // Background disesuaikan: tryout engine pakai #eef0f4, halaman lain pakai slate-50
     const isTryoutEngine = location.pathname === '/tryout-engine' || location.pathname.startsWith('/event-engine');
@@ -503,7 +507,7 @@ export default function App() {
 
     return (
       <div className={`h-[100dvh] ${bgClass} overflow-hidden transition-colors duration-500`}>
-        <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={true} />
+        <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={isPrivatePage} />
         <Toaster position="top-center" richColors />
         <main className="h-full overflow-y-auto custom-scrollbar">
           <ErrorBoundary>
@@ -518,7 +522,7 @@ export default function App() {
 
   return (
     <div className="h-[100dvh] app-surface dark:bg-[#0b0b0e] flex flex-col lg:flex-row overflow-hidden transition-colors duration-500">
-      <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={true} />
+      <SEO title={`${activePage} | Future Bimbel Kedinasan`} noIndex={isPrivatePage} />
       <Toaster position="top-center" richColors />
       {/* Offline Banner */}
       {!isOnline && (
