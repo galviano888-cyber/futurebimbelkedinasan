@@ -13,4 +13,4 @@ Disallow: /tryout-review
 Disallow: /event-engine
 Disallow: /x7k2m9qp4n8vw3js
 
-Sitemap: https://futurebimbelkedinasan.com/sitemap.xml
+Sitemap: https://www.futurebimbelkedinasan.com/sitemap.xml
