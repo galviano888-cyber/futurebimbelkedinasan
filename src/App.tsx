@@ -472,7 +472,6 @@ export default function App() {
   if (!isAuthenticated && location.pathname === '/') {
     return (
       <>
-        <SEO />
         <Toaster position="top-center" richColors />
         {renderRoutes()}
         <AuthModal
