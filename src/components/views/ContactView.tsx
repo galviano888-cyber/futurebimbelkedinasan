@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { MessageCircle, AtSign, Loader2, ExternalLink, HelpCircle } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { SEO } from "@/components/SEO";
 
 export function ContactView() {
   const [contacts, setContacts] = useState({
@@ -31,6 +32,11 @@ export function ContactView() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <SEO
+        title="Pusat Bantuan"
+        description="Hubungi admin Future Bimbel Kedinasan lewat WhatsApp, Instagram, atau TikTok untuk pertanyaan seputar paket belajar dan tryout SKD."
+        url="https://www.futurebimbelkedinasan.com/help"
+      />
       {/* Header */}
       <div>
         <p className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-[0.25em] mb-2">Support</p>
