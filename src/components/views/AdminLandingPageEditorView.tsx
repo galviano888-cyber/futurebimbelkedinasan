@@ -70,7 +70,6 @@ export function AdminLandingPageEditorView() {
   const handleSave = async (key: string, value: any) => {
     if (!supabase) return;
     setSaving(true);
-    console.log(`[CMS] Mencoba menyimpan ke key: ${key}`, value);
     
     try {
       let finalValue = value;

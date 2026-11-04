@@ -87,16 +87,6 @@ export function AdminPackageEditorView({ packageId, onBack }: AdminPackageEditor
     if (!supabase || !activeQuestion) return;
     try {
       setSaving(true);
-      console.log("DEBUG - Saving Payload:", {
-        title: activeQuestion.title,
-        url: activeQuestion.url,
-        type: activeQuestion.type,
-        zoom_link: activeQuestion.zoom_link,
-        recording_url: activeQuestion.recording_url,
-        live_schedule: activeQuestion.live_schedule,
-        mentor_name: activeQuestion.mentor_name,
-        tryout_id: activeQuestion.tryout_id
-      });
 
       const payload = {
         title: activeQuestion.title,
@@ -108,9 +98,6 @@ export function AdminPackageEditorView({ packageId, onBack }: AdminPackageEditor
         mentor_name: activeQuestion.live_schedule ? `[SCHEDULE]: ${activeQuestion.live_schedule}` : activeQuestion.mentor_name,
         tryout_id: activeQuestion.tryout_id
       };
-
-      console.log("SENDING TO SUPABASE:", payload);
-      console.log("DEBUG - Mengirim Data: ", payload);
 
       const { error } = await supabase
         .from('package_contents')

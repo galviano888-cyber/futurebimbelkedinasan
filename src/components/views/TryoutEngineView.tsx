@@ -235,35 +235,76 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           initialTime = techData.duration_minutes * 60;
         }
 
-        // 2. Check LocalStorage for persistence
+        // 2. Server session is the source of truth for the deadline and saved answers.
+        let serverEnd: number | null = null;
+        let serverAnswers: Record<string, string> = {};
+        let serverExpired = false;
+        let sessionOk = false;
+
         if (user) {
+          const { data: sessionData, error: sessionError } = await supabase
+            .rpc('start_tryout_session', { p_tryout_id: questionsId });
+
+          if (!sessionError) {
+            const row: any = Array.isArray(sessionData) ? sessionData[0] : sessionData;
+            if (row?.end_time) {
+              sessionOk = true;
+              serverEnd = new Date(row.end_time).getTime();
+              serverExpired = Boolean(row.expired);
+              if (row.answers && typeof row.answers === 'object' && Object.keys(row.answers).length > 0) {
+                serverAnswers = row.answers as Record<string, string>;
+              }
+            }
+          }
+        }
+
+        const savedAnswers = user ? localStorage.getItem(`to_answers_${user.id}_${questionsId}`) : null;
+        let localAnswers: Record<string, string> = {};
+        if (savedAnswers) {
+          try { localAnswers = JSON.parse(savedAnswers); } catch (e) { }
+        }
+
+        // Server progress wins over a stale local cache.
+        const mergedAnswers = { ...localAnswers, ...serverAnswers };
+        if (Object.keys(mergedAnswers).length > 0) {
+          setAnswers(mergedAnswers);
+        }
+
+        if (sessionOk && serverEnd && user) {
+          setEndTime(serverEnd);
+          localStorage.setItem(`to_endtime_${user.id}_${questionsId}`, String(serverEnd));
+
+          if (serverExpired) {
+            toast.error("Waktu sudah habis! Mengirim jawaban otomatis...");
+            const { data: expiredQData, error: expiredQError } = await supabase
+              .rpc('get_exam_questions', { p_tryout_id: questionsId });
+            if (!expiredQError && expiredQData && expiredQData.length > 0) {
+              setQuestions(expiredQData);
+              setTimeout(() => {
+                handleSubmit(mergedAnswers);
+              }, 1500);
+            } else {
+              toast.error("Gagal memuat soal untuk submit otomatis. Silakan submit manual.");
+            }
+            return;
+          }
+        } else if (user) {
+          // Fallback timer only if the session RPC is unavailable.
           const timerKey = `to_endtime_${user.id}_${questionsId}`;
           const savedEndTime = localStorage.getItem(timerKey);
-
-          // Restore saved answers FIRST so auto-submit on expiry uses them
-          const savedAnswers = localStorage.getItem(`to_answers_${user.id}_${questionsId}`);
-          let restoredAnswers: Record<string, string> = {};
-          if (savedAnswers) {
-            try {
-              restoredAnswers = JSON.parse(savedAnswers);
-              setAnswers(restoredAnswers);
-            } catch (e) { }
-          }
 
           if (savedEndTime) {
             const saved = parseInt(savedEndTime);
             setEndTime(saved);
 
             if (saved - Date.now() <= 0) {
-              // Auto finish if time is already up when loading
-              // Fetch soal dulu sebelum submit agar scoring tidak kosong
               toast.error("Waktu sudah habis! Mengirim jawaban otomatis...");
               const { data: expiredQData, error: expiredQError } = await supabase
                 .rpc('get_exam_questions', { p_tryout_id: questionsId });
               if (!expiredQError && expiredQData && expiredQData.length > 0) {
                 setQuestions(expiredQData);
                 setTimeout(() => {
-                  handleSubmit(restoredAnswers);
+                  handleSubmit(mergedAnswers);
                 }, 1500);
               } else {
                 toast.error("Gagal memuat soal untuk submit otomatis. Silakan submit manual.");
@@ -271,7 +312,6 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
               return;
             }
           } else {
-            // First time starting: set and save end time
             const newEnd = Date.now() + (initialTime * 1000);
             localStorage.setItem(timerKey, newEnd.toString());
             setEndTime(newEnd);
@@ -299,12 +339,26 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
     fetchQuestions();
   }, [questionsId]);
 
-  // Save answers to localStorage when they change
+  // Persist answers locally and autosave to the server session.
   useEffect(() => {
-    if (userId && Object.keys(answers).length > 0) {
-      localStorage.setItem(`to_answers_${userId}_${questionsId}`, JSON.stringify(answers));
-    }
-  }, [answers, userId, questionsId]);
+    if (!userId || Object.keys(answers).length === 0) return;
+
+    localStorage.setItem(`to_answers_${userId}_${questionsId}`, JSON.stringify(answers));
+
+    const timer = setTimeout(() => {
+      if (!supabase) return;
+      supabase
+        .rpc('save_tryout_progress', {
+          p_tryout_id: questionsId,
+          p_answers: answers,
+          p_current_idx: currentIdx,
+          p_flagged: cheatAttempts,
+        })
+        .then(() => undefined);
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [answers, userId, questionsId, currentIdx, cheatAttempts]);
 
   // Auto-finish on 3 violations
   useEffect(() => {
