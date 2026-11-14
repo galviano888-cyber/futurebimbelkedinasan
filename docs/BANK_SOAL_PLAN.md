@@ -82,7 +82,7 @@ kutipan, atau pernyataan yang harus dianalisis.
 
 - **TWK/TIU**: satu jawaban benar, empat pengecoh yang masuk akal dan tidak
   jelas salah tanpa berpikir.
-- **TKP**: kelima opsi diberi skor 1–5 yang semuanya berbeda, tanpa opsi
+- **TKP**: kelima opsi diberi skor 1–5 (boleh berulang, minimal satu opsi bernilai 5), tanpa opsi
   "salah". Skor tertinggi mencerminkan sikap paling ideal menurut aspek.
 - Setiap soal wajib punya **pembahasan** yang menjelaskan alasan, bukan
   sekadar menyebut kunci.
@@ -122,7 +122,7 @@ diimpor lewat panel admin → Bank Soal → Import JSON.
 - nomor unik dan berurutan
 - opsi A–E lengkap dan tidak kosong
 - TWK/TIU: `correct_answer` valid, `tkp_scores` null
-- TKP: skor 1–5 untuk kelima opsi dan semuanya berbeda
+- TKP: skor 1–5 untuk kelima opsi, minimal satu opsi bernilai 5
 - pembahasan minimal 40 karakter
 - sub-kategori termasuk daftar yang diizinkan
 

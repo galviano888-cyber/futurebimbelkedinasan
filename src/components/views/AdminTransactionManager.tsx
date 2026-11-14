@@ -175,8 +175,10 @@ export function AdminTransactionManager() {
   };
 
   // Permintaan yang lewat 24 jam dianggap kedaluwarsa walau baris DB masih pending.
-  const effectiveStatus = (t: any): 'success' | 'expired' | 'pending' => {
+  // 'cancelled' = penjualan dibatalkan karena akses dicabut.
+  const effectiveStatus = (t: any): 'success' | 'expired' | 'pending' | 'cancelled' => {
     if (t.status === 'success') return 'success';
+    if (t.status === 'cancelled') return 'cancelled';
     if (t.status === 'expired' || t.status === 'failed') return 'expired';
     if (t.expiry_date && new Date(t.expiry_date).getTime() <= Date.now()) return 'expired';
     return 'pending';
@@ -442,10 +444,12 @@ export function AdminTransactionManager() {
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${
                         effectiveStatus(t) === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                        effectiveStatus(t) === 'cancelled' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
                         effectiveStatus(t) === 'expired' ? 'bg-white/5 text-slate-500 border-white/8' :
                         'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse'
                       }`}>
                         {effectiveStatus(t) === 'success' ? 'Akses Aktif'
+                          : effectiveStatus(t) === 'cancelled' ? 'Dibatalkan'
                           : effectiveStatus(t) === 'expired' ? 'Kedaluwarsa'
                           : 'Menunggu Konfirmasi'}
                       </span>
@@ -457,6 +461,8 @@ export function AdminTransactionManager() {
                        <div className="flex items-center justify-center gap-2">
                          {effectiveStatus(t) === 'success' ? (
                            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Selesai</span>
+                         ) : effectiveStatus(t) === 'cancelled' ? (
+                           <span className="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Akses Dicabut</span>
                          ) : effectiveStatus(t) === 'expired' ? (
                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Kadaluarsa</span>
                          ) : (
