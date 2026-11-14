@@ -59,7 +59,7 @@ export function AdminUserManager() {
     try {
       const { data } = await supabase
         .from('packages')
-        .select('id, title, product_type')
+        .select('id, title, product_type, quota, seats_taken')
         .eq('is_active', true)
         .order('title');
       setAllPackages(data || []);
@@ -119,8 +119,14 @@ export function AdminUserManager() {
       setAssignModal({ open: false, user: null });
       setSelectedPackageId('');
       await fetchUsers();
+      await fetchAllPackages();
     } catch (err: any) {
-      toast.error('Gagal memberikan paket: ' + (err.message || 'Coba lagi'));
+      const msg = String(err.message || 'Coba lagi');
+      toast.error(
+        msg.toLowerCase().includes('kuota')
+          ? 'Kuota kelas sudah penuh. Cabut akses siswa lain dulu atau tambah kuota.'
+          : 'Gagal memberikan paket: ' + msg
+      );
     } finally {
       setAssigning(false);
     }
@@ -138,6 +144,7 @@ export function AdminUserManager() {
       if (error) throw error;
       toast.success('Paket berhasil dicabut.');
       await fetchUsers();
+      await fetchAllPackages();
     } catch (err: any) {
       toast.error('Gagal mencabut paket: ' + err.message);
     } finally {
@@ -160,9 +167,9 @@ export function AdminUserManager() {
 
   const exportToCSV = () => {
     if (filteredUsers.length === 0) return;
-    const headers = ["ID", "Nama Lengkap", "Email", "WhatsApp", "Sekolah", "Paket Aktif", "Tgl Daftar"];
+    const headers = ["Kode Siswa", "Nama Lengkap", "Email", "WhatsApp", "Sekolah", "Paket Aktif", "Tgl Daftar"];
     const rows = filteredUsers.map(u => [
-      `"${u.id}"`,
+      `"${u.student_code || 'N/A'}"`,
       `"${u.full_name || 'N/A'}"`,
       `"${u.email || 'N/A'}"`,
       `"${u.whatsapp || 'N/A'}"`,
@@ -181,15 +188,29 @@ export function AdminUserManager() {
     document.body.removeChild(link);
   };
 
-  const filteredUsers = users.filter(user =>
-    user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = users.filter(user => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return true;
+    return (
+      (user.student_code ?? '').toLowerCase().includes(q) ||
+      user.full_name?.toLowerCase().includes(q) ||
+      user.email?.toLowerCase().includes(q)
+    );
+  });
 
   // Packages user belum punya (untuk dropdown assign)
   const availablePackages = allPackages.filter(
     pkg => !assignModal.user?.user_packages?.find((up: any) => up.package_id === pkg.id)
   );
+
+  const packageSeatLabel = (pkg: any) => {
+    if (pkg.product_type !== 'KELAS' || pkg.quota == null) return null;
+    const taken = pkg.seats_taken ?? 0;
+    return `${taken}/${pkg.quota} kursi`;
+  };
+
+  const packageIsFull = (pkg: any) =>
+    pkg.product_type === 'KELAS' && pkg.quota != null && (pkg.seats_taken ?? 0) >= pkg.quota;
 
   if (loading) {
     return (
@@ -220,7 +241,7 @@ export function AdminUserManager() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-600" />
             <input
               type="text"
-              placeholder="Cari Nama atau Email..."
+              placeholder="Cari Kode, Nama, atau Email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl w-72 font-bold text-sm text-white placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10 transition-all"
@@ -265,6 +286,9 @@ export function AdminUserManager() {
                       </div>
                       <div className="text-[11px] text-slate-600 flex items-center gap-1 mt-0.5">
                         <Mail className="w-2.5 h-2.5" /> {user.email}
+                      </div>
+                      <div className="mt-1 inline-flex items-center gap-1 rounded-md bg-slate-500/10 border border-white/10 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-slate-400">
+                        {user.student_code || '—'}
                       </div>
                     </div>
                   </div>
@@ -383,8 +407,10 @@ export function AdminUserManager() {
                 >
                   <option value="" disabled className="bg-slate-900">-- Pilih paket --</option>
                   {availablePackages.map(pkg => (
-                    <option key={pkg.id} value={pkg.id} className="bg-slate-900">
+                    <option key={pkg.id} value={pkg.id} disabled={packageIsFull(pkg)} className="bg-slate-900">
                       {pkg.title} ({pkg.product_type})
+                      {packageSeatLabel(pkg) ? ` — ${packageSeatLabel(pkg)}` : ''}
+                      {packageIsFull(pkg) ? ' — PENUH' : ''}
                     </option>
                   ))}
                 </select>

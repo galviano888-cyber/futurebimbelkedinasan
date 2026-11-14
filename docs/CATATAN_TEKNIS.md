@@ -3,75 +3,82 @@
 Dokumen ini mencatat hal-hal yang diketahui tetapi **belum dikerjakan**, supaya
 tidak hilang saat pergantian tim atau sesi kerja.
 
-Terakhir diperbarui: 4 November 2026
+Terakhir diperbarui: 14 November 2026
 
 ---
 
-## 1. Pakasir akan menutup layanan — pembayaran berisiko berhenti
+## 1. Pembayaran: WhatsApp + akses manual admin (tanpa invoice)
 
-**Status: BELUM DITANGANI. Perlu keputusan pemilik produk.**
+**Status: SELESAI. QRIS/Pakasir dihapus. Tidak ada invoice, tidak ada kode bayar.**
 
-### Situasi
+### Alur yang berjalan sekarang
 
-Integrasi pembayaran saat ini sepenuhnya bergantung pada Pakasir:
+```
+Siswa klik "Pesan via WA"
+   → request_package_access()  → penanda "menunggu konfirmasi" selama 24 jam
+   → WhatsApp admin terbuka, pesan sudah berisi nama, email, paket, nominal,
+     rekening tujuan, dan 5 langkah pembayaran
+   → Siswa transfer + kirim bukti di chat
+   → Di web: status "Menunggu Konfirmasi Admin" (sisa waktu tampil)
+   → Admin cek mutasi, lalu beri akses dari panel:
+     Siswa → pilih siswa → Beri Paket  (atau tombol "Beri Akses" di Permintaan Paket)
+   → Paket muncul di "Paket Saya"; status menunggu otomatis hilang
+```
+
+**Lewat 24 jam tanpa konfirmasi:** penanda kedaluwarsa, kartu paket kembali
+normal (tombol "Pesan via WA" muncul lagi). Yang menyembunyikan status adalah
+filter `expiry_date > now()` di `TryoutView` dan `DashboardView`, jadi tidak
+perlu cron/cleanup.
 
 | Komponen | Lokasi |
 |---|---|
-| Pembuatan QRIS | `supabase/functions/pakasir-create/index.ts` |
-| Cek status | `supabase/functions/pakasir-status/index.ts` |
-| Aktivasi manual ("Saya Sudah Bayar") | `supabase/functions/pakasir-activate/index.ts` |
-| Webhook konfirmasi | `supabase/functions/pakasir-webhook/index.ts` |
-| Data QR tersimpan | `transactions.pakasir_data` (jsonb) |
-| Metode pembayaran | `transactions.payment_method = 'pakasir_qris'` |
+| Format pesan + rekening + nomor WA | `src/lib/payment.ts` |
+| Buat penanda 24 jam | RPC `request_package_access(uuid)` |
+| Tutup penanda saat admin beri akses | trigger `trg_close_fulfilled_requests` pada `user_packages` |
+| Beri akses dari panel | `AdminUserManager` (Beri Paket) atau `admin_confirm_payment` dari `AdminTransactionManager` |
+| Status menunggu di katalog | `src/components/views/TryoutView.tsx` |
+| Status menunggu di dashboard | `src/components/views/DashboardView.tsx` |
 
-Selain itu, dokumentasi Pakasir yang diperiksa pada audit sebelumnya menyatakan
-**API v1 dihentikan 20 Oktober 2026** dan endpoint v2 berbeda. Artinya ada dua
-risiko yang menumpuk: penghentian versi API dan penutupan layanan.
+Tabel `transactions` tetap dipakai sebagai penanda permintaan, tetapi hanya
+menyimpan paket, nominal, dan masa berlaku — bukan invoice yang ditampilkan ke
+siswa. `payment_method` = `manual_transfer`, `invoice_id` hanya ID internal.
 
-### Dampak bila Pakasir benar-benar tutup
+### Yang sudah dihapus
 
-- Pembeli tidak bisa membuat QRIS baru.
-- Webhook berhenti, sehingga paket tidak aktif otomatis.
-- Tombol "Saya Sudah Bayar" gagal karena verifikasi ke API Pakasir gagal.
-- Artinya: **penjualan berhenti total**, meskipun website tetap online.
+- `src/components/views/InvoiceView.tsx` (halaman invoice)
+- `src/lib/pakasir.ts`
+- `supabase/functions/pakasir-*` (lokal dan yang ter-deploy)
+- Script `functions:deploy` di `package.json`
+- Origin `app.pakasir.com` di CSP `vercel.json`
+- RPC lama `create_order()` dan `mark_payment_submitted()` (migrasi
+  `20261114160100_drop_unused_order_rpcs.sql`)
 
-Data lama tetap aman. `transactions`, `user_packages`, dan `payment_events`
-tidak bergantung pada server Pakasir.
+Kolom `transactions.pakasir_data` masih ada di database tetapi tidak dipakai.
+Boleh dibiarkan.
 
-### Yang perlu diputuskan
+### Saat QRIS diaktifkan kembali
 
-1. Pindah ke payment gateway lain (Midtrans, Xendit, Tripay, Duitku, atau QRIS
-   langsung via bank).
-2. Atau kembali ke transfer manual + verifikasi admin (fitur
-   `AdminTransactionManager` sudah ada).
+1. Pilih gateway (Midtrans, Xendit, Tripay, Duitku, atau QRIS bank langsung).
+2. Buat Edge Function pembuat transaksi + webhook.
+3. Webhook cukup memanggil `grant_package(transaction_id)`; trigger
+   `close_fulfilled_requests` akan menutup penanda otomatis.
+4. Tambahkan kartu QRIS di katalog (sekarang tidak ada UI QRIS sama sekali).
 
-### Titik perubahan bila migrasi dilakukan
-
-Migrasi sebaiknya hanya menyentuh tiga hal, karena logika bisnis sudah dipisah:
-
-```
-1. Edge Function baru      : membuat transaksi di gateway baru
-2. Webhook / verifikasi    : memanggil grant_package(transaction_id)
-3. Frontend InvoiceView    : menampilkan QR/instruksi dari gateway baru
-```
-
-`grant_package()` di database **tidak perlu diubah** — fungsi itu sudah menjadi
-satu-satunya pintu pemberian akses, dan hanya bisa dipanggil oleh service role.
-`create_order()` juga tidak perlu diubah karena harga sudah diambil dari database.
-
-### Prinsip yang harus dipertahankan saat migrasi
+**Prinsip yang wajib dipertahankan:**
 
 - Nominal tidak boleh dikirim dari klien; selalu dari `packages.price`.
 - Webhook wajib memverifikasi ulang ke API gateway sebelum memberi akses.
 - Pemberian akses harus idempotent (aman bila webhook terkirim dua kali).
 - Simpan jejak audit setiap event pembayaran.
 
-### Tindakan mendesak (tanpa menulis kode)
+### Risiko operasional alur manual
 
-1. Cek pengumuman resmi Pakasir mengenai tanggal penutupan.
-2. Pastikan tidak ada QRIS aktif yang masih ditampilkan ke pembeli.
-3. Siapkan jalur cadangan: transfer manual dengan konfirmasi admin.
-4. Bila sudah ada calon gateway pengganti, siapkan akun dan kredensialnya.
+- Akses hanya terbuka setelah admin memberi paket. Pastikan admin memeriksa
+  mutasi rekening, bukan hanya screenshot bukti transfer.
+- Tidak ada unggah bukti transfer di aplikasi — riwayatnya ada di WhatsApp.
+- Nominal transfer harus tepat; tidak ada pencocokan otomatis mutasi bank.
+- Rekening dibaca dari `site_settings.bank_details` (bisa diubah di panel admin
+  → Landing Page → Bank). Fallback ke nilai di `src/lib/payment.ts`.
 
 ---
 
@@ -94,9 +101,49 @@ atau upgrade plan.
 | Item | Catatan |
 |---|---|
 | Redirect apex → www | Masih 307 karena aturan di dashboard Vercel mengalahkan `vercel.json`. Ubah di Vercel → Domains → Edit untuk mendapat 308. |
-| Alur pembayaran end-to-end | Belum diuji dengan transaksi nyata. |
+| Alur pembayaran end-to-end | Alur WA → transfer → admin beri akses belum diuji dengan transaksi nyata. |
+| Rekening tujuan | Dibaca dari `site_settings.bank_details`; ubah di panel admin → Landing Page → Bank. Fallback: `src/lib/payment.ts`. |
+| Nomor rekening di pesan WA | Sudah otomatis ikut ke pesan, jadi siswa tidak perlu menanyakan tujuan transfer. |
 | Panel admin | Aksi CRUD belum diuji lewat UI; hanya hak akses RPC yang sudah diverifikasi. |
 | Ukuran bundle | Utama ±788 kB (237 kB gzip). Bisa dipecah bila perlu. |
 | Tiga keluarga font | Inter, Plus Jakarta Sans, Poppins dimuat sekaligus. |
 | `public_profiles` dan `leaderboard_public` | Nama disamarkan untuk anonim, tetapi tetap menampilkan nama lengkap untuk pengguna login. |
 | Tabel `package_schedules` | Sudah dihapus (kosong, tidak dipakai). |
+
+---
+
+## 4. Tipe paket dan kuota kelas
+
+Tipe yang tersedia (`packages.product_type`):
+
+| Tipe | Isi | Kuota |
+|---|---|---|
+| `SATUAN` | Satu tryout | — |
+| `BUNDLE` | Beberapa tryout | — |
+| `INTENSIF` | Live class + materi + tryout | — |
+| `KELAS` | Bimbingan kelompok | **Maks 5 orang** |
+| `PRIVAT_SATUAN` | Privat 1 pertemuan | — |
+| `PRIVAT_PAKET` | Privat beberapa pertemuan | — |
+
+Nama tipe lama `PRIVAT` masih diterima dan ditampilkan sebagai "Privat Satuan".
+
+### Aturan kuota kelas
+
+- Kuota terisi **hanya saat admin memberi akses** (`user_packages`), bukan saat
+  siswa chat.
+- Ditegakkan di database lewat trigger `trg_enforce_package_quota`
+  (`before insert on user_packages`), jadi tidak bisa ditembus lewat panel
+  maupun API.
+- Akses dicabut → kursi berkurang otomatis (`trg_release_package_seat`).
+  Siswa harus diberi akses ulang untuk masuk lagi.
+- Kelas penuh: permintaan chat ditolak dan katalog menampilkan "Kelas Penuh".
+- Paket `KELAS` tanpa kuota otomatis diberi kuota 5.
+
+Sudah diuji otomatis: chat tidak mengisi kursi, kursi naik saat akses diberikan,
+siswa berikutnya ditolak saat penuh, dan kursi kembali 0 setelah akses dilepas.
+
+### Kode siswa
+
+Setiap siswa punya `profiles.student_code` berformat `FBK-0001`. Dipakai admin
+untuk mencari siswa tanpa mengandalkan nama atau email. Terlihat di panel
+admin (menu Siswa) dan di halaman Profil siswa.

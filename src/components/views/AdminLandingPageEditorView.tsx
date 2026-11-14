@@ -36,7 +36,7 @@ export function AdminLandingPageEditorView() {
     { name: "Paket Premium", price: "Rp 149.000", originalPrice: "Rp 499.000", benefits: ["Akses Semua Tryout", "Ranking Nasional", "Materi Eksklusif", "Grup Konsultasi"], isRecommended: true },
     { name: "Paket Platinum", price: "Rp 299.000", originalPrice: "Rp 999.000", benefits: ["Semua Fitur Premium", "Bimbingan Live Zoom", "Prediksi Soal Akurat", "Sertifikat Kelulusan"], isRecommended: false }
   ]);
-  const [waTemplate, setWaTemplate] = useState("Halo Admin, saya ingin konfirmasi pembayaran untuk paket {paket} dengan nomor invoice {invoice}. Berikut bukti pembayarannya.");
+  const [waTemplate, setWaTemplate] = useState("Halo Admin, saya ingin pesan paket {paket} seharga {harga}. Berikut bukti transfernya.");
 
   useEffect(() => {
     fetchSettings();
@@ -370,11 +370,11 @@ export function AdminLandingPageEditorView() {
           {saveBtn(() => handleSave('whatsapp_template', waTemplate), 'Simpan Template')}
         </div>
         <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl p-4 text-xs text-slate-400">
-          Gunakan <code className="text-blue-400 bg-blue-500/10 px-1 rounded">{'{paket}'}</code> untuk nama paket dan <code className="text-blue-400 bg-blue-500/10 px-1 rounded">{'{invoice}'}</code> untuk nomor invoice.
+          Gunakan <code className="text-blue-400 bg-blue-500/10 px-1 rounded">{'{paket}'}</code> untuk nama paket dan <code className="text-blue-400 bg-blue-500/10 px-1 rounded">{'{harga}'}</code> untuk nominal harga.
         </div>
         <div>
           <label className={labelClass}>Template Pesan</label>
-          <textarea value={waTemplate} onChange={e => setWaTemplate(e.target.value)} className={textareaClass} rows={4} placeholder="Halo Admin, saya konfirmasi pembayaran {paket} dengan invoice {invoice}..." />
+          <textarea value={waTemplate} onChange={e => setWaTemplate(e.target.value)} className={textareaClass} rows={4} placeholder="Halo Admin, saya ingin pesan paket {paket} seharga {harga}..." />
         </div>
       </section>
 

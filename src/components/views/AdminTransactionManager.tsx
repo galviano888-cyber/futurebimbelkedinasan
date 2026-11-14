@@ -8,7 +8,8 @@ import {
   Loader2,
   TrendingUp,
   Users,
-  ShoppingCart
+  ShoppingCart,
+  CheckCircle2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -28,7 +29,8 @@ export function AdminTransactionManager() {
   const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [filter, setFilter] = useState<'all' | 'pending' | 'success' | 'verifying'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'success' | 'expired'>('all');
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   // Stats State
   const [stats, setStats] = useState({
@@ -172,21 +174,29 @@ export function AdminTransactionManager() {
     }
   };
 
+  // Permintaan yang lewat 24 jam dianggap kedaluwarsa walau baris DB masih pending.
+  const effectiveStatus = (t: any): 'success' | 'expired' | 'pending' => {
+    if (t.status === 'success') return 'success';
+    if (t.status === 'expired' || t.status === 'failed') return 'expired';
+    if (t.expiry_date && new Date(t.expiry_date).getTime() <= Date.now()) return 'expired';
+    return 'pending';
+  };
+
   const applyFilters = () => {
     let result = [...transactions];
 
     // Filter by Status
     if (filter !== 'all') {
-      result = result.filter(t => t.status === (filter === 'verifying' ? 'verifying' : filter));
+      result = result.filter(t => effectiveStatus(t) === filter);
     }
 
     // Filter by Search Query
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(t => 
-        (t.invoice_id?.toLowerCase().includes(q)) || 
         (t.profiles?.full_name?.toLowerCase().includes(q)) ||
-        (t.profiles?.email?.toLowerCase().includes(q))
+        (t.profiles?.email?.toLowerCase().includes(q)) ||
+        (t.packages?.title?.toLowerCase().includes(q))
       );
     }
 
@@ -212,12 +222,49 @@ export function AdminTransactionManager() {
     setEndDate('');
   };
 
+  // Konfirmasi transfer manual → status success + akses paket dibuka (atomik di DB).
+  const confirmPayment = async (tx: any) => {
+    if (!supabase) return;
+    const label = tx.profiles?.full_name || tx.profiles?.email || 'siswa ini';
+    const ok = window.confirm(
+      `Beri akses paket untuk ${label}?\n\nPaket: ${tx.packages?.title ?? '-'}\nNominal: Rp ${Number(tx.amount || 0).toLocaleString('id-ID')}\n\nPastikan dana sudah masuk sebelum melanjutkan.`
+    );
+    if (!ok) return;
+
+    setConfirmingId(tx.id);
+    try {
+      const { error } = await supabase.rpc('admin_confirm_payment', {
+        p_transaction_id: tx.id,
+      });
+      if (error) throw error;
+      toast.success('Akses paket dibuka', {
+        description: `${tx.packages?.title ?? 'Paket'} sudah aktif untuk ${label}.`,
+      });
+      await fetchTransactions();
+      await fetchStats();
+    } catch (err: any) {
+      console.error(err);
+      const msg = String(err.message || '');
+      toast.error(
+        msg.toLowerCase().includes('kuota')
+          ? 'Kuota kelas sudah penuh'
+          : 'Gagal membuka akses',
+        {
+          description: msg.toLowerCase().includes('kuota')
+            ? 'Cabut akses siswa lain dulu, atau tambah kuota paket ini.'
+            : msg,
+        }
+      );
+    } finally {
+      setConfirmingId(null);
+    }
+  };
+
   const exportToCSV = () => {
-    const headers = ["Invoice ID", "Nama Siswa", "Email", "Paket", "Nominal", "Status", "Tanggal"];
+    const headers = ["Nama Siswa", "Email", "Paket", "Nominal", "Status", "Tanggal"];
     const csvContent = [
       headers.join(","),
       ...filteredTransactions.map(t => [
-        t.invoice_id,
         t.profiles?.full_name,
         t.profiles?.email,
         t.packages?.title,
@@ -311,7 +358,7 @@ export function AdminTransactionManager() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pt-2 border-t border-white/5">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-bold text-white tracking-tight">Verifikasi Transaksi</h2>
+            <h2 className="text-lg font-bold text-white tracking-tight">Permintaan Paket</h2>
             <div className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-[10px] font-bold">
               {filteredTransactions.length} DATA
             </div>
@@ -319,7 +366,8 @@ export function AdminTransactionManager() {
               <RotateCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
-          <p className="text-xs text-slate-600 font-medium mt-1">Kelola aliran dana masuk dan aktivasi paket siswa.</p>
+            <p className="text-xs text-slate-600 font-medium mt-1">Siswa yang minta paket lewat WhatsApp. Beri akses setelah dana masuk.</p>
+
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
           <div className="space-y-1">
@@ -332,7 +380,7 @@ export function AdminTransactionManager() {
           </div>
           <div className="space-y-1">
             <label className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Cari</label>
-            <input type="text" placeholder="Invoice / Nama..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl w-full font-bold text-xs text-white placeholder:text-slate-600 outline-none focus:border-blue-500/40" />
+            <input type="text" placeholder="Nama / Email..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="px-3 py-2.5 bg-white/5 border border-white/8 rounded-xl w-full font-bold text-xs text-white placeholder:text-slate-600 outline-none focus:border-blue-500/40" />
           </div>
           <button onClick={resetFilters} className="h-10 px-4 rounded-xl border border-white/8 text-slate-500 hover:text-white hover:bg-white/5 font-bold text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all">
             <FilterX className="w-3.5 h-3.5" /> RESET
@@ -345,9 +393,9 @@ export function AdminTransactionManager() {
 
       {/* FILTER TABS */}
       <div className="flex bg-white/5 border border-white/5 p-1 rounded-xl w-fit">
-        {(['all', 'verifying', 'pending', 'success'] as const).map((f) => (
+        {(['all', 'pending', 'success', 'expired'] as const).map((f) => (
           <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === f ? 'bg-blue-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>
-            {f === 'all' ? 'Semua' : f === 'verifying' ? 'Verifikasi' : f === 'pending' ? 'Pending' : 'Lunas'}
+            {f === 'all' ? 'Semua' : f === 'pending' ? 'Menunggu' : f === 'success' ? 'Aktif' : 'Kedaluwarsa'}
           </button>
         ))}
       </div>
@@ -369,10 +417,9 @@ export function AdminTransactionManager() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/5">
-                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Invoice & Paket</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Paket</th>
                   <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Siswa</th>
                   <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Nominal</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Metode</th>
                   <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Status</th>
                   <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Tanggal</th>
                   <th className="px-6 py-4 text-center text-[10px] font-bold text-slate-600 uppercase tracking-widest">Aksi</th>
@@ -382,11 +429,11 @@ export function AdminTransactionManager() {
                 {filteredTransactions.map((t) => (
                   <tr key={t.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="px-6 py-4">
-                      <div className="font-bold text-white text-sm">{t.invoice_id}</div>
-                      <div className="text-[10px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">{t.packages?.title || 'Unknown Package'}</div>
+                      <div className="font-bold text-white text-sm">{t.packages?.title || 'Unknown Package'}</div>
+                      <div className="text-[10px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Transfer Manual</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-bold text-slate-300 text-sm">{t.profiles?.full_name}</div>
+                      <div className="font-bold text-slate-300 text-sm">{t.profiles?.full_name || '-'}</div>
                       <div className="text-[10px] text-slate-600">{t.profiles?.email}</div>
                     </td>
                     <td className="px-6 py-4">
@@ -394,11 +441,13 @@ export function AdminTransactionManager() {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${
-                        t.status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                        t.status === 'verifying' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse' :
-                        'bg-white/5 text-slate-500 border-white/8'
+                        effectiveStatus(t) === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                        effectiveStatus(t) === 'expired' ? 'bg-white/5 text-slate-500 border-white/8' :
+                        'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse'
                       }`}>
-                        {t.status === 'success' ? 'Lunas' : t.status === 'verifying' ? 'Verifikasi' : 'Pending'}
+                        {effectiveStatus(t) === 'success' ? 'Akses Aktif'
+                          : effectiveStatus(t) === 'expired' ? 'Kedaluwarsa'
+                          : 'Menunggu Konfirmasi'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-xs font-bold text-slate-500">
@@ -406,15 +455,29 @@ export function AdminTransactionManager() {
                     </td>
                      <td className="px-6 py-4">
                        <div className="flex items-center justify-center gap-2">
-                         {t.status === 'success' ? (
-                           <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Otomatis</span>
+                         {effectiveStatus(t) === 'success' ? (
+                           <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Selesai</span>
+                         ) : effectiveStatus(t) === 'expired' ? (
+                           <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Kadaluarsa</span>
                          ) : (
-                           <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Menunggu</span>
+                           <button
+                             onClick={() => confirmPayment(t)}
+                             disabled={confirmingId === t.id}
+                             className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white transition-colors"
+                           >
+                             {confirmingId === t.id ? (
+                               <><Loader2 className="w-3 h-3 animate-spin" /> Proses</>
+                             ) : (
+                               <><CheckCircle2 className="w-3 h-3" /> Beri Akses</>
+                             )}
+                           </button>
                          )}
                        </div>
                      </td>
+
                   </tr>
                 ))}
+
               </tbody>
             </table>
           </div>

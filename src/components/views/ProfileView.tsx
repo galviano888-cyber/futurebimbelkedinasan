@@ -16,6 +16,7 @@ interface Profile {
   full_name: string;
   phone_number: string;
   email: string;
+  student_code?: string | null;
 }
 
 export function ProfileView() {
@@ -125,10 +126,15 @@ export function ProfileView() {
         <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
           {profile?.full_name}
         </h1>
-        <div className="flex items-center gap-2 mt-3">
+        <div className="flex flex-wrap items-center gap-2 mt-3">
           <div className="px-3 py-1 bg-blue-600 dark:bg-blue-500 rounded-xl text-[10px] font-bold text-white uppercase tracking-wide flex items-center gap-2 shadow-lg shadow-blue-500/20">
             <ShieldCheck className="w-3.5 h-3.5" /> Siswa Aktif FBK
           </div>
+          {profile?.student_code && (
+            <div className="px-3 py-1 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] text-[10px] font-bold text-slate-600 dark:text-slate-300 tracking-wider">
+              Kode Akun: <span className="font-mono">{profile.student_code}</span>
+            </div>
+          )}
         </div>
       </div>
 

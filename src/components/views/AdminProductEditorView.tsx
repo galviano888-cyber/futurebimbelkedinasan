@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Save, Plus, X, Video, FileText, FileEdit, Loader2, ShoppingCart, ImagePlus, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Plus, X, Video, FileText, FileEdit, Loader2, ShoppingCart, ImagePlus, Trash2, Users, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
+import { isFullPackage, productTypeLabel, type ProductType } from "@/lib/packages";
 
 interface AdminProductEditorViewProps {
   onBack: () => void;
@@ -11,10 +12,11 @@ interface AdminProductEditorViewProps {
 }
 
 export function AdminProductEditorView({ onBack, packageId = null, editingProduct = null }: AdminProductEditorViewProps) {
-  const [productType, setProductType] = useState<'SATUAN' | 'BUNDLE' | 'INTENSIF' | null>(null);
+  const [productType, setProductType] = useState<ProductType | null>(null);
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState(0);
   const [originalPrice, setOriginalPrice] = useState<number | null>(null);
+  const [quota, setQuota] = useState<number>(5);
   const [description, setDescription] = useState("");
   const [guideText, setGuideText] = useState("Masuk grup dan baca langkah-langkah panduan Bimbel");
   const [guideUrl, setGuideUrl] = useState("");
@@ -37,6 +39,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
       setTitle(editingProduct.title);
       setPrice(editingProduct.price);
       setOriginalPrice(editingProduct.original_price || null);
+      setQuota(editingProduct.quota ?? 5);
       setDescription(editingProduct.description);
         setIsActive(editingProduct.is_active ?? true);
         setCoverImageUrl(editingProduct.cover_image_url || "");
@@ -63,6 +66,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
         setTitle(data.title);
         setPrice(data.price);
         setOriginalPrice(data.original_price || null);
+        setQuota(data.quota ?? 5);
         setDescription(data.description);
         setIsActive(data.is_active);
         setGuideText(data.guide_text || "Masuk grup dan baca langkah-langkah panduan Bimbel");
@@ -127,6 +131,10 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
 
   const handleSave = async () => {
     if (!supabase) return;
+    if (productType === 'KELAS' && (!quota || quota < 1)) {
+      toast.error('Kuota paket kelas minimal 1 orang.');
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -135,6 +143,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
         price,
         original_price: originalPrice,
         product_type: productType,
+        quota: productType === 'KELAS' ? quota : null,
         is_active: isActive,
         guide_text: guideText,
         guide_url: guideUrl,
@@ -236,7 +245,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
           <p className="text-slate-500 text-sm mt-1">Tentukan jenis produk yang ingin Anda buat untuk dijual ke siswa.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           <button 
             onClick={() => setProductType('SATUAN')}
             className="bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-[2.5rem] text-left transition-all group hover:shadow-2xl hover:shadow-blue-500/10"
@@ -269,6 +278,48 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
             <h3 className="text-xl font-black text-slate-800 mb-2">Paket Intensif</h3>
             <p className="text-slate-500 text-sm leading-relaxed">Program bimbel lengkap berisi Materi PDF, Link Zoom, dan bonus Tryout.</p>
           </button>
+
+          <button 
+            onClick={() => setProductType('KELAS')}
+            className="bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-[2.5rem] text-left transition-all group hover:shadow-2xl hover:shadow-blue-500/10"
+          >
+            <div className="w-16 h-16 bg-amber-50 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-amber-500 group-hover:rotate-6 transition-all duration-500">
+              <Users className="w-8 h-8 text-amber-600 group-hover:text-white" />
+            </div>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-xl font-black text-slate-800">Paket Kelas</h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Maks 5 orang</span>
+            </div>
+            <p className="text-slate-500 text-sm leading-relaxed">Bimbingan kelompok dengan kuota terbatas. Sistem otomatis menolak pendaftar setelah kursi penuh.</p>
+          </button>
+
+          <button 
+            onClick={() => setProductType('PRIVAT_SATUAN')}
+            className="bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-[2.5rem] text-left transition-all group hover:shadow-2xl hover:shadow-blue-500/10"
+          >
+            <div className="w-16 h-16 bg-rose-50 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-rose-500 group-hover:rotate-6 transition-all duration-500">
+              <UserRound className="w-8 h-8 text-rose-600 group-hover:text-white" />
+            </div>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-xl font-black text-slate-800">Privat Satuan</h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full">1 Pertemuan</span>
+            </div>
+            <p className="text-slate-500 text-sm leading-relaxed">Satu sesi privat, satu siswa satu mentor. Siswa cukup diberi akses paketnya.</p>
+          </button>
+
+          <button 
+            onClick={() => setProductType('PRIVAT_PAKET')}
+            className="bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-[2.5rem] text-left transition-all group hover:shadow-2xl hover:shadow-blue-500/10"
+          >
+            <div className="w-16 h-16 bg-fuchsia-50 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-fuchsia-500 group-hover:rotate-6 transition-all duration-500">
+              <UserRound className="w-8 h-8 text-fuchsia-600 group-hover:text-white" />
+            </div>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-xl font-black text-slate-800">Privat Paket</h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-fuchsia-700 bg-fuchsia-100 px-2 py-0.5 rounded-full">Beberapa Pertemuan</span>
+            </div>
+            <p className="text-slate-500 text-sm leading-relaxed">Paket privat berisi beberapa pertemuan. Tambahkan tiap pertemuan sebagai konten di dalam paket.</p>
+          </button>
         </div>
       </div>
     );
@@ -282,7 +333,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
             <ArrowLeft className="w-4 h-4" /> Kembali ke Pemilihan Tipe
           </button>
           <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-            {editingProduct ? "Edit" : "Buat"} {productType === 'INTENSIF' ? 'Paket Intensif' : productType === 'BUNDLE' ? 'Bundle Tryout' : 'Tryout Satuan'}
+            {editingProduct ? "Edit" : "Buat"} {productTypeLabel(productType)}
           </h2>
         </div>
         <Button 
@@ -335,6 +386,23 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
                   className="w-full px-5 py-4 bg-white border border-slate-200 text-slate-400 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none line-through"
                 />
               </div>
+
+              {productType === 'KELAS' && (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+                  <label className="block text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-1.5 ml-1">Kuota Siswa</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={5}
+                    value={quota}
+                    onChange={(e) => setQuota(Number(e.target.value))}
+                    className="w-full px-4 py-3 bg-white border border-amber-200 text-slate-900 rounded-xl text-sm font-bold focus:ring-2 focus:ring-amber-500 transition-all outline-none"
+                  />
+                  <p className="text-[11px] text-amber-700/80 font-medium mt-2 leading-relaxed">
+                    Maksimal 5 orang per kelas. Setelah kursi penuh, sistem menolak pemberian akses berikutnya.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Deskripsi Singkat</label>
@@ -394,7 +462,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
                 <span className="text-sm font-bold text-slate-600 group-hover:text-slate-900 transition-colors">Tampilkan di Katalog</span>
               </label>
 
-              {productType === 'INTENSIF' && (
+              {isFullPackage(productType) && (
                 <div className="pt-6 border-t border-slate-100 space-y-5">
                   <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">Pengaturan Panduan</h4>
                   <div>
@@ -426,18 +494,16 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
         {/* Kolom Kanan: Daftar Isi Paket */}
         <div className="lg:col-span-8">
           <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm min-h-[500px]">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
                 <X className="w-5 h-5 text-blue-500 rotate-45" /> Daftar Isi Paket
               </h3>
               
               <div className="flex gap-2">
-                {(productType === 'SATUAN' || productType === 'BUNDLE' || productType === 'INTENSIF') && (
-                  <Button variant="outline" size="sm" onClick={() => addContent('tryout')} className="rounded-xl font-bold gap-1.5 border-slate-200 text-slate-600">
-                    <FileEdit className="w-3.5 h-3.5" /> Tryout
-                  </Button>
-                )}
-                {productType === 'INTENSIF' && (
+                <Button variant="outline" size="sm" onClick={() => addContent('tryout')} className="rounded-xl font-bold gap-1.5 border-slate-200 text-slate-600">
+                  <FileEdit className="w-3.5 h-3.5" /> Tryout
+                </Button>
+                {isFullPackage(productType) && (
                   <>
                     <Button variant="outline" size="sm" onClick={() => addContent('video')} className="rounded-xl font-bold gap-1.5 border-slate-200 text-slate-600">
                       <Video className="w-3.5 h-3.5" /> Video/Zoom
@@ -449,6 +515,26 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
                 )}
               </div>
             </div>
+
+            {/* Petunjuk khusus privat paket: tiap pertemuan = satu konten */}
+            {productType === 'PRIVAT_PAKET' && (
+              <div className="mb-6 rounded-2xl border border-fuchsia-200 bg-fuchsia-50/60 p-4">
+                <p className="text-[11px] font-bold text-fuchsia-800 leading-relaxed">
+                  Tambahkan tiap pertemuan sebagai konten sendiri (Video/Zoom atau File PDF).
+                  Contoh: "Pertemuan 1 — TWK", "Pertemuan 2 — TIU", "Pertemuan 3 — TKP".
+                  Siswa hanya perlu diberi akses paket sekali; semua pertemuan ikut terbuka.
+                </p>
+              </div>
+            )}
+
+            {productType === 'PRIVAT_SATUAN' && (
+              <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
+                <p className="text-[11px] font-bold text-rose-800 leading-relaxed">
+                  Paket ini berisi satu pertemuan. Isi satu konten berisi link Zoom atau materi
+                  untuk sesi tersebut, lalu berikan akses setelah pembayaran terkonfirmasi.
+                </p>
+              </div>
+            )}
 
             <div className="space-y-4">
               {contents.length === 0 ? (

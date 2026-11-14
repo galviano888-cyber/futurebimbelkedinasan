@@ -1,6 +1,7 @@
 import { memo, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, ChevronDown, BookOpen, Zap, FileText } from "lucide-react";
+import { productTypeLabel } from "@/lib/packages";
 
 interface CMSPackage {
   name: string;
@@ -16,7 +17,7 @@ interface RealPackage {
   description: string;
   price: number;
   original_price?: number | null;
-  product_type: 'SATUAN' | 'BUNDLE' | 'INTENSIF';
+  product_type: 'SATUAN' | 'BUNDLE' | 'INTENSIF' | 'KELAS' | 'PRIVAT_SATUAN' | 'PRIVAT_PAKET';
   cover_image_url?: string | null;
 }
 
@@ -26,16 +27,13 @@ interface PricingSectionProps {
   onEnter: () => void;
 }
 
-const TYPE_LABEL: Record<string, string> = {
-  SATUAN: 'Tryout Satuan',
-  BUNDLE: 'Bundle Tryout',
-  INTENSIF: 'Paket Intensif',
-};
-
 const TYPE_ICON: Record<string, any> = {
   SATUAN: Zap,
   BUNDLE: BookOpen,
   INTENSIF: FileText,
+  KELAS: BookOpen,
+  PRIVAT_SATUAN: FileText,
+  PRIVAT_PAKET: FileText,
 };
 
 function DescChecklist({ text }: { text: string }) {
@@ -126,7 +124,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                         }`}>
                           <Icon className={`w-4 h-4 ${isMiddle ? 'text-white' : 'text-blue-300'}`} />
                         </div>
-                        <p className={`text-[11px] font-semibold tracking-wide ${isMiddle ? 'text-blue-100' : 'text-blue-200/70'}`}>{TYPE_LABEL[pkg.product_type]}</p>
+                        <p className={`text-[11px] font-semibold tracking-wide ${isMiddle ? 'text-blue-100' : 'text-blue-200/70'}`}>{productTypeLabel(pkg.product_type)}</p>
                       </div>
                       <h3 className="text-[17px] font-extrabold text-white leading-snug mb-3 uppercase tracking-wide">{pkg.title}</h3>
 

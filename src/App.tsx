@@ -33,7 +33,6 @@ const LeaderboardView = lazy(() => import("@/components/views/LeaderboardView").
 const SettingsView = lazy(() => import("@/components/views/SettingsView").then(m => ({ default: m.SettingsView })));
 const ProfileView = lazy(() => import("@/components/views/ProfileView").then(m => ({ default: m.ProfileView })));
 const PaymentHistory = lazy(() => import("@/components/views/PaymentHistoryView").then(m => ({ default: m.PaymentHistory })));
-const InvoiceView = lazy(() => import("@/components/views/InvoiceView").then(m => ({ default: m.InvoiceView })));
 const EventsView = lazy(() => import("@/components/views/EventsView").then(m => ({ default: m.EventsView })));
 const EventEngineView = lazy(() => import("@/components/views/EventEngineView").then(m => ({ default: m.EventEngineView })));
 
@@ -69,10 +68,6 @@ export default function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [forceNameModal, setForceNameModal] = useState(false);
-  const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(() => {
-    return localStorage.getItem("fbk_selected_transaction_id");
-  });
-  const [paketSayaKey, setPaketSayaKey] = useState(0);
 
   const isAuthenticated = !!session;
   const currentUser = profile?.full_name || 
@@ -91,14 +86,9 @@ export default function App() {
     if (questionsId) localStorage.setItem("fbk_active_questions_id", questionsId);
     else localStorage.removeItem("fbk_active_questions_id");
 
-    if (selectedTransactionId) localStorage.setItem("fbk_selected_transaction_id", selectedTransactionId);
-    else localStorage.removeItem("fbk_selected_transaction_id");
-
-    // Clear state if back to main menus
-    if (["Dashboard", "Paket Saya", "Ranking Nasional"].includes(activePage)) {
-      // Keep transaction if we might need to go back, but usually we clear it when entering main flow
-    }
-  }, [activePage, activePackageId, questionsId, selectedTransactionId]);
+    // Bersihkan sisa state invoice dari versi lama.
+    localStorage.removeItem("fbk_selected_transaction_id");
+  }, [activePage, activePackageId, questionsId]);
 
 
 
@@ -266,9 +256,8 @@ export default function App() {
       '/events': 'Events',
       '/profile': 'Profil Saya',
       '/settings': 'Pengaturan',
-      '/transactions': 'Riwayat Transaksi',
+      '/transactions': 'Riwayat Permintaan',
       '/help': 'Pusat Bantuan',
-      '/invoice': 'Invoice',
       '/tryout-result': 'TryoutResult',
       '/tryout-review': 'TryoutReview'
     };
@@ -379,9 +368,8 @@ export default function App() {
       'Events': '/events',
       'Profil Saya': '/profile',
       'Pengaturan': '/settings',
-      'Riwayat Transaksi': '/transactions',
-      'Pusat Bantuan': '/help',
-      'Invoice': '/invoice'
+      'Riwayat Permintaan': '/transactions',
+      'Pusat Bantuan': '/help'
     };
 
     const targetPath = pageMap[p];
@@ -435,16 +423,15 @@ export default function App() {
         <Route path="/x7k2m9qp4n8vw3js" element={<AdminPanelView />} />
 
         {/* User Protected Routes */}
-        <Route path="/dashboard" element={isAuthenticated ? <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={handleNavigate} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onReview={handleHistoryReview} /> : <Navigate to="/" replace />} />
-        <Route path="/paket" element={isAuthenticated ? <TryoutView isAuthenticated={isAuthenticated} onPurchaseSuccess={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} onLoginClick={() => setIsLoginOpen(true)} /> : <Navigate to="/" replace />} />
-        <Route path="/paket-saya" element={isAuthenticated ? <PaketSayaView key={paketSayaKey} onStartTryout={handleStartTryout} /> : <Navigate to="/" replace />} />
+        <Route path="/dashboard" element={isAuthenticated ? <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={handleNavigate} onReview={handleHistoryReview} /> : <Navigate to="/" replace />} />
+        <Route path="/paket" element={isAuthenticated ? <TryoutView isAuthenticated={isAuthenticated} onLoginClick={() => setIsLoginOpen(true)} /> : <Navigate to="/" replace />} />
+        <Route path="/paket-saya" element={isAuthenticated ? <PaketSayaView onStartTryout={handleStartTryout} /> : <Navigate to="/" replace />} />
         <Route path="/ranking" element={<LeaderboardView onLoginClick={() => setIsLoginOpen(true)} />} />
         <Route path="/events" element={isAuthenticated ? <EventsView /> : <Navigate to="/" replace />} />
         <Route path="/profile" element={isAuthenticated ? <ProfileView /> : <Navigate to="/" replace />} />
         <Route path="/settings" element={isAuthenticated ? <SettingsView /> : <Navigate to="/" replace />} />
-        <Route path="/transactions" element={isAuthenticated ? <PaymentHistory onBack={() => navigate("/dashboard")} onViewInvoice={(txId) => { setSelectedTransactionId(txId); navigate('/invoice'); }} /> : <Navigate to="/" replace />} />
+        <Route path="/transactions" element={isAuthenticated ? <PaymentHistory onBack={() => navigate("/dashboard")} /> : <Navigate to="/" replace />} />
         <Route path="/help" element={<ContactView />} />
-        <Route path="/invoice" element={selectedTransactionId ? <InvoiceView transactionId={selectedTransactionId} onBack={(success?: boolean) => { if (success) { setSelectedTransactionId(null); setPaketSayaKey(k => k + 1); navigate("/paket-saya"); } else { navigate("/paket"); } }} /> : <Navigate to="/dashboard" replace />} />
         
         {/* Event Engine Route */}
         <Route path="/event-engine/:eventId" element={isAuthenticated ? <EventEngineView /> : <Navigate to="/" replace />} />

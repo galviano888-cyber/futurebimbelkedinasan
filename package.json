@@ -12,8 +12,7 @@
     "test:report": "playwright show-report",
     "db:push": "supabase db push --linked",
     "db:diff": "supabase db diff --linked",
-    "db:reset": "supabase db reset",
-    "functions:deploy": "supabase functions deploy pakasir-create pakasir-status pakasir-activate && supabase functions deploy pakasir-webhook --no-verify-jwt"
+    "db:reset": "supabase db reset"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

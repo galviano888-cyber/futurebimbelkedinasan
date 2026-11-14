@@ -22,7 +22,7 @@ const navItems = [
   { id: 'events', label: 'Events', icon: Calendar, group: 'Konten' },
 
   { id: 'users', label: 'Siswa', icon: Users, group: 'Data' },
-  { id: 'transactions', label: 'Transaksi', icon: CreditCard, group: 'Data' },
+  { id: 'transactions', label: 'Permintaan Paket', icon: CreditCard, group: 'Data' },
   { id: 'broadcast', label: 'Pengumuman', icon: Bell, group: 'Data' },
 ];
 

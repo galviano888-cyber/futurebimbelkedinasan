@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dist-seed
 *.local
 .env
 .env.*
@@ -35,3 +36,7 @@ dist-ssr
 
 # Supabase CLI temp files
 supabase/.temp/
+
+# Backup data lokal (berisi data siswa, jangan di-commit)
+/backups/
+

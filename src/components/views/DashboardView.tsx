@@ -12,16 +12,22 @@ interface DashboardViewProps {
   data: TryoutRecord[];
   userName?: string;
   onNavigate?: (page: string) => void;
-  onViewInvoice?: (id: string) => void;
   onReview?: (record: TryoutRecord) => void;
 }
 
-export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onViewInvoice, onReview }: DashboardViewProps) {
+export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onReview }: DashboardViewProps) {
   const isEmpty = data.length === 0;
   const [pendingTx, setPendingTx] = useState<any>(null);
+  const [now, setNow] = useState(() => Date.now());
   const [activePackageData, setActivePackageData] = useState<ActivePackageData | null>(null);
 
   const [pendingTxId, setPendingTxId] = useState<string | null>(null);
+
+  // Status "menunggu konfirmasi" hanya berlaku 24 jam; hitung ulang berkala.
+  useEffect(() => {
+    const tick = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(tick);
+  }, []);
 
   // Channel setup terpisah — hanya re-subscribe saat pendingTxId berubah, bukan tiap data re-fetch
   useEffect(() => {
@@ -45,7 +51,7 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
       if (!userId || !isMounted) return;
 
       const [txResult, pkgResult] = await Promise.all([
-        supabase.from('transactions').select('*, packages(title)').eq('user_id', userId).in('status', ['pending', 'verifying']).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+        supabase.from('transactions').select('*, packages(title)').eq('user_id', userId).in('status', ['pending', 'verifying']).gt('expiry_date', new Date().toISOString()).order('created_at', { ascending: false }).limit(1).maybeSingle(),
         supabase.from('user_packages').select('*, packages(*)').eq('user_id', userId)
       ]);
 
@@ -97,6 +103,16 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
   const isSiswaAktif = data.length > 0 || activePackageData !== null;
   const firstName = userName.split(' ')[0];
 
+  // Sisa waktu konfirmasi; null berarti sudah lewat 24 jam / tidak ada.
+  const pendingRemaining = (() => {
+    if (!pendingTx?.expiry_date) return null;
+    const diff = new Date(pendingTx.expiry_date).getTime() - now;
+    if (diff <= 0) return null;
+    const hours = Math.floor(diff / 3_600_000);
+    const minutes = Math.floor((diff % 3_600_000) / 60_000);
+    return hours > 0 ? `${hours} jam ${minutes} mnt` : `${minutes} mnt`;
+  })();
+
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <SEO
@@ -131,43 +147,26 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onView
         </div>
       </div>
 
-      {/* Pending Transaction Banner */}
-      {pendingTx && (
-        <div className={cn(
-          "border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4",
-          pendingTx.status === 'verifying'
-            ? 'bg-blue-50 dark:bg-blue-500/[0.05] border-blue-100 dark:border-blue-500/20'
-            : 'bg-amber-50 dark:bg-amber-500/[0.05] border-amber-100 dark:border-amber-500/20'
-        )}>
+      {/* Menunggu konfirmasi admin */}
+      {pendingTx && pendingRemaining && (
+        <div className="border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-amber-50 dark:bg-amber-500/[0.05] border-amber-100 dark:border-amber-500/20">
           <div className="flex items-center gap-3">
-            <Clock className={cn(
-              "w-4 h-4 shrink-0",
-              pendingTx.status === 'verifying' ? 'text-blue-500' : 'text-amber-500'
-            )} />
+            <Clock className="w-4 h-4 shrink-0 text-amber-500" />
             <div>
-              <p className={cn(
-                "text-[13px] font-medium",
-                pendingTx.status === 'verifying' ? 'text-blue-700 dark:text-blue-300' : 'text-amber-700 dark:text-amber-300'
-              )}>
-                {pendingTx.status === 'verifying' ? 'Sedang diverifikasi' : 'Menunggu pembayaran'}
+              <p className="text-[13px] font-medium text-amber-700 dark:text-amber-300">
+                Menunggu konfirmasi admin
               </p>
               <p className="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">
                 {pendingTx.packages?.title}
-                <span className="text-slate-400 dark:text-slate-600 ml-2 font-mono text-[11px]">{pendingTx.invoice_id}</span>
+                <span className="text-slate-400 dark:text-slate-600 ml-2 text-[11px]">
+                  sisa {pendingRemaining}
+                </span>
               </p>
             </div>
           </div>
-          <button
-            onClick={() => onViewInvoice?.(pendingTx.id)}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-medium transition-colors shrink-0",
-              pendingTx.status === 'verifying'
-                ? 'bg-blue-100 dark:bg-blue-500/20 hover:bg-blue-200 dark:hover:bg-blue-500/30 text-blue-700 dark:text-blue-300'
-                : 'bg-amber-100 dark:bg-amber-500/20 hover:bg-amber-200 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300'
-            )}
-          >
-            Lihat Invoice <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 shrink-0">
+            Kirim bukti transfer ke WhatsApp admin
+          </span>
         </div>
       )}
 

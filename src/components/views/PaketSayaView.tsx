@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { BookOpen, Video, FileText, Play, Clock, CheckCircle2, Loader2, Package, ExternalLink, Award, ChevronLeft, BookMarked } from "lucide-react";
 import { ExpandableDesc } from "@/components/ExpandableDesc";
 import { AnimatePresence, motion } from "framer-motion";
@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { productTypeLabel, isFullPackage } from "@/lib/packages";
 
 interface PackageContent {
   id: string; type: "file" | "video" | "tryout"; title: string; url?: string;
@@ -14,16 +15,19 @@ interface PackageContent {
 }
 interface UserPackage {
   id: string; package_id: string; title: string; description: string;
-  product_type: "SATUAN" | "BUNDLE" | "INTENSIF"; contents: PackageContent[];
+  product_type: "SATUAN" | "BUNDLE" | "INTENSIF" | "KELAS" | "PRIVAT_SATUAN" | "PRIVAT_PAKET"; contents: PackageContent[];
   guide_text?: string; guide_url?: string; cover_image_url?: string | null;
 }
 interface PaketSayaViewProps { onStartTryout: (packageId: string, tryoutId: string) => void; }
 
-const TYPE_LABEL: Record<string, string> = { SATUAN: "Tryout Satuan", BUNDLE: "Bundle Tryout", INTENSIF: "Paket Intensif" };
 const TYPE_COLOR: Record<string, string> = {
   SATUAN: "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20",
   BUNDLE: "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20",
   INTENSIF: "bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-500/20",
+  KELAS: "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20",
+  PRIVAT: "bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/20",
+  PRIVAT_SATUAN: "bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/20",
+  PRIVAT_PAKET: "bg-fuchsia-50 dark:bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-400 border-fuchsia-200 dark:border-fuchsia-500/20",
 };export function PaketSayaView({ onStartTryout }: PaketSayaViewProps) {
   const navigate = useNavigate();
   const [packages, setPackages] = useState<UserPackage[]>([]);
@@ -79,7 +83,7 @@ const TYPE_COLOR: Record<string, string> = {
     const matC = selectedPkg.contents.filter(c => c.type === "file");
     const toC = selectedPkg.contents.filter(c => c.type === "tryout");
     const tabs = [
-      ...(selectedPkg.product_type === "INTENSIF" ? [
+      ...(isFullPackage(selectedPkg.product_type) ? [
         { id: "liveclass" as const, label: "Live Class", icon: Video, count: liveCC.length },
         { id: "materi" as const, label: "Materi", icon: FileText, count: matC.length },
       ] : []),
@@ -104,7 +108,7 @@ const TYPE_COLOR: Record<string, string> = {
               <BookMarked className="w-7 h-7 text-blue-500" />
             </div>
             <div>
-              <span className={cn("text-[10px] font-semibold px-2.5 py-1 rounded-full border inline-block mb-1.5", TYPE_COLOR[selectedPkg.product_type])}>{TYPE_LABEL[selectedPkg.product_type]}</span>
+              <span className={cn("text-[10px] font-semibold px-2.5 py-1 rounded-full border inline-block mb-1.5", TYPE_COLOR[selectedPkg.product_type])}>{productTypeLabel(selectedPkg.product_type)}</span>
               <h1 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{selectedPkg.title}</h1>
               {selectedPkg.description && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{selectedPkg.description}</p>}
             </div>
@@ -180,15 +184,15 @@ const TYPE_COLOR: Record<string, string> = {
             )}
           </motion.div>
         </AnimatePresence>
-        {selectedPkg.product_type === "INTENSIF" && selectedPkg.guide_url && (
+        {isFullPackage(selectedPkg.product_type) && selectedPkg.guide_url && (
           <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 bg-blue-50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10 rounded-xl">
-            <div><p className="text-[13.5px] font-medium text-slate-800 dark:text-white">{selectedPkg.guide_text || "Bergabung ke Komunitas Belajar"}</p><p className="text-[11px] text-blue-500 mt-0.5">Khusus siswa paket intensif</p></div>
+            <div><p className="text-[13.5px] font-medium text-slate-800 dark:text-white">{selectedPkg.guide_text || "Bergabung ke Komunitas Belajar"}</p><p className="text-[11px] text-blue-500 mt-0.5">Panduan paket bimbel</p></div>
             <a href={selectedPkg.guide_url} target="_blank" rel="noreferrer" className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-semibold rounded-xl transition-all"><ExternalLink className="w-3.5 h-3.5" /> Gabung</a>
           </div>
         )}
       </div>
     );
-  }  // ─── DAFTAR PAKET ─────────────────────────────────────────
+  }  // â”€â”€â”€ DAFTAR PAKET â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div className="animate-in fade-in duration-300">
       <div className="mb-7">
@@ -218,7 +222,7 @@ const TYPE_COLOR: Record<string, string> = {
                   {materiCount > 0 && <div className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-emerald-400" /><span className="text-[11px] text-slate-500 dark:text-slate-400">{materiCount} Materi</span></div>}
                 </div>
                 <button
-                  onClick={() => { setSelectedPkg(pkg); setActiveTab(pkg.product_type === "INTENSIF" ? "liveclass" : "tryout"); }}
+                  onClick={() => { setSelectedPkg(pkg); setActiveTab(isFullPackage(pkg.product_type) ? "liveclass" : "tryout"); }}
                   className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white text-[13.5px] font-semibold rounded-xl transition-all shadow-sm shadow-blue-600/25 active:scale-[0.98]"
                 >
                   <BookOpen className="w-4 h-4" /> Buka Paket

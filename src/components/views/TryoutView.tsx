@@ -1,9 +1,15 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { ShoppingBag, ChevronRight, Loader2, FileEdit, Clock, Zap } from "lucide-react";
+﻿import { useState, useEffect, useCallback, useRef } from "react";
+import { ShoppingBag, ChevronRight, Loader2, FileEdit, Clock, Zap, MessageCircle, Hourglass, Users } from "lucide-react";
 import { ExpandableDesc } from "@/components/ExpandableDesc";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { packageSeatLabel, packageIsFull } from "@/lib/packages";
+import {
+  buildOrderMessage,
+  buildWaHref,
+  getPaymentSettings,
+} from "@/lib/payment";
 
 interface PackageContent {
   id: string;
@@ -19,30 +25,61 @@ interface Package {
   description: string;
   price: number;
   original_price?: number | null;
-  product_type: 'SATUAN' | 'BUNDLE' | 'INTENSIF';
+  product_type: 'SATUAN' | 'BUNDLE' | 'INTENSIF' | 'KELAS' | 'PRIVAT_SATUAN' | 'PRIVAT_PAKET';
   is_active: boolean;
   cover_image_url?: string | null;
+  quota?: number | null;
+  seats_taken?: number | null;
   content_count?: number;
   contents: PackageContent[];
 }
 
 interface TryoutViewProps {
   isAuthenticated: boolean;
-  onPurchaseSuccess?: (transactionId: string) => void;
   onLoginClick?: () => void;
 }
 
-export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }: TryoutViewProps) {
+export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  // Paket yang sedang menunggu konfirmasi admin: packageId -> batas waktu
+  const [pendingUntil, setPendingUntil] = useState<Record<string, number>>({});
+  const [now, setNow] = useState(() => Date.now());
   const lastPurchaseTime = useRef<Record<string, number>>({});
+
+  // Hitung ulang sisa waktu tiap 30 detik supaya status hilang sendiri di 24 jam.
+  useEffect(() => {
+    const tick = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(tick);
+  }, []);
 
   const fetchData = useCallback(async () => {
     if (!supabase) return;
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+
+      // Permintaan yang masih dalam masa tunggu 24 jam
+      if (user) {
+        const { data: pending } = await supabase
+          .from('transactions')
+          .select('package_id, expiry_date')
+          .eq('user_id', user.id)
+          .in('status', ['pending', 'verifying'])
+          .gt('expiry_date', new Date().toISOString());
+
+        const map: Record<string, number> = {};
+        (pending || []).forEach((tx: any) => {
+          if (!tx.package_id || !tx.expiry_date) return;
+          map[tx.package_id] = new Date(tx.expiry_date).getTime();
+        });
+        setPendingUntil(map);
+        setNow(Date.now());
+      } else {
+        setPendingUntil({});
+      }
+
       const { data: allPackages, error: pkgError } = await supabase
         .from('packages')
         .select('*, cover_image_url')
@@ -78,16 +115,28 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
   const handlePurchase = useCallback(async (pkg: Package) => {
     if (!isAuthenticated) { onLoginClick?.(); return; }
     if (!supabase) return;
+    if (packageIsFull(pkg)) {
+      toast.error("Kelas sudah penuh", {
+        description: "Semua kursi untuk kelas ini sudah terisi. Silakan pilih kelas lain.",
+      });
+      return;
+    }
     // Rate limit: cegah double-click dalam 3 detik per paket
     const now = Date.now();
     if (lastPurchaseTime.current[pkg.id] && now - lastPurchaseTime.current[pkg.id] < 3000) return;
     lastPurchaseTime.current[pkg.id] = now;
+
+    // Tab WhatsApp harus dibuka langsung dari klik, kalau tidak akan diblokir
+    // popup blocker (proses di bawah ini menunggu beberapa request jaringan).
+    const waTab = pkg.price > 0 ? window.open('', '_blank') : null;
+
     setProcessingId(pkg.id);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Silakan login kembali.");
 
       if (!user.email_confirmed_at && !user.confirmed_at) {
+        waTab?.close();
         toast.error("Email Belum Terverifikasi", {
           description: "Silakan verifikasi email Anda sebelum melakukan pembelian.",
           duration: 5000
@@ -95,6 +144,7 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
         return;
       }
 
+      // Paket gratis: langsung aktif, tanpa admin.
       if (pkg.price === 0) {
         const { error } = await supabase.rpc('claim_free_package', { p_package_id: pkg.id });
         if (error) {
@@ -109,55 +159,60 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
         return;
       }
 
-      // Paket berbayar
+      // Paket berbayar: catat permintaan (24 jam), lalu langsung ke WhatsApp admin.
       await supabase.from('profiles').upsert({
         id: user.id,
         full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
         email: user.email
       }, { onConflict: 'id' });
 
-      // Cek transaksi sukses sebelumnya (edge case)
-      const { data: successTx } = await supabase
-        .from('transactions').select('id')
-        .eq('user_id', user.id).eq('package_id', pkg.id).eq('status', 'success')
+      const { data: ownedPkg } = await supabase
+        .from('user_packages').select('id')
+        .eq('user_id', user.id).eq('package_id', pkg.id)
         .maybeSingle();
-      if (successTx) {
+      if (ownedPkg) {
+        waTab?.close();
         toast.error('Anda sudah memiliki paket ini. Silakan cek menu Paket Saya.');
         return;
       }
 
-      // Cek transaksi pending yang sudah ada
-      const { data: existingTxs } = await supabase
-        .from('transactions').select('id, status')
-        .eq('user_id', user.id).eq('package_id', pkg.id).eq('status', 'pending')
-        .order('created_at', { ascending: false });
-      if (existingTxs && existingTxs.length > 0) {
-        onPurchaseSuccess?.(existingTxs[0].id);
-        return;
-      }
-
-      // Harga dan invoice dibuat di server. Client tidak pernah mengirim amount.
-      const { data: orderData, error: txError } = await supabase.rpc('create_order', {
+      const { error: reqError } = await supabase.rpc('request_package_access', {
         p_package_id: pkg.id,
       });
+      if (reqError) throw reqError;
 
-      if (txError) throw txError;
-
-      const newTx = Array.isArray(orderData) ? orderData[0] : orderData;
-      if (!newTx?.transaction_id) throw new Error("Gagal membuat invoice.");
-
-      toast.success("Invoice Berhasil Dibuat!", {
-        description: "Selesaikan pembayaran sesuai petunjuk pada invoice.",
-        duration: 5000
+      const { bank, waNumber } = await getPaymentSettings();
+      const message = buildOrderMessage({
+        packageTitle: pkg.title,
+        amount: pkg.price,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0],
+        email: user.email,
+        bank,
       });
-      onPurchaseSuccess?.(newTx.transaction_id);
+      const waHref = buildWaHref(waNumber, message);
 
+      // Simpan status "menunggu konfirmasi" dulu, baru pindah ke WhatsApp.
+      await fetchData();
+
+      if (waTab && !waTab.closed) {
+        waTab.location.href = waHref;
+      } else {
+        // Popup diblokir: buka di tab yang sama supaya siswa tetap sampai ke WhatsApp.
+        window.location.href = waHref;
+      }
+
+      toast.success("Lanjutkan di WhatsApp", {
+        description:
+          "Kirim pesan yang sudah terisi, transfer sesuai nominal, lalu kirim bukti transfernya. Admin akan mengaktifkan paket kamu.",
+        duration: 8000,
+      });
     } catch (err: any) {
+      waTab?.close();
       toast.error(`Gagal memproses: ${err.message}`);
     } finally {
       setProcessingId(null);
     }
-  }, [isAuthenticated, onLoginClick, onPurchaseSuccess, fetchData]);
+  }, [isAuthenticated, onLoginClick, fetchData]);
 
   if (loading) {
     return (
@@ -196,6 +251,17 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
         ) : (
           packages.map((pkg) => {
             const isProcessing = processingId === pkg.id;
+            const until = pendingUntil[pkg.id];
+            const diff = until ? until - now : 0;
+            const pendingWait = diff > 0
+              ? (() => {
+                  const hours = Math.floor(diff / 3_600_000);
+                  const minutes = Math.floor((diff % 3_600_000) / 60_000);
+                  return hours > 0 ? `${hours} jam ${minutes} mnt` : `${minutes} mnt`;
+                })()
+              : null;
+            const seats = packageSeatLabel(pkg);
+            const full = packageIsFull(pkg);
             return (
               <div key={pkg.id} className="bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden flex flex-col group hover:border-blue-200 dark:hover:border-blue-500/20 transition-all duration-300 hover:shadow-lg dark:hover:shadow-none">
                 {pkg.cover_image_url ? (
@@ -209,13 +275,22 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                     {pkg.title}
                   </h3>
                   <ExpandableDesc text={pkg.description || "Dapatkan akses penuh ke materi dan tryout kualitas terbaik."} />
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-wrap items-center gap-4">
                     <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-600 text-[10px] font-bold">
                       <FileEdit className="w-3 h-3" /> {pkg.content_count ?? pkg.contents?.length ?? 0} Konten
                     </div>
                     {pkg.product_type === 'SATUAN' && (
                       <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-600 text-[10px] font-bold">
                         <Clock className="w-3 h-3" /> 100 Menit
+                      </div>
+                    )}
+                    {seats && (
+                      <div className={cn(
+                        "flex items-center gap-1.5 text-[10px] font-bold",
+                        full ? "text-red-500 dark:text-red-400" : "text-amber-600 dark:text-amber-400"
+                      )}>
+                        <Users className="w-3 h-3" />
+                        {full ? `Kuota penuh (${pkg.seats_taken ?? 0}/${pkg.quota})` : seats}
                       </div>
                     )}
                   </div>
@@ -233,18 +308,46 @@ export function TryoutView({ isAuthenticated, onPurchaseSuccess, onLoginClick }:
                       )}
                     </div>
                   </div>
-                  <button
-                    onClick={() => handlePurchase(pkg)}
-                    disabled={isProcessing}
-                    className="flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
-                  >
-                    {isProcessing
-                      ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      : <Zap className="w-3.5 h-3.5" />
-                    }
-                    {pkg.price === 0 ? 'Ambil Gratis' : 'Beli'}
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
+                  {pendingWait ? (
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-bold uppercase tracking-wide">
+                        <Hourglass className="w-3.5 h-3.5" /> Menunggu Konfirmasi
+                      </span>
+                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
+                        sisa {pendingWait}
+                      </span>
+                    </div>
+                  ) : full ? (
+                    <button
+                      type="button"
+                      disabled
+                      title="Kuota kelas sudah penuh"
+                      className="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-400 dark:text-slate-500 font-bold text-xs cursor-not-allowed"
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      Kuota Penuh ({pkg.seats_taken ?? 0}/{pkg.quota})
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handlePurchase(pkg)}
+                      disabled={isProcessing}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-3 text-white font-bold text-xs rounded-xl transition-all active:scale-95 disabled:opacity-60 disabled:pointer-events-none",
+                        pkg.price === 0
+                          ? "bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-500/20"
+                          : "bg-green-600 hover:bg-green-500 shadow-lg shadow-green-500/20"
+                      )}
+                    >
+                      {isProcessing
+                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        : pkg.price === 0
+                          ? <Zap className="w-3.5 h-3.5" />
+                          : <MessageCircle className="w-3.5 h-3.5" />
+                      }
+                      {pkg.price === 0 ? 'Ambil Gratis' : 'Pesan via WA'}
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             );

@@ -222,7 +222,7 @@ export function Header({
                 <div className="p-1.5">
                   {[
                     { label: "Edit Profil", icon: User, page: "Profil Saya" },
-                    { label: "Riwayat Transaksi", icon: CreditCard, page: "Riwayat Transaksi" },
+                    { label: "Riwayat Permintaan", icon: CreditCard, page: "Riwayat Permintaan" },
                     { label: "Pengaturan", icon: Settings, page: "Pengaturan" },
                   ].map((item) => (
                     <button

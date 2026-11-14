@@ -1,22 +1,25 @@
 import { useState, useEffect } from "react";
-import { 
-  CreditCard, 
-  Clock, 
-  CheckCircle2, 
-  XCircle, 
-  ChevronRight,
+import {
+  CreditCard,
+  Clock,
+  CheckCircle2,
+  XCircle,
   ArrowLeft,
   Loader2,
-  ExternalLink
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { formatRupiah } from "@/lib/payment";
 
 interface PaymentHistoryProps {
   onBack: () => void;
-  onViewInvoice: (txId: string) => void;
 }
 
-export function PaymentHistory({ onBack, onViewInvoice }: PaymentHistoryProps) {
+/**
+ * Riwayat permintaan paket. Tidak ada invoice dan tidak ada tombol bayar:
+ * semua transaksi terjadi lewat WhatsApp admin, jadi halaman ini hanya
+ * menampilkan status permintaan.
+ */
+export function PaymentHistory({ onBack }: PaymentHistoryProps) {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,12 +57,11 @@ export function PaymentHistory({ onBack, onViewInvoice }: PaymentHistoryProps) {
       case 'success':
         return 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20';
       case 'verifying':
-        return 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20';
       case 'pending':
         return 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20';
       case 'failed':
       case 'expired':
-        return 'bg-red-50 text-red-700 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20';
+        return 'bg-slate-50 text-slate-600 border-slate-100 dark:bg-white/5 dark:text-slate-400 dark:border-white/10';
       default:
         return 'bg-slate-50 text-slate-700 border-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700';
     }
@@ -70,7 +72,6 @@ export function PaymentHistory({ onBack, onViewInvoice }: PaymentHistoryProps) {
       case 'success':
         return <CheckCircle2 className="w-3.5 h-3.5" />;
       case 'verifying':
-        return <Loader2 className="w-3.5 h-3.5 animate-spin" />;
       case 'pending':
         return <Clock className="w-3.5 h-3.5" />;
       default:
@@ -80,10 +81,10 @@ export function PaymentHistory({ onBack, onViewInvoice }: PaymentHistoryProps) {
 
   const getStatusLabel = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'success': return 'Berhasil';
-      case 'verifying': return 'Menunggu Verifikasi';
-      case 'pending': return 'Menunggu Pembayaran';
-      case 'expired': return 'Kadaluwarsa';
+      case 'success': return 'Akses Aktif';
+      case 'verifying': return 'Menunggu Konfirmasi Admin';
+      case 'pending': return 'Menunggu Konfirmasi Admin';
+      case 'expired': return 'Kedaluwarsa';
       case 'failed': return 'Gagal';
       default: return status;
     }
@@ -102,37 +103,36 @@ export function PaymentHistory({ onBack, onViewInvoice }: PaymentHistoryProps) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <button 
+          <button
             onClick={onBack}
-            className="flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors mb-2 group"
+            className="flex items-center gap-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors mb-4 text-sm font-medium"
           >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xs font-bold uppercase tracking-wider">Kembali</span>
+            <ArrowLeft className="w-4 h-4" /> Kembali
           </button>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Riwayat Transaksi</h2>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">Pantau semua status pemesanan paket belajar Anda.</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Riwayat Permintaan Paket</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">
+            Semua pemesanan diproses lewat WhatsApp admin.
+          </p>
         </div>
       </div>
 
       {transactions.length === 0 ? (
-        <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 p-12 text-center">
-          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <CreditCard className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+        <div className="bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/5 rounded-2xl p-16 text-center">
+          <div className="w-14 h-14 bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <CreditCard className="w-7 h-7 text-slate-300 dark:text-slate-700" />
           </div>
-          <h3 className="text-lg font-bold text-slate-800 dark:text-white">Belum Ada Transaksi</h3>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 max-w-xs mx-auto font-medium">
-            Anda belum pernah melakukan pemesanan paket. Silakan pilih paket di menu Katalog.
-          </p>
+          <h3 className="font-bold text-slate-900 dark:text-white">Belum Ada Permintaan</h3>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Pilih paket di katalog untuk memulai.</p>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="space-y-3">
           {transactions.map((tx) => (
-            <div 
+            <div
               key={tx.id}
-              className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all p-5 flex flex-col sm:flex-row items-center gap-6"
+              className="bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/5 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
             >
-              <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center shrink-0">
-                <CreditCard className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+              <div className="w-11 h-11 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl flex items-center justify-center shrink-0">
+                <CreditCard className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
 
               <div className="flex-1 text-center sm:text-left">
@@ -144,32 +144,12 @@ export function PaymentHistory({ onBack, onViewInvoice }: PaymentHistoryProps) {
                   </span>
                 </div>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-slate-400 dark:text-slate-500 font-bold">
-                  <span>{tx.invoice_id}</span>
-                  <span className="w-1 h-1 bg-slate-200 dark:bg-slate-800 rounded-full hidden sm:block" />
                   <span>{new Date(tx.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                 </div>
               </div>
 
-              <div className="flex flex-col items-center sm:items-end gap-3">
-                <div className="text-lg font-bold text-slate-900 dark:text-white">
-                  Rp {tx.amount.toLocaleString('id-ID')}
-                </div>
-                
-                {tx.status === 'pending' ? (
-                  <button 
-                    onClick={() => onViewInvoice(tx.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold uppercase tracking-wide rounded-xl transition-all shadow-lg shadow-blue-500/20"
-                  >
-                    Bayar Sekarang <ChevronRight className="w-3 h-3" />
-                  </button>
-                ) : (
-                  <button 
-                    onClick={() => onViewInvoice(tx.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wide rounded-xl transition-all"
-                  >
-                    Detail Invoice <ExternalLink className="w-3 h-3" />
-                  </button>
-                )}
+              <div className="text-lg font-bold text-slate-900 dark:text-white text-center sm:text-right">
+                {formatRupiah(tx.amount)}
               </div>
             </div>
           ))}

@@ -21,24 +21,41 @@ npm run dev
 | `npm run test:e2e` | Playwright |
 | `npm run db:diff` | Bandingkan migration repo dengan project linked |
 | `npm run db:push` | Terapkan migration ke project linked |
-| `npm run functions:deploy` | Deploy Edge Functions |
 
 ## Struktur
 
 ```
 src/                  Aplikasi React (UI)
+  lib/payment.ts      Rekening, nomor admin, format pesan WhatsApp
 supabase/
   migrations/         Source of truth schema (urut nama file)
-  functions/          Edge Functions (Pakasir)
   legacy/             SQL lama — JANGAN dijalankan
 supabase/config.toml  Konfigurasi Supabase CLI
 tests/                Playwright
 ```
 
+## Alur pembelian paket
+
+Tidak ada invoice dan tidak ada payment gateway. Alurnya:
+
+1. Siswa klik **Pesan via WA** di katalog.
+2. Server mencatat permintaan selama 24 jam (`request_package_access`).
+3. WhatsApp admin terbuka dengan pesan berisi nama, email, paket, nominal, dan
+   rekening tujuan.
+4. Siswa transfer dan mengirim bukti di chat.
+5. Di web muncul status **Menunggu Konfirmasi Admin** beserta sisa waktunya.
+6. Admin memeriksa mutasi, lalu memberi akses dari panel (Siswa → Beri Paket,
+   atau tombol **Beri Akses** di menu Permintaan Paket).
+7. Lewat 24 jam tanpa konfirmasi, status hilang sendiri dan siswa bisa memesan
+   ulang.
+
+Rekening dan nomor WhatsApp diambil dari `site_settings` (`bank_details` dan
+`official_contacts`), bisa diubah di panel admin → Landing Page.
+
 ## Keamanan
 
 - `VITE_*` adalah satu-satunya variabel yang masuk ke browser.
-- `service_role` dan `PAKASIR_*` hanya diset sebagai Supabase secrets.
+- `service_role` hanya diset sebagai Supabase secret.
 - Admin ditentukan oleh `app_metadata.role = 'admin'`, bukan email.
 - Harga, skor tryout, dan akses paket dihitung di server (RPC).
 - Tabel `profiles`, `tryout_questions`, `transactions`, `user_packages`, dan
@@ -52,18 +69,5 @@ tests/                Playwright
 3. Supabase: jalankan workflow **Supabase deploy (manual)** atau:
 
    ```bash
-   npm run db:diff
    npm run db:push
-   npm run functions:deploy
    ```
-
-4. Set secrets Edge Functions:
-
-   ```bash
-   supabase secrets set PAKASIR_SLUG=... PAKASIR_API_KEY=...
-   ```
-
-5. Daftarkan webhook Pakasir ke:
-   `https://<project-ref>.supabase.co/functions/v1/pakasir-webhook`
-   Function memeriksa project, order, nominal, lalu mengonfirmasi ulang ke API
-   Pakasir sebelum memberi akses.
