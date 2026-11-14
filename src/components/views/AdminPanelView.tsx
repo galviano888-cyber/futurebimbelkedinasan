@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
-import { AdminPackageEditorView } from "./AdminPackageEditorView";
 import { AdminQuestionEditorView } from "./AdminQuestionEditorView";
 import { AdminProductEditorView } from "./AdminProductEditorView";
 
@@ -32,7 +31,7 @@ export function AdminPanelView() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-package' | 'edit-questions' | 'sales-packages' | 'edit-product' | 'transactions' | 'users' | 'broadcast' | 'events' | 'landing'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-questions' | 'sales-packages' | 'edit-product' | 'transactions' | 'users' | 'broadcast' | 'events' | 'landing'>('dashboard');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [packages, setPackages] = useState<any[]>([]);
@@ -948,9 +947,6 @@ export function AdminPanelView() {
             {currentView === 'events' && <AdminEventManagerView />}
             {currentView === 'landing' && <AdminLandingPageEditorView />}
 
-            {currentView === 'edit-package' && selectedPackageId && (
-              <AdminPackageEditorView packageId={selectedPackageId} onBack={() => { setCurrentView('sales-packages'); fetchSalesPackages(); }} />
-            )}
             {currentView === 'edit-questions' && selectedPackageId && (
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 {/* Breadcrumb */}
