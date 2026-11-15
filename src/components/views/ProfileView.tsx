@@ -7,7 +7,8 @@ import {
   Package, 
   Award, 
   ArrowRight,
-  Loader2
+  Loader2,
+  AlertCircle
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
@@ -136,6 +137,27 @@ export function ProfileView() {
             </div>
           )}
         </div>
+
+        {/* Penanda kelengkapan profil — tidak wajib, hanya pengingat. */}
+        {!profile?.phone_number && (
+          <div className="mt-4 inline-flex items-start gap-2.5 rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/[0.06] px-4 py-3 max-w-md">
+            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-[12px] font-bold text-amber-800 dark:text-amber-300">
+                Nomor WhatsApp belum diisi
+              </p>
+              <p className="text-[11px] text-amber-700/80 dark:text-amber-300/70 mt-0.5 leading-relaxed">
+                Tidak wajib, tetapi membantu admin menghubungi Anda soal paket dan pembayaran.
+              </p>
+              <button
+                onClick={() => setIsEditingPhone(true)}
+                className="mt-2 text-[11px] font-bold text-amber-800 dark:text-amber-300 underline underline-offset-2 hover:no-underline"
+              >
+                Isi sekarang
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-16">

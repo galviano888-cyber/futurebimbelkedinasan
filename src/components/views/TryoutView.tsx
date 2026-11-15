@@ -10,6 +10,7 @@ import {
   buildWaHref,
   getPaymentSettings,
 } from "@/lib/payment";
+import { track, trackOnce } from "@/lib/analytics";
 
 interface PackageContent {
   id: string;
@@ -113,6 +114,9 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Catat kunjungan katalog sekali per sesi.
+  useEffect(() => { trackOnce("view_paket"); }, []);
+
   // Buka lagi chat admin untuk paket yang masih menunggu konfirmasi,
   // misalnya kalau tab WhatsApp tertutup atau bukti transfer perlu dikirim ulang.
   const reopenWhatsApp = useCallback(async (pkg: Package) => {
@@ -133,6 +137,12 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
         bank,
       });
       window.open(buildWaHref(waNumber, message), '_blank', 'noopener');
+      void track("click_wa", {
+        package_id: pkg.id,
+        package_title: pkg.title,
+        amount: pkg.price,
+        source: "reopen",
+      });
     } catch (err: any) {
       toast.error("Gagal membuka WhatsApp", { description: err.message });
     } finally {
@@ -184,6 +194,7 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
         if (error) {
           toast.error("Gagal menambahkan paket: " + error.message);
         } else {
+          void track("free_claimed", { package_id: pkg.id, package_title: pkg.title });
           toast.success("Paket gratis berhasil ditambahkan!", {
             description: "Cek menu 'Paket Saya' untuk mulai belajar.",
             duration: 5000
@@ -215,6 +226,12 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
       });
       if (reqError) throw reqError;
 
+      void track("request_created", {
+        package_id: pkg.id,
+        package_title: pkg.title,
+        amount: pkg.price,
+      });
+
       const { bank, waNumber } = await getPaymentSettings();
       const message = buildOrderMessage({
         packageTitle: pkg.title,
@@ -224,6 +241,13 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
         bank,
       });
       const waHref = buildWaHref(waNumber, message);
+
+      void track("click_wa", {
+        package_id: pkg.id,
+        package_title: pkg.title,
+        amount: pkg.price,
+        source: "paket",
+      });
 
       // Simpan status "menunggu konfirmasi" dulu, baru pindah ke WhatsApp.
       await fetchData();

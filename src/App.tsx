@@ -33,6 +33,7 @@ const LeaderboardView = lazy(() => import("@/components/views/LeaderboardView").
 const SettingsView = lazy(() => import("@/components/views/SettingsView").then(m => ({ default: m.SettingsView })));
 const ProfileView = lazy(() => import("@/components/views/ProfileView").then(m => ({ default: m.ProfileView })));
 const PaymentHistory = lazy(() => import("@/components/views/PaymentHistoryView").then(m => ({ default: m.PaymentHistory })));
+const NotificationsView = lazy(() => import("@/components/views/NotificationsView").then(m => ({ default: m.NotificationsView })));
 const EventsView = lazy(() => import("@/components/views/EventsView").then(m => ({ default: m.EventsView })));
 const EventEngineView = lazy(() => import("@/components/views/EventEngineView").then(m => ({ default: m.EventEngineView })));
 
@@ -257,6 +258,7 @@ export default function App() {
       '/profile': 'Profil Saya',
       '/settings': 'Pengaturan',
       '/transactions': 'Riwayat Permintaan',
+      '/notifikasi': 'Notifikasi',
       '/help': 'Pusat Bantuan',
       '/tryout-result': 'TryoutResult',
       '/tryout-review': 'TryoutReview'
@@ -369,6 +371,7 @@ export default function App() {
       'Profil Saya': '/profile',
       'Pengaturan': '/settings',
       'Riwayat Permintaan': '/transactions',
+      'Notifikasi': '/notifikasi',
       'Pusat Bantuan': '/help'
     };
 
@@ -431,6 +434,7 @@ export default function App() {
         <Route path="/profile" element={isAuthenticated ? <ProfileView /> : <Navigate to="/" replace />} />
         <Route path="/settings" element={isAuthenticated ? <SettingsView /> : <Navigate to="/" replace />} />
         <Route path="/transactions" element={isAuthenticated ? <PaymentHistory onBack={() => navigate("/dashboard")} /> : <Navigate to="/" replace />} />
+        <Route path="/notifikasi" element={isAuthenticated ? <NotificationsView onBack={() => navigate("/dashboard")} /> : <Navigate to="/" replace />} />
         <Route path="/help" element={<ContactView />} />
         
         {/* Event Engine Route */}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle, Calendar, CheckCircle2 } from "lucide-react";
+import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle, Calendar, CheckCircle2, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { AdminQuestionEditorView } from "./AdminQuestionEditorView";
@@ -7,6 +7,7 @@ import { AdminProductEditorView } from "./AdminProductEditorView";
 
 import { AdminUserManager } from "./AdminUserManager";
 import { AdminTransactionManager } from "./AdminTransactionManager";
+import { AdminAnalyticsView } from "./AdminAnalyticsView";
 import { AdminBroadcastView } from "./AdminBroadcastView";
 import { AdminLandingPageEditorView } from "./AdminLandingPageEditorView";
 
@@ -22,6 +23,7 @@ const navItems = [
 
   { id: 'users', label: 'Siswa', icon: Users, group: 'Data' },
   { id: 'transactions', label: 'Permintaan Paket', icon: CreditCard, group: 'Data' },
+  { id: 'analytics', label: 'Statistik', icon: BarChart3, group: 'Data' },
   { id: 'broadcast', label: 'Pengumuman', icon: Bell, group: 'Data' },
 ];
 
@@ -31,7 +33,8 @@ export function AdminPanelView() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-questions' | 'sales-packages' | 'edit-product' | 'transactions' | 'users' | 'broadcast' | 'events' | 'landing'>('dashboard');
+const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-questions' | 'sales-packages' | 'edit-product' | 'transactions' | 'analytics' | 'users' | 'broadcast' | 'events' | 'landing'>('dashboard');
+
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
@@ -1086,7 +1089,10 @@ export function AdminPanelView() {
             )}
 
             {currentView === 'users' && <AdminUserManager />}
+            {currentView === 'analytics' && <AdminAnalyticsView />}
+
             {currentView === 'transactions' && <AdminTransactionManager />}
+
             {currentView === 'broadcast' && <AdminBroadcastView />}
             {currentView === 'events' && <AdminEventManagerView />}
             {currentView === 'landing' && <AdminLandingPageEditorView />}

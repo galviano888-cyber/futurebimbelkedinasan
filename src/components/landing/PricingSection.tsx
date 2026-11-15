@@ -1,7 +1,8 @@
-import { memo, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, ChevronDown, BookOpen, Zap, FileText } from "lucide-react";
 import { productTypeLabel } from "@/lib/packages";
+import { trackOnce } from "@/lib/analytics";
 
 interface CMSPackage {
   name: string;
@@ -65,8 +66,29 @@ function DescChecklist({ text }: { text: string }) {
 }
 
 export const PricingSection = memo(function PricingSection({ packages, isRealPackages = false, onEnter }: PricingSectionProps) {
+  // Catat saat daftar harga benar-benar terlihat (bukan sekadar dirender).
+  const sectionRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            trackOnce("view_pricing");
+            observer.disconnect();
+            break;
+          }
+        }
+      },
+      { threshold: 0.35 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section id="paket" className="relative py-20 lg:py-28 bg-[#0e2550] border-t border-white/[0.07]">
+    <section id="paket" ref={sectionRef} className="relative py-20 lg:py-28 bg-[#0e2550] border-t border-white/[0.07]">
       <div className="max-w-6xl mx-auto px-5 sm:px-6 relative">
         {/* Section header */}
         <div className="max-w-2xl mb-12 lg:mb-16 text-center mx-auto">

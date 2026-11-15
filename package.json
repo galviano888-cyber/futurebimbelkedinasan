@@ -15,6 +15,7 @@
     "db:reset": "supabase db reset",
     "check:flow": "node scripts/e2e-flow.mjs",
     "check:status-paket": "node scripts/e2e-status.mjs",
+    "check:analytics": "node scripts/e2e-analytics.mjs",
     "check:security": "node scripts/probe-rls.mjs && node scripts/probe-student.mjs",
     "check:status": "node scripts/db-status.mjs",
     "check:encoding": "node scripts/fix-mojibake.mjs",

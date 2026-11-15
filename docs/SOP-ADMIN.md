@@ -166,6 +166,61 @@ Paket gratis tetap tercatat sebagai penjualan dengan nominal Rp 0.
 
 ---
 
+## 6b. Membaca Statistik
+
+Menu **Statistik** menunjukkan perjalanan calon pembeli:
+
+| Tahap | Arti |
+|---|---|
+| Membuka halaman utama | Pengunjung yang sampai ke landing page |
+| Melihat daftar harga | Yang menggulir sampai bagian paket |
+| Membuka katalog paket | Yang membuka halaman Paket & Tryout |
+| Klik Pesan via WhatsApp | Yang menekan tombol pesan |
+| Pesanan tercatat | Permintaan yang berhasil disimpan server |
+
+Angka yang ditampilkan adalah **jumlah sesi unik**, bukan jumlah klik. Satu orang
+yang membuka halaman dua kali tetap dihitung satu.
+
+Bagian **Kebocoran terbesar** menunjukkan di tahap mana paling banyak orang
+berhenti. Itu petunjuk paling berguna: kalau banyak berhenti antara "melihat
+harga" dan "klik WhatsApp", berarti harga atau deskripsi paket perlu diperbaiki.
+
+Pilih rentang **7 / 30 / 90 hari** di kanan atas. Data mulai terkumpul sejak
+fitur ini dipasang, jadi angka lama tidak ada.
+
+**Catatan:** statistik tidak memakai cookie pihak ketiga dan tidak melacak
+identitas pribadi. Yang disimpan hanya jenis event, halaman, dan ID sesi acak
+di peramban.
+
+---
+
+## 6c. Notifikasi siswa
+
+Siswa menerima notifikasi otomatis saat:
+
+- Pembayaran dikonfirmasi (akses paket terbuka)
+- Permintaan masuk antrean verifikasi
+- Admin mengirim pengumuman
+
+Notifikasi muncul di ikon lonceng header dan tersimpan permanen di menu
+**Notifikasi** (bisa dibuka lewat "Lihat semua notifikasi" di dropdown).
+Siswa yang sedang menutup browser tetap bisa membaca pesan lama saat kembali.
+
+---
+
+## 6d. Kelengkapan profil siswa
+
+Menu **Siswa** menampilkan tanda **"Profil belum lengkap"** bila WhatsApp atau
+asal sekolah belum diisi.
+
+Ini **hanya penanda**, bukan kewajiban. Siswa tetap bisa memakai semua fitur.
+Berguna untuk Anda: siswa yang lengkap profilnya lebih mudah dihubungi saat
+ada masalah pembayaran.
+
+Siswa juga melihat pengingat halus di halaman Profil mereka sendiri.
+
+---
+
 ## 7. Kalau ada masalah
 
 | Gejala | Penyebab umum | Tindakan |

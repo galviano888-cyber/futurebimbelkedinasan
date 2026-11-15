@@ -15,6 +15,7 @@ import { FAQSection } from "../landing/FAQSection";
 import { Footer } from "../landing/Footer";
 import { GuideModal } from "../landing/GuideModal";
 import { LegalModal } from "../LegalModal";
+import { trackOnce } from "@/lib/analytics";
 
 interface LandingPageViewProps {
   onLogin: () => void;
@@ -142,6 +143,11 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
 
   const handleCloseGuide = useCallback(() => setShowGuide(false), []);
   const handleCloseLegal = useCallback(() => setShowLegal(false), []);
+
+  // Catat kunjungan landing page sekali per sesi.
+  useEffect(() => {
+    if (!loading) trackOnce("view_landing");
+  }, [loading]);
 
   if (loading) {
     return (

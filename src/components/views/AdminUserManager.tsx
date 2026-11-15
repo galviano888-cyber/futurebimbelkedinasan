@@ -305,6 +305,15 @@ export function AdminUserManager() {
                       <GraduationCap className="w-3 h-3" />
                       {user.school || 'Instansi -'}
                     </div>
+                    {/* Penanda kelengkapan profil — bukan kewajiban siswa. */}
+                    {(!user.whatsapp || !user.school) && (
+                      <div className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5">
+                        <AlertCircle className="w-2.5 h-2.5 text-amber-400" />
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-amber-400">
+                          Profil belum lengkap
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </td>
                 <td className="px-6 py-4">

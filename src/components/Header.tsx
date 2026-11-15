@@ -169,6 +169,17 @@ export function Header({
                   </div>
                 )}
               </div>
+              {notifications.length > 0 && (
+                <button
+                  onClick={() => {
+                    setShowNotifications(false);
+                    onNavigate?.("Notifikasi");
+                  }}
+                  className="w-full px-4 py-3 border-t border-slate-100 dark:border-white/[0.06] text-[12px] font-semibold text-blue-600 dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors"
+                >
+                  Lihat semua notifikasi
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -223,6 +234,7 @@ export function Header({
                   {[
                     { label: "Edit Profil", icon: User, page: "Profil Saya" },
                     { label: "Riwayat Permintaan", icon: CreditCard, page: "Riwayat Permintaan" },
+                    { label: "Notifikasi", icon: Bell, page: "Notifikasi" },
                     { label: "Pengaturan", icon: Settings, page: "Pengaturan" },
                   ].map((item) => (
                     <button
