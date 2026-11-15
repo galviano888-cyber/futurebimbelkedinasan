@@ -301,8 +301,20 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
         // Lanjutkan dari soal terakhir yang sedang dikerjakan (mis. setelah
         // koneksi putus atau perangkat mati di tengah ujian).
-        // Penjepitan ke jumlah soal dilakukan setelah soal selesai dimuat,
-        // karena jumlah soal belum diketahui di titik ini.
+        //
+        // Posisi diambil dari yang TERBESAR antara server dan perangkat:
+        // server memakai jeda 2,5 detik, sedangkan perangkat menyimpan
+        // seketika. Tanpa membandingkan keduanya, siswa yang langsung refresh
+        // setelah pindah soal akan kembali ke posisi lama dari server.
+        // Penjepitan ke jumlah soal dilakukan setelah soal selesai dimuat.
+        let localIdx = 0;
+        try {
+          const rawIdx = user ? localStorage.getItem(`to_idx_${user.id}_${questionsId}`) : null;
+          if (rawIdx !== null) localIdx = Number(rawIdx) || 0;
+        } catch {
+          /* abaikan */
+        }
+        serverCurrentIdx = Math.max(serverCurrentIdx, localIdx);
 
         if (sessionOk && serverEnd && user) {
           setEndTime(serverEnd);
@@ -454,8 +466,17 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
       localStorage.setItem(`to_answers_${userId}_${questionsId}`, JSON.stringify(answers));
     }
 
-    // Simpan juga posisi soal, supaya siswa yang pindah soal tanpa menjawab
-    // tetap kembali ke tempat yang sama setelah koneksi putus.
+    // Posisi soal disimpan SEKETIKA ke perangkat (tanpa debounce). Server
+    // memakai jeda 2,5 detik agar tidak membanjiri jaringan; tanpa simpanan
+    // lokal, siswa yang menjawab lalu langsung refresh kehilangan posisinya.
+    try {
+      localStorage.setItem(`to_idx_${userId}_${questionsId}`, String(currentIdx));
+    } catch {
+      /* kuota penuh, abaikan */
+    }
+
+    // Simpan juga posisi soal ke server, supaya siswa yang pindah soal tanpa
+    // menjawab tetap kembali ke tempat yang sama setelah koneksi putus.
     const timer = setTimeout(() => {
       if (!supabase) return;
       supabase
@@ -575,6 +596,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         // Cache soal juga dibersihkan: jika admin memperbarui soal, percobaan
         // berikutnya harus memuat versi terbaru, bukan salinan lama di perangkat.
         localStorage.removeItem(`to_questions_${user.id}_${questionsId}`);
+        localStorage.removeItem(`to_idx_${user.id}_${questionsId}`);
       }
 
       let reviewQuestions = questions;
