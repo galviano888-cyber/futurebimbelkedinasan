@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle, Calendar } from "lucide-react";
+import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle, Calendar, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { AdminQuestionEditorView } from "./AdminQuestionEditorView";
@@ -247,7 +247,35 @@ export function AdminPanelView() {
   const fetchSalesPackages = async () => {
     if (!supabase) return;
     const { data } = await supabase!.from('packages').select('*').order('created_at', { ascending: false });
-    if (data) setSalesPackages(data);
+    if (!data) return;
+
+    // Kelengkapan konten: paket dianggap siap jual bila setiap konten punya
+    // tautan yang bisa dipakai siswa (tryout punya tryout_id, video punya
+    // zoom/recording, file punya url).
+    const { data: contents } = await supabase!
+      .from('package_contents')
+      .select('package_id, type, url, zoom_link, recording_url, tryout_id');
+
+    const readiness = new Map<string, { total: number; ready: number; tryoutMissing: number }>();
+    for (const c of contents ?? []) {
+      const entry = readiness.get(c.package_id) ?? { total: 0, ready: 0, tryoutMissing: 0 };
+      entry.total++;
+      let ok = false;
+      if (c.type === 'tryout') {
+        ok = !!c.tryout_id;
+        if (!ok) entry.tryoutMissing++;
+      } else if (c.type === 'video') {
+        ok = !!(c.zoom_link || c.recording_url || c.url);
+      } else {
+        ok = !!c.url;
+      }
+      if (ok) entry.ready++;
+      readiness.set(c.package_id, entry);
+    }
+
+    setSalesPackages(
+      data.map((p: any) => ({ ...p, _readiness: readiness.get(p.id) ?? { total: 0, ready: 0, tryoutMissing: 0 } }))
+    );
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -687,6 +715,30 @@ export function AdminPanelView() {
                             <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">{pkg.product_type}</span>
                           )}
                           <h3 className="text-[14px] font-bold text-white leading-tight mb-2">{pkg.title}</h3>
+
+                          {/* Kelengkapan konten */}
+                          {(() => {
+                            const r = pkg._readiness ?? { total: 0, ready: 0, tryoutMissing: 0 };
+                            const complete = r.total > 0 && r.ready === r.total;
+                            return (
+                              <div className="mb-3">
+                                {r.total === 0 ? (
+                                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                                    <AlertTriangle className="w-3 h-3" /> Belum ada konten
+                                  </span>
+                                ) : complete ? (
+                                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                                    <CheckCircle2 className="w-3 h-3" /> Siap · {r.total} konten
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-400">
+                                    <AlertTriangle className="w-3 h-3" />
+                                    {r.total - r.ready} dari {r.total} konten belum lengkap
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })()}
 
                           {/* Harga */}
                           <div className="flex items-baseline gap-2 mb-3">

@@ -142,9 +142,9 @@ const TYPE_COLOR: Record<string, string> = {
                       <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
                         <td className="px-5 py-4 text-[12px] text-slate-500 whitespace-nowrap">{c.schedule_date || c.live_schedule || "--"}</td>
                         <td className="px-5 py-4"><p className="text-[13.5px] font-medium text-slate-800 dark:text-white">{c.title}</p><p className="text-[11px] text-slate-400 mt-0.5">{c.mentor_name || "Mentor FBK"}</p></td>
-                        <td className="px-5 py-4">{c.zoom_link ? <a href={c.zoom_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 text-[12px] font-medium rounded-lg border border-blue-100 dark:border-blue-500/20"><Video className="w-3.5 h-3.5" /> Masuk</a> : <span className="text-slate-300 text-xs">--</span>}</td>
-                        <td className="px-5 py-4">{c.recording_url ? <a href={c.recording_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-600 text-[12px] font-medium rounded-lg border border-purple-100 dark:border-purple-500/20"><Play className="w-3.5 h-3.5" /> Lihat</a> : <span className="text-slate-300 text-xs">--</span>}</td>
-                        <td className="px-5 py-4">{c.tryout_id ? <button onClick={() => onStartTryout(selectedPkg.package_id, c.tryout_id!)} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 text-[12px] font-medium rounded-lg border border-emerald-100 dark:border-emerald-500/20"><Award className="w-3.5 h-3.5" /> Kerjakan</button> : <span className="text-slate-300 text-xs">--</span>}</td>
+                        <td className="px-5 py-4">{c.zoom_link ? <a href={c.zoom_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 text-[12px] font-medium rounded-lg border border-blue-100 dark:border-blue-500/20"><Video className="w-3.5 h-3.5" /> Masuk</a> : <span className="text-slate-300 dark:text-slate-600 text-[11px]">Belum ada</span>}</td>
+                        <td className="px-5 py-4">{c.recording_url ? <a href={c.recording_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-600 text-[12px] font-medium rounded-lg border border-purple-100 dark:border-purple-500/20"><Play className="w-3.5 h-3.5" /> Lihat</a> : <span className="text-slate-300 dark:text-slate-600 text-[11px]">Belum ada</span>}</td>
+                        <td className="px-5 py-4">{c.tryout_id ? <button onClick={() => onStartTryout(selectedPkg.package_id, c.tryout_id!)} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 text-[12px] font-medium rounded-lg border border-emerald-100 dark:border-emerald-500/20"><Award className="w-3.5 h-3.5" /> Kerjakan</button> : <span className="text-slate-300 dark:text-slate-600 text-[11px]" title="Admin belum menghubungkan tryout">Belum siap</span>}</td>
                       </tr>
                     ))}
                   </tbody></table>
@@ -158,7 +158,9 @@ const TYPE_COLOR: Record<string, string> = {
                     <div className="w-10 h-10 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl flex items-center justify-center shrink-0"><FileText className="w-5 h-5 text-blue-500" /></div>
                     <div><h4 className="font-medium text-slate-900 dark:text-white text-[14px] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{c.title}</h4><p className="text-[11px] text-slate-400 mt-0.5">E-Book PDF</p></div>
                   </div>
-                  {c.url && <a href={c.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 text-blue-600 text-[12px] font-medium rounded-xl transition-all shrink-0"><ExternalLink className="w-3.5 h-3.5" /> Download</a>}
+                  {c.url
+                    ? <a href={c.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 text-blue-600 text-[12px] font-medium rounded-xl transition-all shrink-0"><ExternalLink className="w-3.5 h-3.5" /> Download</a>
+                    : <span className="text-[11px] text-slate-400 dark:text-slate-500 shrink-0 px-3 py-2 rounded-xl border border-dashed border-slate-200 dark:border-white/10">Belum diunggah</span>}
                 </div>
               )) : <div className="py-16 text-center bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.07] rounded-2xl"><FileText className="w-8 h-8 text-slate-300 mx-auto mb-3" /><p className="text-[13px] text-slate-400">Materi sedang disiapkan.</p></div>
             )}
@@ -175,9 +177,25 @@ const TYPE_COLOR: Record<string, string> = {
                       </div>
                     </div>
                   </div>
-                  <button onClick={() => { if (selectedPkg?.package_id && (c.tryout_id || c.id)) { onStartTryout(selectedPkg.package_id, c.tryout_id || c.id); } else { toast.error("Data tidak lengkap."); } }}
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm shadow-blue-600/25 shrink-0">
-                    <Play className="w-4 h-4" /> Mulai Tryout
+                  <button
+                    onClick={() => {
+                      if (!selectedPkg?.package_id) {
+                        toast.error("Paket tidak ditemukan.");
+                        return;
+                      }
+                      if (!c.tryout_id) {
+                        toast.error("Tryout belum tersedia", {
+                          description:
+                            "Tryout ini belum disiapkan admin. Coba lagi nanti atau hubungi admin lewat WhatsApp.",
+                          duration: 5000,
+                        });
+                        return;
+                      }
+                      onStartTryout(selectedPkg.package_id, c.tryout_id);
+                    }}
+                    disabled={!c.tryout_id}
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm shadow-blue-600/25 shrink-0">
+                    <Play className="w-4 h-4" /> {c.tryout_id ? "Mulai Tryout" : "Belum Tersedia"}
                   </button>
                 </div>
               )) : <div className="py-16 text-center bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.07] rounded-2xl"><Award className="w-8 h-8 text-slate-300 mx-auto mb-3" /><p className="text-[13px] text-slate-400">Tidak ada tryout.</p></div>
@@ -192,7 +210,7 @@ const TYPE_COLOR: Record<string, string> = {
         )}
       </div>
     );
-  }  // â”€â”€â”€ DAFTAR PAKET â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  }  // ─── DAFTAR PAKET ─────────────────────────────────────────
   return (
     <div className="animate-in fade-in duration-300">
       <div className="mb-7">

@@ -12,7 +12,12 @@
     "test:report": "playwright show-report",
     "db:push": "supabase db push --linked",
     "db:diff": "supabase db diff --linked",
-    "db:reset": "supabase db reset"
+    "db:reset": "supabase db reset",
+    "check:flow": "node scripts/e2e-flow.mjs",
+    "check:security": "node scripts/probe-rls.mjs && node scripts/probe-student.mjs",
+    "check:status": "node scripts/db-status.mjs",
+    "check:encoding": "node scripts/fix-mojibake.mjs",
+    "db:backup": "node scripts/backup-data.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

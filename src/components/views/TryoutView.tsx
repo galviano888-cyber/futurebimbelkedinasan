@@ -112,6 +112,33 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Buka lagi chat admin untuk paket yang masih menunggu konfirmasi,
+  // misalnya kalau tab WhatsApp tertutup atau bukti transfer perlu dikirim ulang.
+  const reopenWhatsApp = useCallback(async (pkg: Package) => {
+    if (!supabase) return;
+    setProcessingId(pkg.id);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Sesi berakhir. Silakan login ulang.");
+        return;
+      }
+      const { bank, waNumber } = await getPaymentSettings();
+      const message = buildOrderMessage({
+        packageTitle: pkg.title,
+        amount: pkg.price,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0],
+        email: user.email,
+        bank,
+      });
+      window.open(buildWaHref(waNumber, message), '_blank', 'noopener');
+    } catch (err: any) {
+      toast.error("Gagal membuka WhatsApp", { description: err.message });
+    } finally {
+      setProcessingId(null);
+    }
+  }, []);
+
   const handlePurchase = useCallback(async (pkg: Package) => {
     if (!isAuthenticated) { onLoginClick?.(); return; }
     if (!supabase) return;
@@ -316,6 +343,14 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
                       <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
                         sisa {pendingWait}
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => reopenWhatsApp(pkg)}
+                        disabled={isProcessing}
+                        className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline disabled:opacity-50"
+                      >
+                        <MessageCircle className="w-3 h-3" /> Buka WhatsApp lagi
+                      </button>
                     </div>
                   ) : full ? (
                     <button
