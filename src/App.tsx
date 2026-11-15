@@ -439,6 +439,28 @@ export default function App() {
       return <DashboardSkeleton />;
     }
 
+    /**
+     * Pembungkus route yang wajib login.
+     *
+     * Masalah yang diperbaiki: `isAuthenticated` bernilai false sampai sesi
+     * selesai dipulihkan dari storage. Tanpa menunggu `loading`, setiap
+     * kunjungan langsung atau refresh ke route terlindungi (mis. /paket-saya
+     * atau /tryout-engine) langsung dialihkan ke "/", lalu "/" mengalihkan ke
+     * /paket. Akibatnya siswa terlempar ke katalog padahal sedang di tengah
+     * ujian.
+     */
+    const requireAuth = (element: React.ReactNode) => {
+      if (loading) {
+        return (
+          <div className="fixed inset-0 bg-[#eef0f4] dark:bg-slate-950 flex items-center justify-center z-50">
+            <FBKLoader text="Memuat sesi..." />
+          </div>
+        );
+      }
+      if (!isAuthenticated) return <Navigate to="/" replace />;
+      return <>{element}</>;
+    };
+
     return (
       <Routes>
         {/* Landing/Auth — setelah login langsung ke katalog paket, bukan dashboard */}
@@ -451,19 +473,19 @@ export default function App() {
         <Route path="/x7k2m9qp4n8vw3js" element={<AdminPanelView />} />
 
         {/* User Protected Routes */}
-        <Route path="/dashboard" element={isAuthenticated ? <DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={handleNavigate} onReview={handleHistoryReview} /> : <Navigate to="/" replace />} />
-        <Route path="/paket" element={isAuthenticated ? <TryoutView isAuthenticated={isAuthenticated} onLoginClick={() => setIsLoginOpen(true)} /> : <Navigate to="/" replace />} />
-        <Route path="/paket-saya" element={isAuthenticated ? <PaketSayaView onStartTryout={handleStartTryout} /> : <Navigate to="/" replace />} />
+        <Route path="/dashboard" element={requireAuth(<DashboardView data={data} userName={currentUser || "Siswa FBK"} onNavigate={handleNavigate} onReview={handleHistoryReview} />)} />
+        <Route path="/paket" element={requireAuth(<TryoutView isAuthenticated={isAuthenticated} onLoginClick={() => setIsLoginOpen(true)} />)} />
+        <Route path="/paket-saya" element={requireAuth(<PaketSayaView onStartTryout={handleStartTryout} />)} />
         <Route path="/ranking" element={<LeaderboardView onLoginClick={() => setIsLoginOpen(true)} />} />
-        <Route path="/events" element={isAuthenticated ? <EventsView /> : <Navigate to="/" replace />} />
-        <Route path="/profile" element={isAuthenticated ? <ProfileView /> : <Navigate to="/" replace />} />
-        <Route path="/settings" element={isAuthenticated ? <SettingsView /> : <Navigate to="/" replace />} />
-        <Route path="/transactions" element={isAuthenticated ? <PaymentHistory onBack={() => navigate("/dashboard")} /> : <Navigate to="/" replace />} />
-        <Route path="/notifikasi" element={isAuthenticated ? <NotificationsView onBack={() => navigate("/dashboard")} /> : <Navigate to="/" replace />} />
+        <Route path="/events" element={requireAuth(<EventsView />)} />
+        <Route path="/profile" element={requireAuth(<ProfileView />)} />
+        <Route path="/settings" element={requireAuth(<SettingsView />)} />
+        <Route path="/transactions" element={requireAuth(<PaymentHistory onBack={() => navigate("/dashboard")} />)} />
+        <Route path="/notifikasi" element={requireAuth(<NotificationsView onBack={() => navigate("/dashboard")} />)} />
         <Route path="/help" element={<ContactView />} />
         
         {/* Event Engine Route */}
-        <Route path="/event-engine/:eventId" element={isAuthenticated ? <EventEngineView /> : <Navigate to="/" replace />} />
+        <Route path="/event-engine/:eventId" element={requireAuth(<EventEngineView />)} />
 
         {/* Tryout Engine Routes */}
         <Route path="/tryout-pre/:pId/:qId" element={<TryoutPreView packageId={activePackageId} questionsId={questionsId} onStart={() => navigate("/tryout-engine")} onCancel={() => navigate("/paket-saya")} />} />
