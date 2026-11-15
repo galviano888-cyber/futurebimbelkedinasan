@@ -53,7 +53,8 @@ if (data.packages) {
   for (const p of data.packages) {
     console.log(
       `${p.id}  ${String(p.title).padEnd(38)} ${String(p.product_type).padEnd(14)} ` +
-        `rp=${p.price} quota=${p.quota} seats=${p.seats_taken} active=${p.is_active}`
+        `rp=${p.price} quota=${p.quota} seats=${p.seats_taken} ` +
+        `status=${p.sales_status ?? (p.is_active ? 'OPEN' : 'HIDDEN')}`
     );
   }
 }

@@ -108,6 +108,29 @@ Saat penuh, tombol di katalog berubah **"Kuota Penuh (5/5)"** dan tidak bisa dik
 
 Untuk menambah peserta: cabut akses satu siswa dulu, atau ubah kuota paket (maksimal 5).
 
+### Status penjualan paket
+
+Setiap kartu produk punya tiga tombol status di bagian bawah:
+
+| Tombol | Tampil di katalog siswa | Bisa dibeli | Kapan dipakai |
+|---|---|---|---|
+| **Buka** (hijau) | Ya | Ya | Paket normal, siap jual |
+| **Tutup** (kuning) | **Ya** | **Tidak** | Menghentikan pendaftaran tanpa menghapus paket |
+| **Sembunyi** (abu-abu) | Tidak | Tidak | Menyembunyikan sementara, bisa dimunculkan lagi |
+
+**Bedanya "Tutup" dan "Sembunyi":**
+
+- **Tutup** — paket tetap terlihat siswa dengan label "Pendaftaran Ditutup" dan tombol beli mati.
+  Berguna kalau Anda ingin calon pembeli tetap tahu paket ini ada (mis. batch sudah penuh).
+- **Sembunyi** — paket hilang sepenuhnya dari katalog siswa. Data, konten, dan akses siswa
+  lama tetap utuh. Munculkan lagi kapan saja dengan menekan **Buka**.
+
+**Penting:** siswa yang **sudah punya akses tetap bisa membuka** paket yang ditutup.
+Menutup hanya menghentikan pembelian baru, bukan mencabut akses. Untuk mencabut akses,
+gunakan menu **Siswa → Cabut**.
+
+Status yang sama juga tersedia di halaman edit produk, di bagian **Status Penjualan**.
+
 ---
 
 ## 5. Memasukkan soal tryout

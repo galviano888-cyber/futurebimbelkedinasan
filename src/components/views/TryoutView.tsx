@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useCallback, useRef } from "react";
-import { ShoppingBag, ChevronRight, Loader2, FileEdit, Clock, Zap, MessageCircle, Hourglass, Users } from "lucide-react";
+import { ShoppingBag, ChevronRight, Loader2, FileEdit, Clock, Zap, MessageCircle, Hourglass, Users, Lock } from "lucide-react";
 import { ExpandableDesc } from "@/components/ExpandableDesc";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,7 @@ interface Package {
   original_price?: number | null;
   product_type: 'SATUAN' | 'BUNDLE' | 'INTENSIF' | 'KELAS' | 'PRIVAT_SATUAN' | 'PRIVAT_PAKET';
   is_active: boolean;
+  sales_status?: 'OPEN' | 'CLOSED' | 'HIDDEN' | null;
   cover_image_url?: string | null;
   quota?: number | null;
   seats_taken?: number | null;
@@ -145,6 +146,12 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
     if (packageIsFull(pkg)) {
       toast.error("Kelas sudah penuh", {
         description: "Semua kursi untuk kelas ini sudah terisi. Silakan pilih kelas lain.",
+      });
+      return;
+    }
+    if (pkg.sales_status === 'CLOSED') {
+      toast.error("Pendaftaran ditutup", {
+        description: "Paket ini sedang tidak menerima pendaftar baru. Hubungi admin kalau butuh bantuan.",
       });
       return;
     }
@@ -289,6 +296,8 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
               : null;
             const seats = packageSeatLabel(pkg);
             const full = packageIsFull(pkg);
+            // Paket yang pendaftarannya ditutup tetap tampil, tapi tidak bisa dibeli.
+            const closed = pkg.sales_status === 'CLOSED';
             return (
               <div key={pkg.id} className="bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden flex flex-col group hover:border-blue-200 dark:hover:border-blue-500/20 transition-all duration-300 hover:shadow-lg dark:hover:shadow-none">
                 {pkg.cover_image_url ? (
@@ -298,6 +307,14 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
                   </div>
                 ) : null}
                 <div className="p-6 flex-1 flex flex-col">
+                  {closed && (
+                    <div className="mb-3 inline-flex items-center gap-1.5 self-start rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 px-2.5 py-1">
+                      <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                        Pendaftaran Ditutup
+                      </span>
+                    </div>
+                  )}
                   <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {pkg.title}
                   </h3>
@@ -361,6 +378,16 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
                     >
                       <Users className="w-3.5 h-3.5" />
                       Kuota Penuh ({pkg.seats_taken ?? 0}/{pkg.quota})
+                    </button>
+                  ) : closed ? (
+                    <button
+                      type="button"
+                      disabled
+                      title="Pendaftaran paket ini sudah ditutup"
+                      className="flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 font-bold text-xs cursor-not-allowed"
+                    >
+                      <Lock className="w-3.5 h-3.5" />
+                      Pendaftaran Ditutup
                     </button>
                   ) : (
                     <button

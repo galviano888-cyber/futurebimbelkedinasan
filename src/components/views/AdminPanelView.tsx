@@ -34,6 +34,7 @@ export function AdminPanelView() {
   const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-questions' | 'sales-packages' | 'edit-product' | 'transactions' | 'users' | 'broadcast' | 'events' | 'landing'>('dashboard');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
   const [packages, setPackages] = useState<any[]>([]);
   const [filteredPackages, setFilteredPackages] = useState<any[]>([]);
 
@@ -219,6 +220,60 @@ export function AdminPanelView() {
       setEditingPackageId(null);
     } else {
       toast.error("Gagal mengubah nama: " + error.message);
+    }
+  };
+
+  // Ubah status penjualan paket: OPEN (bisa dibeli), CLOSED (tampil tapi
+  // tidak bisa dibeli), HIDDEN (disembunyikan dari katalog siswa).
+  const updatePackageStatus = async (pkg: any, status: 'OPEN' | 'CLOSED' | 'HIDDEN') => {
+    if (!supabase) return;
+    if ((pkg.sales_status ?? 'OPEN') === status) return;
+
+    if (status === 'CLOSED') {
+      const ok = window.confirm(
+        `Tutup pendaftaran "${pkg.title}"?\n\nPaket tetap tampil di katalog siswa, tetapi tidak bisa dibeli. Siswa yang sudah punya akses tetap bisa membukanya.`
+      );
+      if (!ok) return;
+    }
+
+    if (status === 'HIDDEN') {
+      const ok = window.confirm(
+        `Sembunyikan "${pkg.title}" dari katalog siswa?\n\nPaket tidak dihapus. Anda bisa memunculkannya lagi kapan saja.`
+      );
+      if (!ok) return;
+    }
+
+    setUpdatingStatusId(pkg.id);
+    try {
+      const { error } = await supabase
+        .from('packages')
+        .update({ sales_status: status })
+        .eq('id', pkg.id);
+      if (error) throw error;
+
+      setSalesPackages((prev: any[]) =>
+        prev.map((p) => (p.id === pkg.id ? { ...p, sales_status: status } : p))
+      );
+
+      toast.success(
+        status === 'OPEN'
+          ? 'Paket dibuka kembali'
+          : status === 'CLOSED'
+            ? 'Pendaftaran ditutup'
+            : 'Paket disembunyikan',
+        {
+          description:
+            status === 'OPEN'
+              ? 'Siswa bisa melihat dan membeli paket ini lagi.'
+              : status === 'CLOSED'
+                ? 'Paket masih tampil di katalog, tapi tombol beli dinonaktifkan.'
+                : 'Paket tidak tampil di katalog. Data dan akses siswa tetap utuh.',
+        }
+      );
+    } catch (err: any) {
+      toast.error('Gagal mengubah status', { description: err.message });
+    } finally {
+      setUpdatingStatusId(null);
     }
   };
 
@@ -767,17 +822,54 @@ export function AdminPanelView() {
                             </div>
                           )}
 
-                          {/* Footer */}
-                          <div className="pt-3 border-t border-white/5 flex items-center justify-between mt-auto">
-                            <span className={cn('text-[10px] font-bold px-2 py-1 rounded-lg border', pkg.is_active ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-500/10 text-slate-500 border-slate-500/20')}>
-                              {pkg.is_active ? 'Aktif' : 'Nonaktif'}
-                            </span>
-                            <button
-                              onClick={() => { setSelectedProductId(pkg.id); setCurrentView('edit-product'); }}
-                              className="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
-                            >
-                              Edit →
-                            </button>
+                          {/* Footer: status + aksi */}
+                          <div className="pt-3 border-t border-white/5 space-y-2 mt-auto">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className={cn(
+                                'text-[10px] font-bold px-2 py-1 rounded-lg border',
+                                pkg.sales_status === 'OPEN'
+                                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                  : pkg.sales_status === 'CLOSED'
+                                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                    : 'bg-slate-500/10 text-slate-500 border-slate-500/20'
+                              )}>
+                                {pkg.sales_status === 'OPEN' ? 'Aktif' : pkg.sales_status === 'CLOSED' ? 'Ditutup' : 'Nonaktif'}
+                              </span>
+                              <button
+                                onClick={() => { setSelectedProductId(pkg.id); setCurrentView('edit-product'); }}
+                                className="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
+                              >
+                                Edit →
+                              </button>
+                            </div>
+
+                            {/* Pilihan status penjualan */}
+                            <div className="grid grid-cols-3 gap-1">
+                              {([
+                                { value: 'OPEN', label: 'Buka', title: 'Tampil di katalog dan bisa dibeli' },
+                                { value: 'CLOSED', label: 'Tutup', title: 'Tetap tampil, tapi tidak bisa dibeli' },
+                                { value: 'HIDDEN', label: 'Sembunyi', title: 'Disembunyikan dari katalog siswa' },
+                              ] as const).map((opt) => (
+                                <button
+                                  key={opt.value}
+                                  title={opt.title}
+                                  disabled={updatingStatusId === pkg.id}
+                                  onClick={() => updatePackageStatus(pkg, opt.value)}
+                                  className={cn(
+                                    'rounded-lg px-1 py-1.5 text-[9px] font-bold uppercase tracking-wider transition-all disabled:opacity-40',
+                                    (pkg.sales_status ?? 'OPEN') === opt.value
+                                      ? opt.value === 'OPEN'
+                                        ? 'bg-emerald-600 text-white'
+                                        : opt.value === 'CLOSED'
+                                          ? 'bg-amber-600 text-white'
+                                          : 'bg-slate-600 text-white'
+                                      : 'bg-white/5 text-slate-500 hover:bg-white/10 hover:text-slate-300'
+                                  )}
+                                >
+                                  {updatingStatusId === pkg.id ? '...' : opt.label}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </div>

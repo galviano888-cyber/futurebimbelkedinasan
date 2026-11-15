@@ -3,6 +3,7 @@ import { ArrowLeft, Save, Plus, X, Video, FileText, FileEdit, Loader2, ShoppingC
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { isFullPackage, productTypeLabel, type ProductType } from "@/lib/packages";
 
 interface AdminProductEditorViewProps {
@@ -23,7 +24,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [uploadingCover, setUploadingCover] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
-  const [isActive, setIsActive] = useState(true);
+  const [salesStatus, setSalesStatus] = useState<'OPEN' | 'CLOSED' | 'HIDDEN'>('OPEN');
   const [contents, setContents] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -41,7 +42,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
       setOriginalPrice(editingProduct.original_price || null);
       setQuota(editingProduct.quota ?? 5);
       setDescription(editingProduct.description);
-        setIsActive(editingProduct.is_active ?? true);
+        setSalesStatus(editingProduct.sales_status ?? (editingProduct.is_active ? 'OPEN' : 'HIDDEN'));
         setCoverImageUrl(editingProduct.cover_image_url || "");
         setContents(editingProduct.contents || []);
       }
@@ -68,7 +69,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
         setOriginalPrice(data.original_price || null);
         setQuota(data.quota ?? 5);
         setDescription(data.description);
-        setIsActive(data.is_active);
+        setSalesStatus(data.sales_status ?? (data.is_active ? 'OPEN' : 'HIDDEN'));
         setGuideText(data.guide_text || "Masuk grup dan baca langkah-langkah panduan Bimbel");
         setGuideUrl(data.guide_url || "");
         setCoverImageUrl(data.cover_image_url || "");
@@ -144,7 +145,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
         original_price: originalPrice,
         product_type: productType,
         quota: productType === 'KELAS' ? quota : null,
-        is_active: isActive,
+        sales_status: salesStatus,
         guide_text: guideText,
         guide_url: guideUrl,
         cover_image_url: coverImageUrl || null,
@@ -452,15 +453,39 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
                 )}
               </div>
 
-              <label className="flex items-center gap-3 cursor-pointer group mt-4">
-                <input 
-                  type="checkbox" 
-                  checked={isActive}
-                  onChange={(e) => setIsActive(e.target.checked)}
-                  className="w-5 h-5 rounded-lg border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
-                />
-                <span className="text-sm font-bold text-slate-600 group-hover:text-slate-900 transition-colors">Tampilkan di Katalog</span>
-              </label>
+              <div className="mt-4 space-y-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Status Penjualan</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { value: 'OPEN', label: 'Aktif', desc: 'Tampil & bisa dibeli', color: 'emerald' },
+                    { value: 'CLOSED', label: 'Ditutup', desc: 'Tampil, tidak bisa dibeli', color: 'amber' },
+                    { value: 'HIDDEN', label: 'Nonaktif', desc: 'Disembunyikan', color: 'slate' },
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setSalesStatus(opt.value)}
+                      className={cn(
+                        'rounded-xl border-2 px-3 py-2.5 text-left transition-all',
+                        salesStatus === opt.value
+                          ? opt.value === 'OPEN'
+                            ? 'border-emerald-500 bg-emerald-50'
+                            : opt.value === 'CLOSED'
+                              ? 'border-amber-500 bg-amber-50'
+                              : 'border-slate-400 bg-slate-100'
+                          : 'border-slate-200 bg-white hover:border-slate-300'
+                      )}
+                    >
+                      <span className="block text-[11px] font-bold text-slate-800">{opt.label}</span>
+                      <span className="block text-[9px] font-medium text-slate-500 mt-0.5 leading-tight">{opt.desc}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[10px] text-slate-400 leading-relaxed ml-1">
+                  <b>Ditutup</b> berguna untuk menghentikan pendaftaran tanpa menghapus paket.
+                  Siswa yang sudah punya akses tetap bisa membukanya.
+                </p>
+              </div>
 
               {isFullPackage(productType) && (
                 <div className="pt-6 border-t border-slate-100 space-y-5">

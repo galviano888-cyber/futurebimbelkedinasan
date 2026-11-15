@@ -59,8 +59,10 @@ export function AdminUserManager() {
     try {
       const { data } = await supabase
         .from('packages')
-        .select('id, title, product_type, quota, seats_taken')
-        .eq('is_active', true)
+        .select('id, title, product_type, quota, seats_taken, sales_status')
+        // Paket yang pendaftarannya ditutup tetap bisa diberikan admin,
+        // tetapi paket yang disembunyikan (HIDDEN) tidak ditampilkan.
+        .neq('sales_status', 'HIDDEN')
         .order('title');
       setAllPackages(data || []);
     } catch (err) {
@@ -410,6 +412,7 @@ export function AdminUserManager() {
                     <option key={pkg.id} value={pkg.id} disabled={packageIsFull(pkg)} className="bg-slate-900">
                       {pkg.title} ({pkg.product_type})
                       {packageSeatLabel(pkg) ? ` — ${packageSeatLabel(pkg)}` : ''}
+                      {pkg.sales_status === 'CLOSED' ? ' — ditutup' : ''}
                       {packageIsFull(pkg) ? ' — PENUH' : ''}
                     </option>
                   ))}

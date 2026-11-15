@@ -6,9 +6,9 @@ import { Sidebar } from "@/components/Sidebar";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { DashboardSkeleton, FBKLoader } from "@/components/ui/skeleton";
-import { LandingPageView } from "@/components/views/LandingPageView";
 
 // Lazy loaded views
+const LandingPageView = lazy(() => import("@/components/views/LandingPageView").then(m => ({ default: m.LandingPageView })));
 const DashboardView = lazy(() => import("@/components/views/DashboardView").then(m => ({ default: m.DashboardView })));
 const TryoutView = lazy(() => import("@/components/views/TryoutView").then(m => ({ default: m.TryoutView })));
 const PaketSayaView = lazy(() => import("@/components/views/PaketSayaView").then(m => ({ default: m.PaketSayaView })));
@@ -413,10 +413,10 @@ export default function App() {
 
     return (
       <Routes>
-        {/* Landing/Auth */}
-        <Route path="/" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/dashboard" replace />} />
-        <Route path="/login" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/dashboard" replace />} />
-        <Route path="/register" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/dashboard" replace />} />
+        {/* Landing/Auth — setelah login langsung ke katalog paket, bukan dashboard */}
+        <Route path="/" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/paket" replace />} />
+        <Route path="/login" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/paket" replace />} />
+        <Route path="/register" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/paket" replace />} />
         <Route path="/reset-password" element={<ResetPasswordView />} />
         
         {/* Admin — requires authenticated session; AdminPanelView enforces role check internally */}

@@ -1,4 +1,4 @@
-import { motion, type HTMLMotionProps } from "framer-motion";
+import type { HTMLAttributes } from "react";
 
 /** Spinner dengan logo FBK kecil di tengah — dipakai di semua loading screen utama */
 export function FBKLoader({ text, dark = false }: { text?: string; dark?: boolean }) {
@@ -27,11 +27,13 @@ export function FBKLoader({ text, dark = false }: { text?: string; dark?: boolea
   );
 }
 
-interface SkeletonProps extends HTMLMotionProps<"div"> {
+interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
   variant?: "rect" | "circle" | "text";
 }
 
+// Animasi denyut memakai CSS (animate-pulse) agar framer-motion tidak ikut
+// termuat pada beban awal halaman.
 export function Skeleton({ className = "", variant = "rect", ...props }: SkeletonProps) {
   const variants = {
     rect: "rounded-xl",
@@ -40,11 +42,8 @@ export function Skeleton({ className = "", variant = "rect", ...props }: Skeleto
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0.5 }}
-      animate={{ opacity: [0.5, 0.8, 0.5] }}
-      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-      className={`bg-slate-200/60 dark:bg-slate-800/40 ${variants[variant]} ${className}`}
+    <div
+      className={`animate-pulse bg-slate-200/60 dark:bg-slate-800/40 ${variants[variant]} ${className}`}
       {...props}
     />
   );
