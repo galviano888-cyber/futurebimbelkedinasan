@@ -137,11 +137,23 @@ salah". Perbedaannya halus: cakupan, ketepatan sasaran, dampak.
 **Contoh opsi yang salah:** "membiarkan manipulasi berlanjut", "membakar
 fasilitas", "menyerahkan pekerjaan tanpa memberi tahu".
 
-### 2.2 Skor kembar diperbolehkan
+### 2.2 Skor wajib 1–5, masing-masing tepat sekali
 
-Dua opsi boleh berskor sama bila kualitas penalarannya setara. Pola seragam
-5,4,3,2,1 di semua soal justru tanda skor diberi berdasarkan urutan, bukan
-penalaran.
+Setiap soal TKP memiliki **lima opsi dengan skor berbeda**:
+
+| Opsi | Skor |
+|---|---|
+| satu opsi | 5 |
+| satu opsi | 4 |
+| satu opsi | 3 |
+| satu opsi | 2 |
+| satu opsi | 1 |
+
+**Skor kembar tidak diperbolehkan.** Contoh yang salah: A=4 dan B=4.
+Kelima angka 1, 2, 3, 4, 5 harus terpakai tepat satu kali per soal.
+
+Artinya siswa selalu bisa memeringkat kelima opsi dari yang paling tepat
+sampai paling tidak tepat, tanpa ada dua opsi yang setara.
 
 ### 2.3 Butir TWK berbasis penalaran
 
@@ -232,7 +244,7 @@ untuk menjaga konsistensi pemberian skor.
 3. **Ada dilema atau tekanan**: waktu terbatas, kepentingan bertabrakan,
    emosi, atau sumber daya terbatas.
 4. **Lima opsi (A–E)**, semuanya tindakan konkret.
-5. **Skor 1–5 per opsi**, boleh kembar.
+5. **Skor 1–5 per opsi**, masing-masing tepat sekali (tidak boleh kembar).
 
 ### Larangan
 - Opsi yang jelas absurd atau tidak mungkin dilakukan
@@ -254,13 +266,12 @@ untuk menjaga konsistensi pemberian skor.
 | Kunci valid | Kunci menunjuk opsi yang ada | `audit-package.mjs` |
 | Sebaran kunci | Rata-rata ±40% dari ideal | `audit-package.mjs` |
 | Bias panjang | Kunci terpanjang ≤30% | `audit-package.mjs` |
-| Skor TKP | Lengkap A–E, 1–5, ada 1 dan ada 5 | `audit-package.mjs` |
 | Pembahasan | ≥30 karakter, tanpa kata proses | `audit-package.mjs` |
 | Istilah usang | Tidak ada "EYD" di stem/pembahasan | `audit-package.mjs` |
 | **Opsi negatif TKP** | **0** opsi bertanda membiarkan/mengabaikan/menolak/menunda | `measure-tkp-similarity.mjs` |
 | **Kemiripan opsi** | Rata-rata antar pasangan ≥18% | `measure-tkp-similarity.mjs` |
 | **Selisih panjang** | ≤60 karakter | `measure-tkp-similarity.mjs` |
-| **Pola skor** | Tidak semua soal memakai 5,4,3,2,1 | `audit-tkp.mjs` |
+| **Skor TKP** | Wajib 1,2,3,4,5 masing-masing tepat sekali (tidak boleh kembar) | `audit-package.mjs` |
 | **Kesesuaian tema** | Isi soal memuat kata kunci tema | `audit-tkp.mjs` |
 | Silogisme | Tepat satu opsi selalu benar | `verify-syllogism-skd-01.mjs` |
 | Hitungan | Hasil pembahasan cocok dengan opsi | `verify-logic.mjs` |
@@ -272,7 +283,7 @@ untuk menjaga konsistensi pemberian skor.
 3. **Skor 5 vs 4**: apakah skor 5 benar-benar lebih menyeluruh, bukan hanya
    lebih panjang atau lebih formal?
 4. **Kesesuaian tema**: apakah isi benar-benar mencerminkan tema?
-5. **Skor kembar**: apakah ada dua opsi setara yang seharusnya sama skornya?
+5. **Urutan skor**: apakah urutan 5→1 benar-benar mencerminkan kualitas penalaran, bukan urutan penulisan?
 6. **Kepatuhan regulasi**: apakah opsi yang berskor rendah memang melanggar
    prinsip ASN / nilai dasar / disiplin?
 
@@ -302,7 +313,7 @@ Semua dijalankan dari folder `_tools`.
 2. audit-package.mjs        -> perbaiki semua MASALAH
 3. measure-tkp-similarity   -> soal TKP harus masuk kategori HOTS/Sedang,
                                bukan Mudah (tidak ada opsi negatif)
-4. audit-tkp.mjs            -> periksa pola skor & tema
+4. audit-tkp.mjs            -> periksa kesahihan skor & tema
 5. verify-logic.mjs         -> periksa silogisme & hitungan manual
 6. Tinjau manual Bagian 5.2 -> wajib, tidak boleh dilewati
 7. Perbaiki, ulangi sampai bersih
