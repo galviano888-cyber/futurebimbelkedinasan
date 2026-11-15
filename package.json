@@ -17,6 +17,8 @@
     "check:status-paket": "node scripts/e2e-status.mjs",
     "check:analytics": "node scripts/e2e-analytics.mjs",
     "check:sesi": "node scripts/e2e-session.mjs",
+    "check:submit": "node scripts/e2e-submit.mjs",
+    "check:akses": "node scripts/e2e-access.mjs",
     "check:security": "node scripts/probe-rls.mjs && node scripts/probe-student.mjs",
     "check:status": "node scripts/db-status.mjs",
     "check:encoding": "node scripts/fix-mojibake.mjs",

@@ -423,9 +423,21 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
   // Saat koneksi pulih, kirim ulang progres yang mungkin gagal tersimpan
   // selama offline, lalu beri tahu siswa.
+  //
+  // Penting: hanya bereaksi pada PERUBAHAN offline -> online. Tanpa penanda
+  // ini efek akan berjalan setiap kali jawaban berubah (karena `answers` ada
+  // di daftar dependensi), sehingga siswa melihat notifikasi "Koneksi pulih"
+  // berulang kali padahal koneksi tidak pernah putus.
+  const wasOfflineRef = useRef(false);
   useEffect(() => {
-    if (!isOnline || !userId || !supabase) return;
-    if (questions.length === 0) return;
+    if (!isOnline) {
+      wasOfflineRef.current = true;
+      return;
+    }
+    if (!wasOfflineRef.current) return;
+    wasOfflineRef.current = false;
+
+    if (!userId || !supabase || questions.length === 0) return;
 
     let cancelled = false;
     (async () => {
@@ -511,6 +523,9 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         localStorage.removeItem(`to_endtime_${user.id}_${questionsId}`);
         localStorage.removeItem(`to_answers_${user.id}_${questionsId}`);
       }
+      // Cache soal juga dibersihkan: jika admin memperbarui soal, percobaan
+      // berikutnya harus memuat versi terbaru, bukan salinan lama di perangkat.
+      localStorage.removeItem(`to_questions_${questionsId}`);
 
       let reviewQuestions = questions;
       if (resultRow.id) {
