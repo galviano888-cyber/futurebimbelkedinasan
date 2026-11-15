@@ -104,35 +104,22 @@ export default function App() {
     user_metadata?: { full_name?: string; name?: string };
   }
 
-  // Route yang tidak boleh dialihkan otomatis. Saat siswa sedang mengerjakan
-  // tryout, refresh halaman atau pembaruan sesi tidak boleh memindahkan mereka.
-  const isTryoutRoute = (p: string) =>
-    p.startsWith('/tryout-engine') ||
-    p.startsWith('/tryout-pre') ||
-    p.startsWith('/tryout-result') ||
-    p.startsWith('/tryout-review') ||
-    p.startsWith('/event-engine');
-
   const handleGoogleCallback = async (s: any) => {
     if (!supabase || !s?.user) return;
     const isGoogleUser = s.user.app_metadata?.provider === 'google' ||
       s.user.app_metadata?.providers?.includes('google');
     if (!isGoogleUser) return;
 
-    // PENTING: pakai window.location.pathname, bukan `location` dari closure.
-    // onAuthStateChange dipasang sekali (deps []), sehingga `location` di sini
-    // menunjuk path saat pertama render, bukan path sekarang. Dulu ini
-    // menyebabkan siswa yang refresh di tengah tryout terlempar ke katalog.
-
-    const pathNow = window.location.pathname;
-
-    // Setelah login lewat Google, langsung ke katalog paket (bukan dashboard).
-    // Route tryout dan admin panel tidak boleh terganggu.
-    if (pathNow !== '/x7k2m9qp4n8vw3js' && !isTryoutRoute(pathNow)) {
-      navigate('/paket', { replace: true });
-    }
+    // Fungsi ini HANYA menyimpan nama dari Google. Pengalihan halaman
+    // ditangani onAuthStateChange, yang hanya mengalihkan dari titik masuk
+    // login (/, /login, /register, /dashboard).
+    //
+    // JANGAN menaruh navigate() di sini: SIGNED_IN juga terpicu saat sesi
+    // dipulihkan ketika halaman di-refresh, sehingga siswa yang sedang di
+    // /paket-saya atau /tryout-engine akan terlempar ke katalog.
 
     // Simpan nama dari Google metadata kalau belum ada di profiles
+
     const { data: prof } = await supabase.from('profiles').select('full_name').eq('id', s.user.id).single();
     if (!prof?.full_name) {
       const googleName = s.user.user_metadata?.full_name ||
