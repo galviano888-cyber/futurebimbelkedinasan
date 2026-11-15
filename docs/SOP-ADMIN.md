@@ -231,6 +231,8 @@ Siswa juga melihat pengingat halus di halaman Profil mereka sendiri.
 | Kelas tidak bisa ditambah | Kuota 5 sudah penuh | Cabut akses siswa lain dulu |
 | Grafik omzet tidak berubah | Transaksi berstatus `cancelled` | Beri akses ulang |
 | Siswa tidak menemukan invoice | Memang tidak ada invoice | Semua lewat WhatsApp |
+| Siswa terputus di tengah tryout | Sinyal hilang / browser tertutup | Minta siswa buka lagi tryout yang sama. Jawaban, posisi soal, dan sisa waktu dipulihkan otomatis. |
+| Siswa bilang "waktu ujian habis" padahal baru mulai | Sesi lama masih menggantung | Tunggu 1 jam, sesi lama terhapus sendiri. Atau hapus manual di tabel `active_tryout_sessions`. |
 | Data hilang / salah | — | Hubungi developer, jangan edit database manual |
 
 ---

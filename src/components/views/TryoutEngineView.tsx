@@ -5,7 +5,8 @@ import {
   X,
   AlertCircle,
   Sun,
-  Moon
+  Moon,
+  WifiOff
 } from "lucide-react";
 import { FBKLoader } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
@@ -13,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
 import { useTheme } from "@/components/theme-provider";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 interface TryoutEngineViewProps {
   packageId: string;
@@ -90,6 +92,8 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   const mountTime = useRef<number>(Date.now());
   const isSubmittingRef = useRef<boolean>(false); // synchronous flag to prevent double-submit
   const { theme, setTheme } = useTheme();
+  const isOnline = useOnlineStatus();
+  const [reloadKey, setReloadKey] = useState(0);
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const toggleTheme = useCallback(() => setTheme(isDark ? 'light' : 'dark'), [isDark, setTheme]);
 
@@ -239,6 +243,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         let serverEnd: number | null = null;
         let serverAnswers: Record<string, string> = {};
         let serverExpired = false;
+        let serverCurrentIdx = 0;
         let sessionOk = false;
 
         if (user) {
@@ -251,6 +256,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
               sessionOk = true;
               serverEnd = new Date(row.end_time).getTime();
               serverExpired = Boolean(row.expired);
+              serverCurrentIdx = Number(row.current_idx ?? 0) || 0;
               if (row.answers && typeof row.answers === 'object' && Object.keys(row.answers).length > 0) {
                 serverAnswers = row.answers as Record<string, string>;
               }
@@ -268,6 +274,22 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         const mergedAnswers = { ...localAnswers, ...serverAnswers };
         if (Object.keys(mergedAnswers).length > 0) {
           setAnswers(mergedAnswers);
+        }
+
+        // Beri tahu siswa bahwa pekerjaannya dipulihkan, bukan dimulai dari nol.
+        const recovered = Object.keys(serverAnswers).length;
+        if (recovered > 0) {
+          toast.info("Melanjutkan ujian", {
+            id: "resume-tryout",
+            description: `${recovered} jawaban Anda berhasil dipulihkan.`,
+            duration: 6000,
+          });
+        }
+
+        // Lanjutkan dari soal terakhir yang sedang dikerjakan (mis. setelah
+        // koneksi putus atau perangkat mati di tengah ujian).
+        if (serverCurrentIdx > 0) {
+          setCurrentIdx(serverCurrentIdx);
         }
 
         if (sessionOk && serverEnd && user) {
@@ -328,23 +350,62 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           throw new Error("Tidak ada soal ditemukan di paket ini. Silakan hubungi admin.");
         }
 
+        // Simpan soal di perangkat supaya ujian bisa dilanjutkan walau
+        // koneksi putus di tengah jalan (mis. sinyal hilang, kuota habis).
+        // Yang disimpan hanya teks soal dan opsi — kunci jawaban tidak pernah
+        // dikirim ke browser.
+        if (user) {
+          try {
+            localStorage.setItem(`to_questions_${questionsId}`, JSON.stringify(data));
+          } catch {
+            /* kuota localStorage penuh — abaikan */
+          }
+        }
+
         setQuestions(data || []);
       } catch (err: any) {
         console.error("Error loading engine:", err);
-        setError(err.message || "Gagal memuat soal tryout.");
+
+        // Koneksi bermasalah: pakai soal yang tersimpan di perangkat.
+        const cached = (() => {
+          try {
+            const raw = localStorage.getItem(`to_questions_${questionsId}`);
+            return raw ? JSON.parse(raw) : null;
+          } catch {
+            return null;
+          }
+        })();
+
+        if (Array.isArray(cached) && cached.length > 0) {
+          setQuestions(cached);
+          setError(null);
+          toast.warning("Mode offline", {
+            id: "offline-mode",
+            description:
+              "Soal dimuat dari perangkat. Jawaban Anda tetap tersimpan dan akan dikirim saat koneksi pulih.",
+            duration: 9000,
+          });
+        } else {
+          setError(err.message || "Gagal memuat soal tryout.");
+        }
       } finally {
         setLoading(false);
       }
     }
     fetchQuestions();
-  }, [questionsId]);
+  }, [questionsId, reloadKey]);
 
   // Persist answers locally and autosave to the server session.
   useEffect(() => {
-    if (!userId || Object.keys(answers).length === 0) return;
+    if (!userId) return;
 
-    localStorage.setItem(`to_answers_${userId}_${questionsId}`, JSON.stringify(answers));
+    // Simpan jawaban lokal bila ada.
+    if (Object.keys(answers).length > 0) {
+      localStorage.setItem(`to_answers_${userId}_${questionsId}`, JSON.stringify(answers));
+    }
 
+    // Simpan juga posisi soal, supaya siswa yang pindah soal tanpa menjawab
+    // tetap kembali ke tempat yang sama setelah koneksi putus.
     const timer = setTimeout(() => {
       if (!supabase) return;
       supabase
@@ -359,6 +420,35 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
     return () => clearTimeout(timer);
   }, [answers, userId, questionsId, currentIdx, cheatAttempts]);
+
+  // Saat koneksi pulih, kirim ulang progres yang mungkin gagal tersimpan
+  // selama offline, lalu beri tahu siswa.
+  useEffect(() => {
+    if (!isOnline || !userId || !supabase) return;
+    if (questions.length === 0) return;
+
+    let cancelled = false;
+    (async () => {
+      const { error: syncError } = await supabase!.rpc('save_tryout_progress', {
+        p_tryout_id: questionsId,
+        p_answers: answers,
+        p_current_idx: currentIdx,
+        p_flagged: cheatAttempts,
+      });
+
+      if (!cancelled && !syncError) {
+        toast.success("Koneksi pulih", {
+          id: "back-online",
+          description: "Jawaban Anda sudah tersimpan di server.",
+          duration: 4000,
+        });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOnline, userId, questionsId, answers, currentIdx, cheatAttempts, questions.length]);
 
   // Auto-finish on 3 violations
   useEffect(() => {
@@ -456,7 +546,16 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
       });
     } catch (err: any) {
       console.error("Error submitting tryout:", err);
-      toast.error("Gagal mengirim jawaban: " + (err.message || "Unknown error"));
+      const offline = typeof navigator !== "undefined" && navigator.onLine === false;
+      toast.error(
+        offline ? "Koneksi terputus — jawaban belum terkirim" : "Gagal mengirim jawaban: " + (err.message || "Unknown error"),
+        {
+          description: offline
+            ? "Jawaban Anda masih tersimpan di perangkat ini. Sambungkan internet lalu tekan Selesai lagi."
+            : undefined,
+          duration: offline ? 9000 : 5000,
+        }
+      );
       isSubmittingRef.current = false;
       setIsSubmitting(false);
     } finally {
@@ -471,15 +570,27 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           <AlertCircle className="w-8 h-8" />
         </div>
         <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">Gagal Memuat Soal</h3>
-        <p className="text-slate-500 dark:text-slate-400 text-[14px] mb-7 max-w-md mx-auto leading-relaxed">
+        <p className="text-slate-500 dark:text-slate-400 text-[14px] mb-3 max-w-md mx-auto leading-relaxed">
           {error}
         </p>
-        <button
-          onClick={onExit}
-          className="px-7 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium text-[14px] rounded-xl transition-all active:scale-[0.98]"
-        >
-          Kembali ke Dashboard
-        </button>
+        <p className="text-slate-400 dark:text-slate-500 text-[12px] mb-7 max-w-sm mx-auto leading-relaxed">
+          Jawaban dan sisa waktu Anda tersimpan. Coba muat ulang — ujian akan dilanjutkan
+          dari soal terakhir.
+        </p>
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <button
+            onClick={() => { setError(null); setReloadKey((k) => k + 1); }}
+            className="px-7 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium text-[14px] rounded-xl transition-all active:scale-[0.98]"
+          >
+            Coba Lagi
+          </button>
+          <button
+            onClick={onExit}
+            className="px-7 py-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 font-medium text-[14px] rounded-xl transition-all active:scale-[0.98]"
+          >
+            Kembali ke Dashboard
+          </button>
+        </div>
       </div>
     );
   }
@@ -519,6 +630,14 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-3">
+          {/* Koneksi putus: jawaban tetap tersimpan lokal dan akan disinkronkan. */}
+          {!isOnline && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/20 border border-amber-300/40">
+              <WifiOff className="w-3.5 h-3.5 text-amber-200" />
+              <span className="text-[10px] font-bold text-amber-100 hidden sm:inline">Offline</span>
+            </div>
+          )}
+
           <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 bg-white/10 rounded-xl border border-white/20">
             <span className="text-[11px] font-medium text-blue-100">Terjawab</span>
             <span className="text-[13px] font-semibold text-white">{Object.keys(answers).length}/{questions.length}</span>
