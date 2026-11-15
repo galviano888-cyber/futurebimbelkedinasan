@@ -104,15 +104,31 @@ export default function App() {
     user_metadata?: { full_name?: string; name?: string };
   }
 
+  // Route yang tidak boleh dialihkan otomatis. Saat siswa sedang mengerjakan
+  // tryout, refresh halaman atau pembaruan sesi tidak boleh memindahkan mereka.
+  const isTryoutRoute = (p: string) =>
+    p.startsWith('/tryout-engine') ||
+    p.startsWith('/tryout-pre') ||
+    p.startsWith('/tryout-result') ||
+    p.startsWith('/tryout-review') ||
+    p.startsWith('/event-engine');
+
   const handleGoogleCallback = async (s: any) => {
     if (!supabase || !s?.user) return;
     const isGoogleUser = s.user.app_metadata?.provider === 'google' ||
       s.user.app_metadata?.providers?.includes('google');
     if (!isGoogleUser) return;
 
+    // PENTING: pakai window.location.pathname, bukan `location` dari closure.
+    // onAuthStateChange dipasang sekali (deps []), sehingga `location` di sini
+    // menunjuk path saat pertama render, bukan path sekarang. Dulu ini
+    // menyebabkan siswa yang refresh di tengah tryout terlempar ke katalog.
+
+    const pathNow = window.location.pathname;
+
     // Setelah login lewat Google, langsung ke katalog paket (bukan dashboard).
-    // Admin panel tidak boleh terganggu.
-    if (location.pathname !== '/x7k2m9qp4n8vw3js') {
+    // Route tryout dan admin panel tidak boleh terganggu.
+    if (pathNow !== '/x7k2m9qp4n8vw3js' && !isTryoutRoute(pathNow)) {
       navigate('/paket', { replace: true });
     }
 
@@ -458,7 +474,7 @@ export default function App() {
               ? <Navigate to="/" replace />
               : activePackageId && questionsId
                 ? <TryoutEngineView packageId={activePackageId} questionsId={questionsId} onFinish={handleTryoutComplete} onExit={() => navigate("/dashboard")} />
-                : <Navigate to="/dashboard" replace />
+                : <Navigate to="/paket-saya" replace />
         } />
         <Route path="/tryout-result" element={tryoutResult ? <TryoutResultView result={tryoutResult} packageId={activePackageId!} onBack={() => { clearTryoutResult(); navigate("/dashboard"); }} onReview={() => navigate("/tryout-review")} /> : <Navigate to="/dashboard" replace />} />
         <Route path="/tryout-review" element={tryoutResult ? <TryoutReviewView result={tryoutResult} questions={tryoutResult.questions || []} onBack={() => { clearTryoutResult(); navigate("/dashboard"); }} /> : <Navigate to="/dashboard" replace />} />
