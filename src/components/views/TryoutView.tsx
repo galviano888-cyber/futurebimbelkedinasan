@@ -56,45 +56,51 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
     return () => clearInterval(tick);
   }, []);
 
-  const fetchData = useCallback(async () => {
+  /**
+   * `silent` dipakai saat menyegarkan data setelah aksi (mis. setelah memesan):
+   * katalog tidak boleh berubah menjadi layar loading penuh, karena siswa akan
+   * melihat halaman kosong selama beberapa detik.
+   */
+  const fetchData = useCallback(async (silent = false) => {
     if (!supabase) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Permintaan yang masih dalam masa tunggu 24 jam
-      if (user) {
-        const { data: pending } = await supabase
-          .from('transactions')
-          .select('package_id, expiry_date')
-          .eq('user_id', user.id)
-          .in('status', ['pending', 'verifying'])
-          .gt('expiry_date', new Date().toISOString());
+      // Ambil data yang tidak saling bergantung secara paralel agar tidak
+      // menunggu berurutan (sebelumnya 5 request berantai).
+      const pendingQuery = user
+        ? supabase
+            .from('transactions')
+            .select('package_id, expiry_date')
+            .eq('user_id', user.id)
+            .in('status', ['pending', 'verifying'])
+            .gt('expiry_date', new Date().toISOString())
+        : Promise.resolve({ data: [] as any[] });
 
-        const map: Record<string, number> = {};
-        (pending || []).forEach((tx: any) => {
-          if (!tx.package_id || !tx.expiry_date) return;
-          map[tx.package_id] = new Date(tx.expiry_date).getTime();
-        });
-        setPendingUntil(map);
-        setNow(Date.now());
-      } else {
-        setPendingUntil({});
-      }
+      const ownedQuery = user
+        ? supabase.from('user_packages').select('package_id').eq('user_id', user.id)
+        : Promise.resolve({ data: [] as any[] });
 
-      const { data: allPackages, error: pkgError } = await supabase
-        .from('packages')
-        .select('*, cover_image_url')
-        .eq('is_active', true);
-      let ownedPackageIds: string[] = [];
-      if (user) {
-        const { data: owned } = await supabase.from('user_packages').select('package_id').eq('user_id', user.id);
-        if (owned) ownedPackageIds = owned.map(item => item.package_id);
-      }
+      const [{ data: pending }, { data: owned }, { data: allPackages, error: pkgError }, { data: counts }] =
+        await Promise.all([
+          pendingQuery,
+          ownedQuery,
+          supabase.from('packages').select('*, cover_image_url').eq('is_active', true),
+          supabase.from('package_content_counts').select('package_id, content_count'),
+        ]);
+
+      const map: Record<string, number> = {};
+      (pending || []).forEach((tx: any) => {
+        if (!tx.package_id || !tx.expiry_date) return;
+        map[tx.package_id] = new Date(tx.expiry_date).getTime();
+      });
+      setPendingUntil(map);
+      setNow(Date.now());
+
+      const ownedPackageIds = (owned || []).map((item: any) => item.package_id);
+
       if (!pkgError && allPackages) {
-        const { data: counts } = await supabase
-          .from('package_content_counts')
-          .select('package_id, content_count');
         const countMap = new Map((counts || []).map((c: any) => [c.package_id, c.content_count]));
         const filtered = allPackages
           .filter((p: any) => p.id !== '11111111-1111-1111-1111-111111111111' && !ownedPackageIds.includes(p.id))
@@ -108,7 +114,7 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [isAuthenticated]);
 
@@ -250,7 +256,9 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
       });
 
       // Simpan status "menunggu konfirmasi" dulu, baru pindah ke WhatsApp.
-      await fetchData();
+      // silent: jangan tampilkan layar loading penuh — katalog tetap terlihat
+      // dan badge status muncul tanpa membuat halaman kosong.
+      await fetchData(true);
 
       if (waTab && !waTab.closed) {
         waTab.location.href = waHref;
