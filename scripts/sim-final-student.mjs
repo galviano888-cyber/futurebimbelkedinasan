@@ -134,96 +134,84 @@ try {
   const pkgVisible = await page.getByText(/SKD STARTER PACK/i).first().isVisible().catch(() => false);
   check("4. Paket 'SKD STARTER PACK' tampil di katalog", pkgVisible);
 
-  // ══ 5. Klik Pesan via WA ════════════════════════════════════════════════
-  const popupPromise = context.waitForEvent("page", { timeout: 25000 }).catch(() => null);
-  const waBtn = page.getByRole("button", { name: /Pesan via WA/i }).first();
-  const waVisible = await waBtn.isVisible().catch(() => false);
-  check("5. Tombol 'Pesan via WA' tersedia", waVisible);
+  // ══ 5. Kondisi tombol pada katalog ══════════════════════════════════════
+  // Paket gratis memakai "Ambil Gratis"; paket berbayar yang ditutup memakai
+  // "Pendaftaran Ditutup". Tombol "Pesan via WA" hanya ada pada paket
+  // berbayar yang masih dibuka.
+  const gratisBtn = page.getByRole("button", { name: /Ambil Gratis/i }).first();
+  check("5. Paket gratis menampilkan 'Ambil Gratis'", await gratisBtn.isVisible().catch(() => false));
 
-  let waUrl = "";
-  if (waVisible) {
-    await waBtn.click();
-    const popup = await popupPromise;
-    if (popup) {
-      for (let i = 0; i < 40; i++) {
-        const u = popup.url();
-        if (u.includes("wa.me") || u.includes("whatsapp")) {
-          waUrl = u;
-          break;
-        }
-        await popup.waitForTimeout(500);
-      }
-    }
-    await page.waitForTimeout(2000);
-    await shot("03-setelah-wa");
+  const closedBtn = page.getByRole("button", { name: /Pendaftaran Ditutup/i }).first();
+  check("6. Paket berbayar yang ditutup menampilkan 'Pendaftaran Ditutup'", await closedBtn.isVisible().catch(() => false));
 
-    check("6. WhatsApp terbuka", !!waUrl, waUrl.slice(0, 60) || "tidak terbuka");
-    if (waUrl) {
-      const decoded = decodeURIComponent(waUrl).replace(/\+/g, " ");
-      check("7. Pesan WA memuat paket", /SKD STARTER PACK/i.test(decoded));
-      check("8. Pesan WA memuat rekening BRI", decoded.includes("035601089005505") || decoded.includes("0356 0108 9005 505"));
-      check("9. Pesan WA memuat langkah pembayaran", /Langkah pembayaran/i.test(decoded));
-      check("10. Pesan WA memuat email siswa", decoded.includes(email));
-    }
-    if (popup) await popup.close().catch(() => {});
+  const closedDisabled = await closedBtn.isDisabled().catch(() => false);
+  check("7. Tombol paket ditutup benar-benar tidak bisa diklik", closedDisabled);
 
-    // ══ 6. Status menunggu konfirmasi ═════════════════════════════════════
-    let waiting = false;
-    for (let i = 0; i < 40; i++) {
-      waiting = await page.getByText(/Menunggu Konfirmasi/i).first().isVisible().catch(() => false);
-      if (waiting) break;
-      await page.waitForTimeout(500);
-    }
-    check("11. Status 'Menunggu Konfirmasi' tampil", waiting);
-    await shot("04-menunggu");
+  // Tidak boleh ada tombol pesan WA saat semua paket berbayar ditutup.
+  const waCount = await page.getByRole("button", { name: /Pesan via WA/i }).count().catch(() => 0);
+  check("8. Tidak ada tombol 'Pesan via WA' saat semua paket berbayar ditutup", waCount === 0, `ditemukan ${waCount}`);
 
-    const tx = await rest(`transactions?user_id=eq.${userId}&status=in.(pending,verifying)&select=status,amount`);
-    check("12. Permintaan tercatat di database", Array.isArray(tx.body) && tx.body.length === 1, JSON.stringify(tx.body));
+  // ══ 6. Klaim paket gratis (alur nyata yang tersedia) ════════════════════
+  let claimed = false;
+  if (await gratisBtn.isVisible().catch(() => false)) {
+    await gratisBtn.click();
+    await page.waitForTimeout(6000);
+    await shot("03-setelah-klaim-gratis");
+
+    const owned = await rest(`user_packages?user_id=eq.${userId}&package_id=eq.${REAL_PACKAGE_ID}`);
+    claimed = Array.isArray(owned.body) && owned.body.length === 1;
+    check("9. Paket gratis berhasil diklaim (tersimpan di database)", claimed, JSON.stringify(owned.body));
+
+    const toastText = await page.locator("body").innerText().catch(() => "");
+    check("10. Konfirmasi klaim tampil ke siswa", /berhasil|ditambahkan|Paket Saya/i.test(toastText));
   }
 
-  // ══ 7. Admin memberi akses ══════════════════════════════════════════════
-  const grant = await rest("user_packages", {
-    method: "POST",
-    headers: { ...S, Prefer: "return=representation" },
-    body: JSON.stringify({ user_id: userId, package_id: REAL_PACKAGE_ID }),
-  });
-  check("13. Admin memberi akses paket", grant.ok, JSON.stringify(grant.body).slice(0, 150));
+  // ══ 7. Pastikan akses ada (klaim gratis sudah cukup) ═══════════════════
+  // Insert bisa gagal dengan 23505 bila paket sudah diklaim lewat tombol
+  // "Ambil Gratis" di langkah sebelumnya. Yang penting: akses memang ada.
+  const hasAccess = await rest(`user_packages?user_id=eq.${userId}&package_id=eq.${REAL_PACKAGE_ID}&select=package_id`);
+  check(
+    "11. Akses paket tersedia bagi siswa",
+    Array.isArray(hasAccess.body) && hasAccess.body.length === 1,
+    JSON.stringify(hasAccess.body)
+  );
 
   // ══ 8. Paket muncul di Paket Saya ═══════════════════════════════════════
   await page.goto(`${BASE}/paket-saya`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(4500);
   await shot("05-paket-saya");
 
-  check("14. Paket muncul di 'Paket Saya'", await page.getByText(/SKD STARTER PACK/i).first().isVisible().catch(() => false));
+  check("12. Paket muncul di 'Paket Saya'", await page.getByText(/SKD STARTER PACK/i).first().isVisible().catch(() => false));
 
   // ══ 9. Buka paket -> daftar konten ══════════════════════════════════════
   const openBtn = page.getByRole("button", { name: /Buka Paket/i }).first();
-  check("15. Tombol 'Buka Paket' tersedia", await openBtn.isVisible().catch(() => false));
+  check("13. Tombol 'Buka Paket' tersedia", await openBtn.isVisible().catch(() => false));
   if (await openBtn.isVisible().catch(() => false)) {
     await openBtn.click();
     await page.waitForTimeout(3000);
     await shot("06-detail-paket");
 
     const hasContent = await page.getByText(/SKD Pretest/i).first().isVisible().catch(() => false);
-    check("16. Konten 'SKD Pretest' tampil", hasContent);
+    check("14b. Konten 'SKD Pretest' tampil", hasContent);
 
-    // Konten tanpa tautan harus ditandai, bukan tombol aktif
-    const belumSiap = await page.getByText(/Belum ada|Belum siap|Belum Tersedia/i).first().isVisible().catch(() => false);
-    check("17. Konten kosong ditandai jelas (bukan tombol mati tanpa keterangan)", belumSiap);
+    // STARTER PACK punya 1 konten dan sudah tertaut ke tryout, sehingga
+    // tombol "Mulai Tryout" harus aktif dan tidak ada penanda kosong.
+    const adaTryout = await page.getByRole("button", { name: /Mulai Tryout/i }).first().isVisible().catch(() => false);
+    check("14. Konten tryout tertaut dan tombol aktif", adaTryout);
   }
 
   // ══ 10. Mulai tryout asli 110 soal ══════════════════════════════════════
   const startBtn = page.getByRole("button", { name: /Mulai Tryout/i }).first();
   const startVisible = await startBtn.isVisible().catch(() => false);
-  check("18. Tombol 'Mulai Tryout' aktif untuk SKD Pretest", startVisible);
+  check("15. Tombol 'Mulai Tryout' aktif untuk SKD Pretest", startVisible);
 
   if (startVisible) {
     await startBtn.click();
     await page.waitForTimeout(3500);
     await shot("07-persiapan");
 
-    check("19. Halaman persiapan ujian tampil", await page.getByText(/Persiapan Tryout/i).first().isVisible().catch(() => false));
-    check("20. Durasi ujian terbaca", await page.getByText(/Menit/i).first().isVisible().catch(() => false));
+    check("16. Halaman persiapan ujian tampil", await page.getByText(/Persiapan Tryout/i).first().isVisible().catch(() => false));
+    check("17. Durasi ujian terbaca", await page.getByText(/Menit/i).first().isVisible().catch(() => false));
 
     const startNow = page.getByRole("button", { name: /Mulai Tryout Sekarang/i }).first();
     if (await startNow.isVisible().catch(() => false)) await startNow.click();
@@ -232,25 +220,35 @@ try {
     await shot("08-soal-1");
 
     const engineText = await page.locator("body").innerText().catch(() => "");
-    check("21. Mesin ujian memuat 110 soal", /Soal nomor 1 dari 110/i.test(engineText), engineText.slice(0, 100).replace(/\n/g, " "));
-    check("22. Timer berjalan", /\d{2}:\d{2}/.test(engineText));
-    check("23. Kategori soal tampil (TWK/TIU/TKP)", /TWK|TIU|TKP/.test(engineText));
+    check("18. Mesin ujian memuat 110 soal", /Soal nomor 1 dari 110/i.test(engineText), engineText.slice(0, 100).replace(/\n/g, " "));
+    check("19. Timer berjalan", /\d{2}:\d{2}/.test(engineText));
+    check("20. Kategori soal tampil (TWK/TIU/TKP)", /TWK|TIU|TKP/.test(engineText));
 
     // ══ 11. Jawab beberapa soal ═══════════════════════════════════════════
+    // Opsi soal asli berupa tombol berawalan huruf A-E lalu teks panjang.
     let answered = 0;
     for (let i = 0; i < 6; i++) {
-      const opt = page.getByText(/^Pilihan [A-E]$/i).nth(i % 5);
-      if (await opt.isVisible().catch(() => false)) {
-        await opt.click();
-        answered++;
-        await page.waitForTimeout(350);
-      }
+      const clicked = await page.evaluate(() => {
+        const btn = [...document.querySelectorAll("button")].find((b) => {
+          const t = (b.textContent || "").trim();
+          return /^[A-E]\s*\S/.test(t) && t.length > 30;
+        });
+        if (btn) {
+          btn.click();
+          return true;
+        }
+        return false;
+      });
+      if (clicked) answered++;
+      await page.waitForTimeout(500);
+
       const next = page.getByRole("button", { name: /^Berikutnya$|^Selanjutnya$/i }).first();
       if (await next.isVisible().catch(() => false)) {
         await next.click();
         await page.waitForTimeout(700);
       }
     }
+    check("21b. Enam soal berhasil dijawab", answered >= 5, `terjawab ${answered}`);
     await shot("09-setelah-jawab");
 
     // ══ 12. Uji navigasi soal (lompat ke nomor tertentu) ══════════════════
@@ -259,7 +257,7 @@ try {
       await navBtn.click();
       await page.waitForTimeout(1500);
       const jumped = await page.locator("body").innerText().catch(() => "");
-      check("24. Navigasi lompat ke soal 50 bekerja", /Soal nomor 50 dari 110/i.test(jumped), jumped.slice(0, 80).replace(/\n/g, " "));
+      check("21. Navigasi lompat ke soal 50 bekerja", /Soal nomor 50 dari 110/i.test(jumped), jumped.slice(0, 80).replace(/\n/g, " "));
     } else {
       check("24. Navigasi lompat ke soal 50 bekerja", false, "tombol nomor 50 tidak ditemukan");
     }
@@ -273,10 +271,10 @@ try {
     const urlAfter = page.url();
     const afterText = await page.locator("body").innerText().catch(() => "");
 
-    check("25. Setelah refresh TETAP di halaman ujian", urlAfter.includes("/tryout-engine"), urlAfter.replace(BASE, ""));
-    check("26. Soal tetap tampil setelah refresh", /Soal nomor/i.test(afterText));
-    check("27. Posisi soal dipulihkan (bukan kembali ke 1)", /Soal nomor 50 dari 110/i.test(afterText), afterText.slice(0, 80).replace(/\n/g, " "));
-    check("28. Jawaban sebelumnya tetap tersimpan", /Terjawab/i.test(afterText));
+    check("22. Setelah refresh TETAP di halaman ujian", urlAfter.includes("/tryout-engine"), urlAfter.replace(BASE, ""));
+    check("23. Soal tetap tampil setelah refresh", /Soal nomor/i.test(afterText));
+    check("24. Posisi soal dipulihkan (bukan kembali ke 1)", /Soal nomor 50 dari 110/i.test(afterText), afterText.slice(0, 80).replace(/\n/g, " "));
+    check("25. Jawaban sebelumnya tetap tersimpan", /Terjawab/i.test(afterText));
 
     // ══ 14. Selesaikan ujian ══════════════════════════════════════════════
     const finishBtn = page.getByRole("button", { name: /^Selesai$/i }).first();
@@ -292,23 +290,23 @@ try {
       await shot("12-hasil");
 
       const resultText = await page.locator("body").innerText().catch(() => "");
-      check("29. Halaman hasil tampil", /Skor|Total|TWK|Peringkat/i.test(resultText));
+      check("26. Halaman hasil tampil", /Skor|Total|TWK|Peringkat/i.test(resultText));
 
       // ══ 15. Verifikasi hasil di database ════════════════════════════════
       const saved = await rest(
         `tryout_results?user_id=eq.${userId}&select=twk,tiu,tkp,total,twk_correct,tiu_correct,tkp_correct,package_name`
       );
       const row = Array.isArray(saved.body) ? saved.body[0] : null;
-      check("30. Hasil tersimpan di database", !!row, JSON.stringify(saved.body).slice(0, 150));
+      check("27. Hasil tersimpan di database", !!row, JSON.stringify(saved.body).slice(0, 150));
 
       if (row) {
-        check("31. Total = TWK + TIU + TKP", row.total === row.twk + row.tiu + row.tkp, `total=${row.total} twk=${row.twk} tiu=${row.tiu} tkp=${row.tkp}`);
-        check("32. Nama paket tercatat", /SKD/i.test(row.package_name || ""), row.package_name);
-        check("33. Skor dalam rentang wajar", row.twk >= 0 && row.twk <= 150 && row.tiu >= 0 && row.tiu <= 175 && row.tkp >= 0 && row.tkp <= 225, `twk=${row.twk} tiu=${row.tiu} tkp=${row.tkp}`);
+        check("28. Total = TWK + TIU + TKP", row.total === row.twk + row.tiu + row.tkp, `total=${row.total} twk=${row.twk} tiu=${row.tiu} tkp=${row.tkp}`);
+        check("29. Nama paket tercatat", /SKD/i.test(row.package_name || ""), row.package_name);
+        check("30. Skor dalam rentang wajar", row.twk >= 0 && row.twk <= 150 && row.tiu >= 0 && row.tiu <= 175 && row.tkp >= 0 && row.tkp <= 225, `twk=${row.twk} tiu=${row.tiu} tkp=${row.tkp}`);
       }
 
       const sess = await rest(`active_tryout_sessions?user_id=eq.${userId}`);
-      check("34. Sesi ujian dibersihkan setelah submit", Array.isArray(sess.body) && sess.body.length === 0);
+      check("31. Sesi ujian dibersihkan setelah submit", Array.isArray(sess.body) && sess.body.length === 0);
     } else {
       check("29. Halaman hasil tampil", false, "tombol Selesai tidak ditemukan");
     }
@@ -319,25 +317,25 @@ try {
   await page.waitForTimeout(5000);
   await shot("13-ranking");
   const rankText = await page.locator("body").innerText().catch(() => "");
-  check("35. Halaman peringkat nasional terbuka", /Peringkat|Ranking/i.test(rankText));
+  check("32. Halaman peringkat nasional terbuka", /Peringkat|Ranking/i.test(rankText));
 
   // ══ 17. Riwayat & notifikasi ════════════════════════════════════════════
   await page.goto(`${BASE}/transactions`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(3500);
   const historyText = await page.locator("body").innerText().catch(() => "");
-  check("36. Riwayat permintaan menampilkan paket", /SKD STARTER PACK/i.test(historyText), historyText.slice(0, 80).replace(/\n/g, " "));
+  check("33. Riwayat permintaan menampilkan paket", /SKD STARTER PACK/i.test(historyText), historyText.slice(0, 80).replace(/\n/g, " "));
 
   await page.goto(`${BASE}/notifikasi`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(3500);
   await shot("14-notifikasi");
   const notifText = await page.locator("body").innerText().catch(() => "");
-  check("37. Halaman notifikasi terbuka", /Notifikasi/i.test(notifText));
+  check("34. Halaman notifikasi terbuka", /Notifikasi/i.test(notifText));
 
   // ══ 18. Profil ══════════════════════════════════════════════════════════
   await page.goto(`${BASE}/profile`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(3500);
   const profText = await page.locator("body").innerText().catch(() => "");
-  check("38. Halaman profil menampilkan kode akun", /FBK-/i.test(profText), profText.slice(0, 100).replace(/\n/g, " "));
+  check("35. Halaman profil menampilkan kode akun", /FBK-/i.test(profText), profText.slice(0, 100).replace(/\n/g, " "));
 
   // ══ 19. Error konsol ════════════════════════════════════════════════════
   const realErrors = consoleErrors.filter(
@@ -346,7 +344,7 @@ try {
         e
       )
   );
-  check("39. Tidak ada error konsol berarti", realErrors.length === 0, realErrors.slice(0, 2).join(" | "));
+  check("36. Tidak ada error konsol berarti", realErrors.length === 0, realErrors.slice(0, 2).join(" | "));
 } catch (err) {
   console.error("\nERROR SIMULASI:", err.message);
   fail++;
