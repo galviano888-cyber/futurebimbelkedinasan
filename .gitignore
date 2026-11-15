@@ -45,3 +45,6 @@ supabase/.temp/
 .sim-state.json
 /sim-shots/
 .sim-final-state.json
+
+# Editor/stack lokal
+/.bolt/
