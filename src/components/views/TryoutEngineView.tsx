@@ -220,12 +220,17 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   useEffect(() => {
     async function fetchQuestions() {
       if (!supabase) return;
+      // Dideklarasikan di luar try agar bisa dipakai saat memulihkan cache offline.
+      let serverCurrentIdx = 0;
+      let serverCheatAttempts = 0;
+      let currentUser: { id: string } | null = null;
       try {
         setLoading(true);
 
         // Fetch user once
         const { data: { user } } = await supabase.auth.getUser();
         if (user) setUserId(user.id);
+        currentUser = user;
 
         const { data: techData } = await supabase
           .from('tryout_packages')
@@ -243,7 +248,6 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         let serverEnd: number | null = null;
         let serverAnswers: Record<string, string> = {};
         let serverExpired = false;
-        let serverCurrentIdx = 0;
         let sessionOk = false;
 
         if (user) {
@@ -257,11 +261,20 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
               serverEnd = new Date(row.end_time).getTime();
               serverExpired = Boolean(row.expired);
               serverCurrentIdx = Number(row.current_idx ?? 0) || 0;
+              // `flagged` pada RPC ini membawa penghitung pelanggaran
+              // (cheat_attempts). Tanpa pemulihan, siswa bisa me-refresh
+              // halaman untuk mengembalikan hitungan ke nol dan menghindari
+              // penghentian otomatis.
+              serverCheatAttempts = Number(row.flagged ?? 0) || 0;
               if (row.answers && typeof row.answers === 'object' && Object.keys(row.answers).length > 0) {
                 serverAnswers = row.answers as Record<string, string>;
               }
             }
           }
+        }
+
+        if (serverCheatAttempts > 0) {
+          setCheatAttempts((prev) => Math.max(prev, serverCheatAttempts));
         }
 
         const savedAnswers = user ? localStorage.getItem(`to_answers_${user.id}_${questionsId}`) : null;
@@ -288,9 +301,8 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
         // Lanjutkan dari soal terakhir yang sedang dikerjakan (mis. setelah
         // koneksi putus atau perangkat mati di tengah ujian).
-        if (serverCurrentIdx > 0) {
-          setCurrentIdx(serverCurrentIdx);
-        }
+        // Penjepitan ke jumlah soal dilakukan setelah soal selesai dimuat,
+        // karena jumlah soal belum diketahui di titik ini.
 
         if (sessionOk && serverEnd && user) {
           setEndTime(serverEnd);
@@ -356,20 +368,46 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         // dikirim ke browser.
         if (user) {
           try {
-            localStorage.setItem(`to_questions_${questionsId}`, JSON.stringify(data));
+            localStorage.setItem(`to_questions_${user.id}_${questionsId}`, JSON.stringify(data));
           } catch {
             /* kuota localStorage penuh — abaikan */
           }
+        }
+
+        // Posisi soal dijepit ke jumlah soal sebenarnya. Tanpa ini, posisi
+        // tersimpan yang melewati batas (mis. admin mengurangi jumlah soal)
+        // membuat layar berhenti di "Memuat soal..." selamanya.
+        if (serverCurrentIdx > 0) {
+          setCurrentIdx(Math.min(serverCurrentIdx, Math.max(0, data.length - 1)));
         }
 
         setQuestions(data || []);
       } catch (err: any) {
         console.error("Error loading engine:", err);
 
-        // Koneksi bermasalah: pakai soal yang tersimpan di perangkat.
+        // Cache perangkat HANYA dipakai saat masalahnya koneksi.
+        //
+        // `get_exam_questions` mengembalikan 0 baris (bukan error) bila siswa
+        // tidak punya akses, dan kode di atas mengubahnya menjadi error
+        // "Tidak ada soal". Tanpa pemisahan ini, siswa yang aksesnya sudah
+        // dicabut tetap bisa membaca soal dari cache perangkat.
+        const message = String(err?.message ?? "");
+        const looksLikeAccessProblem =
+          message.includes("Tidak ada soal") ||
+          message.toLowerCase().includes("akses") ||
+          message.toLowerCase().includes("unauthorized") ||
+          message.toLowerCase().includes("permission");
+
+        const isOffline =
+          (typeof navigator !== "undefined" && navigator.onLine === false) ||
+          /fetch|network|failed to load|timeout/i.test(message);
+
+        const canUseCache = !looksLikeAccessProblem && isOffline;
+
         const cached = (() => {
+          if (!canUseCache || !currentUser) return null;
           try {
-            const raw = localStorage.getItem(`to_questions_${questionsId}`);
+            const raw = localStorage.getItem(`to_questions_${currentUser.id}_${questionsId}`);
             return raw ? JSON.parse(raw) : null;
           } catch {
             return null;
@@ -378,6 +416,10 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
         if (Array.isArray(cached) && cached.length > 0) {
           setQuestions(cached);
+          // Pulihkan posisi soal juga saat offline, dengan penjepitan batas.
+          if (serverCurrentIdx > 0) {
+            setCurrentIdx(Math.min(serverCurrentIdx, Math.max(0, cached.length - 1)));
+          }
           setError(null);
           toast.warning("Mode offline", {
             id: "offline-mode",
@@ -386,6 +428,14 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
             duration: 9000,
           });
         } else {
+          // Jangan biarkan cache lama dipakai ulang saat akses bermasalah.
+          if (looksLikeAccessProblem && currentUser) {
+            try {
+              localStorage.removeItem(`to_questions_${currentUser.id}_${questionsId}`);
+            } catch {
+              /* abaikan */
+            }
+          }
           setError(err.message || "Gagal memuat soal tryout.");
         }
       } finally {
@@ -522,10 +572,10 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
       if (user) {
         localStorage.removeItem(`to_endtime_${user.id}_${questionsId}`);
         localStorage.removeItem(`to_answers_${user.id}_${questionsId}`);
+        // Cache soal juga dibersihkan: jika admin memperbarui soal, percobaan
+        // berikutnya harus memuat versi terbaru, bukan salinan lama di perangkat.
+        localStorage.removeItem(`to_questions_${user.id}_${questionsId}`);
       }
-      // Cache soal juga dibersihkan: jika admin memperbarui soal, percobaan
-      // berikutnya harus memuat versi terbaru, bukan salinan lama di perangkat.
-      localStorage.removeItem(`to_questions_${questionsId}`);
 
       let reviewQuestions = questions;
       if (resultRow.id) {
@@ -620,8 +670,46 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
   const currentQuestion = questions[currentIdx];
 
-  // Guard: soal belum tersedia (misal refresh saat questions masih kosong)
+  // Soal sudah selesai dimuat tetapi tidak ada isinya: jangan biarkan layar
+  // berhenti di "Memuat soal..." selamanya (mis. admin menghapus semua soal
+  // saat siswa sedang mengerjakan). Beri jalan keluar yang jelas.
   if (!currentQuestion) {
+    if (!loading && questions.length === 0) {
+      return (
+        <div className="fixed inset-0 engine-surface dark:bg-[#0b0b0e] z-50 flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-16 h-16 bg-amber-50 dark:bg-amber-500/10 rounded-2xl flex items-center justify-center mb-5 text-amber-500">
+            <AlertCircle className="w-8 h-8" />
+          </div>
+          <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
+            Soal Tidak Tersedia
+          </h3>
+          <p className="text-slate-500 dark:text-slate-400 text-[14px] mb-7 max-w-md mx-auto leading-relaxed">
+            Tryout ini belum memiliki soal, atau soalnya sedang diperbarui admin.
+            Coba lagi beberapa saat lagi.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <button
+              onClick={() => { setError(null); setReloadKey((k) => k + 1); }}
+              className="px-7 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium text-[14px] rounded-xl transition-all active:scale-[0.98]"
+            >
+              Coba Lagi
+            </button>
+            <button
+              onClick={onExit}
+              className="px-7 py-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 font-medium text-[14px] rounded-xl transition-all active:scale-[0.98]"
+            >
+              Kembali
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Soal ada tetapi posisi melewati batas: kembalikan ke soal pertama.
+    if (questions.length > 0 && currentIdx >= questions.length) {
+      setCurrentIdx(0);
+    }
+
     return (
       <div className="fixed inset-0 engine-surface dark:bg-[#0b0b0e] z-50 flex items-center justify-center">
         <FBKLoader text="Memuat soal..." />

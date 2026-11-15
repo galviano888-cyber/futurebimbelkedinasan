@@ -77,39 +77,35 @@ export function AdminAnalyticsView() {
     if (!supabase) return;
     setLoading(true);
     try {
-      const since = new Date(Date.now() - days * 86_400_000).toISOString();
+      // Agregasi dilakukan di server. Membaca tabel mentah dari browser
+      // dibatasi 1000 baris oleh PostgREST, sehingga angka funnel akan salah
+      // begitu data melewati batas itu.
+      const [summaryRes, visitorsRes] = await Promise.all([
+        supabase.rpc("admin_analytics_summary", { p_days: days }),
+        supabase.rpc("admin_analytics_visitors", { p_days: days }),
+      ]);
 
-      const { data, error } = await supabase
-        .from("analytics_events")
-        .select("name, session_id")
-        .gte("created_at", since)
-        .limit(50_000);
+      if (summaryRes.error) throw summaryRes.error;
+      if (visitorsRes.error) throw visitorsRes.error;
 
-      if (error) throw error;
-
-      // Hitung event dan sesi unik per jenis event.
-      const byName = new Map<string, { events: number; sessions: Set<string> }>();
-      const allSessions = new Set<string>();
-
-      for (const e of data ?? []) {
-        const entry = byName.get(e.name) ?? { events: 0, sessions: new Set<string>() };
-        entry.events++;
-        if (e.session_id) {
-          entry.sessions.add(e.session_id);
-          allSessions.add(e.session_id);
-        }
-        byName.set(e.name, entry);
+      const byName = new Map<string, { events: number; sessions: number }>();
+      for (const row of (summaryRes.data ?? []) as any[]) {
+        byName.set(row.event_name, {
+          sessions: Number(row.unique_sessions ?? 0),
+          events: Number(row.total_events ?? 0),
+        });
       }
 
-      setUniqueVisitors(allSessions.size);
+      const visitors = Number(visitorsRes.data ?? 0);
+      setUniqueVisitors(visitors);
       setRows(
         FUNNEL.map((f) => ({
           name: f.key,
           // Baris pertama memakai total sesi unik, bukan satu jenis event,
           // karena siswa yang sudah login langsung masuk ke katalog tanpa
           // melewati landing page.
-          sessions: f.key === "__visitors" ? allSessions.size : byName.get(f.key)?.sessions.size ?? 0,
-          events: f.key === "__visitors" ? (data ?? []).length : byName.get(f.key)?.events ?? 0,
+          sessions: f.key === "__visitors" ? visitors : byName.get(f.key)?.sessions ?? 0,
+          events: f.key === "__visitors" ? 0 : byName.get(f.key)?.events ?? 0,
         }))
       );
     } catch (err: any) {
