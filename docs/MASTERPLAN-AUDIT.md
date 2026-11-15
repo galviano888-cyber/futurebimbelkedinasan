@@ -461,3 +461,52 @@ diurutkan dari yang paling berdampak.
 Total: **6–8 hari kerja** untuk audit penuh, di luar perbaikan temuan.
 
 Perbaikan temuan P0/P1 diperkirakan menambah **2–4 hari**.
+
+---
+
+## 8. Hasil audit 15 November 2026
+
+Audit sudah dijalankan. Ringkasan bukti:
+
+| Pemeriksaan | Hasil |
+|---|---|
+| Typecheck & build | bersih |
+| Uji alur bisnis (19) | 19/19 |
+| Uji status paket (9) | 9/9 |
+| Uji analytics (7) | 7/7 |
+| Uji pemulihan sesi (12) | 12/12 |
+| Uji kirim tryout (13) | 13/13 |
+| Uji batas akses (8) | 8/8 |
+| Keamanan anonim (19) | 19/19 |
+| Keamanan siswa login (9) | 9/9 |
+| Uji UI Chromium (2) | 2/2 |
+| Migrasi lokal vs remote | cocok |
+
+### Temuan yang diperbaiki
+
+| ID | Temuan | Tingkat | Status |
+|---|---|---|---|
+| AUD-001 | Bukti transfer siswa bisa diunduh publik tanpa login | **P0** | diperbaiki |
+| AUD-002 | Kirim tryout dua kali membuat baris hasil dobel | **P1** | diperbaiki |
+| AUD-003 | `view_pricing` tidak pernah tercatat (ambang 35% tak tercapai) | P2 | diperbaiki |
+| AUD-004 | Funnel analytics bisa melebihi 100% | P2 | diperbaiki |
+| AUD-005 | Toast "Koneksi pulih" muncul setiap jawaban berubah | P2 | diperbaiki |
+| AUD-006 | Cache soal tidak dibersihkan setelah submit | P3 | diperbaiki |
+| AUD-007 | `analytics_events` menerima INSERT tanpa batas dari anonim | P2 | diperbaiki |
+| AUD-008 | Migrasi referral menghapus kolom yang masih dipakai trigger | **P1** | diperbaiki |
+
+### Temuan yang diterima risikonya
+
+| ID | Temuan | Alasan |
+|---|---|---|
+| AUD-009 | Bucket gambar soal bersifat publik | Memang harus bisa ditampilkan; nama file memuat UUID |
+| AUD-010 | Anonim bisa mengisi `user_id` sembarang di analytics | Hanya mencemari statistik, tidak menyentuh data bisnis |
+| AUD-011 | Progres ujian masih bisa disimpan setelah akses dicabut | Diperlukan agar siswa yang sedang ujian tidak kehilangan jawaban; submit tetap ditolak |
+
+### Catatan perilaku
+
+Constraint unik `(user_id, tryout_id)` membuat **satu hasil per tryout per
+siswa**. Mengulang tryout akan memperbarui hasil sebelumnya, bukan menambah
+baris baru. `tryout_count` di papan peringkat kini berarti jumlah tryout
+berbeda yang dikerjakan, bukan jumlah percobaan.
+
