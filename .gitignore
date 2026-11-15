@@ -44,3 +44,4 @@ supabase/.temp/
 # State simulasi siswa (berisi kredensial akun uji)
 .sim-state.json
 /sim-shots/
+.sim-final-state.json
