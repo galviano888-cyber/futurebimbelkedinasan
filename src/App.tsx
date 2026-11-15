@@ -110,9 +110,10 @@ export default function App() {
       s.user.app_metadata?.providers?.includes('google');
     if (!isGoogleUser) return;
 
-    // Navigate ke dashboard, kecuali kalau sedang di admin panel
+    // Setelah login lewat Google, langsung ke katalog paket (bukan dashboard).
+    // Admin panel tidak boleh terganggu.
     if (location.pathname !== '/x7k2m9qp4n8vw3js') {
-      navigate('/dashboard', { replace: true });
+      navigate('/paket', { replace: true });
     }
 
     // Simpan nama dari Google metadata kalau belum ada di profiles
@@ -219,7 +220,15 @@ export default function App() {
           abortController.abort();
           abortController = new AbortController();
           fetchAllData(s.user, abortController.signal);
+
           if (event === 'SIGNED_IN') {
+            // Setelah login (email/password maupun Google), arahkan ke katalog
+            // paket. Route tryout dan admin panel tidak boleh terganggu.
+            const p = window.location.pathname;
+            const loginEntryPoints = ['/', '/login', '/register', '/dashboard'];
+            if (loginEntryPoints.includes(p)) {
+              navigate('/paket', { replace: true });
+            }
             handleGoogleCallback(s);
           }
         }
