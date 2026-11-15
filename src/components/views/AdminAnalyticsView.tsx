@@ -22,16 +22,16 @@ interface Step {
 
 const FUNNEL: Step[] = [
   {
-    key: "view_landing",
-    label: "Membuka halaman utama",
-    description: "Pengunjung yang membuka landing page",
+    key: "__visitors",
+    label: "Mengunjungi situs",
+    description: "Semua pengunjung unik pada rentang ini",
     icon: Eye,
     color: "blue",
   },
   {
     key: "view_pricing",
     label: "Melihat daftar harga",
-    description: "Pengunjung yang menggulir sampai bagian paket",
+    description: "Pengunjung yang sampai ke bagian paket",
     icon: BarChart3,
     color: "indigo",
   },
@@ -57,6 +57,9 @@ const FUNNEL: Step[] = [
     color: "amber",
   },
 ];
+
+/** Event yang dirinci di bagian bawah (tanpa baris pengunjung). */
+const EVENT_DETAILS = FUNNEL.filter((f) => f.key !== "__visitors");
 
 interface Row {
   name: string;
@@ -102,8 +105,11 @@ export function AdminAnalyticsView() {
       setRows(
         FUNNEL.map((f) => ({
           name: f.key,
-          sessions: byName.get(f.key)?.sessions.size ?? 0,
-          events: byName.get(f.key)?.events ?? 0,
+          // Baris pertama memakai total sesi unik, bukan satu jenis event,
+          // karena siswa yang sudah login langsung masuk ke katalog tanpa
+          // melewati landing page.
+          sessions: f.key === "__visitors" ? allSessions.size : byName.get(f.key)?.sessions.size ?? 0,
+          events: f.key === "__visitors" ? (data ?? []).length : byName.get(f.key)?.events ?? 0,
         }))
       );
     } catch (err: any) {
@@ -119,7 +125,8 @@ export function AdminAnalyticsView() {
   }, [load]);
 
   const valueOf = (key: string) => rows.find((r) => r.name === key)?.sessions ?? 0;
-  const top = valueOf("view_landing") || 0;
+  // Basis persentase = total pengunjung unik, sehingga tidak mungkin > 100%.
+  const top = uniqueVisitors;
 
   // Drop-off terbesar antar langkah.
   let worstStep: { from: string; to: string; lost: number; pct: number } | null = null;
@@ -265,7 +272,7 @@ export function AdminAnalyticsView() {
           <div className="bg-[#0d1929] border border-white/5 rounded-2xl p-5">
             <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">Rincian Event</h3>
             <div className="space-y-2">
-              {FUNNEL.map((step) => {
+              {EVENT_DETAILS.map((step) => {
                 const row = rows.find((r) => r.name === step.key);
                 return (
                   <div key={step.key} className="flex items-center justify-between text-[12px] py-1.5 border-b border-white/[0.03] last:border-0">

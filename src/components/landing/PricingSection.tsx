@@ -81,7 +81,10 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
           }
         }
       },
-      { threshold: 0.35 }
+      // Bagian harga lebih tinggi dari layar, terutama di ponsel. Ambang 35%
+      // tidak pernah tercapai sehingga event tak pernah tercatat; 15% cukup
+      // untuk menandai "pengunjung sudah melihat daftar harga".
+      { threshold: 0.15 }
     );
     observer.observe(el);
     return () => observer.disconnect();
