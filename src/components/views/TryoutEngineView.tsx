@@ -85,6 +85,10 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   const [showSidebar, setShowSidebar] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  // true setelah pemulihan awal selesai. Selama belum true, efek penyimpanan
+  // lokal tidak boleh menulis apa pun, karena currentIdx masih 0 sementara
+  // posisi sebenarnya belum dipulihkan.
+  const [hydrated, setHydrated] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cheatAttempts, setCheatAttempts] = useState(0);
   const [cheatWarning, setCheatWarning] = useState<{ msg: string; count: number } | null>(null);
@@ -229,6 +233,19 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
         // Fetch user once
         const { data: { user } } = await supabase.auth.getUser();
+
+        // PENTING: baca posisi soal dari perangkat SEBELUM ada state update
+        // apa pun. setUserId() di bawah memicu render + efek yang menulis
+        // posisi 0 ke localStorage. Bila pembacaan ini dilakukan setelahnya,
+        // nilainya sudah tertimpa dan siswa selalu kembali ke soal pertama.
+        let localIdx = 0;
+        try {
+          const rawIdx = user ? localStorage.getItem(`to_idx_${user.id}_${questionsId}`) : null;
+          if (rawIdx !== null) localIdx = Number(rawIdx) || 0;
+        } catch {
+          /* abaikan */
+        }
+
         if (user) setUserId(user.id);
         currentUser = user;
 
@@ -299,21 +316,11 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           });
         }
 
-        // Lanjutkan dari soal terakhir yang sedang dikerjakan (mis. setelah
-        // koneksi putus atau perangkat mati di tengah ujian).
-        //
         // Posisi diambil dari yang TERBESAR antara server dan perangkat:
         // server memakai jeda 2,5 detik, sedangkan perangkat menyimpan
         // seketika. Tanpa membandingkan keduanya, siswa yang langsung refresh
         // setelah pindah soal akan kembali ke posisi lama dari server.
         // Penjepitan ke jumlah soal dilakukan setelah soal selesai dimuat.
-        let localIdx = 0;
-        try {
-          const rawIdx = user ? localStorage.getItem(`to_idx_${user.id}_${questionsId}`) : null;
-          if (rawIdx !== null) localIdx = Number(rawIdx) || 0;
-        } catch {
-          /* abaikan */
-        }
         serverCurrentIdx = Math.max(serverCurrentIdx, localIdx);
 
         if (sessionOk && serverEnd && user) {
@@ -326,6 +333,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
               .rpc('get_exam_questions', { p_tryout_id: questionsId });
             if (!expiredQError && expiredQData && expiredQData.length > 0) {
               setQuestions(expiredQData);
+              setHydrated(true);
               setTimeout(() => {
                 handleSubmit(mergedAnswers);
               }, 1500);
@@ -349,6 +357,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
                 .rpc('get_exam_questions', { p_tryout_id: questionsId });
               if (!expiredQError && expiredQData && expiredQData.length > 0) {
                 setQuestions(expiredQData);
+                setHydrated(true);
                 setTimeout(() => {
                   handleSubmit(mergedAnswers);
                 }, 1500);
@@ -394,6 +403,9 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
         }
 
         setQuestions(data || []);
+
+        // Pemulihan awal selesai: baru mulai menyimpan ke perangkat.
+        setHydrated(true);
       } catch (err: any) {
         console.error("Error loading engine:", err);
 
@@ -432,6 +444,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           if (serverCurrentIdx > 0) {
             setCurrentIdx(Math.min(serverCurrentIdx, Math.max(0, cached.length - 1)));
           }
+          setHydrated(true);
           setError(null);
           toast.warning("Mode offline", {
             id: "offline-mode",
@@ -451,6 +464,8 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           setError(err.message || "Gagal memuat soal tryout.");
         }
       } finally {
+        // Pemulihan selesai (sukses maupun gagal): izinkan penyimpanan lokal.
+        setHydrated(true);
         setLoading(false);
       }
     }
@@ -459,7 +474,9 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
   // Persist answers locally and autosave to the server session.
   useEffect(() => {
-    if (!userId) return;
+    // Jangan menulis apa pun sebelum pemulihan awal selesai, supaya posisi
+    // soal yang tersimpan tidak tertimpa angka 0.
+    if (!userId || !hydrated) return;
 
     // Simpan jawaban lokal bila ada.
     if (Object.keys(answers).length > 0) {
@@ -490,7 +507,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, [answers, userId, questionsId, currentIdx, cheatAttempts]);
+  }, [answers, userId, questionsId, currentIdx, cheatAttempts, hydrated]);
 
   // Saat koneksi pulih, kirim ulang progres yang mungkin gagal tersimpan
   // selama offline, lalu beri tahu siswa.
