@@ -73,13 +73,10 @@ export const HeroSection = memo(function HeroSection({
             {/* Mobile Image */}
             <motion.div
               variants={reduceMotion ? undefined : itemVariants}
-              className="lg:hidden relative mb-8 max-w-[300px] mx-auto"
+              className="lg:hidden relative mb-8 max-w-[360px] mx-auto"
             >
-              <div className="relative aspect-[4/4.4] overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800">
-                <div className="absolute inset-y-0 right-[-8%] w-[76%] bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800 [clip-path:polygon(18%_0,100%_0,82%_100%,0_100%)]" />
-                <div className="absolute inset-y-0 right-[-8%] w-[76%] border-x border-white/15 [clip-path:polygon(18%_0,100%_0,82%_100%,0_100%)]" />
-                <div className="absolute inset-x-[7%] bottom-0 h-[82%] bg-white [clip-path:polygon(22%_0,100%_0,100%_100%,0_100%)]" />
-                <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="absolute z-10 bottom-0 right-[-1%] h-[84%] w-[94%] object-contain object-bottom [clip-path:polygon(22%_0,100%_0,100%_100%,0_100%)]" loading="eager" />
+              <div className="relative aspect-[1.25] overflow-hidden bg-white">
+                <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="absolute inset-0 w-full h-full object-contain" loading="eager" />
               </div>
             </motion.div>
 
@@ -134,9 +131,8 @@ export const HeroSection = memo(function HeroSection({
             transition={{ duration: 0.9, ease: "easeOut", delay: 0.25 }}
             className="hidden lg:block relative self-stretch min-h-[560px]"
           >
-            <div className="absolute inset-0 flex items-end justify-center overflow-hidden">
-              <div className="absolute inset-y-[3%] right-0 w-[82%] bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800 [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]" />
-              <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="absolute z-10 bottom-[3%] right-[-2%] h-[94%] w-[90%] object-contain object-bottom mix-blend-multiply [clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]" loading="eager" />
+            <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+              <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="w-full h-full object-contain object-center" loading="eager" />
               <div className="absolute z-20 left-[4%] bottom-[3%] bg-white border-t border-r border-blue-100 px-5 py-4 max-w-[250px]">
                 <p className="text-[10px] uppercase tracking-[0.16em] text-blue-700 mb-1">Future Bimbel Kedinasan</p>
                 <p className="text-sm font-semibold text-[#102b54]">Latihan SKD. Evaluasi. Ulangi.</p>
