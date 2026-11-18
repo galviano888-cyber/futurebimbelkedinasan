@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   Calendar, Clock, Sparkles, Loader2, Info, Zap,
-  Trophy, ArrowRight, Lock,
-  CheckCircle2, Timer, Play, BarChart2
+  Trophy, ArrowRight, Lock, Users, CheckCircle2, Timer, Play, BarChart2,
+  RefreshCw, UserPlus, X
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface FBKEvent {
   id: string;
@@ -18,6 +19,8 @@ interface FBKEvent {
   start_date: string | null;
   end_date: string | null;
   duration_minutes: number;
+  quota: number | null;
+  registration_closes_at: string | null;
   created_at: string;
   tryout_packages?: { name: string; category: string; id: string } | null;
 }
@@ -30,20 +33,25 @@ interface EventResult {
   twk: number;
   tiu: number;
   tkp: number;
-  answers?: Record<string, string>;
   finished_at: string;
-  profiles?: { full_name: string | null; email: string };
+  full_name?: string;
 }
 
-function useCountdown(endDate: string | null) {
+interface SeatInfo {
+  registered_count: number;
+  quota: number | null;
+}
+
+function useCountdown(target: string | null) {
   const [timeLeft, setTimeLeft] = useState("");
   const [expired, setExpired] = useState(false);
 
   useEffect(() => {
-    if (!endDate) { setTimeLeft(""); return; }
+    if (!target) { setTimeLeft(""); return; }
     const calc = () => {
-      const diff = new Date(endDate).getTime() - Date.now();
-      if (diff <= 0) { setTimeLeft("Berakhir"); setExpired(true); return; }
+      const diff = new Date(target).getTime() - Date.now();
+      if (diff <= 0) { setTimeLeft(""); setExpired(true); return; }
+      setExpired(false);
       const d = Math.floor(diff / 86400000);
       const h = Math.floor((diff % 86400000) / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
@@ -55,20 +63,20 @@ function useCountdown(endDate: string | null) {
     calc();
     const t = setInterval(calc, 1000);
     return () => clearInterval(t);
-  }, [endDate]);
+  }, [target]);
 
   return { timeLeft, expired };
 }
 
-function EventCountdownBadge({ endDate }: { endDate: string | null }) {
-  const { timeLeft, expired } = useCountdown(endDate);
-  if (!endDate || !timeLeft) return null;
+function CountdownBadge({ target, tone }: { target: string | null; tone: "amber" | "red" }) {
+  const { timeLeft } = useCountdown(target);
+  if (!target || !timeLeft) return null;
   return (
     <span className={cn(
       "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide border",
-      expired
+      tone === "red"
         ? "bg-red-500/10 text-red-400 border-red-500/20"
-        : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+        : "bg-amber-500/10 text-amber-500 border-amber-500/20"
     )}>
       <Timer className="w-3 h-3" />
       {timeLeft}
@@ -79,6 +87,7 @@ function EventCountdownBadge({ endDate }: { endDate: string | null }) {
 function EventLeaderboard({ eventId, currentUserId }: { eventId: string; currentUserId: string | null }) {
   const [results, setResults] = useState<EventResult[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchResults();
@@ -87,15 +96,15 @@ function EventLeaderboard({ eventId, currentUserId }: { eventId: string; current
   const fetchResults = async () => {
     if (!supabase) return;
     setLoading(true);
+    setError(null);
     try {
-      const { data } = await supabase.rpc("get_event_leaderboard", {
+      const { data, error: rpcError } = await supabase.rpc("get_event_leaderboard", {
         p_event_id: eventId,
       });
-      const mapped = (data || []).map((row: any) => ({
-        ...row,
-        profiles: { full_name: row.full_name, email: "" },
-      }));
-      setResults(mapped);
+      if (rpcError) throw rpcError;
+      setResults((data || []) as EventResult[]);
+    } catch (err: any) {
+      setError(err.message || "Leaderboard gagal dimuat");
     } finally {
       setLoading(false);
     }
@@ -107,6 +116,18 @@ function EventLeaderboard({ eventId, currentUserId }: { eventId: string; current
     </div>
   );
 
+  if (error) return (
+    <div className="py-10 text-center">
+      <p className="text-red-500 text-sm mb-3">{error}</p>
+      <button
+        onClick={fetchResults}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-all"
+      >
+        <RefreshCw className="w-3.5 h-3.5" /> Coba lagi
+      </button>
+    </div>
+  );
+
   if (results.length === 0) return (
     <div className="py-10 text-center">
       <Trophy className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto mb-2" />
@@ -115,61 +136,71 @@ function EventLeaderboard({ eventId, currentUserId }: { eventId: string; current
   );
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-white/5">
-      <table className="w-full">
-        <thead>
-          <tr className="bg-slate-50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/5">
-            <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">#</th>
-            <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">Peserta</th>
-            <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">TWK</th>
-            <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">TIU</th>
-            <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">TKP</th>
-            <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">Total</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-white/[0.03]">
-          {results.map((r, i) => {
-            const isMe = r.user_id === currentUserId;
-            const name = r.profiles?.full_name || r.profiles?.email || "Anonim";
-            return (
-              <tr key={r.id} className={cn(
-                "transition-colors",
-                isMe ? "bg-blue-50/60 dark:bg-blue-500/5" : "hover:bg-slate-50 dark:hover:bg-white/[0.02]"
-              )}>
-                <td className="px-4 py-3">
-                  {i === 0 ? <span className="text-yellow-500 font-bold text-sm">🥇</span>
-                    : i === 1 ? <span className="text-slate-400 font-bold text-sm">🥈</span>
-                    : i === 2 ? <span className="text-amber-600 font-bold text-sm">🥉</span>
-                    : <span className="text-slate-400 dark:text-slate-600 text-sm font-bold">{i + 1}</span>}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-xs">
-                      {name.charAt(0).toUpperCase()}
+    <div>
+      <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-white/5">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-slate-50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/5">
+              <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">#</th>
+              <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">Peserta</th>
+              <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">TWK</th>
+              <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">TIU</th>
+              <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">TKP</th>
+              <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide">Total</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-white/[0.03]">
+            {results.map((r, i) => {
+              const isMe = r.user_id === currentUserId;
+              const name = r.full_name || "Peserta";
+              return (
+                <tr key={`${r.user_id}-${i}`} className={cn(
+                  "transition-colors",
+                  isMe ? "bg-blue-50/60 dark:bg-blue-500/5" : "hover:bg-slate-50 dark:hover:bg-white/[0.02]"
+                )}>
+                  <td className="px-4 py-3">
+                    {i === 0 ? <span className="text-yellow-500 font-bold text-sm">🥇</span>
+                      : i === 1 ? <span className="text-slate-400 font-bold text-sm">🥈</span>
+                      : i === 2 ? <span className="text-amber-600 font-bold text-sm">🥉</span>
+                      : <span className="text-slate-400 dark:text-slate-600 text-sm font-bold">{i + 1}</span>}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-xs">
+                        {name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className={cn("text-sm font-bold truncate max-w-[120px]", isMe ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-white")}>
+                        {name}{isMe && " (Kamu)"}
+                      </span>
                     </div>
-                    <span className={cn("text-sm font-bold truncate max-w-[120px]", isMe ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-white")}>
-                      {name}{isMe && " (Kamu)"}
+                  </td>
+                  <td className="px-4 py-3 text-center text-sm font-bold text-slate-700 dark:text-slate-300">{r.twk || 0}</td>
+                  <td className="px-4 py-3 text-center text-sm font-bold text-slate-700 dark:text-slate-300">{r.tiu || 0}</td>
+                  <td className="px-4 py-3 text-center text-sm font-bold text-slate-700 dark:text-slate-300">{r.tkp || 0}</td>
+                  <td className="px-4 py-3 text-center">
+                    <span className={cn(
+                      "font-bold text-sm px-2.5 py-1 rounded-lg",
+                      i === 0 ? "bg-yellow-50 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                        : isMe ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                        : "text-slate-900 dark:text-white"
+                    )}>
+                      {r.total}
                     </span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-center text-sm font-bold text-slate-700 dark:text-slate-300">{r.twk || 0}</td>
-                <td className="px-4 py-3 text-center text-sm font-bold text-slate-700 dark:text-slate-300">{r.tiu || 0}</td>
-                <td className="px-4 py-3 text-center text-sm font-bold text-slate-700 dark:text-slate-300">{r.tkp || 0}</td>
-                <td className="px-4 py-3 text-center">
-                  <span className={cn(
-                    "font-bold text-sm px-2.5 py-1 rounded-lg",
-                    i === 0 ? "bg-yellow-50 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
-                      : isMe ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                      : "text-slate-900 dark:text-white"
-                  )}>
-                    {r.total}
-                  </span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex justify-end mt-3">
+        <button
+          onClick={fetchResults}
+          className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-500 hover:text-blue-600 transition-colors"
+        >
+          <RefreshCw className="w-3 h-3" /> Muat ulang
+        </button>
+      </div>
     </div>
   );
 }
@@ -178,18 +209,40 @@ function EventCard({
   event,
   currentUserId,
   userResult,
+  seat,
+  isRegistered,
+  seatNo,
+  busy,
+  onRegister,
+  onCancelRegistration,
   onStart,
 }: {
   event: FBKEvent;
   currentUserId: string | null;
   userResult: EventResult | null;
+  seat: SeatInfo | undefined;
+  isRegistered: boolean;
+  seatNo: number | null;
+  busy: boolean;
+  onRegister: (event: FBKEvent) => void;
+  onCancelRegistration: (event: FBKEvent) => void;
   onStart: (event: FBKEvent) => void;
 }) {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const now = new Date();
-  const started = !event.start_date || new Date(event.start_date) <= now;
-  const ended = !!event.end_date && new Date(event.end_date) < now;
-  const canPlay = event.is_active && started && !ended && !userResult;
+
+  const now = Date.now();
+  const startAt = event.start_date ? new Date(event.start_date).getTime() : null;
+  const endAt = event.end_date ? new Date(event.end_date).getTime() : null;
+  const started = startAt === null || startAt <= now;
+  const ended = endAt !== null && endAt < now;
+  const registeredCount = seat?.registered_count ?? 0;
+  const quota = event.quota ?? seat?.quota ?? null;
+  const quotaFull = quota != null && registeredCount >= quota;
+
+  const regDeadline = event.registration_closes_at || event.start_date;
+  const registrationOpen = event.is_active && !ended && (!regDeadline || new Date(regDeadline).getTime() > now);
+  const canRegister = registrationOpen && !isRegistered && !quotaFull;
+  const canPlay = isRegistered && started && !ended && event.is_active && !userResult;
 
   const categoryColor: Record<string, string> = {
     SKD: "bg-blue-500/10 text-blue-400 border-blue-500/20",
@@ -198,6 +251,7 @@ function EventCard({
     TKP: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   };
   const cat = event.tryout_packages?.category || "SKD";
+  const seatPercent = quota ? Math.min(100, Math.round((registeredCount / quota) * 100)) : 0;
 
   return (
     <div className="bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:border-blue-200 dark:hover:border-blue-500/20 hover:shadow-lg dark:hover:shadow-none">
@@ -210,15 +264,21 @@ function EventCard({
             </span>
             {event.is_active && !ended ? (
               <span className="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wide border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                Aktif
+                {started ? "Aktif" : "Pendaftaran Dibuka"}
               </span>
             ) : (
               <span className="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wide border bg-slate-100 dark:bg-slate-500/10 text-slate-500 border-slate-200 dark:border-slate-500/20">
                 {ended ? "Berakhir" : "Nonaktif"}
               </span>
             )}
+            {quotaFull && !ended && (
+              <span className="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wide border bg-red-500/10 text-red-400 border-red-500/20">
+                Kuota Penuh
+              </span>
+            )}
           </div>
-          {event.end_date && <EventCountdownBadge endDate={event.end_date} />}
+          {!started && startAt && <CountdownBadge target={event.start_date} tone="amber" />}
+          {started && !ended && endAt && <CountdownBadge target={event.end_date} tone="red" />}
         </div>
         <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight mb-1">{event.title}</h3>
         {event.description && (
@@ -252,6 +312,31 @@ function EventCard({
         )}
       </div>
 
+      {/* Kuota */}
+      {quota != null && (
+        <div className="px-5 pt-4">
+          <div className="flex items-center justify-between text-[11px] font-bold mb-1.5">
+            <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+              <Users className="w-3.5 h-3.5" /> Pendaftar
+            </span>
+            <span className={cn(quotaFull ? "text-red-500" : "text-slate-700 dark:text-slate-300")}>
+              {registeredCount} / {quota}
+            </span>
+          </div>
+          <div className="h-1.5 rounded-full bg-slate-100 dark:bg-white/5 overflow-hidden">
+            <div
+              className={cn("h-full rounded-full transition-all", quotaFull ? "bg-red-500" : "bg-blue-500")}
+              style={{ width: `${seatPercent}%` }}
+            />
+          </div>
+          {isRegistered && seatNo != null && (
+            <p className="mt-2 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Kamu terdaftar — kursi #{seatNo}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Actions */}
       <div className="p-5 mt-auto space-y-3">
         {userResult ? (
@@ -259,7 +344,9 @@ function EventCard({
             <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">Sudah Dikerjakan</p>
-              <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">Skor: <span className="font-bold">{userResult.total}</span></p>
+              <p className="text-[11px] text-emerald-600 dark:text-emerald-500 mt-0.5">
+                Skor: <span className="font-bold">{userResult.total}</span> · TWK {userResult.twk} · TIU {userResult.tiu} · TKP {userResult.tkp}
+              </p>
             </div>
           </div>
         ) : canPlay ? (
@@ -269,19 +356,50 @@ function EventCard({
           >
             <Play className="w-3.5 h-3.5" /> Mulai Sekarang
           </button>
-        ) : !event.is_active ? (
-          <div className="flex items-center justify-center gap-2 h-10 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-xl text-slate-400 dark:text-slate-600 text-xs font-bold">
-            <Lock className="w-3.5 h-3.5" /> Event Belum Aktif
+        ) : isRegistered && !started ? (
+          <div className="flex items-center justify-center gap-2 h-10 bg-emerald-50 dark:bg-emerald-500/5 border border-emerald-200 dark:border-emerald-500/20 rounded-xl text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Terdaftar — menunggu jadwal
           </div>
-        ) : !started ? (
-          <div className="flex items-center justify-center gap-2 h-10 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-xl text-amber-600 dark:text-amber-400 text-xs font-bold">
-            <Clock className="w-3.5 h-3.5" /> Belum Dimulai
+        ) : isRegistered && ended ? (
+          <div className="flex items-center justify-center gap-2 h-10 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-xl text-slate-400 dark:text-slate-600 text-xs font-bold">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Event Berakhir
+          </div>
+        ) : canRegister ? (
+          <button
+            onClick={() => onRegister(event)}
+            disabled={busy}
+            className="w-full flex items-center justify-center gap-2 h-10 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs uppercase tracking-wide transition-all active:scale-95 shadow-lg shadow-blue-500/20 disabled:opacity-50"
+          >
+            {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
+            Daftar Sekarang
+          </button>
+        ) : quotaFull && !isRegistered ? (
+          <div className="flex items-center justify-center gap-2 h-10 bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 rounded-xl text-red-500 text-xs font-bold">
+            <Lock className="w-3.5 h-3.5" /> Kuota Penuh
           </div>
         ) : ended ? (
           <div className="flex items-center justify-center gap-2 h-10 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-xl text-slate-400 dark:text-slate-600 text-xs font-bold">
             <CheckCircle2 className="w-3.5 h-3.5" /> Event Berakhir
           </div>
-        ) : null}
+        ) : !event.is_active ? (
+          <div className="flex items-center justify-center gap-2 h-10 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-xl text-slate-400 dark:text-slate-600 text-xs font-bold">
+            <Lock className="w-3.5 h-3.5" /> Pendaftaran Belum Dibuka
+          </div>
+        ) : (
+          <div className="flex items-center justify-center gap-2 h-10 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-xl text-amber-600 dark:text-amber-400 text-xs font-bold">
+            <Clock className="w-3.5 h-3.5" /> Pendaftaran Ditutup
+          </div>
+        )}
+
+        {isRegistered && !started && !userResult && (
+          <button
+            onClick={() => onCancelRegistration(event)}
+            disabled={busy}
+            className="w-full flex items-center justify-center gap-1.5 h-8 text-[11px] font-bold text-slate-400 hover:text-red-500 transition-colors disabled:opacity-50"
+          >
+            <X className="w-3 h-3" /> Batalkan pendaftaran
+          </button>
+        )}
 
         <button
           onClick={() => setShowLeaderboard(v => !v)}
@@ -311,7 +429,10 @@ export function EventsView() {
   const [events, setEvents] = useState<FBKEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [userResults, setUserResults] = useState<Record<string, EventResult>>({}); // keyed by event_id
+  const [userResults, setUserResults] = useState<Record<string, EventResult>>({});
+  const [seats, setSeats] = useState<Record<string, SeatInfo>>({});
+  const [registrations, setRegistrations] = useState<Record<string, number>>({});
+  const [busyEventId, setBusyEventId] = useState<string | null>(null);
 
   useEffect(() => {
     init();
@@ -330,27 +451,50 @@ export function EventsView() {
         .select("*, tryout_packages(id, name, category)")
         .order("created_at", { ascending: false });
 
-      // Derive is_active from end_date client-side — auto-expire via DB trigger or cron, not from client
       const now = new Date().toISOString();
-      const normalized = (evData || []).map((e: FBKEvent) => ({
+      const normalized = ((evData || []) as FBKEvent[]).map((e) => ({
         ...e,
         is_active: e.is_active && (!e.end_date || e.end_date > now),
       }));
 
       setEvents(normalized);
 
-      // Fetch user's own results for all events
-      if (uid && evData && evData.length > 0) {
-        const { data: resultData } = await supabase
-          .from("event_results")
-          .select("id, event_id, total, twk, tiu, tkp, finished_at")
+      const { data: seatData } = await supabase.rpc("get_event_registration_counts");
+      if (seatData) {
+        const map: Record<string, SeatInfo> = {};
+        (seatData as any[]).forEach((row) => {
+          map[row.event_id] = { registered_count: row.registered_count, quota: row.quota };
+        });
+        setSeats(map);
+      }
+
+      if (uid && normalized.length > 0) {
+        const eventIds = normalized.map((e) => e.id);
+
+        const { data: myRegs } = await supabase
+          .from("event_registrations")
+          .select("event_id, seat_no")
           .eq("user_id", uid)
-          .in("event_id", evData.map((e: FBKEvent) => e.id));
+          .in("event_id", eventIds);
+
+        if (myRegs) {
+          const map: Record<string, number> = {};
+          myRegs.forEach((r: any) => { map[r.event_id] = r.seat_no; });
+          setRegistrations(map);
+        }
+
+        const { data: resultData } = await supabase.rpc("get_my_event_results", {
+          p_event_ids: eventIds,
+        });
+
         if (resultData) {
           const map: Record<string, EventResult> = {};
-          resultData.forEach((r: EventResult) => { map[r.event_id] = r; });
+          (resultData as EventResult[]).forEach((r) => { map[r.event_id] = r; });
           setUserResults(map);
         }
+
+        // Pengingat H-6 jam (fallback jika pg_cron tidak aktif).
+        supabase.rpc("claim_event_reminder").then(() => undefined);
       }
     } catch (err) {
       console.error(err);
@@ -359,21 +503,91 @@ export function EventsView() {
     }
   };
 
+  const refreshSeatsAndRegs = async (uid: string | null) => {
+    if (!supabase) return;
+
+    const { data: seatData } = await supabase.rpc("get_event_registration_counts");
+    if (seatData) {
+      const map: Record<string, SeatInfo> = {};
+      (seatData as any[]).forEach((row) => {
+        map[row.event_id] = { registered_count: row.registered_count, quota: row.quota };
+      });
+      setSeats(map);
+    }
+
+    if (!uid) return;
+    const { data: myRegs } = await supabase
+      .from("event_registrations")
+      .select("event_id, seat_no")
+      .eq("user_id", uid);
+
+    const map: Record<string, number> = {};
+    (myRegs || []).forEach((r: any) => { map[r.event_id] = r.seat_no; });
+    setRegistrations(map);
+  };
+
+  const handleRegister = useCallback(async (event: FBKEvent) => {
+    if (!supabase) return;
+    setBusyEventId(event.id);
+    try {
+      const { data, error } = await supabase.rpc("register_event", { p_event_id: event.id });
+      if (error) throw error;
+
+      const row: any = Array.isArray(data) ? data[0] : data;
+      toast.success(
+        row?.seat_no
+          ? `Berhasil mendaftar! Kursi #${row.seat_no} untuk kamu.`
+          : "Berhasil mendaftar event."
+      );
+      await refreshSeatsAndRegs(currentUserId);
+    } catch (err: any) {
+      toast.error(err.message || "Gagal mendaftar event.");
+    } finally {
+      setBusyEventId(null);
+    }
+  }, [currentUserId]);
+
+  const handleCancelRegistration = useCallback(async (event: FBKEvent) => {
+    if (!supabase) return;
+    setBusyEventId(event.id);
+    try {
+      const { error } = await supabase.rpc("cancel_event_registration", { p_event_id: event.id });
+      if (error) throw error;
+      toast.success("Pendaftaran dibatalkan. Kursi dilepas.");
+      await refreshSeatsAndRegs(currentUserId);
+    } catch (err: any) {
+      toast.error(err.message || "Gagal membatalkan pendaftaran.");
+    } finally {
+      setBusyEventId(null);
+    }
+  }, [currentUserId]);
+
   const handleStartEvent = useCallback((event: FBKEvent) => {
-    if (!event.package_id) return;
-    // Store event context in sessionStorage for engine to pick up
-    sessionStorage.setItem("fbk_event_context", JSON.stringify({
-      eventId: event.id,
-      packageId: event.package_id,
-      questionsId: event.package_id,
-      durationMinutes: event.duration_minutes,
-      title: event.title,
-    }));
-    navigate(`/event-engine/${event.id}`);
+    if (!event.package_id) {
+      toast.error("Paket soal event belum diatur admin.");
+      return;
+    }
+    navigate(`/event-pre/${event.id}`);
   }, [navigate]);
 
   const activeEvents = events.filter(e => e.is_active);
   const pastEvents = events.filter(e => !e.is_active);
+
+  const renderCard = (ev: FBKEvent) => (
+    <EventCard
+      key={ev.id}
+      event={ev}
+      currentUserId={currentUserId}
+      userResult={userResults[ev.id] || null}
+      seat={seats[ev.id]}
+      isRegistered={registrations[ev.id] !== undefined}
+      seatNo={registrations[ev.id] ?? null}
+      busy={busyEventId === ev.id}
+      onRegister={handleRegister}
+      onCancelRegistration={handleCancelRegistration}
+      onStart={handleStartEvent}
+    />
+  );
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -384,7 +598,7 @@ export function EventsView() {
         <div>
           <p className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-[0.25em] mb-2">Agenda</p>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Event &amp; Tryout Akbar</h1>
-          <p className="text-slate-500 dark:text-slate-500 text-sm mt-1">Ikuti event kompetisi dan uji kemampuanmu bersama siswa lain.</p>
+          <p className="text-slate-500 dark:text-slate-500 text-sm mt-1">Daftar dulu, lalu kerjakan sesuai jadwal. Kuota peserta terbatas.</p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl">
           <Sparkles className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
@@ -409,7 +623,6 @@ export function EventsView() {
         </div>
       ) : (
         <>
-          {/* Active Events */}
           {activeEvents.length > 0 && (
             <div className="space-y-4">
               <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
@@ -417,20 +630,11 @@ export function EventsView() {
                 Event Aktif
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {activeEvents.map(ev => (
-                  <EventCard
-                    key={ev.id}
-                    event={ev}
-                    currentUserId={currentUserId}
-                    userResult={userResults[ev.id] || null}
-                    onStart={handleStartEvent}
-                  />
-                ))}
+                {activeEvents.map(renderCard)}
               </div>
             </div>
           )}
 
-          {/* Past Events */}
           {pastEvents.length > 0 && (
             <div className="space-y-4">
               <h2 className="text-sm font-bold text-slate-500 dark:text-slate-600 uppercase tracking-wide flex items-center gap-2">
@@ -438,15 +642,7 @@ export function EventsView() {
                 Event Sebelumnya
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {pastEvents.map(ev => (
-                  <EventCard
-                    key={ev.id}
-                    event={ev}
-                    currentUserId={currentUserId}
-                    userResult={userResults[ev.id] || null}
-                    onStart={handleStartEvent}
-                  />
-                ))}
+                {pastEvents.map(renderCard)}
               </div>
             </div>
           )}

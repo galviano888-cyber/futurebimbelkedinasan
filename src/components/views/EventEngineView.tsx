@@ -15,7 +15,7 @@ const fallback = (
   </div>
 );
 
-export function EventEngineView() {
+export function EventEngineView({ onComplete }: { onComplete: (result: any) => void }) {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
 
@@ -56,7 +56,7 @@ export function EventEngineView() {
       toast.error("Gagal menyimpan hasil event: " + err.message);
     } finally {
       sessionStorage.removeItem("fbk_event_context");
-      navigate("/events", { replace: true });
+      onComplete(result);
     }
   };
 

@@ -36,6 +36,7 @@ const PaymentHistory = lazy(() => import("@/components/views/PaymentHistoryView"
 const NotificationsView = lazy(() => import("@/components/views/NotificationsView").then(m => ({ default: m.NotificationsView })));
 const EventsView = lazy(() => import("@/components/views/EventsView").then(m => ({ default: m.EventsView })));
 const EventEngineView = lazy(() => import("@/components/views/EventEngineView").then(m => ({ default: m.EventEngineView })));
+const EventPreView = lazy(() => import("@/components/views/EventPreView").then(m => ({ default: m.EventPreView })));
 
 export default function App() {
   const navigate = useNavigate();
@@ -338,6 +339,22 @@ export default function App() {
     if (session?.user) fetchAllData(session.user);
   };
 
+  const handleEventTryoutComplete = (result: any) => {
+    setActivePackageId(null);
+    setQuestionsId(null);
+    setTryoutResult(result);
+    try {
+      sessionStorage.setItem("fbk_tryout_result", JSON.stringify(result));
+    } catch {
+      // Result remains available in memory if session storage is full.
+    }
+    navigate("/tryout-result");
+    localStorage.removeItem("fbk_active_page");
+    localStorage.removeItem("fbk_active_package_id");
+    localStorage.removeItem("fbk_active_questions_id");
+    if (session?.user) fetchAllData(session.user);
+  };
+
   const clearTryoutResult = () => {
     sessionStorage.removeItem("fbk_tryout_result");
     setTryoutResult(null);
@@ -404,7 +421,8 @@ export default function App() {
     const isTryoutRoute = location.pathname === '/tryout-engine' || 
       location.pathname === '/tryout-result' || 
       location.pathname === '/tryout-review' ||
-      location.pathname.startsWith('/tryout-pre');
+      location.pathname.startsWith('/tryout-pre') ||
+      location.pathname.startsWith('/event-pre');
 
     const isAdminRoute = location.pathname === '/x7k2m9qp4n8vw3js';
 
@@ -472,7 +490,8 @@ export default function App() {
         <Route path="/help" element={<ContactView />} />
         
         {/* Event Engine Route */}
-        <Route path="/event-engine/:eventId" element={requireAuth(<EventEngineView />)} />
+        <Route path="/event-pre/:eventId" element={requireAuth(<EventPreView />)} />
+        <Route path="/event-engine/:eventId" element={requireAuth(<EventEngineView onComplete={handleEventTryoutComplete} />)} />
 
         {/* Tryout Engine Routes */}
         <Route path="/tryout-pre/:pId/:qId" element={<TryoutPreView packageId={activePackageId} questionsId={questionsId} onStart={() => navigate("/tryout-engine")} onCancel={() => navigate("/paket-saya")} />} />
@@ -511,6 +530,7 @@ export default function App() {
 
   // Define full-screen pages based on pathname
   const isFullScreenPage = location.pathname.startsWith('/tryout') || 
+                           location.pathname.startsWith('/event-pre') ||
                            location.pathname.startsWith('/event-engine') ||
                            location.pathname === '/x7k2m9qp4n8vw3js' || 
                            location.pathname === '/reset-password';

@@ -18,6 +18,7 @@ interface Event {
   start_date: string | null;
   end_date: string | null;
   duration_minutes: number;
+  quota: number | null;
   created_at: string;
   tryout_packages?: { name: string; category: string } | null;
 }
@@ -37,6 +38,7 @@ const EMPTY_FORM = {
   start_date: "",
   end_date: "",
   duration_minutes: 90,
+  quota: 50,
 };
 
 export function AdminEventManagerView() {
@@ -75,19 +77,12 @@ export function AdminEventManagerView() {
       if (error) throw error;
       setEvents(data || []);
 
-      // Fetch participant counts
-      if (data && data.length > 0) {
-        const counts: Record<string, number> = {};
-        await Promise.all(
-          data.map(async (ev: Event) => {
-            const { count } = await supabase!
-              .from("event_results")
-              .select("id", { count: "exact", head: true })
-              .eq("event_id", ev.id);
-            counts[ev.id] = count || 0;
-          })
-        );
-        setParticipantCounts(counts);
+      const { data: counts } = await supabase.rpc("get_event_registration_counts");
+      if (counts) {
+        setParticipantCounts(Object.fromEntries(
+          (counts as { event_id: string; registered_count: number }[])
+            .map(row => [row.event_id, row.registered_count])
+        ));
       }
     } catch (err: any) {
       toast.error("Gagal memuat events: " + err.message);
@@ -128,6 +123,7 @@ export function AdminEventManagerView() {
       start_date: ev.start_date ? ev.start_date.slice(0, 16) : "",
       end_date: ev.end_date ? ev.end_date.slice(0, 16) : "",
       duration_minutes: ev.duration_minutes || 90,
+      quota: ev.quota ?? 50,
     });
     setView("form");
   };
@@ -137,6 +133,9 @@ export function AdminEventManagerView() {
     if (!form.package_id) return toast.error("Pilih paket soal terlebih dahulu!");
     if (form.end_date && form.start_date && form.end_date <= form.start_date) {
       return toast.error("Tanggal selesai harus setelah tanggal mulai!");
+    }
+    if (!Number.isInteger(form.quota) || form.quota < 1 || form.quota > 100) {
+      return toast.error("Kuota peserta harus antara 1 sampai 100.");
     }
     setSaving(true);
     try {
@@ -148,6 +147,7 @@ export function AdminEventManagerView() {
         start_date: form.start_date ? new Date(form.start_date).toISOString() : null,
         end_date: form.end_date ? new Date(form.end_date).toISOString() : null,
         duration_minutes: form.duration_minutes,
+        quota: form.quota,
       };
 
       if (editingId) {
@@ -285,6 +285,20 @@ export function AdminEventManagerView() {
             />
           </div>
 
+          {/* Kuota pendaftaran */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Kuota Peserta (maksimal 100) *</label>
+            <input
+              type="number"
+              min={1}
+              max={100}
+              value={form.quota}
+              onChange={e => setForm(f => ({ ...f, quota: parseInt(e.target.value, 10) || 0 }))}
+              className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
+            />
+            <p className="text-[11px] text-slate-600">Pendaftaran otomatis ditutup saat kuota terpenuhi atau saat waktu mulai tiba.</p>
+          </div>
+
           {/* Tanggal Mulai & Selesai */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
@@ -419,7 +433,7 @@ export function AdminEventManagerView() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5 text-sm font-bold text-white">
                         <Users className="w-3.5 h-3.5 text-slate-600" />
-                        {participantCounts[ev.id] ?? 0}
+                        {participantCounts[ev.id] ?? 0} / {ev.quota ?? 100}
                       </div>
                     </td>
                     <td className="px-6 py-4">
