@@ -1,7 +1,7 @@
 import { memo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 interface NavbarProps {
   onLogin: () => void;
@@ -12,6 +12,7 @@ interface NavbarProps {
 export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -88,10 +89,10 @@ export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages }:
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
+            initial={reduceMotion ? false : { opacity: 0, height: 0 }}
+            animate={reduceMotion ? undefined : { opacity: 1, height: 'auto' }}
+            exit={reduceMotion ? undefined : { opacity: 0, height: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.25, ease: "easeInOut" }}
             className="md:hidden bg-[#0f2750] border-b border-white/10 overflow-hidden shadow-lg"
           >
             <div className="px-6 py-5 flex flex-col gap-1">

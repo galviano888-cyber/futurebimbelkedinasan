@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { AccordionItem } from "./AccordionItem";
 
 interface FAQSectionProps {
@@ -10,6 +10,8 @@ interface FAQSectionProps {
 }
 
 export const FAQSection = memo(function FAQSection({ faqs }: FAQSectionProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section id="faq" className="relative py-20 lg:py-28 bg-[#0e2550] border-t border-white/[0.07]">
       <div className="max-w-3xl mx-auto px-5 sm:px-6">
@@ -29,8 +31,8 @@ export const FAQSection = memo(function FAQSection({ faqs }: FAQSectionProps) {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="rounded-2xl bg-white/[0.06] backdrop-blur-sm border border-white/[0.12] divide-y divide-white/10 px-5 lg:px-7 shadow-lg shadow-black/10"

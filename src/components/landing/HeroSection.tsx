@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { motion, type Variants } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 
 interface HeroSectionProps {
@@ -24,6 +24,8 @@ export const HeroSection = memo(function HeroSection({
   containerVariants,
   itemVariants
 }: HeroSectionProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section className="relative pt-16 sm:pt-20 lg:pt-24 pb-4 lg:pb-6 overflow-hidden bg-gradient-to-b from-[#16315f] via-[#12294f] to-[#0f2750]">
       {/* Glow accents */}
@@ -46,22 +48,22 @@ export const HeroSection = memo(function HeroSection({
 
           {/* Text Content */}
           <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
+            variants={reduceMotion ? undefined : containerVariants}
+            initial={reduceMotion ? false : "hidden"}
+            animate={reduceMotion ? undefined : "show"}
             className="text-center lg:text-left"
           >
             {/* Badge */}
-            <motion.div variants={itemVariants}>
+            <motion.div variants={reduceMotion ? undefined : itemVariants}>
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-400/25 bg-blue-500/10 text-[12px] font-semibold text-blue-200 mb-6 tracking-wide">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 motion-safe:animate-pulse" />
                 {hero.badge}
               </span>
             </motion.div>
 
             {/* Headline */}
             <motion.h1
-              variants={itemVariants}
+              variants={reduceMotion ? undefined : itemVariants}
               className="text-[2rem] sm:text-[2.6rem] lg:text-[3.1rem] font-extrabold tracking-tight leading-[1.1] text-white mb-5"
             >
               {hero.title.includes("|") ? (
@@ -74,7 +76,7 @@ export const HeroSection = memo(function HeroSection({
 
             {/* Subtitle */}
             <motion.p
-              variants={itemVariants}
+              variants={reduceMotion ? undefined : itemVariants}
               className="text-[15px] lg:text-[16px] leading-relaxed text-blue-100/70 max-w-lg mx-auto lg:mx-0 mb-8"
             >
               {hero.subtitle}
@@ -82,7 +84,7 @@ export const HeroSection = memo(function HeroSection({
 
             {/* Mobile Image */}
             <motion.div
-              variants={itemVariants}
+              variants={reduceMotion ? undefined : itemVariants}
               className="lg:hidden relative mb-8 max-w-[240px] mx-auto"
             >
               <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-2xl">
@@ -97,7 +99,7 @@ export const HeroSection = memo(function HeroSection({
             </motion.div>
 
             {/* CTA */}
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
+            <motion.div variants={reduceMotion ? undefined : itemVariants} className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
               <button
                 onClick={onEnter}
                 className="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 bg-blue-500 hover:bg-blue-400 text-white font-bold text-[15px] rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/30 active:scale-[0.98]"
@@ -115,7 +117,7 @@ export const HeroSection = memo(function HeroSection({
 
             {/* Trust signals */}
             <motion.div
-              variants={itemVariants}
+              variants={reduceMotion ? undefined : itemVariants}
               className="flex flex-wrap items-center gap-x-7 gap-y-3 justify-center lg:justify-start mt-8 pt-7 border-t border-white/[0.1]"
             >
               {[
@@ -138,8 +140,8 @@ export const HeroSection = memo(function HeroSection({
 
           {/* Desktop Image */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 30 }}
+            animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: "easeOut", delay: 0.25 }}
             className="hidden lg:block relative"
           >

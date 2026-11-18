@@ -1,5 +1,5 @@
 import { useState, memo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Plus } from "lucide-react";
 
 interface AccordionItemProps {
@@ -9,6 +9,7 @@ interface AccordionItemProps {
 
 export const AccordionItem = memo(function AccordionItem({ question, answer }: AccordionItemProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
   return (
     <div>
       <button
@@ -29,10 +30,10 @@ export const AccordionItem = memo(function AccordionItem({ question, answer }: A
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            initial={reduceMotion ? false : { height: 0, opacity: 0 }}
+            animate={reduceMotion ? undefined : { height: 'auto', opacity: 1 }}
+            exit={reduceMotion ? undefined : { height: 0, opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.25, ease: "easeOut" }}
             className="overflow-hidden"
           >
             <p className="pb-5 pr-10 text-[14px] text-blue-100/70 leading-relaxed text-justify">
