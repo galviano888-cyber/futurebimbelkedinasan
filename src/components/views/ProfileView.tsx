@@ -103,19 +103,17 @@ export function ProfileView() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-300 pb-20">
       {/* HEADER SECTION */}
       <div className="relative">
-        <div className="h-48 bg-slate-900 dark:bg-slate-800 rounded-[3rem] shadow-2xl relative overflow-hidden">
+        <div className="h-36 sm:h-40 bg-[#10264a] border-y border-slate-700 relative overflow-hidden">
           {/* Abstract pattern/gradient for premium feel */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-blue-900/40" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -mr-20 -mt-20" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -ml-20 -mb-20" />
         </div>
         
-        <div className="absolute -bottom-12 left-8">
-          <div className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-slate-900 rounded-[2.5rem] sm:rounded-[3rem] p-2 shadow-2xl border-4 border-white dark:border-slate-800 overflow-hidden relative">
-            <div className="w-full h-full bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-5xl">
+        <div className="absolute -bottom-10 left-5 sm:left-8">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white dark:bg-slate-900 p-1.5 border border-slate-200 dark:border-white/10 overflow-hidden relative">
+            <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-700 dark:text-blue-300 font-semibold text-4xl">
               {profile?.full_name?.charAt(0).toUpperCase() || "S"}
             </div>
           </div>
@@ -123,12 +121,12 @@ export function ProfileView() {
       </div>
 
       {/* Name and Status Section (Always Below Banner) */}
-      <div className="px-8 pt-12 sm:pt-14">
-        <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+      <div className="px-5 sm:px-8 pt-12 sm:pt-12">
+        <h1 className="text-[28px] sm:text-[32px] font-bold text-slate-900 dark:text-white tracking-[-0.03em]">
           {profile?.full_name}
         </h1>
         <div className="flex flex-wrap items-center gap-2 mt-3">
-          <div className="px-3 py-1 bg-blue-600 dark:bg-blue-500 rounded-xl text-[10px] font-bold text-white uppercase tracking-wide flex items-center gap-2 shadow-lg shadow-blue-500/20">
+          <div className="px-3 py-1 bg-blue-800 dark:bg-blue-700 text-[10px] font-semibold text-white uppercase tracking-wide flex items-center gap-2">
             <ShieldCheck className="w-3.5 h-3.5" /> Siswa Aktif FBK
           </div>
           {profile?.student_code && (
@@ -164,17 +162,17 @@ export function ProfileView() {
         {/* SIDEBAR STATS */}
         <div className="lg:col-span-1 space-y-6">
           {/* Activity Cards */}
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 space-y-4">
+          <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 border-y border-slate-200 dark:border-white/10 space-y-4">
              <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">Aktivitas Belajar</h3>
-             <div className="flex items-center gap-5 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100/50 dark:border-blue-900/30">
-                <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm"><Package className="w-6 h-6" /></div>
+              <div className="flex items-center gap-5 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100/50 dark:border-blue-900/30">
+                 <div className="w-11 h-11 bg-white dark:bg-slate-900 flex items-center justify-center text-blue-700 dark:text-blue-300"><Package className="w-5 h-5" /></div>
                 <div>
                   <div className="text-xl font-bold text-slate-800 dark:text-white leading-none">{stats.packages}</div>
                   <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-wide">Paket Belajar</div>
                 </div>
              </div>
-             <div className="flex items-center gap-5 p-5 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-100/50 dark:border-emerald-900/30">
-                <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm"><Award className="w-6 h-6" /></div>
+              <div className="flex items-center gap-5 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100/50 dark:border-emerald-900/30">
+                 <div className="w-11 h-11 bg-white dark:bg-slate-900 flex items-center justify-center text-emerald-700 dark:text-emerald-300"><Award className="w-5 h-5" /></div>
                 <div>
                   <div className="text-xl font-bold text-slate-800 dark:text-white leading-none">{stats.tryouts}</div>
                   <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-wide">Tryout Selesai</div>
@@ -185,12 +183,11 @@ export function ProfileView() {
 
         {/* PROFILE DETAILS */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-slate-900 p-10 rounded-[3rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 dark:bg-slate-800/30 rounded-full -mr-32 -mt-32 pointer-events-none" />
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 border-y border-slate-200 dark:border-white/10 relative overflow-hidden">
              
              <div className="relative z-10">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight mb-10 flex items-center gap-3">
-                <User className="w-6 h-6 text-blue-600" /> Informasi Akun
+               <h2 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight mb-8 flex items-center gap-3">
+                 <User className="w-5 h-5 text-blue-700 dark:text-blue-300" /> Informasi Akun
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">

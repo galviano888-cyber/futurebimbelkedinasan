@@ -254,7 +254,7 @@ function EventCard({
   const seatPercent = quota ? Math.min(100, Math.round((registeredCount / quota) * 100)) : 0;
 
   return (
-    <div className="bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:border-blue-200 dark:hover:border-blue-500/20 hover:shadow-lg dark:hover:shadow-none">
+    <div className="bg-white dark:bg-[#0d1929] border-y border-slate-200 dark:border-white/10 overflow-hidden flex flex-col transition-colors hover:bg-slate-50 dark:hover:bg-white/[0.02]">
       {/* Header */}
       <div className="p-5 border-b border-slate-100 dark:border-white/5">
         <div className="flex items-start justify-between gap-3 mb-3">
@@ -597,7 +597,7 @@ export function EventsView() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <p className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-[0.25em] mb-2">Agenda</p>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Event &amp; Tryout Akbar</h1>
+          <h1 className="text-[28px] font-bold text-slate-900 dark:text-white tracking-[-0.03em]">Event &amp; Tryout Akbar</h1>
           <p className="text-slate-500 dark:text-slate-500 text-sm mt-1">Daftar dulu, lalu kerjakan sesuai jadwal. Kuota peserta terbatas.</p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl">
@@ -614,8 +614,8 @@ export function EventsView() {
           <p className="text-slate-400 dark:text-slate-600 font-bold uppercase text-[10px] tracking-wide">Memuat Event...</p>
         </div>
       ) : events.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 px-6 text-center bg-white dark:bg-[#0d1929] border border-dashed border-slate-200 dark:border-white/5 rounded-2xl">
-          <div className="w-14 h-14 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-2xl flex items-center justify-center mb-5">
+        <div className="flex flex-col items-center justify-center py-20 px-6 text-center bg-white dark:bg-[#0d1929] border-y border-dashed border-slate-200 dark:border-white/10">
+          <div className="w-14 h-14 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 flex items-center justify-center mb-5">
             <Calendar className="w-7 h-7 text-slate-300 dark:text-slate-700" />
           </div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight mb-2">Belum Ada Event</h3>
@@ -650,10 +650,9 @@ export function EventsView() {
       )}
 
       {/* CTA Banner */}
-      <div className="bg-white dark:bg-[#0d1929] border border-blue-100 dark:border-blue-500/20 rounded-2xl p-8 text-center relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-blue-50 dark:bg-blue-500/5 rounded-full -mr-24 -mt-24" />
+      <div className="bg-[#10264a] border-y border-blue-300/20 p-8 text-center relative overflow-hidden">
         <div className="relative z-10 space-y-4">
-          <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-2xl flex items-center justify-center mx-auto">
+          <div className="w-12 h-12 bg-white/10 border border-white/15 flex items-center justify-center mx-auto">
             <Zap className="w-6 h-6 text-blue-500 dark:text-blue-400" />
           </div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Ada Pertanyaan Mengenai Event?</h2>

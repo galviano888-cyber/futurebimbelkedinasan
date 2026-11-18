@@ -128,7 +128,7 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
             <span className="px-2.5 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-semibold rounded-md">Simulasi Live</span>
             <span className="text-slate-400 text-[12px]">SKD Kedinasan 2026</span>
           </div>
-          <h1 className="text-slate-800 dark:text-white font-bold text-[26px] sm:text-[32px] tracking-tight mb-3">
+          <h1 className="text-slate-800 dark:text-white font-bold text-[28px] sm:text-[34px] tracking-[-0.04em] mb-3">
             Persiapan Tryout SKD
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-[15px] leading-relaxed max-w-2xl">
@@ -138,9 +138,9 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           {/* Informasi Paket */}
-          <div className="bg-white dark:bg-[#161616] rounded-2xl border border-slate-200/80 dark:border-white/[0.06] p-6 sm:p-7 shadow-sm">
+          <div className="bg-white dark:bg-[#161616] border-y border-slate-200 dark:border-white/[0.06] p-6 sm:p-7">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
+              <div className="w-10 h-10 bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
                 <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
@@ -208,12 +208,11 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
           </div>
 
           {/* Panduan Pengerjaan */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 sm:p-7 text-white shadow-lg shadow-blue-600/20 flex flex-col relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-3xl" />
+          <div className="bg-[#10264a] border-y border-blue-300/20 p-6 sm:p-7 text-white flex flex-col relative overflow-hidden">
 
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur-sm">
+                <div className="w-10 h-10 bg-white/10 flex items-center justify-center">
                   <AlertCircle className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -230,7 +229,7 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
                   "Dilarang membuka tab lain atau login di perangkat lain."
                 ].map((text, i) => (
                   <div key={i} className="flex gap-3 items-start">
-                    <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center text-[11px] font-semibold shrink-0 backdrop-blur-sm mt-0.5">
+                    <div className="w-5 h-5 bg-white/15 flex items-center justify-center text-[11px] font-semibold shrink-0 mt-0.5">
                       {i + 1}
                     </div>
                     <p className="text-[13px] text-white/90 leading-relaxed">
@@ -251,7 +250,7 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-5 p-6 bg-white dark:bg-[#161616] rounded-2xl border border-slate-200/80 dark:border-white/[0.06] shadow-sm">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-5 p-6 bg-white dark:bg-[#161616] border-y border-slate-200 dark:border-white/[0.06]">
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-5 h-5 text-emerald-500" />

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
   CheckCircle2, 
   XCircle, 
-  Trophy, 
   ArrowLeft, 
   Target,
   Zap,
@@ -82,7 +81,7 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
   ];
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-500">
+      <div className="max-w-6xl mx-auto space-y-7 animate-in fade-in duration-300">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-5">
         <div>
@@ -93,21 +92,19 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Kembali ke Dashboard
           </button>
-          <h1 className="text-slate-800 dark:text-white font-bold text-[26px] sm:text-[30px] tracking-tight flex items-center gap-3">
-            <div className="w-11 h-11 bg-amber-50 dark:bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500">
-               <Trophy className="w-6 h-6" />
-            </div>
+          <p className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-[0.16em] mb-2">Evaluasi</p>
+          <h1 className="text-slate-800 dark:text-white font-bold text-[28px] sm:text-[32px] tracking-[-0.04em] flex items-center gap-3">
             Hasil Tryout SKD
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-[14px] mt-2">Laporan analisis performa pengerjaan tryout kamu.</p>
+          <p className="text-slate-600 dark:text-slate-400 text-[14px] mt-2">Tinjau skor tiap bagian dan tentukan fokus latihan berikutnya.</p>
         </div>
 
         <div className="flex gap-3">
-           <div className="px-5 py-3 bg-white dark:bg-[#161616] rounded-xl border border-slate-200/80 dark:border-white/[0.06]">
+            <div className="px-5 py-3 bg-white dark:bg-[#161616] border-y border-slate-200 dark:border-white/[0.10]">
               <div className="text-[11px] text-slate-400 dark:text-slate-500 leading-none mb-1.5">Total Skor</div>
               <div className="text-2xl font-bold text-slate-800 dark:text-white leading-none">{result.totalScore}</div>
            </div>
-           <div className="px-5 py-3 bg-white dark:bg-[#161616] rounded-xl border border-slate-200/80 dark:border-white/[0.06]">
+            <div className="px-5 py-3 bg-white dark:bg-[#161616] border-y border-slate-200 dark:border-white/[0.10]">
               <div className="text-[11px] text-slate-400 dark:text-slate-500 leading-none mb-1.5">Akurasi</div>
               <div className="text-2xl font-bold text-slate-800 dark:text-white leading-none">{Math.round((totalCorrect / result.totalQuestions) * 100)}%</div>
            </div>
@@ -119,7 +116,7 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
         {/* Left Column: Result Card & Chart */}
         <div className="lg:col-span-1 space-y-6">
           <div className={cn(
-            "rounded-2xl p-7 border text-center relative overflow-hidden",
+            "p-7 border-y text-center relative overflow-hidden",
             allPass
               ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20"
               : "bg-red-50 dark:bg-red-500/10 border-red-100 dark:border-red-500/20"
@@ -148,7 +145,7 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
           </div>
 
           {/* Ranking Card */}
-          <div className="bg-slate-900 dark:bg-[#161616] rounded-2xl p-7 border border-slate-800 dark:border-white/[0.06] relative overflow-hidden">
+          <div className="bg-slate-900 dark:bg-[#161616] p-7 border-y border-slate-800 dark:border-white/[0.06] relative overflow-hidden">
              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 blur-2xl -mr-8 -mt-8" />
              <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">
@@ -177,7 +174,7 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
              </div>
           </div>
 
-          <div className="bg-white dark:bg-[#161616] rounded-2xl p-7 border border-slate-200/80 dark:border-white/[0.06]">
+          <div className="bg-white dark:bg-[#161616] p-7 border-y border-slate-200 dark:border-white/[0.06]">
              <div className="flex items-center gap-3 mb-5">
                 <div className="w-9 h-9 bg-blue-50 dark:bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-400">
                    <BarChart3 className="w-4 h-4" />
@@ -249,7 +246,7 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
           </div>
 
           {/* Action Buttons */}
-          <div className="bg-slate-900 dark:bg-[#161616] rounded-2xl p-6 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-5 border border-transparent dark:border-white/[0.06]">
+          <div className="bg-slate-900 dark:bg-[#161616] p-6 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-5 border-y border-slate-800 dark:border-white/[0.06]">
              <div className="text-center sm:text-left">
                 <h4 className="text-white font-semibold text-[17px] leading-tight">Analisis selesai</h4>
                 <p className="text-slate-400 text-[13px] mt-1">Gunakan hasil ini untuk fokus belajar di materi yang lemah.</p>
@@ -258,14 +255,14 @@ export function TryoutResultView({ result, packageId, onBack, onReview }: Tryout
                 {onReview && (
                   <button
                     onClick={onReview}
-                    className="flex-1 sm:flex-none px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium text-[13px] rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                    className="flex-1 sm:flex-none px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-medium text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white flex items-center justify-center gap-2"
                   >
                     <Target className="w-4 h-4" /> Review Soal
                   </button>
                 )}
                 <button
                   onClick={onBack}
-                  className="flex-1 sm:flex-none px-6 py-3 bg-white/10 hover:bg-white/15 text-white font-medium text-[13px] rounded-xl transition-all border border-white/10 active:scale-[0.98] flex items-center justify-center gap-2"
+                  className="flex-1 sm:flex-none px-6 py-3 bg-white/10 hover:bg-white/15 text-white font-medium text-[13px] transition-colors border border-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white flex items-center justify-center gap-2"
                 >
                   <LayoutDashboard className="w-4 h-4 text-slate-400" /> Dashboard
                 </button>
@@ -301,7 +298,7 @@ function DetailedScoreCard({
   };
 
   return (
-    <div className="bg-white dark:bg-[#161616] rounded-2xl p-6 sm:p-7 border border-slate-200/80 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.12] transition-colors">
+    <div className="bg-white dark:bg-[#161616] p-6 sm:p-7 border-y border-slate-200 dark:border-white/[0.06]">
       <div className="flex flex-col md:flex-row gap-5 md:gap-6 items-start">
         <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0", colorMap[color])}>
            {icon}

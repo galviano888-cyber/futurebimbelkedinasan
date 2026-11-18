@@ -68,13 +68,13 @@ const TYPE_COLOR: Record<string, string> = {
   );
 
   if (packages.length === 0) return (
-    <div className="flex flex-col items-center justify-center py-24 text-center px-6">
-      <div className="w-14 h-14 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-2xl flex items-center justify-center mb-5">
+      <div className="flex flex-col items-center justify-center py-24 text-center px-6 border-y border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.02]">
+        <div className="w-14 h-14 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 flex items-center justify-center mb-5">
         <Package className="w-7 h-7 text-slate-300 dark:text-slate-700" />
       </div>
       <h3 className="text-lg font-bold text-slate-900 dark:text-white">Belum Ada Paket Aktif</h3>
       <p className="text-slate-500 mt-2 max-w-sm text-sm">Jelajahi katalog dan mulai persiapanmu sekarang.</p>
-      <button onClick={() => navigate("/paket")} className="mt-6 flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition-all">
+      <button onClick={() => navigate("/paket")} className="mt-6 flex items-center gap-2 px-6 py-3 bg-blue-800 hover:bg-blue-900 text-white font-semibold text-sm transition-colors">
         Lihat Katalog
       </button>
     </div>
@@ -95,7 +95,7 @@ const TYPE_COLOR: Record<string, string> = {
           <ChevronLeft className="w-4 h-4" /> Kembali ke Paket Saya
         </button>
         {selectedPkg.cover_image_url ? (
-          <div className="relative h-52 sm:h-60 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/[0.07] mb-6">
+          <div className="relative h-52 sm:h-60 overflow-hidden border-y border-slate-200 dark:border-white/[0.07] mb-6">
             <img src={selectedPkg.cover_image_url} alt={selectedPkg.title} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display="none"; }} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             <div className="absolute bottom-5 left-6 right-6">
@@ -104,7 +104,7 @@ const TYPE_COLOR: Record<string, string> = {
           </div>
         ) : (
           <div className="flex items-start gap-4 mb-6">
-            <div className="w-14 h-14 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-2xl flex items-center justify-center shrink-0">
+            <div className="w-14 h-14 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 flex items-center justify-center shrink-0">
               <BookMarked className="w-7 h-7 text-blue-500" />
             </div>
             <div>
@@ -115,12 +115,12 @@ const TYPE_COLOR: Record<string, string> = {
           </div>
         )}
         {selectedPkg.cover_image_url && selectedPkg.description && <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">{selectedPkg.description}</p>}
-        <div className="flex gap-1 bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] p-1 rounded-xl mb-5 w-fit">
+        <div className="flex gap-1 bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] p-1 mb-5 w-fit max-w-full overflow-x-auto">
           {tabs.map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={cn("flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all",
                 activeTab === tab.id
-                  ? "bg-white dark:bg-white/[0.08] text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-white/[0.08]"
+                  ? "bg-white dark:bg-white/[0.08] text-slate-900 dark:text-white border border-slate-200 dark:border-white/[0.08]"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               )}
             >
@@ -134,7 +134,7 @@ const TYPE_COLOR: Record<string, string> = {
           <motion.div key={selectedPkg.id + activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.18 }} className="space-y-3">
             {activeTab === "liveclass" && (
               liveCC.length > 0 ? (
-                <div className="bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.07] rounded-2xl overflow-x-auto">
+                <div className="bg-white dark:bg-[#181818] border-y border-slate-200 dark:border-white/[0.07] overflow-x-auto">
                   <table className="w-full min-w-[520px]"><thead><tr className="border-b border-slate-100 dark:border-white/[0.06]">
                     {["Jadwal","Judul / Mentor","Zoom","Rekaman","Mini Tes"].map(h => <th key={h} className="px-5 py-3.5 text-left text-[11px] font-medium text-slate-400">{h}</th>)}
                   </tr></thead><tbody className="divide-y divide-slate-50 dark:divide-white/[0.04]">
@@ -149,7 +149,7 @@ const TYPE_COLOR: Record<string, string> = {
                     ))}
                   </tbody></table>
                 </div>
-              ) : <div className="py-16 text-center bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.07] rounded-2xl"><Video className="w-8 h-8 text-slate-300 mx-auto mb-3" /><p className="text-[13px] text-slate-400">Jadwal sedang disiapkan.</p></div>
+              ) : <div className="py-16 text-center bg-white dark:bg-[#181818] border-y border-slate-200 dark:border-white/[0.07]"><Video className="w-8 h-8 text-slate-300 mx-auto mb-3" /><p className="text-[13px] text-slate-400">Jadwal sedang disiapkan.</p></div>
             )}
             {activeTab === "materi" && (
               matC.length > 0 ? matC.map((c) => (
@@ -162,7 +162,7 @@ const TYPE_COLOR: Record<string, string> = {
                     ? <a href={c.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 text-blue-600 text-[12px] font-medium rounded-xl transition-all shrink-0"><ExternalLink className="w-3.5 h-3.5" /> Download</a>
                     : <span className="text-[11px] text-slate-400 dark:text-slate-500 shrink-0 px-3 py-2 rounded-xl border border-dashed border-slate-200 dark:border-white/10">Belum diunggah</span>}
                 </div>
-              )) : <div className="py-16 text-center bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.07] rounded-2xl"><FileText className="w-8 h-8 text-slate-300 mx-auto mb-3" /><p className="text-[13px] text-slate-400">Materi sedang disiapkan.</p></div>
+              )) : <div className="py-16 text-center bg-white dark:bg-[#181818] border-y border-slate-200 dark:border-white/[0.07]"><FileText className="w-8 h-8 text-slate-300 mx-auto mb-3" /><p className="text-[13px] text-slate-400">Materi sedang disiapkan.</p></div>
             )}
             {activeTab === "tryout" && (
               toC.length > 0 ? toC.map((c) => (
@@ -194,16 +194,16 @@ const TYPE_COLOR: Record<string, string> = {
                       onStartTryout(selectedPkg.package_id, c.tryout_id);
                     }}
                     disabled={!c.tryout_id}
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm shadow-blue-600/25 shrink-0">
+                      className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-800 hover:bg-blue-900 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 shrink-0">
                     <Play className="w-4 h-4" /> {c.tryout_id ? "Mulai Tryout" : "Belum Tersedia"}
                   </button>
                 </div>
-              )) : <div className="py-16 text-center bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.07] rounded-2xl"><Award className="w-8 h-8 text-slate-300 mx-auto mb-3" /><p className="text-[13px] text-slate-400">Tidak ada tryout.</p></div>
+              )) : <div className="py-16 text-center bg-white dark:bg-[#181818] border-y border-slate-200 dark:border-white/[0.07]"><Award className="w-8 h-8 text-slate-300 mx-auto mb-3" /><p className="text-[13px] text-slate-400">Tidak ada tryout.</p></div>
             )}
           </motion.div>
         </AnimatePresence>
         {isFullPackage(selectedPkg.product_type) && selectedPkg.guide_url && (
-          <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 bg-blue-50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10 rounded-xl">
+          <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 bg-blue-50 dark:bg-blue-500/5 border-y border-blue-100 dark:border-blue-500/10">
             <div><p className="text-[13.5px] font-medium text-slate-800 dark:text-white">{selectedPkg.guide_text || "Bergabung ke Komunitas Belajar"}</p><p className="text-[11px] text-blue-500 mt-0.5">Panduan paket bimbel</p></div>
             <a href={selectedPkg.guide_url} target="_blank" rel="noreferrer" className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-semibold rounded-xl transition-all"><ExternalLink className="w-3.5 h-3.5" /> Gabung</a>
           </div>
@@ -213,21 +213,21 @@ const TYPE_COLOR: Record<string, string> = {
   }  // ─── DAFTAR PAKET ─────────────────────────────────────────
   return (
     <div className="animate-in fade-in duration-300">
-      <div className="mb-7">
-        <p className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-[0.25em] mb-2">Paket Saya</p>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Ruang Belajar</h1>
-        <p className="text-slate-500 dark:text-slate-500 text-sm mt-1 font-medium">{packages.length} paket aktif terdaftar</p>
+      <div className="mb-8">
+        <p className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-[0.16em] mb-2">Paket Saya</p>
+        <h1 className="text-[28px] font-bold text-slate-900 dark:text-white tracking-[-0.03em]">Ruang belajar</h1>
+        <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">Paket yang aktif di akunmu: {packages.length}</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 border-y border-slate-200 dark:border-white/10">
         {packages.map((pkg) => {
           const tryoutCount = pkg.contents.filter(c => c.type === "tryout").length;
           const materiCount = pkg.contents.filter(c => c.type === "file").length;
           const liveCount = pkg.contents.filter(c => c.type === "video").length;
           return (
-            <div key={pkg.id} className="bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.07] rounded-2xl overflow-hidden flex flex-col hover:border-blue-200 dark:hover:border-blue-500/20 hover:shadow-lg hover:shadow-slate-900/[0.06] transition-all duration-300 group">
+            <div key={pkg.id} className="bg-white dark:bg-[#181818] border-b sm:border-r sm:last:border-r-0 border-slate-200 dark:border-white/[0.07] overflow-hidden flex flex-col hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
               {pkg.cover_image_url ? (
                 <div className="relative h-40 overflow-hidden shrink-0">
-                  <img src={pkg.cover_image_url} alt={pkg.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display="none"; }} />
+                  <img src={pkg.cover_image_url} alt={`Sampul ${pkg.title}`} className="w-full h-full object-cover transition-transform duration-500" onError={(e) => { const parent = (e.target as HTMLImageElement).parentElement; if (parent) parent.style.display="none"; }} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 </div>
               ) : null}
@@ -241,7 +241,7 @@ const TYPE_COLOR: Record<string, string> = {
                 </div>
                 <button
                   onClick={() => { setSelectedPkg(pkg); setActiveTab(isFullPackage(pkg.product_type) ? "liveclass" : "tryout"); }}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white text-[13.5px] font-semibold rounded-xl transition-all shadow-sm shadow-blue-600/25 active:scale-[0.98]"
+                  className="w-full min-h-11 flex items-center justify-center gap-2 py-3 bg-blue-800 hover:bg-blue-900 text-white text-[13.5px] font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 >
                   <BookOpen className="w-4 h-4" /> Buka Paket
                 </button>
