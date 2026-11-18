@@ -76,7 +76,7 @@ export const HeroSection = memo(function HeroSection({
               className="lg:hidden relative mb-8 max-w-[440px] mx-auto -mx-3 sm:mx-auto"
             >
               <div className="relative aspect-[1.35] overflow-hidden bg-white">
-                <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="absolute inset-0 w-full h-full object-contain scale-[1.48]" loading="eager" />
+                <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="absolute inset-0 w-full h-full object-contain scale-[1.28]" loading="eager" />
               </div>
             </motion.div>
 
@@ -132,7 +132,7 @@ export const HeroSection = memo(function HeroSection({
             className="hidden lg:block relative self-stretch min-h-[610px]"
           >
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-              <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="w-full h-full object-contain object-center scale-[1.52]" loading="eager" />
+              <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="w-full h-full object-contain object-center scale-[1.28]" loading="eager" />
             </div>
           </motion.div>
 
