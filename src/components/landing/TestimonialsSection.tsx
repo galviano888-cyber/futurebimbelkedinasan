@@ -15,9 +15,9 @@ export const TestimonialsSection = memo(function TestimonialsSection({ testimoni
   const reduceMotion = useReducedMotion();
   if (testimonials.length === 0) {
     const steps = [
-      { number: "01", title: "Pilih tryout", text: "Pilih latihan SKD yang sesuai dengan kebutuhan dan paket yang kamu miliki.", icon: Target },
-      { number: "02", title: "Kerjakan soal", text: "Latih TWK, TIU, dan TKP dalam sesi tryout dengan batas waktu.", icon: ClipboardList },
-      { number: "03", title: "Tinjau hasil", text: "Periksa skor dan pembahasan yang tersedia untuk menentukan fokus latihan selanjutnya.", icon: BookOpenCheck },
+      { number: "01", title: "Tentukan tujuan", text: "Kenali sekolah kedinasan dan tahapan seleksi yang ingin kamu persiapkan.", icon: Target },
+      { number: "02", title: "Susun rutinitas", text: "Pilih materi dan latihan yang tersedia, termasuk tryout SKD TWK, TIU, dan TKP.", icon: ClipboardList },
+      { number: "03", title: "Evaluasi progres", text: "Tinjau hasil latihan dan gunakan pembahasan yang tersedia untuk merencanakan langkah berikutnya.", icon: BookOpenCheck },
     ];
 
     return (
@@ -25,7 +25,7 @@ export const TestimonialsSection = memo(function TestimonialsSection({ testimoni
         <div className="max-w-6xl mx-auto px-5 sm:px-6">
           <div className="grid lg:grid-cols-[0.72fr_1.28fr] gap-10 lg:gap-20 mb-12 lg:mb-16">
             <div>
-              <p className="text-[11px] font-bold text-blue-800 tracking-[0.16em] uppercase mb-4">Alur Belajar</p>
+              <p className="text-[11px] font-bold text-blue-800 tracking-[0.16em] uppercase mb-4">Rencana Belajar</p>
               <h2 className="text-[30px] lg:text-[42px] font-bold text-[#102b54] tracking-[-0.04em] leading-[1.08]">
               Dari latihan ke evaluasi.
               </h2>

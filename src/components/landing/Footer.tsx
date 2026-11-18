@@ -15,10 +15,10 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
           <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
               <h3 className="text-[20px] lg:text-[24px] font-bold text-white tracking-tight leading-tight">
-                Mulai dari latihan yang terarah.
+                Siapkan langkahmu menuju sekolah kedinasan.
               </h3>
               <p className="text-[13px] lg:text-[14px] text-blue-100 mt-2 max-w-md leading-relaxed">
-                Mulai latihan SKD dan tinjau hasil tryout untuk merencanakan persiapan berikutnya.
+                Mulai persiapan masuk sekolah kedinasan dengan latihan dan evaluasi belajar yang terarah.
               </p>
             </div>
             <a
@@ -46,7 +46,7 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
               </span>
             </div>
             <p className="text-[13.5px] text-blue-100 leading-relaxed">
-              Platform latihan SKD sekolah kedinasan dengan tryout CAT, hasil, dan pembahasan.
+              Platform pendamping persiapan sekolah kedinasan dengan latihan seleksi, tryout, hasil, dan pembahasan.
             </p>
             <div className="flex items-center gap-2.5">
               <a
@@ -72,7 +72,7 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
               <h4 className="text-[12px] font-semibold text-white uppercase tracking-wide">Navigasi</h4>
               <ul className="space-y-3">
                 {[
-                  { name: 'Fitur Belajar', id: 'fitur' },
+                  { name: 'Persiapan', id: 'fitur' },
                   ...(hasPackages !== false ? [{ name: 'Paket SKD', id: 'paket' }] : []),
                   { name: 'FAQ', id: 'faq' }
                 ].map((link) => (

@@ -30,23 +30,24 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   
   // Dynamic Content State
   const [hero, setHero] = useState({ 
-    badge: "Persiapan SKD Sekolah Kedinasan",
-    title: "Persiapan SKD | yang lebih terarah.",
-    subtitle: "Latihan TWK, TIU, dan TKP lewat tryout CAT. Tinjau hasil dan pembahasan untuk menentukan fokus belajarmu berikutnya.",
-    cta: "Mulai Sekarang",
+    badge: "Persiapan Masuk Sekolah Kedinasan",
+    title: "Langkahmu menuju | sekolah kedinasan.",
+    subtitle: "Temani persiapanmu dengan latihan terarah, simulasi seleksi, dan evaluasi belajar di satu platform.",
+    cta: "Lihat pilihan persiapan",
     image: "https://images.unsplash.com/photo-1523240715632-d984bb4b990a?q=80&w=2070&auto=format&fit=crop"
   });
   const [_testimonials, setTestimonials] = useState<any[]>([]);
   const [faqs, setFaqs] = useState<any[]>([
-    { q: "Materi apa yang bisa dilatih?", a: "Tryout yang tersedia mencakup latihan TWK, TIU, dan TKP. Isi dan jumlah tryout mengikuti detail masing-masing paket." },
-    { q: "Bagaimana sistem belajarnya?", a: "Pilih tryout yang tersedia, kerjakan dalam batas waktu, lalu tinjau hasil dan pembahasan yang disediakan." },
+    { q: "Bagaimana FBK membantu persiapan masuk sekolah kedinasan?", a: "Kamu dapat berlatih dengan materi dan simulasi seleksi yang tersedia, meninjau hasilnya, lalu menentukan fokus belajar berikutnya." },
+    { q: "Latihan apa saja yang tersedia?", a: "Paket tryout yang tersedia mencakup latihan SKD seperti TWK, TIU, dan TKP. Isi setiap paket dapat dilihat pada detail paket." },
+    { q: "Bagaimana sistem belajarnya?", a: "Pilih paket yang sesuai, kerjakan latihan atau tryout, lalu tinjau hasil dan pembahasan yang tersedia." },
     { q: "Apakah bisa diakses melalui ponsel?", a: "Platform dapat dibuka melalui browser ponsel, tablet, atau komputer. Untuk mengerjakan tryout, layar komputer atau laptop lebih disarankan." },
     { q: "Apa saja yang termasuk dalam paket?", a: "Isi paket berbeda-beda. Periksa daftar manfaat dan informasi akses di halaman paket sebelum melakukan pemesanan." }
   ]);
   const [features, setFeatures] = useState<any[]>([
-    { title: "Latihan TWK, TIU, dan TKP", desc: "Pilih tryout SKD untuk berlatih sesuai materi yang sedang ingin kamu tingkatkan." },
-    { title: "Simulasi Tryout CAT", desc: "Kerjakan soal dengan batas waktu dan tinjau hasilnya setelah tryout selesai." },
-    { title: "Pembahasan untuk Evaluasi", desc: "Gunakan pembahasan yang tersedia untuk memahami soal dan merencanakan latihan berikutnya." },
+    { title: "Persiapan seleksi kedinasan", desc: "Gunakan latihan dan tryout yang tersedia untuk membangun rutinitas persiapan masuk sekolah kedinasan." },
+    { title: "Latihan SKD terarah", desc: "Pilih latihan TWK, TIU, atau TKP sesuai materi yang ingin kamu pelajari." },
+    { title: "Simulasi dan evaluasi", desc: "Kerjakan tryout dengan batas waktu, lalu tinjau skor dan pembahasan yang tersedia." },
     { title: "Pantau Hasil Tryout", desc: "Lihat skor tiap bagian sebagai salah satu cara mengevaluasi progres latihanmu." },
     { title: "Leaderboard Tryout", desc: "Bandingkan hasil pada tryout yang menyediakan leaderboard." },
     { title: "Akses dari Berbagai Perangkat", desc: "Buka platform melalui browser di ponsel, tablet, atau komputer." }

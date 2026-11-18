@@ -102,10 +102,10 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
             <span className="text-[11px] font-bold text-sky-200 tracking-[0.16em] uppercase">Pilihan Paket</span>
           </div>
           <h2 className="text-[28px] lg:text-[40px] font-bold text-white tracking-[-0.04em] leading-[1.12]">
-            Pilih paket sesuai tahap persiapanmu.
+            Pilih dukungan belajar untuk tujuan kedinasanmu.
           </h2>
           <p className="text-[15px] lg:text-[16px] text-blue-100 mt-4 leading-relaxed">
-            Bandingkan harga dan informasi tiap paket sebelum memilih.
+            Temukan paket belajar atau latihan yang sesuai dengan tahap persiapanmu.
           </p>
         </div>
 

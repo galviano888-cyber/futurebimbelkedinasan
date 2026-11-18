@@ -24,7 +24,7 @@ export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages, o
 
   const navLinks = [
     { name: "Fitur", href: "#fitur" },
-    { name: "Alur Belajar", href: "#testimoni" },
+    { name: "Rencana Belajar", href: "#testimoni" },
     ...(hasPackages !== false ? [{ name: "Paket SKD", href: "#paket" }] : []),
     { name: "FAQ", href: "#faq" },
   ];

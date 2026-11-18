@@ -18,10 +18,10 @@ export const FeaturesSection = memo(function FeaturesSection({ features }: Featu
           <div className="lg:sticky lg:top-28 lg:self-start">
             <p className="text-[11px] font-bold text-sky-200 tracking-[0.16em] uppercase mb-4">Fitur Belajar</p>
             <h2 className="text-[30px] lg:text-[42px] font-bold tracking-[-0.04em] leading-[1.08] mb-4 text-white">
-              Latihan yang berujung pada evaluasi.
+              Persiapan menuju sekolah kedinasan.
             </h2>
             <p className="text-[15px] text-blue-50 leading-[1.75]">
-              Gunakan tryout untuk melihat bagian yang sudah dikuasai dan yang masih perlu dilatih.
+              Bangun rutinitas belajar, berlatih untuk seleksi, dan evaluasi progresmu secara berkala.
             </p>
           </div>
 
