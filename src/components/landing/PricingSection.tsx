@@ -94,23 +94,23 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
   }, []);
 
   return (
-    <section id="paket" ref={sectionRef} className="relative py-20 lg:py-28 bg-[#c9defd] border-t border-blue-200">
+    <section id="paket" ref={sectionRef} className="relative py-20 lg:py-28 bg-[#0f2750] border-t border-blue-300/20">
       <div className="max-w-6xl mx-auto px-5 sm:px-6 relative">
         {/* Section header */}
         <div className="max-w-2xl mb-12 lg:mb-16 text-center mx-auto">
           <div className="flex items-center justify-center gap-3 mb-5">
-            <span className="text-[11px] font-bold text-blue-800 tracking-[0.16em] uppercase">Pilihan Paket</span>
+            <span className="text-[11px] font-bold text-sky-200 tracking-[0.16em] uppercase">Pilihan Paket</span>
           </div>
-          <h2 className="text-[28px] lg:text-[40px] font-bold text-[#102b54] tracking-[-0.04em] leading-[1.12]">
+          <h2 className="text-[28px] lg:text-[40px] font-bold text-white tracking-[-0.04em] leading-[1.12]">
             Pilih paket sesuai tahap persiapanmu.
           </h2>
-          <p className="text-[15px] lg:text-[16px] text-blue-950/80 mt-4 leading-relaxed">
+          <p className="text-[15px] lg:text-[16px] text-blue-100 mt-4 leading-relaxed">
             Bandingkan harga dan informasi tiap paket sebelum memilih.
           </p>
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 border-y border-blue-300">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 border-y border-white/20">
           {isRealPackages
             ? (packages as RealPackage[]).map((pkg) => {
                 const Icon = TYPE_ICON[pkg.product_type] || BookOpen;
@@ -219,7 +219,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
           }
         </div>
 
-        <p className="text-center text-[13px] text-blue-950/80 mt-8">
+        <p className="text-center text-[13px] text-blue-100 mt-8">
           Detail akses dan langkah pemesanan tersedia di halaman katalog paket.
         </p>
       </div>
