@@ -144,7 +144,7 @@ export function AdminLandingPageEditorView() {
           <div className="flex items-center gap-3">
             <div className={iconBoxClass}><Layout className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-bold text-white">Hero Section</h2>
+              <h2 className="text-[15px] font-semibold text-white">Hero Section</h2>
               <p className="text-[10px] text-slate-600 font-bold">Header utama website</p>
             </div>
           </div>
@@ -194,7 +194,7 @@ export function AdminLandingPageEditorView() {
           <div className="flex items-center gap-3">
             <div className={iconBoxClass}><Layout className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-bold text-white">Pengaturan Warna</h2>
+              <h2 className="text-[15px] font-semibold text-white">Pengaturan Warna</h2>
               <p className="text-[10px] text-slate-600 font-bold">Kustomisasi skema warna landing page</p>
             </div>
           </div>
@@ -219,7 +219,7 @@ export function AdminLandingPageEditorView() {
           <div className="flex items-center gap-3">
             <div className={iconBoxClass}><Zap className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-bold text-white">Fitur Utama</h2>
+              <h2 className="text-[15px] font-semibold text-white">Fitur Utama</h2>
               <p className="text-[10px] text-slate-600 font-bold">3 kartu fitur di landing page</p>
             </div>
           </div>
@@ -273,7 +273,7 @@ export function AdminLandingPageEditorView() {
           <div className="flex items-center gap-3">
             <div className={iconBoxClass}><HelpCircle className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-bold text-white">FAQ</h2>
+              <h2 className="text-[15px] font-semibold text-white">FAQ</h2>
               <p className="text-[10px] text-slate-600 font-bold">Pertanyaan yang sering diajukan siswa</p>
             </div>
           </div>
@@ -304,7 +304,7 @@ export function AdminLandingPageEditorView() {
           <div className="flex items-center gap-3">
             <div className={iconBoxClass}><CreditCard className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-bold text-white">Daftar Paket SKD</h2>
+              <h2 className="text-[15px] font-semibold text-white">Daftar Paket SKD</h2>
               <p className="text-[10px] text-slate-600 font-bold">Atur paket & harga di landing page</p>
             </div>
           </div>
@@ -341,7 +341,7 @@ export function AdminLandingPageEditorView() {
           <div className="flex items-center gap-3">
             <div className={iconBoxClass}><CreditCard className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-bold text-white">Bank Details</h2>
+              <h2 className="text-[15px] font-semibold text-white">Bank Details</h2>
               <p className="text-[10px] text-slate-600 font-bold">Informasi pembayaran siswa</p>
             </div>
           </div>
@@ -363,7 +363,7 @@ export function AdminLandingPageEditorView() {
           <div className="flex items-center gap-3">
             <div className={iconBoxClass}><Phone className="w-4 h-4 text-blue-400" /></div>
             <div>
-              <h2 className="text-sm font-bold text-white">WhatsApp Template</h2>
+              <h2 className="text-[15px] font-semibold text-white">WhatsApp Template</h2>
               <p className="text-[10px] text-slate-600 font-bold">Otomatisasi pesan konfirmasi pembayaran</p>
             </div>
           </div>

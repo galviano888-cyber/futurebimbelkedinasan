@@ -228,7 +228,7 @@ export function AdminUserManager() {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-bold text-white tracking-tight">Manajemen Siswa</h2>
+            <h2 className="text-[20px] font-bold text-white tracking-[-0.02em]">Manajemen Siswa</h2>
             <div className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-[10px] font-bold">
               {users.length} SISWA
             </div>

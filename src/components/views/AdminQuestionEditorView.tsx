@@ -239,7 +239,7 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
               </div>
             ) : (
               <div className="flex items-center gap-3 group/title">
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight">{packageName || "Bank Soal"}</h1>
+                <h1 className="text-[24px] font-bold text-slate-900 tracking-[-0.03em]">{packageName || "Bank Soal"}</h1>
                 <button 
                   onClick={() => { setIsEditingName(true); setTempName(packageName); }}
                   className="opacity-0 group-hover/title:opacity-100 p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
@@ -276,7 +276,7 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
       <div className="grid grid-cols-12 gap-8">
         {/* Navigation Sidebar */}
         <div className="col-span-12 lg:col-span-3 space-y-4">
-          <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden flex flex-col h-[700px]">
+          <div className="bg-white border-y border-slate-200 overflow-hidden flex flex-col h-[700px]">
             <div className="p-6 bg-slate-50/50 border-b border-slate-100">
               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Daftar Nomor</h3>
             </div>
@@ -306,7 +306,7 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
           {activeQuestion ? (
             <div className="space-y-6">
               {/* Question Editor Card */}
-              <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 p-8 md:p-10 space-y-8">
+              <div className="bg-white border-y border-slate-200 p-6 sm:p-8 space-y-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-50">
                    <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg shadow-blue-500/20">
@@ -347,7 +347,7 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
                     value={activeQuestion.question_text}
                     onChange={(e) => setActiveQuestion({ ...activeQuestion, question_text: e.target.value })}
                     rows={6}
-                    className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-slate-800 font-medium leading-relaxed outline-none focus:ring-2 focus:ring-blue-500/20 transition-all resize-none"
+                    className="w-full p-5 bg-slate-50 border border-slate-200 text-slate-800 font-medium leading-relaxed outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors resize-none"
                     placeholder="Masukkan teks soal di sini..."
                   />
                 </div>
@@ -538,7 +538,7 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
                       value={activeQuestion.explanation || ""}
                       onChange={(e) => setActiveQuestion({ ...activeQuestion, explanation: e.target.value })}
                       rows={5}
-                      className="w-full p-6 bg-slate-900 text-slate-100 rounded-[2rem] text-sm font-medium leading-relaxed outline-none border-none focus:ring-4 focus:ring-blue-500/10 transition-all resize-none"
+                      className="w-full p-5 bg-slate-900 text-slate-100 text-sm font-medium leading-relaxed outline-none border-none focus:ring-2 focus:ring-blue-400/30 transition-colors resize-none"
                       placeholder="Tulis alasan jawaban benar di sini..."
                     />
                   </div>
@@ -567,8 +567,8 @@ export function AdminQuestionEditorView({ packageId, onBack }: AdminQuestionEdit
               </div>
             </div>
           ) : (
-            <div className="bg-slate-50 rounded-[3rem] border-4 border-dashed border-slate-100 h-[600px] flex flex-col items-center justify-center text-slate-400 gap-4">
-              <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center shadow-xl shadow-slate-200/50"><Plus className="w-10 h-10" /></div>
+            <div className="bg-slate-50 border-y border-dashed border-slate-200 h-[600px] flex flex-col items-center justify-center text-slate-500 gap-4">
+              <div className="w-16 h-16 bg-white border border-slate-200 flex items-center justify-center"><Plus className="w-8 h-8" /></div>
               <p className="font-black uppercase tracking-widest text-xs">Pilih atau Tambah Soal Baru</p>
             </div>
           )}

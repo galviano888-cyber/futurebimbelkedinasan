@@ -242,14 +242,14 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
           <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors mb-4">
             <ArrowLeft className="w-4 h-4" /> Kembali
           </button>
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight">Pilih Tipe Paket Belajar</h2>
+          <h2 className="text-[24px] font-bold text-slate-800 tracking-[-0.03em]">Pilih Tipe Paket Belajar</h2>
           <p className="text-slate-500 text-sm mt-1">Tentukan jenis produk yang ingin Anda buat untuk dijual ke siswa.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           <button 
             onClick={() => setProductType('SATUAN')}
-            className="bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-[2.5rem] text-left transition-all group hover:shadow-2xl hover:shadow-blue-500/10"
+            className="bg-white border-y border-slate-200 hover:border-blue-400 p-6 sm:p-7 text-left transition-colors group"
           >
             <div className="w-16 h-16 bg-emerald-50 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-emerald-500 group-hover:rotate-6 transition-all duration-500">
               <FileEdit className="w-8 h-8 text-emerald-600 group-hover:text-white" />
@@ -260,7 +260,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
 
           <button 
             onClick={() => setProductType('BUNDLE')}
-            className="bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-[2.5rem] text-left transition-all group hover:shadow-2xl hover:shadow-blue-500/10"
+            className="bg-white border-y border-slate-200 hover:border-blue-400 p-6 sm:p-7 text-left transition-colors group"
           >
             <div className="w-16 h-16 bg-blue-50 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-blue-500 group-hover:rotate-6 transition-all duration-500">
               <Plus className="w-8 h-8 text-blue-600 group-hover:text-white" />
@@ -271,7 +271,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
 
           <button 
             onClick={() => setProductType('INTENSIF')}
-            className="bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-[2.5rem] text-left transition-all group hover:shadow-2xl hover:shadow-blue-500/10"
+            className="bg-white border-y border-slate-200 hover:border-blue-400 p-6 sm:p-7 text-left transition-colors group"
           >
             <div className="w-16 h-16 bg-purple-50 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-purple-500 group-hover:rotate-6 transition-all duration-500">
               <Video className="w-8 h-8 text-purple-600 group-hover:text-white" />
@@ -282,7 +282,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
 
           <button 
             onClick={() => setProductType('KELAS')}
-            className="bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-[2.5rem] text-left transition-all group hover:shadow-2xl hover:shadow-blue-500/10"
+            className="bg-white border-y border-slate-200 hover:border-blue-400 p-6 sm:p-7 text-left transition-colors group"
           >
             <div className="w-16 h-16 bg-amber-50 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-amber-500 group-hover:rotate-6 transition-all duration-500">
               <Users className="w-8 h-8 text-amber-600 group-hover:text-white" />
@@ -296,7 +296,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
 
           <button 
             onClick={() => setProductType('PRIVAT_SATUAN')}
-            className="bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-[2.5rem] text-left transition-all group hover:shadow-2xl hover:shadow-blue-500/10"
+            className="bg-white border-y border-slate-200 hover:border-blue-400 p-6 sm:p-7 text-left transition-colors group"
           >
             <div className="w-16 h-16 bg-rose-50 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-rose-500 group-hover:rotate-6 transition-all duration-500">
               <UserRound className="w-8 h-8 text-rose-600 group-hover:text-white" />
@@ -310,7 +310,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
 
           <button 
             onClick={() => setProductType('PRIVAT_PAKET')}
-            className="bg-white border-2 border-slate-100 hover:border-blue-500 p-8 rounded-[2.5rem] text-left transition-all group hover:shadow-2xl hover:shadow-blue-500/10"
+            className="bg-white border-y border-slate-200 hover:border-blue-400 p-6 sm:p-7 text-left transition-colors group"
           >
             <div className="w-16 h-16 bg-fuchsia-50 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-fuchsia-500 group-hover:rotate-6 transition-all duration-500">
               <UserRound className="w-8 h-8 text-fuchsia-600 group-hover:text-white" />
@@ -350,7 +350,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Kolom Kiri: Info Dasar */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+          <div className="bg-white p-6 sm:p-7 border-y border-slate-200">
             <h3 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-2">
               <ShoppingCart className="w-5 h-5 text-blue-500" /> Informasi Produk
             </h3>
@@ -518,7 +518,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
 
         {/* Kolom Kanan: Daftar Isi Paket */}
         <div className="lg:col-span-8">
-          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm min-h-[500px]">
+          <div className="bg-white p-6 sm:p-7 border-y border-slate-200 min-h-[500px]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
                 <X className="w-5 h-5 text-blue-500 rotate-45" /> Daftar Isi Paket

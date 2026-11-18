@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Trophy, Filter, Loader2, User, ChevronRight, TrendingUp } from "lucide-react";
+import { Trophy, Filter, Loader2, User, ChevronRight, TrendingUp, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
@@ -19,13 +19,6 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
   useEffect(() => {
     setPage(1);
     fetchPackages(); fetchLeaderboard(1, false); fetchUserRank();
-    if (!supabase) return;
-    // Gunakan channel name unik per selectedPackage agar tidak konflik saat cleanup
-    const channelName = `leaderboard_live_${selectedPackage}`;
-    const channel = supabase!.channel(channelName)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tryout_results' }, () => { fetchLeaderboard(1, false); fetchUserRank(); })
-      .subscribe();
-    return () => { supabase!.removeChannel(channel); };
   }, [selectedPackage]);
 
   const fetchPackages = async () => {
@@ -96,14 +89,15 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
   };
 
   return (
-    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="space-y-7 animate-in fade-in duration-300">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Ranking Nasional</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Peringkat siswa FBK dari seluruh Indonesia.</p>
+          <p className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-[0.16em] mb-2">Performa</p>
+          <h1 className="text-[28px] font-bold text-slate-900 dark:text-white tracking-[-0.03em]">Ranking Nasional</h1>
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">Peringkat peserta berdasarkan hasil tryout.</p>
         </div>
-        <div className="flex items-center gap-2 bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.07] rounded-xl px-4 py-2.5 self-start md:self-auto">
+        <div className="flex items-center gap-2 bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.07] px-4 py-2.5 self-start md:self-auto">
           <Filter className="w-3.5 h-3.5 text-slate-400" />
           <select
             value={selectedPackage}
@@ -119,21 +113,21 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
       {/* Guest Overlay */}
       {!currentUser && !loading && (
         <div className="relative">
-          <div className="absolute inset-0 bg-white/80 dark:bg-[#111]/80 backdrop-blur-md z-10 flex items-center justify-center rounded-2xl">
+          <div className="absolute inset-0 bg-white/85 dark:bg-[#111]/85 backdrop-blur-sm z-10 flex items-center justify-center">
             <div className="text-center space-y-4 p-8 max-w-sm">
-              <div className="w-14 h-14 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-2xl flex items-center justify-center mx-auto">
+              <div className="w-14 h-14 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 flex items-center justify-center mx-auto">
                 <Trophy className="w-7 h-7 text-blue-500" />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">Masuk untuk melihat ranking</h2>
                 <p className="text-slate-500 text-sm mt-1">Login terlebih dahulu untuk mengakses Ranking Nasional.</p>
               </div>
-              <Button onClick={onLoginClick} className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl">
+              <Button onClick={onLoginClick} className="w-full h-11 bg-blue-800 hover:bg-blue-900 text-white font-semibold rounded-md">
                 Masuk Sekarang
               </Button>
             </div>
           </div>
-          <div className="opacity-10 pointer-events-none select-none blur-sm h-56 bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.07] rounded-2xl" />
+          <div className="opacity-10 pointer-events-none select-none blur-sm h-56 bg-white dark:bg-[#181818] border-y border-slate-200 dark:border-white/[0.07]" />
         </div>
       )}
 
@@ -141,9 +135,9 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
         <>
           {/* Peringkat kamu */}
           {userRank && (
-            <div className="bg-white dark:bg-[#181818] border border-blue-100 dark:border-blue-500/20 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="bg-white dark:bg-[#181818] border-y border-blue-100 dark:border-blue-500/20 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 rounded-2xl flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
                   <User className="w-6 h-6 text-blue-500" />
                 </div>
                 <div>
@@ -168,7 +162,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
           )}
 
           {/* Tabel ranking */}
-          <div className="bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.07] rounded-2xl overflow-hidden">
+          <div className="bg-white dark:bg-[#181818] border-y border-slate-200 dark:border-white/[0.07] overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 dark:border-white/[0.05] flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <TrendingUp className="w-4 h-4 text-blue-500" />
@@ -179,8 +173,11 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                 <span className="text-[11px] text-slate-400 dark:text-slate-500">Menampilkan {leaderboard.length} peserta</span>
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Live</span>
-                </div>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Terkini</span>
+              </div>
+              <button onClick={() => { fetchLeaderboard(1, false); fetchUserRank(); }} className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-blue-700 dark:text-blue-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
+                <RefreshCw className="w-3 h-3" /> Muat ulang
+              </button>
               </div>
             </div>
 
@@ -295,7 +292,7 @@ export function LeaderboardView({ onLoginClick }: { onLoginClick?: () => void })
                     setPage(nextPage);
                     fetchLeaderboard(nextPage, true);
                   }}
-                  className="px-6 py-2.5 text-[13px] font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-xl transition-all border border-blue-200 dark:border-blue-500/20"
+                  className="px-6 py-2.5 text-[13px] font-semibold text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors border border-blue-200 dark:border-blue-500/20"
                 >
                   Muat lebih banyak
                 </button>

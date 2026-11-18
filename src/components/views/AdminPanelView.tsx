@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle, Calendar, CheckCircle2, BarChart3 } from "lucide-react";
+import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle, Calendar, CheckCircle2, BarChart3, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { AdminQuestionEditorView } from "./AdminQuestionEditorView";
@@ -32,6 +32,7 @@ export function AdminPanelView() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
 const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual' | 'edit-questions' | 'sales-packages' | 'edit-product' | 'transactions' | 'analytics' | 'users' | 'broadcast' | 'events' | 'landing'>('dashboard');
 
@@ -372,15 +373,14 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
   // ─── LOGIN PAGE ───────────────────────────────────────────────
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-[#0c1424] flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="min-h-screen bg-[#111923] flex items-center justify-center p-6 relative overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(99,102,241,0.15),transparent_60%)]" />
-        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        <div className="absolute inset-x-0 top-0 h-1 bg-blue-700" />
 
         <div className="w-full max-w-sm relative z-10">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center mb-4 shadow-2xl shadow-blue-500/25">
+            <div className="w-14 h-14 bg-blue-800 flex items-center justify-center mb-4">
               <Lock className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white tracking-tight">FBK Admin</h1>
@@ -388,7 +388,7 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
           </div>
 
           {/* Card */}
-          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/8 rounded-3xl p-8 shadow-2xl">
+          <div className="bg-[#172230] border-y border-white/10 p-6 sm:p-8">
             <form onSubmit={handleLogin} className="space-y-4">
               {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-xs font-bold text-center">
@@ -402,7 +402,7 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm font-medium placeholder:text-slate-600 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all"
+                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-white text-sm font-medium placeholder:text-slate-500 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-colors"
                   placeholder="admin@fbk-kedinasan.com"
                 />
               </div>
@@ -413,14 +413,14 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm font-medium placeholder:text-slate-600 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all"
+                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-white text-sm font-medium placeholder:text-slate-500 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-colors"
                   placeholder="••••••••"
                 />
               </div>
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-sm mt-2 transition-all shadow-lg shadow-blue-500/20"
+                className="w-full h-11 bg-blue-700 hover:bg-blue-600 text-white font-semibold text-sm mt-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Masuk ke Dashboard'}
               </Button>
@@ -435,15 +435,15 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
   const groups = ['Konten', 'Data'];
 
   return (
-    <div className="flex h-screen bg-[#0c1424] overflow-hidden">
+    <div className="flex h-[100dvh] bg-[#111923] overflow-hidden">
       <Toaster theme="dark" position="top-right" />
 
       {/* ── SIDEBAR ─────────────────────────────────────── */}
-      <aside className="w-64 shrink-0 flex flex-col h-full bg-[#0d1929] border-r border-white/5">
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col h-full bg-[#15202d] border-r border-white/10">
         {/* Brand */}
-        <div className="px-6 py-6 border-b border-white/5">
+        <div className="px-6 py-6 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
+            <div className="w-9 h-9 bg-blue-800 flex items-center justify-center shrink-0">
               <LayoutDashboard className="w-4 h-4 text-white" />
             </div>
             <div>
@@ -466,9 +466,9 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
                       key={item.id}
                       onClick={() => setCurrentView(item.id as any)}
                       className={cn(
-                        'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 group',
+                        'w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold transition-colors group',
                         active
-                          ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                          ? 'bg-blue-500/10 text-blue-300 border-l-2 border-blue-400'
                           : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
                       )}
                     >
@@ -491,12 +491,12 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-white truncate">{email.split('@')[0]}</p>
-              <p className="text-[9px] text-slate-500 font-bold">Superadmin</p>
+              <p className="text-[9px] text-slate-500 font-medium">Administrator</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:text-red-400 hover:bg-red-500/5 transition-all"
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-red-300 hover:bg-red-500/5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
@@ -505,16 +505,21 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
       </aside>
 
       {/* ── MAIN CONTENT ────────────────────────────────── */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         {/* Header */}
-        <header className="h-16 shrink-0 border-b border-white/5 bg-[#0d1929] flex items-center px-8 justify-between">
-          <div>
+        <header className="h-16 shrink-0 border-b border-white/10 bg-[#15202d] flex items-center px-4 sm:px-6 lg:px-8 justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <button onClick={() => setMobileNavOpen(true)} aria-label="Buka navigasi admin" className="lg:hidden w-9 h-9 border border-white/10 text-slate-300 flex items-center justify-center shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              <Menu className="w-4 h-4" />
+            </button>
+            <div className="min-w-0">
             <h1 className="text-base font-bold text-white tracking-tight">
               {navItems.find(i => i.id === currentView)?.label || 'Dashboard'}
             </h1>
             <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-0.5">
               Future Bimbel Kedinasan
             </p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="h-8 px-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center gap-2">
@@ -524,8 +529,36 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
           </div>
         </header>
 
+        {mobileNavOpen && (
+          <div className="lg:hidden fixed inset-0 z-[150] bg-black/60" onClick={() => setMobileNavOpen(false)}>
+            <aside className="w-[min(19rem,85vw)] h-full bg-[#15202d] border-r border-white/10 flex flex-col" onClick={e => e.stopPropagation()}>
+              <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-blue-800 flex items-center justify-center"><LayoutDashboard className="w-4 h-4 text-white" /></div>
+                  <div><p className="text-sm font-bold text-white">FBK Admin</p><p className="text-[10px] text-slate-400">Navigasi</p></div>
+                </div>
+                <button onClick={() => setMobileNavOpen(false)} aria-label="Tutup navigasi" className="w-9 h-9 border border-white/10 text-slate-300 flex items-center justify-center"><X className="w-4 h-4" /></button>
+              </div>
+              <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-6">
+                {groups.map(group => (
+                  <div key={group}>
+                    <p className="px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-[0.16em] mb-2">{group}</p>
+                    <div className="space-y-1">
+                      {navItems.filter(item => item.group === group).map(item => {
+                        const active = currentView === item.id;
+                        return <button key={item.id} onClick={() => { setCurrentView(item.id as any); setMobileNavOpen(false); }} className={cn("w-full flex items-center gap-3 px-3 py-3 text-sm font-medium text-left", active ? "bg-blue-500/10 text-blue-300 border-l-2 border-blue-400" : "text-slate-300 hover:bg-white/5")}><item.icon className="w-4 h-4" />{item.label}</button>;
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </nav>
+              <button onClick={handleLogout} className="m-3 flex items-center gap-3 px-3 py-3 text-sm font-medium text-slate-300 hover:text-red-300 border-t border-white/10"><LogOut className="w-4 h-4" />Keluar</button>
+            </aside>
+          </div>
+        )}
+
         {/* Content */}
-        <main className="flex-1 overflow-y-auto p-8 bg-[#0c1424]">
+        <main className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-[#111923]">
           <div className="max-w-6xl mx-auto">
 
             {/* ── BANK SOAL ─── */}
@@ -534,19 +567,19 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
                 {/* Toolbar */}
                 <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-white tracking-tight">Bank Soal Tryout</h2>
-                    <p className="text-xs text-slate-500 font-bold mt-1">{filteredPackages.length} paket tersedia</p>
+                    <h2 className="text-[22px] font-bold text-white tracking-[-0.03em]">Bank Soal Tryout</h2>
+                    <p className="text-xs text-slate-400 font-medium mt-1">{filteredPackages.length} paket tersedia</p>
                   </div>
                   <div className="flex gap-3">
                     <button
                       onClick={() => setCurrentView('manual')}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/8 text-slate-300 rounded-xl font-bold text-xs hover:bg-white/10 transition-all"
+                      className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 text-slate-200 font-semibold text-xs hover:bg-white/10 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                     >
                       <Plus className="w-3.5 h-3.5" /> Buat Manual
                     </button>
                     <button
                       onClick={() => setCurrentView('import')}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-blue-500/20"
+                      className="flex items-center gap-2 px-4 py-2.5 bg-blue-700 hover:bg-blue-600 text-white font-semibold text-xs transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                     >
                       <Upload className="w-3.5 h-3.5" /> Import JSON
                     </button>
@@ -593,8 +626,8 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
                 </div>
 
                 {/* Table */}
-                <div className="bg-[#0d1929] border border-white/5 rounded-2xl overflow-hidden">
-                  <table className="w-full">
+                <div className="bg-[#15202d] border-y border-white/10 overflow-x-auto">
+                  <table className="w-full min-w-[700px]">
                     <thead>
                       <tr className="border-b border-white/5">
                         <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Nama Tryout</th>

@@ -360,7 +360,7 @@ export function AdminTransactionManager() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pt-2 border-t border-white/5">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-bold text-white tracking-tight">Permintaan Paket</h2>
+            <h2 className="text-[20px] font-bold text-white tracking-[-0.02em]">Permintaan Paket</h2>
             <div className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg text-[10px] font-bold">
               {filteredTransactions.length} DATA
             </div>

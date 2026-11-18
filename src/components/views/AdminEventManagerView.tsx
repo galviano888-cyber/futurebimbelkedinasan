@@ -366,8 +366,8 @@ export function AdminEventManagerView() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white tracking-tight">Manajemen Event</h2>
-          <p className="text-xs text-slate-500 font-bold mt-1">{events.length} event terdaftar</p>
+          <h2 className="text-[22px] font-bold text-white tracking-[-0.03em]">Manajemen Event</h2>
+          <p className="text-xs text-slate-400 font-medium mt-1">{events.length} event terdaftar</p>
         </div>
         <button
           onClick={handleOpenCreate}

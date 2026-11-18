@@ -87,22 +87,23 @@ export function SettingsView() {
   const isDark = theme === "dark";
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-4xl mx-auto py-4 sm:py-6 px-0 sm:px-2">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-8"
       >
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Pengaturan Akun</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 font-medium">Kustomisasi pengalaman belajar Anda di platform FBK.</p>
+         <p className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-[0.16em] mb-2">Akun</p>
+         <h1 className="text-[28px] font-bold text-slate-900 dark:text-white tracking-[-0.03em]">Pengaturan Akun</h1>
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">Atur tampilan dan visibilitas profilmu di ranking.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Theme Settings */}
-          <section className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all">
+          <section className="bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-white/10 p-6 sm:p-7 transition-colors">
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+              <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
                 <Palette className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
@@ -115,7 +116,7 @@ export function SettingsView() {
               <button 
                 onClick={toggleTheme}
                 className={cn(
-                  "w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-500 group",
+                  "w-full flex items-center justify-between p-4 border transition-colors group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700",
                   isDark 
                     ? "bg-slate-800 border-slate-700" 
                     : "bg-slate-50 border-slate-100 hover:border-blue-200"
@@ -151,9 +152,9 @@ export function SettingsView() {
           </section>
 
           {/* Privacy Settings */}
-          <section className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all">
+          <section className="bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-white/10 p-6 sm:p-7 transition-colors">
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
+              <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
                 <Shield className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
@@ -166,7 +167,7 @@ export function SettingsView() {
               <button 
                 onClick={() => setIsPublic(!isPublic)}
                 className={cn(
-                  "w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-500",
+                  "w-full flex items-center justify-between p-4 border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700",
                   !isPublic 
                     ? "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700" 
                     : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:border-emerald-200"
@@ -209,7 +210,7 @@ export function SettingsView() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold px-10 py-4 rounded-2xl shadow-xl shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-3 bg-blue-800 hover:bg-blue-900 text-white font-semibold px-8 py-3.5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 className="w-5 h-5 animate-spin" />

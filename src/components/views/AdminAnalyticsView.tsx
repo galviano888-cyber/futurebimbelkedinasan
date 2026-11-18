@@ -139,13 +139,14 @@ export function AdminAnalyticsView() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-blue-400" /> Statistik Pengunjung
+          <p className="text-[10px] font-bold text-blue-300 uppercase tracking-[0.16em] mb-2">Data</p>
+          <h2 className="text-[22px] font-bold text-white tracking-[-0.03em] flex items-center gap-2">
+            Statistik Pengunjung
           </h2>
-          <p className="text-xs text-slate-600 font-medium mt-1">
+          <p className="text-xs text-slate-400 font-normal mt-2">
             Melacak perjalanan calon pembeli dari halaman utama sampai memesan.
           </p>
         </div>
@@ -154,7 +155,7 @@ export function AdminAnalyticsView() {
             <button
               key={d}
               onClick={() => setDays(d)}
-              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3 py-2 text-xs font-semibold transition-colors ${
                 days === d ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-300'
               }`}
             >
@@ -180,19 +181,19 @@ export function AdminAnalyticsView() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-[#0d1929] border border-white/5 rounded-2xl p-5">
+            <div className="bg-[#15202d] border-y border-white/10 p-5">
               <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Pengunjung unik</p>
               <p className="text-3xl font-bold text-white mt-2">{uniqueVisitors.toLocaleString('id-ID')}</p>
               <p className="text-[11px] text-slate-600 mt-1">{days} hari terakhir</p>
             </div>
-            <div className="bg-[#0d1929] border border-white/5 rounded-2xl p-5">
+            <div className="bg-[#15202d] border-y border-white/10 p-5">
               <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Klik WhatsApp</p>
               <p className="text-3xl font-bold text-emerald-400 mt-2">{valueOf('click_wa').toLocaleString('id-ID')}</p>
               <p className="text-[11px] text-slate-600 mt-1">
                 {top > 0 ? `${Math.round((valueOf('click_wa') / top) * 100)}% dari pengunjung` : 'belum ada data'}
               </p>
             </div>
-            <div className="bg-[#0d1929] border border-white/5 rounded-2xl p-5">
+            <div className="bg-[#15202d] border-y border-white/10 p-5">
               <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Pesanan tercatat</p>
               <p className="text-3xl font-bold text-amber-400 mt-2">{valueOf('request_created').toLocaleString('id-ID')}</p>
               <p className="text-[11px] text-slate-600 mt-1">
@@ -203,7 +204,7 @@ export function AdminAnalyticsView() {
             </div>
           </div>
 
-          <div className="bg-[#0d1929] border border-white/5 rounded-2xl p-6">
+          <div className="bg-[#15202d] border-y border-white/10 p-5 sm:p-6">
             <h3 className="text-sm font-bold text-white mb-5">Perjalanan Calon Pembeli</h3>
 
             <div className="space-y-3">
@@ -265,7 +266,7 @@ export function AdminAnalyticsView() {
             )}
           </div>
 
-          <div className="bg-[#0d1929] border border-white/5 rounded-2xl p-5">
+          <div className="bg-[#15202d] border-y border-white/10 p-5">
             <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">Rincian Event</h3>
             <div className="space-y-2">
               {EVENT_DETAILS.map((step) => {

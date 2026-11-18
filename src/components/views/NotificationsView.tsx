@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Bell, CheckCheck, ArrowLeft, Loader2, Inbox } from "lucide-react";
+import { CheckCheck, ArrowLeft, Loader2, Inbox } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -157,8 +157,9 @@ export function NotificationsView({ onBack }: NotificationsViewProps) {
         )}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Bell className="w-6 h-6 text-blue-600" /> Notifikasi
+            <p className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-[0.16em] mb-2">Pemberitahuan</p>
+            <h1 className="text-[28px] font-bold text-slate-900 dark:text-white tracking-[-0.03em] flex items-center gap-2">
+              Notifikasi
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               {unreadCount > 0 ? `${unreadCount} belum dibaca` : "Semua sudah dibaca"}
@@ -169,7 +170,7 @@ export function NotificationsView({ onBack }: NotificationsViewProps) {
             <button
               onClick={markAllRead}
               disabled={marking}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 border border-slate-200 dark:border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
             >
               {marking ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCheck className="w-4 h-4" />}
               Tandai semua dibaca
@@ -187,9 +188,9 @@ export function NotificationsView({ onBack }: NotificationsViewProps) {
             key={tab.id}
             onClick={() => setFilter(tab.id)}
             className={cn(
-              "px-4 py-2 rounded-xl text-xs font-bold transition-all",
+              "px-4 py-2 text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700",
               filter === tab.id
-                ? "bg-blue-600 text-white shadow-sm"
+                ? "bg-blue-800 text-white"
                 : "bg-white dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10"
             )}
           >
@@ -199,8 +200,8 @@ export function NotificationsView({ onBack }: NotificationsViewProps) {
       </div>
 
       {visible.length === 0 ? (
-        <div className="bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/5 rounded-2xl p-16 text-center">
-          <div className="w-14 h-14 bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white dark:bg-[#0d1929] border-y border-slate-200 dark:border-white/10 p-12 sm:p-16 text-center">
+          <div className="w-14 h-14 bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 flex items-center justify-center mx-auto mb-4">
             <Inbox className="w-7 h-7 text-slate-300 dark:text-slate-700" />
           </div>
           <h3 className="font-bold text-slate-900 dark:text-white">
@@ -211,7 +212,7 @@ export function NotificationsView({ onBack }: NotificationsViewProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-2.5">
+        <div className="divide-y divide-slate-200 dark:divide-white/10 border-y border-slate-200 dark:border-white/10">
           {visible.map((n) => {
             const style = TYPE_STYLE[n.type ?? "info"] ?? TYPE_STYLE.info;
             return (
@@ -219,10 +220,10 @@ export function NotificationsView({ onBack }: NotificationsViewProps) {
                 key={n.id}
                 onClick={() => !n.read && markOne(n.id)}
                 className={cn(
-                  "w-full text-left bg-white dark:bg-[#0d1929] border rounded-2xl p-5 transition-all",
+                  "w-full text-left bg-white dark:bg-[#0d1929] border-l-2 p-5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-blue-700",
                   n.read
                     ? "border-slate-200 dark:border-white/5"
-                    : "border-blue-200 dark:border-blue-500/30 bg-blue-50/40 dark:bg-blue-500/[0.04] hover:border-blue-300"
+                    : "border-l-blue-600 bg-blue-50/40 dark:bg-blue-500/[0.04]"
                 )}
               >
                 <div className="flex items-start gap-3">

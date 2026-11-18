@@ -13,13 +13,13 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
 
   if (!questions || questions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[100dvh] bg-slate-50 dark:bg-[#0b0b0e] p-6 text-center">
-        <div className="w-16 h-16 bg-slate-100 dark:bg-white/[0.04] rounded-2xl flex items-center justify-center mb-5">
+      <div className="flex flex-col items-center justify-center h-[100dvh] bg-slate-50 dark:bg-[#111923] p-6 text-center">
+        <div className="w-16 h-16 bg-slate-100 dark:bg-white/[0.04] flex items-center justify-center mb-5">
           <BookOpen className="w-8 h-8 text-slate-300 dark:text-slate-600" />
         </div>
         <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Data Review Tidak Ada</h2>
         <p className="text-slate-500 dark:text-slate-400 text-sm mb-7 max-w-sm">Maaf, terjadi kesalahan saat memuat data pembahasan. Silakan coba buka kembali.</p>
-        <button onClick={onBack} className="px-7 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-[14px] rounded-xl transition-all active:scale-[0.98]">Kembali</button>
+        <button onClick={onBack} className="px-7 py-3 bg-blue-800 hover:bg-blue-900 text-white font-semibold text-[14px] transition-colors">Kembali</button>
       </div>
     );
   }
@@ -29,11 +29,11 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
   const isCorrect = currentQuestion.category === 'TKP' ? true : currentQuestion.correct_answer === userAnswer;
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-slate-50 dark:bg-[#0b0b0e] overflow-hidden font-sans">
+    <div className="h-[100dvh] flex flex-col bg-slate-50 dark:bg-[#111923] overflow-hidden font-sans">
       {/* Header */}
       <div className="bg-white dark:bg-[#161616] border-b border-slate-200/80 dark:border-white/[0.06] px-4 sm:px-6 py-3 flex items-center justify-between shrink-0 z-20">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="p-2 -ml-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.05] rounded-lg transition-all">
+          <button onClick={onBack} aria-label="Kembali dari pembahasan" className="p-2 -ml-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
@@ -51,14 +51,16 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
           <button
             disabled={currentIndex === 0}
             onClick={() => setCurrentIndex(prev => prev - 1)}
-            className="p-2 border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-30 disabled:pointer-events-none transition-all"
+            aria-label="Soal sebelumnya"
+            className="p-2 border border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-30 disabled:pointer-events-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             disabled={currentIndex === questions.length - 1}
             onClick={() => setCurrentIndex(prev => prev + 1)}
-            className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg disabled:opacity-30 disabled:pointer-events-none transition-all"
+            aria-label="Soal berikutnya"
+            className="p-2 bg-blue-800 hover:bg-blue-900 text-white disabled:opacity-30 disabled:pointer-events-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -67,7 +69,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
 
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar Navigasi */}
-        <aside className="hidden lg:flex w-64 bg-white dark:bg-[#161616] border-r border-slate-200/80 dark:border-white/[0.06] flex-col shrink-0">
+        <aside className="hidden lg:flex w-64 bg-white dark:bg-[#161616] border-r border-slate-200 dark:border-white/[0.06] flex-col shrink-0">
           <div className="p-5 border-b border-slate-100 dark:border-white/[0.06]">
             <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">Navigasi Soal</p>
             <div className="flex flex-wrap gap-3 text-[10px] font-medium">
@@ -94,8 +96,10 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
                   <button
                     key={q.id}
                     onClick={() => setCurrentIndex(idx)}
+                    aria-label={`Buka soal ${idx + 1}`}
+                    aria-current={currentIndex === idx ? "step" : undefined}
                     className={cn(
-                      "h-9 rounded-lg text-[11px] font-semibold border transition-all",
+                      "h-9 text-[11px] font-semibold border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-700",
                       currentIndex === idx
                         ? "bg-blue-600 border-blue-600 text-white scale-105 shadow-sm"
                         : statusClass
@@ -115,7 +119,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
 
             {/* Status Banner */}
             <div className={cn(
-              "flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl border",
+              "flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 border-y",
               currentQuestion.category === 'TKP'
                 ? 'bg-amber-50 dark:bg-amber-500/[0.07] border-amber-200 dark:border-amber-500/20'
                 : isCorrect
@@ -154,7 +158,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
             </div>
 
             {/* Kartu Soal */}
-            <div className="bg-white dark:bg-[#161616] rounded-2xl border border-slate-200/80 dark:border-white/[0.06] p-5 sm:p-6">
+                <div className="bg-white dark:bg-[#161616] border-y border-slate-200 dark:border-white/[0.06] p-5 sm:p-6">
               {currentQuestion.question_image_url && (
                 <div className="flex justify-center mb-5">
                   <img
@@ -257,7 +261,7 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
 
             {/* Pembahasan */}
             {(currentQuestion.explanation || currentQuestion.explanation_image_url) && (
-              <div className="bg-white dark:bg-[#161616] rounded-2xl border border-slate-200/80 dark:border-white/[0.06] overflow-hidden">
+                <div className="bg-white dark:bg-[#161616] border-y border-slate-200 dark:border-white/[0.06] overflow-hidden">
                 <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.02]">
                   <div className="w-1 h-5 bg-blue-500 rounded-full" />
                   <h3 className="text-[13px] font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide">Pembahasan</h3>
@@ -285,14 +289,14 @@ export function TryoutReviewView({ result, questions, onBack }: TryoutReviewView
         <button
           disabled={currentIndex === 0}
           onClick={() => setCurrentIndex(prev => prev - 1)}
-          className="flex-1 py-3 border border-slate-200 dark:border-white/[0.08] rounded-xl text-[12px] font-semibold text-slate-600 dark:text-slate-400 disabled:opacity-30 transition-all"
+          className="flex-1 py-3 border border-slate-200 dark:border-white/[0.08] text-[12px] font-semibold text-slate-700 dark:text-slate-300 disabled:opacity-30 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
         >
           Sebelumnya
         </button>
         <button
           disabled={currentIndex === questions.length - 1}
           onClick={() => setCurrentIndex(prev => prev + 1)}
-          className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[12px] font-semibold disabled:opacity-30 transition-all"
+          className="flex-1 py-3 bg-blue-800 hover:bg-blue-900 text-white text-[12px] font-semibold disabled:opacity-30 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
         >
           Selanjutnya
         </button>

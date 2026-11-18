@@ -46,8 +46,8 @@ export function AdminBroadcastView() {
             <Megaphone className="w-5 h-5 text-indigo-400" />
           </div>
           <div>
-            <h2 className="text-base font-black text-white tracking-tight">Pusat Pengumuman</h2>
-            <p className="text-xs text-slate-600 font-medium">Kirim pesan ke seluruh siswa secara real-time.</p>
+            <h2 className="text-[20px] font-bold text-white tracking-[-0.02em]">Pusat Pengumuman</h2>
+            <p className="text-xs text-slate-400 font-normal">Kirim pesan kepada siswa.</p>
           </div>
         </div>
 
