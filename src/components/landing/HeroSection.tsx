@@ -42,7 +42,7 @@ export const HeroSection = memo(function HeroSection({
           >
             {/* Badge */}
             <motion.div variants={reduceMotion ? undefined : itemVariants}>
-              <span className="inline-flex items-center gap-3 border-l-2 border-blue-300 pl-3 py-1 text-[11px] font-semibold text-blue-100/80 mb-6 tracking-[0.12em] uppercase">
+              <span className="inline-flex items-center gap-3 border-l-2 border-blue-300 pl-3 py-1 text-[11px] font-semibold text-white mb-6 tracking-[0.12em] uppercase">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-300" />
                 {hero.badge}
               </span>
@@ -64,7 +64,7 @@ export const HeroSection = memo(function HeroSection({
             {/* Subtitle */}
             <motion.p
               variants={reduceMotion ? undefined : itemVariants}
-              className="text-[15px] lg:text-[17px] leading-[1.75] text-blue-100/75 max-w-xl mx-auto lg:mx-0 mb-8"
+              className="text-[15px] lg:text-[17px] leading-[1.75] text-blue-50 max-w-xl mx-auto lg:mx-0 mb-8"
             >
               {hero.subtitle}
             </motion.p>
@@ -95,7 +95,7 @@ export const HeroSection = memo(function HeroSection({
               </button>
               <a
                 href="#paket"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 text-[15px] font-semibold text-blue-100 hover:text-white rounded-xl border border-white/15 hover:border-white/30 hover:bg-white/[0.06] transition-all duration-200"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 text-[15px] font-semibold text-white hover:text-white rounded-xl border border-white/30 hover:border-white/60 hover:bg-white/[0.08] transition-all duration-200"
               >
                 Lihat Paket
               </a>
@@ -113,7 +113,7 @@ export const HeroSection = memo(function HeroSection({
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-2">
                   <div className="text-left">
-                    <p className="text-[10px] font-semibold text-blue-200/65 uppercase tracking-[0.12em] mb-1">{item.label}</p>
+                    <p className="text-[10px] font-semibold text-blue-100 uppercase tracking-[0.12em] mb-1">{item.label}</p>
                     <p className="text-[13px] font-semibold text-white leading-snug">{item.value}</p>
                   </div>
                 </div>
@@ -122,7 +122,7 @@ export const HeroSection = memo(function HeroSection({
             <button
               type="button"
               onClick={onLogin}
-              className="mt-5 text-[12px] font-medium text-blue-100/70 underline underline-offset-4 decoration-blue-200/40 hover:text-white transition-colors"
+              className="mt-5 text-[12px] font-medium text-blue-50 underline underline-offset-4 decoration-blue-100/70 hover:text-white transition-colors"
             >
               Sudah punya akun? Masuk
             </button>
@@ -145,7 +145,7 @@ export const HeroSection = memo(function HeroSection({
                 loading="eager"
               />
               <div className="absolute z-20 left-[8%] bottom-[4%] bg-[#0f2750] border-t border-r border-white/10 px-5 py-4 max-w-[250px]">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-blue-200/60 mb-1">Future Bimbel Kedinasan</p>
+                <p className="text-[10px] uppercase tracking-[0.16em] text-blue-100 mb-1">Future Bimbel Kedinasan</p>
                 <p className="text-sm font-semibold text-white">Latihan SKD. Evaluasi. Ulangi.</p>
               </div>
             </div>

@@ -17,7 +17,7 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
               <h3 className="text-[20px] lg:text-[24px] font-bold text-white tracking-tight leading-tight">
                 Mulai dari latihan yang terarah.
               </h3>
-              <p className="text-[13px] lg:text-[14px] text-blue-100/75 mt-2 max-w-md leading-relaxed">
+              <p className="text-[13px] lg:text-[14px] text-blue-50 mt-2 max-w-md leading-relaxed">
                 Mulai latihan SKD dan tinjau hasil tryout untuk merencanakan persiapan berikutnya.
               </p>
             </div>
@@ -45,20 +45,20 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
                 Future Bimbel Kedinasan
               </span>
             </div>
-            <p className="text-[13.5px] text-slate-400 leading-relaxed">
+            <p className="text-[13.5px] text-slate-300 leading-relaxed">
               Platform latihan SKD sekolah kedinasan dengan tryout CAT, hasil, dan pembahasan.
             </p>
             <div className="flex items-center gap-2.5">
               <a
                 href="https://wa.me/6287753646617"
-                className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 transition-all duration-200"
+                className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.16] flex items-center justify-center text-slate-200 hover:text-white hover:bg-blue-600 hover:border-blue-600 transition-all duration-200"
                 aria-label="WhatsApp"
               >
                 <MessageCircle className="w-4 h-4" />
               </a>
               <a
                 href="mailto:support@futurebimbelkedinasan.com"
-                className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-slate-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 transition-all duration-200"
+                className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.16] flex items-center justify-center text-slate-200 hover:text-white hover:bg-blue-600 hover:border-blue-600 transition-all duration-200"
                 aria-label="Email"
               >
                 <Mail className="w-4 h-4" />
@@ -79,7 +79,7 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
                   <li key={link.name}>
                     <a
                       href={`#${link.id}`}
-                      className="text-[13.5px] text-slate-400 hover:text-blue-400 transition-colors"
+                      className="text-[13.5px] text-slate-300 hover:text-white transition-colors"
                     >
                       {link.name}
                     </a>
@@ -95,7 +95,7 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
                 <li>
                   <button
                     onClick={() => onLegalClick('terms')}
-                    className="text-[13.5px] text-slate-400 hover:text-blue-400 transition-colors"
+                    className="text-[13.5px] text-slate-300 hover:text-white transition-colors"
                   >
                     Syarat &amp; Ketentuan
                   </button>
@@ -103,7 +103,7 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
                 <li>
                   <button
                     onClick={() => onLegalClick('privacy')}
-                    className="text-[13.5px] text-slate-400 hover:text-blue-400 transition-colors"
+                    className="text-[13.5px] text-slate-300 hover:text-white transition-colors"
                   >
                     Kebijakan Privasi
                   </button>
@@ -117,20 +117,20 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
               <div className="space-y-3">
                 <div className="flex items-start gap-2.5">
                   <MapPin className="w-3.5 h-3.5 text-blue-400 mt-0.5 shrink-0" />
-                  <span className="text-[13px] text-slate-400 leading-relaxed">
+                  <span className="text-[13px] text-slate-300 leading-relaxed">
                     Komp Kehakiman Jl. Kumdang 3 No 4,<br />
                     Tanah Tinggi, Tangerang
                   </span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Mail className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                  <span className="text-[13px] text-slate-400">
+                  <span className="text-[13px] text-slate-300">
                     support@futurebimbelkedinasan.com
                   </span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Phone className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                  <span className="text-[13px] text-slate-400">0877-5364-6617</span>
+                  <span className="text-[13px] text-slate-300">0877-5364-6617</span>
                 </div>
               </div>
             </div>
@@ -139,7 +139,7 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
 
         {/* Bottom Bar */}
         <div className="pt-6 border-t border-white/[0.08] flex flex-col md:flex-row items-center justify-between gap-2">
-          <p className="text-[12.5px] text-slate-500">
+          <p className="text-[12.5px] text-slate-400">
             © 2026 Future Bimbel Kedinasan. Seluruh hak cipta dilindungi.
           </p>
         </div>

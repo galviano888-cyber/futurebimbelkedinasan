@@ -20,7 +20,7 @@ export const FeaturesSection = memo(function FeaturesSection({ features }: Featu
             <h2 className="text-[30px] lg:text-[42px] font-bold tracking-[-0.04em] leading-[1.08] mb-4">
               Latihan yang berujung pada evaluasi.
             </h2>
-            <p className="text-[15px] text-slate-600 leading-[1.75]">
+            <p className="text-[15px] text-slate-700 leading-[1.75]">
               Gunakan tryout untuk melihat bagian yang sudah dikuasai dan yang masih perlu dilatih.
             </p>
           </div>
@@ -40,7 +40,7 @@ export const FeaturesSection = memo(function FeaturesSection({ features }: Featu
                   <div className="text-blue-700 pt-0.5"><Icon className="w-5 h-5" strokeWidth={1.7} /></div>
                   <div className="grid sm:grid-cols-[0.7fr_1.3fr] gap-2 sm:gap-8">
                     <h3 className="text-[16px] font-semibold text-slate-900 leading-snug">{f.title}</h3>
-                    <p className="text-[14px] text-slate-600 leading-[1.7]">{f.desc}</p>
+                    <p className="text-[14px] text-slate-700 leading-[1.7]">{f.desc}</p>
                   </div>
                 </motion.article>
               );

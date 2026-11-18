@@ -51,7 +51,7 @@ function DescChecklist({ text }: { text: string }) {
           <div className="w-[18px] h-[18px] rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 mt-px">
             <Check className="w-2.5 h-2.5 text-blue-300" strokeWidth={3} />
           </div>
-      <span className="text-[13px] text-slate-600 leading-snug">{item}</span>
+      <span className="text-[13px] text-slate-700 leading-snug">{item}</span>
         </div>
       ))}
       {isLong && (
@@ -104,7 +104,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
           <h2 className="text-[28px] lg:text-[40px] font-bold text-slate-900 tracking-[-0.04em] leading-[1.12]">
             Pilih paket sesuai tahap persiapanmu.
           </h2>
-          <p className="text-[15px] lg:text-[16px] text-slate-600 mt-4 leading-relaxed">
+          <p className="text-[15px] lg:text-[16px] text-slate-700 mt-4 leading-relaxed">
             Bandingkan harga dan informasi tiap paket sebelum memilih.
           </p>
         </div>
@@ -137,14 +137,14 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                         <div className="w-8 h-8 border border-blue-200 bg-blue-50 flex items-center justify-center shrink-0">
                           <Icon className="w-4 h-4 text-blue-700" />
                         </div>
-                        <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-slate-500">{productTypeLabel(pkg.product_type)}</p>
+                        <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-slate-800">{productTypeLabel(pkg.product_type)}</p>
                       </div>
                       <h3 className="text-[18px] font-bold text-slate-900 leading-snug mb-4">{pkg.title}</h3>
 
                       {/* Price */}
                       <div className="mb-4 pb-4 border-b border-slate-200">
                         {pkg.original_price && pkg.original_price > pkg.price && (
-                          <span className="text-[12px] line-through block mb-1 text-slate-400">
+                          <span className="text-[12px] line-through block mb-1 text-slate-500">
                             Rp {pkg.original_price.toLocaleString('id-ID')}
                           </span>
                         )}
@@ -187,12 +187,12 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                   )}
                   <div className="p-7 lg:p-8 flex-1">
                     <h3 className="text-[16px] font-bold text-slate-900 mb-1">{p.name}</h3>
-                    <p className="text-[13px] mb-6 text-slate-500">
+                    <p className="text-[13px] mb-6 text-slate-700">
                       Paket persiapan SKD
                     </p>
                     <div className="mb-7 pb-7 border-b border-slate-200">
                       {p.originalPrice && p.originalPrice !== "0" && (
-                        <span className="text-[13px] line-through block mb-0.5 text-slate-400">{p.originalPrice}</span>
+                        <span className="text-[13px] line-through block mb-0.5 text-slate-500">{p.originalPrice}</span>
                       )}
                       <div className="flex items-baseline gap-1.5">
                         <span className="text-[32px] font-bold tracking-tight leading-none text-slate-900">{p.price}</span>
@@ -204,7 +204,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                           <div className="w-[20px] h-[20px] border border-blue-200 bg-blue-50 flex items-center justify-center shrink-0 mt-px">
                             <Check className="w-3 h-3 text-blue-700" strokeWidth={3} />
                           </div>
-                          <span className="text-[14px] leading-snug text-slate-600">{b}</span>
+                          <span className="text-[14px] leading-snug text-slate-700">{b}</span>
                         </div>
                       ))}
                     </div>
@@ -219,7 +219,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
           }
         </div>
 
-        <p className="text-center text-[13px] text-slate-500 mt-8">
+        <p className="text-center text-[13px] text-slate-600 mt-8">
           Detail akses dan langkah pemesanan tersedia di halaman katalog paket.
         </p>
       </div>

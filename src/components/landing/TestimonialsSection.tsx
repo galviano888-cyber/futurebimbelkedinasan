@@ -30,7 +30,7 @@ export const TestimonialsSection = memo(function TestimonialsSection({ testimoni
               Dari latihan ke evaluasi.
               </h2>
             </div>
-            <p className="text-[15px] text-slate-600 leading-[1.75] lg:pt-8 max-w-xl">
+            <p className="text-[15px] text-slate-700 leading-[1.75] lg:pt-8 max-w-xl">
               Pilih latihan, kerjakan soal, lalu gunakan hasilnya untuk menentukan fokus belajar berikutnya.
             </p>
           </div>
@@ -44,7 +44,7 @@ export const TestimonialsSection = memo(function TestimonialsSection({ testimoni
                   <Icon className="w-5 h-5 text-blue-700" strokeWidth={1.7} />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{text}</p>
+                <p className="text-sm text-slate-700 leading-relaxed">{text}</p>
               </div>
             ))}
           </div>

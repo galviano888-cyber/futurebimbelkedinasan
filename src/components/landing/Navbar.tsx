@@ -52,7 +52,7 @@ export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages, o
             <a
               key={link.name}
               href={link.href}
-              className="text-[13.5px] text-blue-100/70 hover:text-white hover:bg-white/10 transition-colors duration-200 font-medium px-3.5 py-2 rounded-lg"
+              className="text-[13.5px] text-blue-50 hover:text-white hover:bg-white/10 transition-colors duration-200 font-medium px-3.5 py-2 rounded-lg"
             >
               {link.name}
             </a>
@@ -61,7 +61,7 @@ export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages, o
             <button
               type="button"
               onClick={onOpenGuide}
-              className="text-[13.5px] text-blue-100/70 hover:text-white hover:bg-white/10 transition-colors duration-200 font-medium px-3.5 py-2 rounded-lg"
+              className="text-[13.5px] text-blue-50 hover:text-white hover:bg-white/10 transition-colors duration-200 font-medium px-3.5 py-2 rounded-lg"
             >
               Panduan
             </button>
@@ -70,7 +70,7 @@ export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages, o
             <button
               type="button"
               onClick={onOpenCatalog}
-              className="text-[13.5px] text-blue-100/70 hover:text-white hover:bg-white/10 transition-colors duration-200 font-medium px-3.5 py-2 rounded-lg"
+              className="text-[13.5px] text-blue-50 hover:text-white hover:bg-white/10 transition-colors duration-200 font-medium px-3.5 py-2 rounded-lg"
             >
               Lihat Paket
             </button>
@@ -121,7 +121,7 @@ export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages, o
                   key={link.name}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="text-[15px] font-medium text-blue-100/80 hover:text-blue-300 transition-colors py-3 border-b border-white/10 last:border-0"
+                  className="text-[15px] font-medium text-blue-50 hover:text-white transition-colors py-3 border-b border-white/15 last:border-0"
                 >
                   {link.name}
                 </a>
@@ -130,7 +130,7 @@ export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages, o
                 <button
                   type="button"
                   onClick={() => { onOpenGuide(); setIsOpen(false); }}
-                  className="text-left text-[15px] font-medium text-blue-100/80 hover:text-blue-300 transition-colors py-3 border-b border-white/10"
+                  className="text-left text-[15px] font-medium text-blue-50 hover:text-white transition-colors py-3 border-b border-white/15"
                 >
                   Panduan
                 </button>
@@ -139,7 +139,7 @@ export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages, o
                 <button
                   type="button"
                   onClick={() => { onOpenCatalog(); setIsOpen(false); }}
-                  className="text-left text-[15px] font-medium text-blue-100/80 hover:text-blue-300 transition-colors py-3 border-b border-white/10"
+                  className="text-left text-[15px] font-medium text-blue-50 hover:text-white transition-colors py-3 border-b border-white/15"
                 >
                   Lihat Paket
                 </button>

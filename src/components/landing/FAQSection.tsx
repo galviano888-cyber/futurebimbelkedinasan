@@ -23,7 +23,7 @@ export const FAQSection = memo(function FAQSection({ faqs }: FAQSectionProps) {
           <h2 className="text-[28px] lg:text-[38px] font-bold text-slate-900 tracking-[-0.04em] leading-[1.12]">
             Masih ada pertanyaan?
           </h2>
-          <p className="text-[15px] lg:text-[16px] text-slate-600 mt-4">
+          <p className="text-[15px] lg:text-[16px] text-slate-700 mt-4">
             Informasi singkat tentang latihan dan paket FBK.
           </p>
         </div>
