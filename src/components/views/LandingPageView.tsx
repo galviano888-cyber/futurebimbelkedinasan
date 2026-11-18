@@ -161,8 +161,8 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   return (
     <div className="min-h-[100dvh] bg-[#0f2750] text-white font-sans selection:bg-blue-400/40 overflow-x-hidden">
       <SEO
-        title="Future Bimbel Kedinasan | Latihan Tryout SKD Online"
-        description="Latihan TWK, TIU, dan TKP melalui tryout SKD online. Tinjau skor dan pembahasan yang tersedia untuk membantu merencanakan persiapan sekolah kedinasan."
+        title="Future Bimbel Kedinasan | Persiapan Sekolah Kedinasan"
+        description="Persiapkan langkahmu menuju sekolah kedinasan bersama Future Bimbel Kedinasan. Temukan latihan seleksi, tryout SKD, evaluasi, dan pembahasan belajar dalam satu platform."
         keywords="bimbel kedinasan, tryout skd online, simulasi cat bkn, soal twk tiu tkp, stmkg, ipdn, stan, stis, poltekip, poltekim, passing grade skd 2025 2026, bimbel online kedinasan, persiapan cpns kedinasan, ranking skd nasional"
         url="https://www.futurebimbelkedinasan.com"
         type="website"
