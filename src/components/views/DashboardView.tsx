@@ -114,7 +114,7 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onRevi
   })();
 
   return (
-    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="space-y-7 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <SEO
         title={`Dashboard ${userName} | Future Bimbel Kedinasan`}
         description="Pantau statistik belajar, hasil tryout SKD, dan peringkat nasional Anda di Future Bimbel Kedinasan."
@@ -124,17 +124,17 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onRevi
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <p className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-[0.25em] mb-1.5">Overview</p>
-          <h1 className="text-slate-900 dark:text-white font-bold text-2xl tracking-tight">
+          <p className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-[0.16em] mb-2">Dashboard</p>
+          <h1 className="text-slate-900 dark:text-white font-bold text-[28px] tracking-[-0.03em]">
             Selamat datang, <span className="text-blue-600 dark:text-blue-400">{firstName}</span>
           </h1>
-          <p className="text-slate-500 dark:text-slate-500 text-sm mt-1 font-medium">
-            Pantau perkembangan belajarmu dan persiapkan diri menaklukkan ujian kedinasan.
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 font-normal">
+            Ringkasan progres latihan dan hasil tryout kamu.
           </p>
         </div>
 
         <div className={cn(
-          "inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-[12px] self-start sm:self-auto shrink-0",
+          "inline-flex items-center gap-2.5 px-3 py-2 border text-[12px] self-start sm:self-auto shrink-0",
           isSiswaAktif
             ? "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400"
             : "bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] text-slate-400 dark:text-slate-500"
@@ -176,17 +176,17 @@ export function DashboardView({ data, userName = "Siswa FBK", onNavigate, onRevi
       {/* Chart / Empty State */}
       <div className="w-full">
         {isEmpty ? (
-          <div className="bg-white dark:bg-[#181818] border border-slate-200/80 dark:border-white/[0.07] rounded-2xl p-10 flex flex-col items-center justify-center text-center min-h-[280px]">
-            <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl flex items-center justify-center mb-4">
+          <div className="bg-white dark:bg-[#181818] border-y border-slate-200 dark:border-white/[0.07] p-8 sm:p-10 flex flex-col items-center justify-center text-center min-h-[280px]">
+            <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 flex items-center justify-center mb-4">
               <BookMarked className="w-6 h-6 text-blue-500" />
             </div>
             <h3 className="text-slate-900 dark:text-white font-semibold text-[15px] mb-1">Belum ada paket aktif</h3>
             <p className="text-slate-400 dark:text-slate-500 text-[13px] mb-6 max-w-sm leading-relaxed">
-              Tingkatkan peluang lulusmu ke sekolah kedinasan impian dengan mengikuti program bimbingan intensif kami.
+              Kamu belum memiliki hasil tryout. Pilih paket untuk melihat latihan yang tersedia.
             </p>
             <button
               onClick={() => onNavigate?.("Paket dan Tryout SKD")}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-[13px] rounded-xl transition-colors shadow-sm shadow-blue-600/25"
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-800 hover:bg-blue-900 text-white font-medium text-[13px] transition-colors"
             >
               Lihat Katalog Paket
               <ArrowRight className="w-4 h-4" />

@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
 
 interface GuideModalProps {
@@ -8,22 +8,24 @@ interface GuideModalProps {
 }
 
 export const GuideModal = memo(function GuideModal({ isOpen, onClose }: GuideModalProps) {
+  const reduceMotion = useReducedMotion();
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div 
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          initial={reduceMotion ? false : { opacity: 0 }} animate={reduceMotion ? undefined : { opacity: 1 }} exit={reduceMotion ? undefined : { opacity: 0 }}
           className="fixed inset-0 z-[100] flex items-center justify-center p-6"
         >
           <div className="absolute inset-0 bg-[#050b18]/90 backdrop-blur-xl" onClick={onClose} />
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-2xl bg-[#0a1425] rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden"
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: 12 }} animate={reduceMotion ? undefined : { opacity: 1, scale: 1, y: 0 }} exit={reduceMotion ? undefined : { opacity: 0, scale: 0.96, y: 12 }}
+            className="relative w-full max-w-2xl max-h-[85dvh] overflow-y-auto bg-[#0a1425] rounded-xl border border-white/10 shadow-2xl"
           >
-            <div className="p-10 md:p-14">
-              <div className="flex justify-between items-start mb-10">
+            <div className="p-6 sm:p-8 md:p-10">
+              <div className="flex justify-between items-start mb-8">
                 <div>
-                  <h2 className="text-3xl font-black text-white tracking-tight mb-2">Panduan Penggunaan</h2>
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-blue-300 font-semibold mb-3">Panduan</p>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-2">Mulai belajar di FBK</h2>
                   <p className="text-slate-400 font-medium text-sm">4 Langkah mudah mulai belajar di Future Bimbel Kedinasan.</p>
                 </div>
                 <button onClick={onClose} className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-colors">
@@ -34,11 +36,11 @@ export const GuideModal = memo(function GuideModal({ isOpen, onClose }: GuideMod
               <div className="space-y-8">
                 <Step number={1} title="Registrasi Akun" desc='Klik tombol "Masuk" dan isi data diri Anda untuk membuat akun baru.' />
                 <Step number={2} title="Pilih Paket" desc="Pilih paket tryout atau bimbel yang sesuai di halaman Katalog Paket." />
-                <Step number={3} title="Konfirmasi Pembayaran" desc="Lakukan transfer, lalu kirim bukti ke Admin via WhatsApp untuk aktivasi akun instan." />
+                <Step number={3} title="Konfirmasi pembayaran" desc="Untuk paket berbayar, ikuti instruksi pemesanan dan konfirmasi kepada admin melalui WhatsApp." />
                 <Step number={4} title="Mulai Belajar" desc="Akses dashboard Anda untuk mengerjakan tryout, melihat ranking, dan materi belajar." />
               </div>
 
-              <button onClick={onClose} className="w-full mt-12 h-14 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-600/20 transition-all active:scale-95">
+              <button onClick={onClose} className="w-full mt-8 h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                 Saya Mengerti
               </button>
             </div>

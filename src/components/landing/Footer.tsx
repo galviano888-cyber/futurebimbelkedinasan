@@ -11,20 +11,19 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
     <footer className="bg-[#091b38] text-slate-300 border-t border-white/[0.07]">
       {/* CTA strip */}
       <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-16 lg:pt-20">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 to-blue-700 px-8 py-10 lg:px-12 lg:py-14">
-          <div className="absolute -top-10 -right-10 w-60 h-60 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative overflow-hidden border-y border-white/20 bg-[#10264a] px-6 py-8 sm:px-9 lg:px-12 lg:py-10">
           <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
-              <h3 className="text-[20px] lg:text-[24px] font-extrabold text-white tracking-tight leading-tight">
-                Siap raih seragam impianmu?
+              <h3 className="text-[20px] lg:text-[24px] font-bold text-white tracking-tight leading-tight">
+                Mulai dari latihan yang terarah.
               </h3>
-              <p className="text-[13px] lg:text-[14px] text-blue-100 mt-2 max-w-md">
+              <p className="text-[13px] lg:text-[14px] text-blue-100/75 mt-2 max-w-md leading-relaxed">
                 Mulai latihan SKD dan tinjau hasil tryout untuk merencanakan persiapan berikutnya.
               </p>
             </div>
             <a
               href="#paket"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-blue-700 font-semibold text-[15px] rounded-xl hover:bg-blue-50 transition-all shadow-lg active:scale-[0.98] shrink-0"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-blue-800 font-semibold text-[14px] hover:bg-blue-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white shrink-0"
             >
               Mulai Sekarang
               <ArrowRight className="w-4 h-4" />
@@ -46,7 +45,7 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
                 Future Bimbel Kedinasan
               </span>
             </div>
-            <p className="text-[13.5px] text-slate-400 leading-relaxed text-justify">
+            <p className="text-[13.5px] text-slate-400 leading-relaxed">
               Platform latihan SKD sekolah kedinasan dengan tryout CAT, hasil, dan pembahasan.
             </p>
             <div className="flex items-center gap-2.5">
@@ -73,7 +72,7 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
               <h4 className="text-[12px] font-semibold text-white uppercase tracking-wide">Navigasi</h4>
               <ul className="space-y-3">
                 {[
-                  { name: 'Keunggulan', id: 'fitur' },
+                  { name: 'Fitur Belajar', id: 'fitur' },
                   ...(hasPackages !== false ? [{ name: 'Paket SKD', id: 'paket' }] : []),
                   { name: 'FAQ', id: 'faq' }
                 ].map((link) => (
@@ -142,9 +141,6 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
         <div className="pt-6 border-t border-white/[0.08] flex flex-col md:flex-row items-center justify-between gap-2">
           <p className="text-[12.5px] text-slate-500">
             © 2026 Future Bimbel Kedinasan. Seluruh hak cipta dilindungi.
-          </p>
-          <p className="text-[12.5px] text-slate-500">
-            Dibuat untuk calon abdi negara terbaik.
           </p>
         </div>
       </div>

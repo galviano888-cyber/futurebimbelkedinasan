@@ -13,20 +13,18 @@ export const FAQSection = memo(function FAQSection({ faqs }: FAQSectionProps) {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="faq" className="relative py-20 lg:py-28 bg-[#0e2550] border-t border-white/[0.07]">
+    <section id="faq" className="relative py-20 lg:py-28 bg-[#f3f5f7] border-t border-slate-200">
       <div className="max-w-3xl mx-auto px-5 sm:px-6">
         {/* Section header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-5">
-            <span className="h-px w-8 bg-blue-400/50" />
-            <span className="text-[11px] font-bold text-blue-300 tracking-widest uppercase">FAQ</span>
-            <span className="h-px w-8 bg-blue-400/50" />
+            <span className="text-[11px] font-bold text-blue-700 tracking-[0.16em] uppercase">Pertanyaan Umum</span>
           </div>
-          <h2 className="text-[28px] lg:text-[38px] font-extrabold text-white tracking-tight leading-[1.12]">
+          <h2 className="text-[28px] lg:text-[38px] font-bold text-slate-900 tracking-[-0.04em] leading-[1.12]">
             Masih ada pertanyaan?
           </h2>
-          <p className="text-[15px] lg:text-[16px] text-blue-100/70 mt-4">
-            Hal-hal yang paling sering ditanyakan calon siswa kami.
+          <p className="text-[15px] lg:text-[16px] text-slate-600 mt-4">
+            Informasi singkat tentang latihan dan paket FBK.
           </p>
         </div>
 
@@ -35,7 +33,7 @@ export const FAQSection = memo(function FAQSection({ faqs }: FAQSectionProps) {
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="rounded-2xl bg-white/[0.06] backdrop-blur-sm border border-white/[0.12] divide-y divide-white/10 px-5 lg:px-7 shadow-lg shadow-black/10"
+          className="border-y border-slate-300 divide-y divide-slate-300 px-1 sm:px-5 lg:px-7"
         >
           {faqs.map((f, i) => (
             <AccordionItem key={i} question={f.q} answer={f.a} />

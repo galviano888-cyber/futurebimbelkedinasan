@@ -14,15 +14,15 @@ export const AccordionItem = memo(function AccordionItem({ question, answer }: A
     <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-5 flex items-start justify-between text-left gap-6 group"
+        className="w-full py-5 flex items-start justify-between text-left gap-6 group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
       >
         <span className={`text-[15px] font-semibold leading-snug transition-colors duration-200 ${
-          isOpen ? 'text-blue-300' : 'text-blue-50 group-hover:text-blue-300'
+          isOpen ? 'text-blue-800' : 'text-slate-800 group-hover:text-blue-800'
         }`}>
           {question}
         </span>
         <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 ${
-          isOpen ? 'bg-blue-500 text-white rotate-45' : 'bg-white/10 text-blue-200 group-hover:bg-blue-500/20 group-hover:text-blue-300'
+          isOpen ? 'bg-blue-800 text-white rotate-45' : 'bg-slate-200 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-800'
         }`}>
           <Plus className="w-4 h-4" strokeWidth={2.5} />
         </div>
@@ -36,7 +36,7 @@ export const AccordionItem = memo(function AccordionItem({ question, answer }: A
             transition={{ duration: reduceMotion ? 0 : 0.25, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <p className="pb-5 pr-10 text-[14px] text-blue-100/70 leading-relaxed text-justify">
+            <p className="pb-5 pr-10 text-[14px] text-slate-600 leading-relaxed">
               {answer}
             </p>
           </motion.div>

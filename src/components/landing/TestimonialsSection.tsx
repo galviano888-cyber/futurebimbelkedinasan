@@ -21,27 +21,30 @@ export const TestimonialsSection = memo(function TestimonialsSection({ testimoni
     ];
 
     return (
-      <section id="testimoni" className="relative py-20 lg:py-28 border-t border-white/[0.07] overflow-hidden bg-[#0c2148]">
+      <section id="testimoni" className="relative py-20 lg:py-28 border-t border-slate-200 overflow-hidden bg-[#f3f5f7]">
         <div className="max-w-6xl mx-auto px-5 sm:px-6">
-          <div className="max-w-2xl mb-12 lg:mb-16">
-            <p className="text-[11px] font-bold text-blue-300 tracking-widest uppercase mb-4">Alur Belajar</p>
-            <h2 className="text-[28px] lg:text-[40px] font-extrabold text-white tracking-tight leading-[1.12]">
+          <div className="grid lg:grid-cols-[0.72fr_1.28fr] gap-10 lg:gap-20 mb-12 lg:mb-16">
+            <div>
+              <p className="text-[11px] font-bold text-blue-700 tracking-[0.16em] uppercase mb-4">Alur Belajar</p>
+              <h2 className="text-[30px] lg:text-[42px] font-bold text-slate-900 tracking-[-0.04em] leading-[1.08]">
               Dari latihan ke evaluasi.
-            </h2>
-            <p className="text-[15px] text-blue-100/65 leading-relaxed mt-4">
+              </h2>
+            </div>
+            <p className="text-[15px] text-slate-600 leading-[1.75] lg:pt-8 max-w-xl">
               Pilih latihan, kerjakan soal, lalu gunakan hasilnya untuk menentukan fokus belajar berikutnya.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
-            {steps.map(({ number, title, text, icon: Icon }) => (
-              <div key={number} className="relative border-t border-blue-300/25 pt-5">
-                <div className="flex items-center justify-between mb-7">
-                  <span className="text-xs font-semibold tracking-widest text-blue-300/70">{number}</span>
-                  <Icon className="w-5 h-5 text-blue-300" strokeWidth={1.7} />
+          <div className="grid grid-cols-1 md:grid-cols-3 border-y border-slate-300">
+            {steps.map(({ number, title, text, icon: Icon }, i) => (
+              <div key={number} className={`py-6 md:py-7 md:px-6 first:pl-0 ${i > 0 ? "border-t md:border-t-0 md:border-l border-slate-300" : ""}`}>
+                  <div className="flex items-center gap-3 mb-5">
+                  <span className="text-xs font-semibold tracking-widest text-blue-700">{number}</span>
+                  <span className="h-px flex-1 bg-slate-300" />
+                  <Icon className="w-5 h-5 text-blue-700" strokeWidth={1.7} />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-                <p className="text-sm text-blue-100/65 leading-relaxed">{text}</p>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">{text}</p>
               </div>
             ))}
           </div>
@@ -64,16 +67,12 @@ export const TestimonialsSection = memo(function TestimonialsSection({ testimoni
         }}
       />
       <div className="max-w-6xl mx-auto px-5 sm:px-6">
-        <div className="max-w-2xl mb-12 lg:mb-16 text-center mx-auto">
-          <div className="flex items-center justify-center gap-3 mb-5">
-            <span className="h-px w-8 bg-blue-400/50" />
-            <span className="text-[11px] font-bold text-blue-300 tracking-widest uppercase">Cerita Siswa</span>
-            <span className="h-px w-8 bg-blue-400/50" />
+          <div className="max-w-2xl mb-12 lg:mb-16">
+            <p className="text-[11px] font-bold text-blue-300 tracking-[0.16em] uppercase mb-4">Cerita Siswa</p>
+            <h2 className="text-[28px] lg:text-[40px] font-bold text-white tracking-[-0.04em] leading-[1.12]">
+              Pengalaman belajar di FBK.
+            </h2>
           </div>
-          <h2 className="text-[28px] lg:text-[40px] font-extrabold text-white tracking-tight leading-[1.12]">
-            Pengalaman belajar di FBK.
-          </h2>
-        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
           {testimonials.map((t, i) => {

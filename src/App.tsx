@@ -231,7 +231,9 @@ export default function App() {
             const p = window.location.pathname;
             const loginEntryPoints = ['/', '/login', '/register', '/dashboard'];
             if (loginEntryPoints.includes(p)) {
-              navigate('/paket', { replace: true });
+              const selectedPackage = sessionStorage.getItem('fbk_selected_package');
+              sessionStorage.removeItem('fbk_selected_package');
+              navigate(selectedPackage ? `/paket?selected=${encodeURIComponent(selectedPackage)}` : '/paket', { replace: true });
             }
             handleGoogleCallback(s);
           }

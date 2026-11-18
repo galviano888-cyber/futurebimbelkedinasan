@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface HeroSectionProps {
   hero: {
@@ -14,6 +14,7 @@ interface HeroSectionProps {
     cta: string;
   };
   onEnter: () => void;
+  onLogin: () => void;
   containerVariants: Variants;
   itemVariants: Variants;
 }
@@ -21,6 +22,7 @@ interface HeroSectionProps {
 export const HeroSection = memo(function HeroSection({
   hero,
   onEnter,
+  onLogin,
   containerVariants,
   itemVariants
 }: HeroSectionProps) {
@@ -28,35 +30,20 @@ export const HeroSection = memo(function HeroSection({
 
   return (
     <section className="relative pt-16 sm:pt-20 lg:pt-24 pb-4 lg:pb-6 overflow-hidden bg-gradient-to-b from-[#16315f] via-[#12294f] to-[#0f2750]">
-      {/* Glow accents */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-blue-500/15 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-10 right-[8%] w-[260px] h-[260px] bg-sky-400/10 rounded-full blur-[90px] pointer-events-none" />
-      <div className="absolute top-16 left-[6%] w-[240px] h-[240px] bg-indigo-500/10 rounded-full blur-[90px] pointer-events-none" />
-      {/* Dot grid */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
-          maskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 80%)',
-          WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 80%)',
-        }}
-      />
-
       <div className="max-w-7xl mx-auto px-5 sm:px-6 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-[0.92fr_1.08fr] gap-8 lg:gap-12 items-center min-h-[calc(100svh-4.5rem)] py-10 lg:py-8">
 
           {/* Text Content */}
           <motion.div
             variants={reduceMotion ? undefined : containerVariants}
             initial={reduceMotion ? false : "hidden"}
             animate={reduceMotion ? undefined : "show"}
-            className="text-center lg:text-left"
+            className="text-center lg:text-left max-w-2xl"
           >
             {/* Badge */}
             <motion.div variants={reduceMotion ? undefined : itemVariants}>
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-400/25 bg-blue-500/10 text-[12px] font-semibold text-blue-200 mb-6 tracking-wide">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 motion-safe:animate-pulse" />
+              <span className="inline-flex items-center gap-3 border-l-2 border-blue-300 pl-3 py-1 text-[11px] font-semibold text-blue-100/80 mb-6 tracking-[0.12em] uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-300" />
                 {hero.badge}
               </span>
             </motion.div>
@@ -64,7 +51,7 @@ export const HeroSection = memo(function HeroSection({
             {/* Headline */}
             <motion.h1
               variants={reduceMotion ? undefined : itemVariants}
-              className="text-[2rem] sm:text-[2.6rem] lg:text-[3.1rem] font-extrabold tracking-tight leading-[1.1] text-white mb-5"
+              className="text-[2.2rem] sm:text-[3rem] lg:text-[3.65rem] font-bold tracking-[-0.04em] leading-[1.03] text-white mb-5"
             >
               {hero.title.includes("|") ? (
                 <>
@@ -77,7 +64,7 @@ export const HeroSection = memo(function HeroSection({
             {/* Subtitle */}
             <motion.p
               variants={reduceMotion ? undefined : itemVariants}
-              className="text-[15px] lg:text-[16px] leading-relaxed text-blue-100/70 max-w-lg mx-auto lg:mx-0 mb-8"
+              className="text-[15px] lg:text-[17px] leading-[1.75] text-blue-100/75 max-w-xl mx-auto lg:mx-0 mb-8"
             >
               {hero.subtitle}
             </motion.p>
@@ -85,16 +72,15 @@ export const HeroSection = memo(function HeroSection({
             {/* Mobile Image */}
             <motion.div
               variants={reduceMotion ? undefined : itemVariants}
-              className="lg:hidden relative mb-8 max-w-[240px] mx-auto"
+              className="lg:hidden relative mb-8 max-w-[300px] mx-auto"
             >
-              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-2xl">
+              <div className="relative aspect-[4/4.4] overflow-hidden bg-gradient-to-b from-[#1b3968] to-[#10264a]">
                 <img
                   src="/hero-squad.png"
                   alt="Squad Kedinasan"
-                  className="w-full h-full object-cover"
+                  className="absolute inset-x-0 bottom-0 w-full h-full object-contain object-bottom"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f2750]/60 to-transparent" />
               </div>
             </motion.div>
 
@@ -118,7 +104,7 @@ export const HeroSection = memo(function HeroSection({
             {/* Trust signals */}
             <motion.div
               variants={reduceMotion ? undefined : itemVariants}
-              className="flex flex-wrap items-center gap-x-7 gap-y-3 justify-center lg:justify-start mt-8 pt-7 border-t border-white/[0.1]"
+              className="flex flex-wrap items-center gap-x-7 gap-y-3 justify-center lg:justify-start mt-8 pt-6 border-t border-white/[0.16]"
             >
               {[
                 { label: "Materi", value: "TWK · TIU · TKP" },
@@ -126,16 +112,20 @@ export const HeroSection = memo(function HeroSection({
                 { label: "Evaluasi", value: "Hasil & pembahasan" },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
-                    <Check className="w-3 h-3 text-blue-300" strokeWidth={3} />
-                  </span>
                   <div className="text-left">
-                    <p className="text-[13px] font-semibold text-white leading-none">{item.value}</p>
-                    <p className="text-[11px] text-blue-200/55 mt-0.5">{item.label}</p>
+                    <p className="text-[10px] font-semibold text-blue-200/65 uppercase tracking-[0.12em] mb-1">{item.label}</p>
+                    <p className="text-[13px] font-semibold text-white leading-snug">{item.value}</p>
                   </div>
                 </div>
               ))}
             </motion.div>
+            <button
+              type="button"
+              onClick={onLogin}
+              className="mt-5 text-[12px] font-medium text-blue-100/70 underline underline-offset-4 decoration-blue-200/40 hover:text-white transition-colors"
+            >
+              Sudah punya akun? Masuk
+            </button>
           </motion.div>
 
           {/* Desktop Image */}
@@ -143,20 +133,21 @@ export const HeroSection = memo(function HeroSection({
             initial={reduceMotion ? false : { opacity: 0, y: 30 }}
             animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: "easeOut", delay: 0.25 }}
-            className="hidden lg:block relative"
+            className="hidden lg:block relative self-stretch min-h-[560px]"
           >
-            <div className="relative h-[600px] flex items-end justify-center">
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[380px] h-[380px] bg-blue-500/20 rounded-full blur-[80px]" />
-
+            <div className="absolute inset-0 flex items-end justify-center overflow-hidden">
+              <div className="absolute inset-x-[8%] bottom-[4%] top-[8%] bg-gradient-to-b from-[#1a3764] to-[#0c2144]" />
+              <div className="absolute inset-x-[8%] bottom-[4%] top-[8%] border border-white/[0.08]" />
               <img
                 src="/hero-squad.png"
                 alt="Squad Kedinasan"
-                className="relative h-full w-auto max-w-none object-contain origin-bottom scale-[1.85] translate-y-44"
-                style={{ willChange: 'transform' }}
+                className="relative z-10 h-[94%] w-full object-contain object-bottom"
                 loading="eager"
               />
-
-
+              <div className="absolute z-20 left-[8%] bottom-[4%] bg-[#0f2750] border-t border-r border-white/10 px-5 py-4 max-w-[250px]">
+                <p className="text-[10px] uppercase tracking-[0.16em] text-blue-200/60 mb-1">Future Bimbel Kedinasan</p>
+                <p className="text-sm font-semibold text-white">Latihan SKD. Evaluasi. Ulangi.</p>
+              </div>
             </div>
           </motion.div>
 

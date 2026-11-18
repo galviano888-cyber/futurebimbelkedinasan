@@ -1,65 +1,51 @@
 import { memo } from "react";
 import { useReducedMotion } from "framer-motion";
 import { motion } from "framer-motion";
-import { GraduationCap, Zap, BookOpen, ShieldCheck, Trophy, BarChart2 } from "lucide-react";
+import { BookOpenCheck, ClipboardList, Target, Trophy, BarChart2 } from "lucide-react";
 
 interface FeaturesSectionProps {
   features: Array<{ title: string; desc: string; }>;
 }
 
-const icons = [GraduationCap, Zap, BookOpen, ShieldCheck, Trophy, BarChart2];
-const accents = [
-  { bg: "bg-blue-500/15", ring: "ring-blue-400/20", icon: "text-blue-300", hover: "hover:border-blue-400/30" },
-  { bg: "bg-sky-500/15", ring: "ring-sky-400/20", icon: "text-sky-300", hover: "hover:border-sky-400/30" },
-  { bg: "bg-indigo-500/15", ring: "ring-indigo-400/20", icon: "text-indigo-300", hover: "hover:border-indigo-400/30" },
-  { bg: "bg-rose-500/15", ring: "ring-rose-400/20", icon: "text-rose-300", hover: "hover:border-rose-400/30" },
-  { bg: "bg-amber-500/15", ring: "ring-amber-400/20", icon: "text-amber-300", hover: "hover:border-amber-400/30" },
-  { bg: "bg-emerald-500/15", ring: "ring-emerald-400/20", icon: "text-emerald-300", hover: "hover:border-emerald-400/30" },
-];
+const icons = [Target, ClipboardList, BookOpenCheck, BarChart2, Trophy, ClipboardList];
 
 export const FeaturesSection = memo(function FeaturesSection({ features }: FeaturesSectionProps) {
   const reduceMotion = useReducedMotion();
   return (
-    <section id="fitur" className="relative py-20 lg:py-28 bg-[#0c2148] border-t border-white/[0.07]">
+    <section id="fitur" className="relative py-20 lg:py-28 bg-[#f3f5f7] text-slate-900 border-t border-slate-200">
       <div className="max-w-6xl mx-auto px-5 sm:px-6">
-        {/* Section header */}
-        <div className="max-w-2xl mb-12 lg:mb-16 text-center mx-auto">
-          <div className="flex items-center justify-center gap-3 mb-5">
-            <span className="h-px w-8 bg-blue-400/50" />
-            <span className="text-[11px] font-bold text-blue-300 tracking-widest uppercase">Fitur Belajar</span>
-            <span className="h-px w-8 bg-blue-400/50" />
+        <div className="grid lg:grid-cols-[0.72fr_1.28fr] gap-10 lg:gap-20">
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <p className="text-[11px] font-bold text-blue-700 tracking-[0.16em] uppercase mb-4">Fitur Belajar</p>
+            <h2 className="text-[30px] lg:text-[42px] font-bold tracking-[-0.04em] leading-[1.08] mb-4">
+              Latihan yang berujung pada evaluasi.
+            </h2>
+            <p className="text-[15px] text-slate-600 leading-[1.75]">
+              Gunakan tryout untuk melihat bagian yang sudah dikuasai dan yang masih perlu dilatih.
+            </p>
           </div>
-          <h2 className="text-[28px] lg:text-[40px] font-extrabold text-white tracking-tight leading-[1.12] mb-4">
-            Persiapan SKD
-            <span className="text-blue-300"> yang lebih terarah.</span>
-          </h2>
-          <p className="text-[15px] lg:text-[16px] text-blue-100/65 leading-relaxed">
-            Berlatih, tinjau hasil, lalu tentukan materi yang perlu kamu pelajari lagi.
-          </p>
-        </div>
 
-        {/* Feature grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
-          {features.map((f, i) => {
-            const Icon = icons[i % icons.length];
-            const a = accents[i % accents.length];
-            return (
-              <motion.div
-                key={i}
-                initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                className={`group relative p-6 rounded-2xl bg-white/[0.06] backdrop-blur-sm border border-white/[0.12] ${a.hover} hover:bg-white/[0.10] hover:-translate-y-1 transition-all duration-300 shadow-lg shadow-black/10`}
-              >
-                <div className={`w-11 h-11 rounded-xl ${a.bg} ring-1 ${a.ring} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                  <Icon className={`w-5 h-5 ${a.icon}`} strokeWidth={2} />
-                </div>
-                <h3 className="text-[15px] font-bold text-white mb-2 leading-snug">{f.title}</h3>
-                <p className="text-[13px] text-blue-100/65 leading-relaxed text-justify">{f.desc}</p>
-              </motion.div>
-            );
-          })}
+          <div className="divide-y divide-slate-300/80 border-y border-slate-300/80">
+            {features.map((f, i) => {
+              const Icon = icons[i % icons.length];
+              return (
+                <motion.article
+                  key={`${f.title}-${i}`}
+                  initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                  whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="grid grid-cols-[42px_1fr] sm:grid-cols-[54px_1fr] gap-4 sm:gap-6 py-6 sm:py-7"
+                >
+                  <div className="text-blue-700 pt-0.5"><Icon className="w-5 h-5" strokeWidth={1.7} /></div>
+                  <div className="grid sm:grid-cols-[0.7fr_1.3fr] gap-2 sm:gap-8">
+                    <h3 className="text-[16px] font-semibold text-slate-900 leading-snug">{f.title}</h3>
+                    <p className="text-[14px] text-slate-600 leading-[1.7]">{f.desc}</p>
+                  </div>
+                </motion.article>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

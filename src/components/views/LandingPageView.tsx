@@ -139,6 +139,10 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
 
   const handleCloseGuide = useCallback(() => setShowGuide(false), []);
   const handleCloseLegal = useCallback(() => setShowLegal(false), []);
+  const handlePackageSelect = useCallback((packageId: string) => {
+    sessionStorage.setItem("fbk_selected_package", packageId);
+    onRegister();
+  }, [onRegister]);
 
   // Catat kunjungan landing page sekali per sesi.
   useEffect(() => {
@@ -165,12 +169,13 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
       <GuideModal isOpen={showGuide} onClose={handleCloseGuide} />
 
       <div className="relative z-10">
-        <Navbar onLogin={onLogin} onRegister={onRegister} hasPackages={activePackages.length > 0} />
+        <Navbar onLogin={onLogin} onRegister={onRegister} hasPackages={realPackages.length > 0 || activePackages.length > 0} onOpenGuide={() => setShowGuide(true)} onOpenCatalog={() => document.getElementById("paket")?.scrollIntoView({ behavior: "smooth" })} />
 
         <HeroSection 
           hero={hero} 
           colors={colors} 
-          onEnter={onLogin} 
+          onEnter={onRegister}
+          onLogin={onLogin}
           containerVariants={containerVariants} 
           itemVariants={itemVariants} 
         />
@@ -181,6 +186,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
             packages={realPackages.length > 0 ? realPackages : activePackages}
             isRealPackages={realPackages.length > 0}
             onEnter={onRegister}
+            onPackageSelect={handlePackageSelect}
           />
         )}
         <TestimonialsSection testimonials={_testimonials} />
