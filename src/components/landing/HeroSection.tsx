@@ -32,7 +32,7 @@ export const HeroSection = memo(function HeroSection({
     <section className="relative pt-16 sm:pt-20 lg:pt-24 pb-4 lg:pb-6 overflow-hidden bg-white">
       <div className="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-blue-100/70 blur-3xl pointer-events-none" />
       <div className="max-w-7xl mx-auto px-5 sm:px-6 relative z-10">
-        <div className="grid lg:grid-cols-[1.08fr_0.92fr] gap-8 lg:gap-10 items-center min-h-[calc(100svh-4.5rem)] py-10 lg:py-8">
+        <div className="grid lg:grid-cols-[1fr_1fr] gap-6 lg:gap-6 items-center min-h-[calc(92svh-4.5rem)] py-8 lg:py-4">
 
           {/* Text Content */}
           <motion.div
@@ -73,10 +73,10 @@ export const HeroSection = memo(function HeroSection({
             {/* Mobile Image */}
             <motion.div
               variants={reduceMotion ? undefined : itemVariants}
-              className="lg:hidden relative mb-8 max-w-[360px] mx-auto"
+              className="lg:hidden relative mb-8 max-w-[440px] mx-auto -mx-3 sm:mx-auto"
             >
-              <div className="relative aspect-[1.25] overflow-hidden bg-white">
-                <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="absolute inset-0 w-full h-full object-contain" loading="eager" />
+              <div className="relative aspect-[1.35] overflow-hidden bg-white">
+                <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="absolute inset-0 w-full h-full object-contain scale-[1.48]" loading="eager" />
               </div>
             </motion.div>
 
@@ -129,14 +129,10 @@ export const HeroSection = memo(function HeroSection({
             initial={reduceMotion ? false : { opacity: 0, y: 30 }}
             animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: "easeOut", delay: 0.25 }}
-            className="hidden lg:block relative self-stretch min-h-[560px]"
+            className="hidden lg:block relative self-stretch min-h-[610px]"
           >
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-              <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="w-full h-full object-contain object-center" loading="eager" />
-              <div className="absolute z-20 left-[4%] bottom-[3%] bg-white border-t border-r border-blue-100 px-5 py-4 max-w-[250px]">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-blue-700 mb-1">Future Bimbel Kedinasan</p>
-                <p className="text-sm font-semibold text-[#102b54]">Latihan SKD. Evaluasi. Ulangi.</p>
-              </div>
+              <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="w-full h-full object-contain object-center scale-[1.52]" loading="eager" />
             </div>
           </motion.div>
 
