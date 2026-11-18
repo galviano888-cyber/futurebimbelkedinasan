@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "framer-motion";
 import { motion } from "framer-motion";
 import { Check, ChevronDown, BookOpen, Zap, FileText } from "lucide-react";
 import { productTypeLabel } from "@/lib/packages";
@@ -66,6 +67,7 @@ function DescChecklist({ text }: { text: string }) {
 }
 
 export const PricingSection = memo(function PricingSection({ packages, isRealPackages = false, onEnter }: PricingSectionProps) {
+  const reduceMotion = useReducedMotion();
   // Catat saat daftar harga benar-benar terlihat (bukan sekadar dirender).
   const sectionRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -101,39 +103,30 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
             <span className="h-px w-8 bg-blue-400/50" />
           </div>
           <h2 className="text-[28px] lg:text-[40px] font-extrabold text-white tracking-tight leading-[1.12]">
-            Investasi terbaik untuk masa depanmu
+            Pilih paket sesuai tahap persiapanmu.
           </h2>
           <p className="text-[15px] lg:text-[16px] text-blue-100/70 mt-4 leading-relaxed">
-            Pilih paket yang paling sesuai dengan kebutuhan persiapanmu. Mulai gratis, naik kelas kapan saja.
+            Bandingkan harga dan informasi tiap paket sebelum memilih.
           </p>
         </div>
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {isRealPackages
-            ? (packages as RealPackage[]).map((pkg, i) => {
+            ? (packages as RealPackage[]).map((pkg) => {
                 const Icon = TYPE_ICON[pkg.product_type] || BookOpen;
                 const isFree = pkg.price === 0;
-                const isMiddle = i === 1 && packages.length === 3;
                 return (
                   <motion.div
                     key={pkg.id}
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
+                    initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+                    whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-60px" }}
-                    transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                     className={`relative flex flex-col rounded-2xl transition-all duration-300 ${
-                      isMiddle
-                        ? 'bg-gradient-to-b from-blue-600 to-blue-700 shadow-xl shadow-blue-600/25 ring-1 ring-blue-400'
-                        : 'bg-white/[0.05] border border-white/10 hover:border-blue-400/30 hover:bg-white/[0.08]'
+                      'bg-white/[0.05] border border-white/10 hover:border-blue-400/30 hover:bg-white/[0.08]'
                     }`}
                   >
-                    {isMiddle && (
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 rounded-full bg-amber-400 text-amber-950 text-[11px] font-bold tracking-wide shadow-lg">
-                        PALING POPULER
-                      </div>
-                    )}
-
                     {/* Cover image */}
                     {pkg.cover_image_url && (
                       <div className="relative h-36 rounded-t-3xl overflow-hidden shrink-0">
@@ -145,18 +138,18 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                     <div className="p-5 flex-1">
                         <div className="flex items-center gap-2 mb-3">
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                          isMiddle ? 'bg-white/20' : 'bg-blue-500/20'
+                          'bg-blue-500/20'
                         }`}>
-                          <Icon className={`w-4 h-4 ${isMiddle ? 'text-white' : 'text-blue-300'}`} />
+                          <Icon className="w-4 h-4 text-blue-300" />
                         </div>
-                        <p className={`text-[11px] font-semibold tracking-wide ${isMiddle ? 'text-blue-100' : 'text-blue-200/70'}`}>{productTypeLabel(pkg.product_type)}</p>
+                        <p className="text-[11px] font-semibold tracking-wide text-blue-200/70">{productTypeLabel(pkg.product_type)}</p>
                       </div>
                       <h3 className="text-[17px] font-extrabold text-white leading-snug mb-3 uppercase tracking-wide">{pkg.title}</h3>
 
                       {/* Price */}
-                      <div className={`mb-4 pb-4 border-b ${isMiddle ? 'border-blue-500/50' : 'border-white/10'}`}>
+                      <div className="mb-4 pb-4 border-b border-white/10">
                         {pkg.original_price && pkg.original_price > pkg.price && (
-                          <span className={`text-[11px] line-through block mb-0.5 ${isMiddle ? 'text-blue-200/70' : 'text-blue-200/50'}`}>
+                          <span className="text-[11px] line-through block mb-0.5 text-blue-200/50">
                             Rp {pkg.original_price.toLocaleString('id-ID')}
                           </span>
                         )}
@@ -164,9 +157,6 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                           <span className="text-[22px] font-extrabold tracking-tight leading-none text-white">
                             {isFree ? 'Gratis' : `Rp ${pkg.price.toLocaleString('id-ID')}`}
                           </span>
-                          {!isFree && (
-                            <span className={`text-[10px] ${isMiddle ? 'text-blue-200' : 'text-blue-200/60'}`}>/selamanya</span>
-                          )}
                         </div>
                       </div>
 
@@ -177,11 +167,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                     <div className="px-5 pb-5">
                       <button
                         onClick={onEnter}
-                        className={`w-full h-9 rounded-lg font-semibold text-[12px] transition-all duration-200 active:scale-[0.98] ${
-                          isMiddle
-                            ? 'bg-white text-blue-700 hover:bg-blue-50 shadow-lg'
-                            : 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm shadow-blue-900/40'
-                        }`}
+                        className="w-full h-9 rounded-lg font-semibold text-[12px] transition-all duration-200 active:scale-[0.98] bg-blue-500 text-white hover:bg-blue-600 shadow-sm shadow-blue-900/40"
                       >
                         {isFree ? 'Mulai Gratis' : 'Daftar & Dapatkan'}
                       </button>
@@ -189,13 +175,13 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                   </motion.div>
                 );
               })
-            : (packages as CMSPackage[]).map((p, i) => (
+            : (packages as CMSPackage[]).map((p) => (
                 <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  key={p.name}
+                  initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+                  whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   className={`relative flex flex-col rounded-3xl transition-all duration-300 ${
                     p.isRecommended
                       ? 'bg-gradient-to-b from-blue-600 to-blue-700 shadow-2xl shadow-blue-600/25 md:-translate-y-4 ring-1 ring-blue-400'
@@ -204,13 +190,13 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                 >
                   {p.isRecommended && (
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 rounded-full bg-amber-400 text-amber-950 text-[11px] font-bold tracking-wide shadow-lg">
-                      PALING POPULER
+                      DIREKOMENDASIKAN
                     </div>
                   )}
                   <div className="p-7 lg:p-8 flex-1">
                     <h3 className="text-[16px] font-extrabold text-white mb-1 uppercase tracking-wide">{p.name}</h3>
                     <p className={`text-[13px] mb-6 ${p.isRecommended ? 'text-blue-100' : 'text-blue-100/60'}`}>
-                      {p.isRecommended ? 'Pilihan terbaik calon abdi negara' : 'Cocok untuk memulai persiapan'}
+                      {p.isRecommended ? 'Direkomendasikan FBK' : 'Paket persiapan SKD'}
                     </p>
                     <div className={`mb-7 pb-7 border-b ${p.isRecommended ? 'border-blue-500/50' : 'border-white/10'}`}>
                       {p.originalPrice && p.originalPrice !== "0" && (
@@ -218,7 +204,6 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                       )}
                       <div className="flex items-baseline gap-1.5">
                         <span className="text-[36px] font-extrabold tracking-tight leading-none text-white">{p.price}</span>
-                        {p.price !== 'Gratis' && <span className={`text-[12px] ${p.isRecommended ? 'text-blue-200' : 'text-blue-200/60'}`}>/ selamanya</span>}
                       </div>
                     </div>
                     <div className="space-y-3.5">
@@ -245,7 +230,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
         </div>
 
         <p className="text-center text-[13px] text-blue-200/60 mt-10">
-          Daftar akun untuk mengakses paket &middot; Pembayaran aman &middot; Akses langsung aktif
+          Pilih paket untuk melihat detail akses dan langkah pemesanan.
         </p>
       </div>
     </section>

@@ -19,7 +19,7 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
                 Siap raih seragam impianmu?
               </h3>
               <p className="text-[13px] lg:text-[14px] text-blue-100 mt-2 max-w-md">
-                Gabung bersama ribuan calon abdi negara dan mulai persiapan terbaikmu hari ini.
+                Mulai latihan SKD dan tinjau hasil tryout untuk merencanakan persiapan berikutnya.
               </p>
             </div>
             <a
@@ -47,7 +47,7 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
               </span>
             </div>
             <p className="text-[13.5px] text-slate-400 leading-relaxed text-justify">
-              Partner strategis untuk raih kursi sekolah kedinasan impianmu. Simulasi CAT standar BKN dengan materi terakurat.
+              Platform latihan SKD sekolah kedinasan dengan tryout CAT, hasil, dan pembahasan.
             </p>
             <div className="flex items-center gap-2.5">
               <a

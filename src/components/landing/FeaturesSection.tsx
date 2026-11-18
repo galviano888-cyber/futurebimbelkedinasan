@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useReducedMotion } from "framer-motion";
 import { motion } from "framer-motion";
 import { GraduationCap, Zap, BookOpen, ShieldCheck, Trophy, BarChart2 } from "lucide-react";
 
@@ -17,6 +18,7 @@ const accents = [
 ];
 
 export const FeaturesSection = memo(function FeaturesSection({ features }: FeaturesSectionProps) {
+  const reduceMotion = useReducedMotion();
   return (
     <section id="fitur" className="relative py-20 lg:py-28 bg-[#0c2148] border-t border-white/[0.07]">
       <div className="max-w-6xl mx-auto px-5 sm:px-6">
@@ -24,15 +26,15 @@ export const FeaturesSection = memo(function FeaturesSection({ features }: Featu
         <div className="max-w-2xl mb-12 lg:mb-16 text-center mx-auto">
           <div className="flex items-center justify-center gap-3 mb-5">
             <span className="h-px w-8 bg-blue-400/50" />
-            <span className="text-[11px] font-bold text-blue-300 tracking-widest uppercase">Keunggulan Kami</span>
+            <span className="text-[11px] font-bold text-blue-300 tracking-widest uppercase">Fitur Belajar</span>
             <span className="h-px w-8 bg-blue-400/50" />
           </div>
           <h2 className="text-[28px] lg:text-[40px] font-extrabold text-white tracking-tight leading-[1.12] mb-4">
-            Bukan sekadar belajar, tapi
-            <span className="text-blue-300"> dirancang untuk lolos.</span>
+            Persiapan SKD
+            <span className="text-blue-300"> yang lebih terarah.</span>
           </h2>
           <p className="text-[15px] lg:text-[16px] text-blue-100/65 leading-relaxed">
-            Setiap komponen kami susun berdasarkan pola seleksi sesungguhnya, agar setiap menit belajarmu benar-benar berdampak.
+            Berlatih, tinjau hasil, lalu tentukan materi yang perlu kamu pelajari lagi.
           </p>
         </div>
 
@@ -44,10 +46,10 @@ export const FeaturesSection = memo(function FeaturesSection({ features }: Featu
             return (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+                whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                 className={`group relative p-6 rounded-2xl bg-white/[0.06] backdrop-blur-sm border border-white/[0.12] ${a.hover} hover:bg-white/[0.10] hover:-translate-y-1 transition-all duration-300 shadow-lg shadow-black/10`}
               >
                 <div className={`w-11 h-11 rounded-xl ${a.bg} ring-1 ${a.ring} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>

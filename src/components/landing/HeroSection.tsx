@@ -64,22 +64,12 @@ export const HeroSection = memo(function HeroSection({
               variants={itemVariants}
               className="text-[2rem] sm:text-[2.6rem] lg:text-[3.1rem] font-extrabold tracking-tight leading-[1.1] text-white mb-5"
             >
-              {(() => {
-                const lastComma = hero.title.lastIndexOf(',');
-                const hasSplit = lastComma > 0;
-                const firstPart = hasSplit ? hero.title.slice(0, lastComma) + ',' : hero.title;
-                const secondPart = hasSplit ? hero.title.slice(lastComma + 1).trim() : '';
-                return (
-                  <>
-                    <span className="block">{firstPart}</span>
-                    {secondPart && (
-                      <span className="block text-blue-300">
-                        {secondPart}
-                      </span>
-                    )}
-                  </>
-                );
-              })()}
+              {hero.title.includes("|") ? (
+                <>
+                  <span className="block">{hero.title.split("|")[0].trim()}</span>
+                  <span className="block text-blue-300">{hero.title.split("|").slice(1).join("|").trim()}</span>
+                </>
+              ) : hero.title}
             </motion.h1>
 
             {/* Subtitle */}
@@ -129,9 +119,9 @@ export const HeroSection = memo(function HeroSection({
               className="flex flex-wrap items-center gap-x-7 gap-y-3 justify-center lg:justify-start mt-8 pt-7 border-t border-white/[0.1]"
             >
               {[
-                { label: "Simulasi CAT", value: "Standar BKN" },
-                { label: "Materi", value: "Selalu Terupdate" },
-                { label: "Akses", value: "Multi Perangkat" },
+                { label: "Materi", value: "TWK · TIU · TKP" },
+                { label: "Latihan", value: "Tryout SKD" },
+                { label: "Evaluasi", value: "Hasil & pembahasan" },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-2">
                   <span className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">

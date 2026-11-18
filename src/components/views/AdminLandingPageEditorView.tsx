@@ -9,16 +9,16 @@ export function AdminLandingPageEditorView() {
   
   // Settings State
   const [hero, setHero] = useState({ 
-    badge: "Platform Persiapan Kedinasan #1",
-    title: "Wujudkan Mimpi Menjadi Abdi Negara.", 
-    subtitle: "Persiapkan dirimu menghadapi seleksi sekolah kedinasan bersama Future Bimbel Kedinasan. Belajar lebih efektif dengan sistem CAT standar BKN.",
+    badge: "Persiapan SKD Sekolah Kedinasan",
+    title: "Persiapan SKD | yang lebih terarah.",
+    subtitle: "Latihan TWK, TIU, dan TKP lewat tryout CAT. Tinjau hasil dan pembahasan untuk menentukan fokus belajarmu berikutnya.",
     cta: "Masuk Sekarang",
     image: "https://images.unsplash.com/photo-1523240715632-d984bb4b990a?q=80&w=2070&auto=format&fit=crop"
   });
   const [features, setFeatures] = useState<any[]>([
-    { title: "Tentor Berpengalaman Lolos SKD", desc: "Dibimbing langsung oleh tentor yang telah berhasil lolos SKD dengan skor tinggi dan strategi efektif." },
-    { title: "Engine CAT Standar BKN", desc: "Uji kemampuan dengan platform simulasi presisi sesuai standar sistem CAT BKN asli." },
-    { title: "Bank Soal Terupdate", desc: "Akses materi belajar dan bank soal yang telah disesuaikan dengan standar seleksi terbaru." }
+    { title: "Latihan TWK, TIU, dan TKP", desc: "Pilih tryout SKD untuk berlatih sesuai materi yang sedang ingin kamu tingkatkan." },
+    { title: "Simulasi Tryout CAT", desc: "Kerjakan soal dengan batas waktu dan tinjau hasilnya setelah tryout selesai." },
+    { title: "Pembahasan untuk Evaluasi", desc: "Gunakan pembahasan yang tersedia untuk memahami soal dan merencanakan latihan berikutnya." }
   ]);
   const [_testimonials, setTestimonials] = useState<any[]>([]);
   const [faqs, setFaqs] = useState<any[]>([]);

@@ -30,30 +30,26 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   
   // Dynamic Content State
   const [hero, setHero] = useState({ 
-    badge: "Platform Persiapan Kedinasan #1",
-    title: "Wujudkan Mimpi Menjadi Abdi Negara.", 
-    subtitle: "Partner strategis nomor satu untuk raih kursi sekolah kedinasan impianmu. Kami fokus memberikan pendampingan intensif dengan materi terakurat dan sistem simulasi CAT yang presisi demi mencetak calon abdi negara terbaik.",
+    badge: "Persiapan SKD Sekolah Kedinasan",
+    title: "Persiapan SKD | yang lebih terarah.",
+    subtitle: "Latihan TWK, TIU, dan TKP lewat tryout CAT. Tinjau hasil dan pembahasan untuk menentukan fokus belajarmu berikutnya.",
     cta: "Mulai Sekarang",
     image: "https://images.unsplash.com/photo-1523240715632-d984bb4b990a?q=80&w=2070&auto=format&fit=crop"
   });
-  const [_testimonials, setTestimonials] = useState<any[]>([
-    { name: "Visi Kami", text: "Misi utama kami adalah mencetak ribuan taruna baru setiap tahunnya melalui metode belajar yang paling efisien dan tertarget sesuai standar BKN.", school: "FBK Commitment" },
-    { name: "Jaminan Materi", text: "Kami menjamin semua bank soal yang Anda pelajari adalah materi yang 100% relevan dengan standar seleksi kedinasan terbaru dan terupdate.", school: "FBK Commitment" },
-    { name: "Akses Belajar", text: "Di FBK, Anda bisa belajar kapan saja dan di mana saja tanpa hambatan. Tidak ada lagi kendala jarak untuk meraih seragam impian Anda.", school: "FBK Commitment" }
-  ]);
+  const [_testimonials, setTestimonials] = useState<any[]>([]);
   const [faqs, setFaqs] = useState<any[]>([
-    { q: "Apakah materi sesuai standar seleksi terbaru?", a: "Ya, seluruh materi dan bank soal kami diperbarui secara berkala mengikuti pola soal asli SKD dan FR (Field Report) terbaru." },
-    { q: "Bagaimana sistem belajarnya?", a: "Sistem belajar dilakukan secara online melalui Dashboard khusus yang dilengkapi Simulasi CAT standar BKN, materi terstruktur, dan analisis hasil yang mendalam." },
-    { q: "Apakah bisa diakses melalui Smartphone?", a: "Tentu saja! Platform FBK dirancang 100% responsif sehingga Anda bisa belajar dengan nyaman kapan saja dan di mana saja melalui HP, Tablet, maupun Laptop." },
-    { q: "Apakah ada grup diskusi atau tentor?", a: "Ya, untuk member Premium dan Platinum akan mendapatkan akses eksklusif ke grup diskusi dan pendampingan langsung oleh tentor berpengalaman yang sudah lolos SKD." }
+    { q: "Materi apa yang bisa dilatih?", a: "Tryout yang tersedia mencakup latihan TWK, TIU, dan TKP. Isi dan jumlah tryout mengikuti detail masing-masing paket." },
+    { q: "Bagaimana sistem belajarnya?", a: "Pilih tryout yang tersedia, kerjakan dalam batas waktu, lalu tinjau hasil dan pembahasan yang disediakan." },
+    { q: "Apakah bisa diakses melalui ponsel?", a: "Platform dapat dibuka melalui browser ponsel, tablet, atau komputer. Untuk mengerjakan tryout, layar komputer atau laptop lebih disarankan." },
+    { q: "Apa saja yang termasuk dalam paket?", a: "Isi paket berbeda-beda. Periksa daftar manfaat dan informasi akses di halaman paket sebelum melakukan pemesanan." }
   ]);
   const [features, setFeatures] = useState<any[]>([
-    { title: "Tentor Berpengalaman Lolos SKD", desc: "Jangan menebak-nebak. Belajar langsung dari tentor yang sudah terbukti berhasil lolos SKD dengan skor tinggi dan strategi teruji." },
-    { title: "Simulasi CAT Super Presisi", desc: "Rasakan atmosfer ujian sesungguhnya dengan sistem CAT yang 100% mengikuti standar sistem BKN terbaru." },
-    { title: "Bank Soal Prediksi Akurat", desc: "Berhenti membuang waktu dengan soal lama. Kami menyediakan ribuan bank soal terupdate yang diprediksi keluar di seleksi tahun ini." },
-    { title: "Sistem Anti-Cheat Canggih", desc: "Tryout kami dilindungi sistem anti-cheat otomatis yang mendeteksi tab switching, copy-paste, dan aktivitas mencurigakan. Hasilmu murni kemampuan sendiri — valid dan bisa dipercaya sebagai tolak ukur kesiapan sesungguhnya." },
-    { title: "Ranking Nasional Real-Time", desc: "Tahu persis di mana posisimu dibanding ribuan peserta seluruh Indonesia. Lihat persentil skormu, pantau perkembangan tiap tryout, dan jadikan ranking sebagai motivasi nyata untuk terus meningkat." },
-    { title: "Akses Belajar Tanpa Batas", desc: "Belajar kapan saja, di mana saja, dari perangkat apa pun. Platform FBK dioptimalkan untuk HP, tablet, dan laptop — tanpa hambatan jarak dan waktu. Satu akun, akses penuh ke seluruh materi dan tryout yang kamu miliki." }
+    { title: "Latihan TWK, TIU, dan TKP", desc: "Pilih tryout SKD untuk berlatih sesuai materi yang sedang ingin kamu tingkatkan." },
+    { title: "Simulasi Tryout CAT", desc: "Kerjakan soal dengan batas waktu dan tinjau hasilnya setelah tryout selesai." },
+    { title: "Pembahasan untuk Evaluasi", desc: "Gunakan pembahasan yang tersedia untuk memahami soal dan merencanakan latihan berikutnya." },
+    { title: "Pantau Hasil Tryout", desc: "Lihat skor tiap bagian sebagai salah satu cara mengevaluasi progres latihanmu." },
+    { title: "Leaderboard Tryout", desc: "Bandingkan hasil pada tryout yang menyediakan leaderboard." },
+    { title: "Akses dari Berbagai Perangkat", desc: "Buka platform melalui browser di ponsel, tablet, atau komputer." }
   ]);
   const [colors, setColors] = useState({
     badge: "#3b82f6",
@@ -99,10 +95,10 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
 
       if (data && data.length > 0) {
         data.forEach(item => {
-          if (item.key === 'hero_content') setHero(item.value);
-          if (item.key === 'testimonials' && item.value?.length > 0) setTestimonials(item.value);
+          if (item.key === 'hero_content') setHero(current => ({ ...current, ...item.value }));
+          if (item.key === 'testimonials') setTestimonials(Array.isArray(item.value) ? item.value : []);
           if (item.key === 'faqs' && item.value?.length > 0) setFaqs(item.value);
-          if (item.key === 'features' && item.value?.length > 0) setFeatures(item.value);
+          if (item.key === 'features') setFeatures(Array.isArray(item.value) ? item.value : []);
           if (item.key === 'site_colors') setColors(item.value);
           if (item.key === 'skd_packages') setPackages(item.value);
         });
@@ -160,8 +156,8 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   return (
     <div className="min-h-[100dvh] bg-[#0f2750] text-white font-sans selection:bg-blue-400/40 overflow-x-hidden">
       <SEO
-        title="Future Bimbel Kedinasan | Platform Tryout SKD & Bimbel Kedinasan Online Terpercaya"
-        description="Persiapan SKD kedinasan dengan tentor berpengalaman yang telah terbukti lolos SKD dengan skor tinggi. Simulasi tryout CAT standar BKN, bank soal TWK TIU TKP lengkap, dan pembahasan detail. Daftar gratis sekarang!"
+        title="Future Bimbel Kedinasan | Latihan Tryout SKD Online"
+        description="Latihan TWK, TIU, dan TKP melalui tryout SKD online. Tinjau skor dan pembahasan yang tersedia untuk membantu merencanakan persiapan sekolah kedinasan."
         keywords="bimbel kedinasan, tryout skd online, simulasi cat bkn, soal twk tiu tkp, stmkg, ipdn, stan, stis, poltekip, poltekim, passing grade skd 2025 2026, bimbel online kedinasan, persiapan cpns kedinasan, ranking skd nasional"
         url="https://www.futurebimbelkedinasan.com"
         type="website"
