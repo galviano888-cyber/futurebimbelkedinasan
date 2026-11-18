@@ -21,30 +21,30 @@ export const TestimonialsSection = memo(function TestimonialsSection({ testimoni
     ];
 
     return (
-      <section id="testimoni" className="relative py-20 lg:py-28 border-t border-slate-200 overflow-hidden bg-[#f3f5f7]">
+      <section id="testimoni" className="relative py-20 lg:py-28 border-t border-blue-200 overflow-hidden bg-[#d9e8ff]">
         <div className="max-w-6xl mx-auto px-5 sm:px-6">
           <div className="grid lg:grid-cols-[0.72fr_1.28fr] gap-10 lg:gap-20 mb-12 lg:mb-16">
             <div>
-              <p className="text-[11px] font-bold text-blue-700 tracking-[0.16em] uppercase mb-4">Alur Belajar</p>
-              <h2 className="text-[30px] lg:text-[42px] font-bold text-slate-900 tracking-[-0.04em] leading-[1.08]">
+              <p className="text-[11px] font-bold text-blue-800 tracking-[0.16em] uppercase mb-4">Alur Belajar</p>
+              <h2 className="text-[30px] lg:text-[42px] font-bold text-[#102b54] tracking-[-0.04em] leading-[1.08]">
               Dari latihan ke evaluasi.
               </h2>
             </div>
-            <p className="text-[15px] text-slate-700 leading-[1.75] lg:pt-8 max-w-xl">
+            <p className="text-[15px] text-blue-950/80 leading-[1.75] lg:pt-8 max-w-xl">
               Pilih latihan, kerjakan soal, lalu gunakan hasilnya untuk menentukan fokus belajar berikutnya.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 border-y border-slate-300">
+          <div className="grid grid-cols-1 md:grid-cols-3 border-y border-blue-300">
             {steps.map(({ number, title, text, icon: Icon }, i) => (
-              <div key={number} className={`py-6 md:py-7 md:px-6 first:pl-0 ${i > 0 ? "border-t md:border-t-0 md:border-l border-slate-300" : ""}`}>
+              <div key={number} className={`py-6 md:py-7 md:px-6 first:pl-0 ${i > 0 ? "border-t md:border-t-0 md:border-l border-blue-300" : ""}`}>
                   <div className="flex items-center gap-3 mb-5">
-                  <span className="text-xs font-semibold tracking-widest text-blue-700">{number}</span>
-                  <span className="h-px flex-1 bg-slate-300" />
-                  <Icon className="w-5 h-5 text-blue-700" strokeWidth={1.7} />
+                  <span className="text-xs font-semibold tracking-widest text-blue-800">{number}</span>
+                  <span className="h-px flex-1 bg-blue-300" />
+                  <Icon className="w-5 h-5 text-blue-800" strokeWidth={1.7} />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
-                <p className="text-sm text-slate-700 leading-relaxed">{text}</p>
+                <h3 className="text-lg font-bold text-[#102b54] mb-2">{title}</h3>
+                <p className="text-sm text-blue-950/80 leading-relaxed">{text}</p>
               </div>
             ))}
           </div>

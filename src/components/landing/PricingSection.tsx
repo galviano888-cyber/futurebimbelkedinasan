@@ -94,23 +94,23 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
   }, []);
 
   return (
-    <section id="paket" ref={sectionRef} className="relative py-20 lg:py-28 bg-white border-t border-slate-200">
+    <section id="paket" ref={sectionRef} className="relative py-20 lg:py-28 bg-[#c9defd] border-t border-blue-200">
       <div className="max-w-6xl mx-auto px-5 sm:px-6 relative">
         {/* Section header */}
         <div className="max-w-2xl mb-12 lg:mb-16 text-center mx-auto">
           <div className="flex items-center justify-center gap-3 mb-5">
-            <span className="text-[11px] font-bold text-blue-700 tracking-[0.16em] uppercase">Pilihan Paket</span>
+            <span className="text-[11px] font-bold text-blue-800 tracking-[0.16em] uppercase">Pilihan Paket</span>
           </div>
-          <h2 className="text-[28px] lg:text-[40px] font-bold text-slate-900 tracking-[-0.04em] leading-[1.12]">
+          <h2 className="text-[28px] lg:text-[40px] font-bold text-[#102b54] tracking-[-0.04em] leading-[1.12]">
             Pilih paket sesuai tahap persiapanmu.
           </h2>
-          <p className="text-[15px] lg:text-[16px] text-slate-700 mt-4 leading-relaxed">
+          <p className="text-[15px] lg:text-[16px] text-blue-950/80 mt-4 leading-relaxed">
             Bandingkan harga dan informasi tiap paket sebelum memilih.
           </p>
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 border-y border-slate-200">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 border-y border-blue-300">
           {isRealPackages
             ? (packages as RealPackage[]).map((pkg) => {
                 const Icon = TYPE_ICON[pkg.product_type] || BookOpen;
@@ -122,7 +122,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                     whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-60px" }}
                       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                    className="relative flex flex-col border-b sm:border-r sm:last:border-r-0 border-slate-200 bg-white transition-colors hover:bg-slate-50"
+                    className="relative flex flex-col border-b sm:border-r sm:last:border-r-0 border-blue-200 bg-white transition-colors hover:bg-blue-50"
                   >
                     {/* Cover image */}
                     {pkg.cover_image_url && (
@@ -178,7 +178,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                   whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  className={`relative flex flex-col border-b sm:border-r sm:last:border-r-0 border-slate-200 transition-colors ${p.isRecommended ? 'bg-blue-50/70' : 'bg-white hover:bg-slate-50'}`}
+                  className={`relative flex flex-col border-b sm:border-r sm:last:border-r-0 border-blue-200 transition-colors ${p.isRecommended ? 'bg-blue-100' : 'bg-white hover:bg-blue-50'}`}
                 >
                   {p.isRecommended && (
                     <div className="absolute top-0 right-5 -translate-y-1/2 px-3 py-1 bg-blue-800 text-white text-[10px] font-semibold tracking-wide">
@@ -219,7 +219,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
           }
         </div>
 
-        <p className="text-center text-[13px] text-slate-600 mt-8">
+        <p className="text-center text-[13px] text-blue-950/80 mt-8">
           Detail akses dan langkah pemesanan tersedia di halaman katalog paket.
         </p>
       </div>
