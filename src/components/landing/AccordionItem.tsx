@@ -17,12 +17,12 @@ export const AccordionItem = memo(function AccordionItem({ question, answer }: A
         className="w-full py-5 flex items-start justify-between text-left gap-6 group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
       >
         <span className={`text-[15px] font-semibold leading-snug transition-colors duration-200 ${
-          isOpen ? 'text-white' : 'text-white group-hover:text-sky-100'
+          isOpen ? 'text-blue-900' : 'text-blue-950 group-hover:text-blue-700'
         }`}>
           {question}
         </span>
         <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 ${
-          isOpen ? 'bg-sky-200 text-blue-950 rotate-45' : 'bg-white/15 text-white group-hover:bg-white/25 group-hover:text-white'
+          isOpen ? 'bg-blue-700 text-white rotate-45' : 'bg-blue-100 text-blue-800 group-hover:bg-blue-200 group-hover:text-blue-950'
         }`}>
           <Plus className="w-4 h-4" strokeWidth={2.5} />
         </div>
@@ -36,7 +36,7 @@ export const AccordionItem = memo(function AccordionItem({ question, answer }: A
             transition={{ duration: reduceMotion ? 0 : 0.25, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <p className="pb-5 pr-10 text-[14px] text-blue-50 leading-relaxed">
+            <p className="pb-5 pr-10 text-[14px] text-blue-950/80 leading-relaxed">
               {answer}
             </p>
           </motion.div>

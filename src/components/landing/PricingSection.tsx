@@ -51,7 +51,7 @@ function DescChecklist({ text }: { text: string }) {
           <div className="w-[18px] h-[18px] rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 mt-px">
             <Check className="w-2.5 h-2.5 text-blue-300" strokeWidth={3} />
           </div>
-      <span className="text-[13px] text-slate-700 leading-snug">{item}</span>
+      <span className="text-[13px] text-blue-950/85 leading-snug">{item}</span>
         </div>
       ))}
       {isLong && (
@@ -126,7 +126,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                   >
                     {/* Cover image */}
                     {pkg.cover_image_url && (
-                      <div className="relative h-40 overflow-hidden shrink-0 bg-slate-100">
+                      <div className="relative h-40 overflow-hidden shrink-0 bg-blue-100">
                         <img src={pkg.cover_image_url} alt={`Sampul ${pkg.title}`} className="w-full h-full object-cover" loading="lazy" onError={(e) => { const parent = (e.target as HTMLImageElement).parentElement; if (parent) parent.style.display='none'; }} />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                       </div>
@@ -137,19 +137,19 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                         <div className="w-8 h-8 border border-blue-200 bg-blue-50 flex items-center justify-center shrink-0">
                           <Icon className="w-4 h-4 text-blue-700" />
                         </div>
-                        <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-slate-800">{productTypeLabel(pkg.product_type)}</p>
+                        <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-blue-800">{productTypeLabel(pkg.product_type)}</p>
                       </div>
                       <h3 className="text-[18px] font-bold text-slate-900 leading-snug mb-4">{pkg.title}</h3>
 
                       {/* Price */}
-                      <div className="mb-4 pb-4 border-b border-slate-200">
+                      <div className="mb-4 pb-4 border-b border-blue-200">
                         {pkg.original_price && pkg.original_price > pkg.price && (
-                          <span className="text-[12px] line-through block mb-1 text-slate-500">
+                          <span className="text-[12px] line-through block mb-1 text-blue-700/70">
                             Rp {pkg.original_price.toLocaleString('id-ID')}
                           </span>
                         )}
                         <div className="flex items-baseline gap-1">
-                          <span className="text-[24px] font-bold tracking-tight leading-none text-slate-900">
+                          <span className="text-[24px] font-bold tracking-tight leading-none text-blue-950">
                             {isFree ? 'Gratis' : `Rp ${pkg.price.toLocaleString('id-ID')}`}
                           </span>
                         </div>
@@ -190,12 +190,12 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                     <p className="text-[13px] mb-6 text-slate-700">
                       Paket persiapan SKD
                     </p>
-                    <div className="mb-7 pb-7 border-b border-slate-200">
+                    <div className="mb-7 pb-7 border-b border-blue-200">
                       {p.originalPrice && p.originalPrice !== "0" && (
-                        <span className="text-[13px] line-through block mb-0.5 text-slate-500">{p.originalPrice}</span>
+                        <span className="text-[13px] line-through block mb-0.5 text-blue-700/70">{p.originalPrice}</span>
                       )}
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-[32px] font-bold tracking-tight leading-none text-slate-900">{p.price}</span>
+                        <span className="text-[32px] font-bold tracking-tight leading-none text-blue-950">{p.price}</span>
                       </div>
                     </div>
                     <div className="space-y-3.5">
@@ -204,7 +204,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                           <div className="w-[20px] h-[20px] border border-blue-200 bg-blue-50 flex items-center justify-center shrink-0 mt-px">
                             <Check className="w-3 h-3 text-blue-700" strokeWidth={3} />
                           </div>
-                          <span className="text-[14px] leading-snug text-slate-700">{b}</span>
+                          <span className="text-[14px] leading-snug text-blue-950/85">{b}</span>
                         </div>
                       ))}
                     </div>
