@@ -16,6 +16,7 @@ import { Footer } from "../landing/Footer";
 import { GuideModal } from "../landing/GuideModal";
 import { LegalModal } from "../LegalModal";
 import { trackOnce } from "@/lib/analytics";
+import { DEFAULT_LANDING_SECTIONS, mergeLandingSections, type LandingSections } from "@/lib/landingSections";
 
 interface LandingPageViewProps {
   onLogin: () => void;
@@ -61,6 +62,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   });
   const [packages, setPackages] = useState<any[]>([]);
   const [realPackages, setRealPackages] = useState<any[]>([]);
+  const [sections, setSections] = useState<LandingSections>(DEFAULT_LANDING_SECTIONS);
 
   useEffect(() => {
     fetchSiteSettings();
@@ -102,6 +104,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
           if (item.key === 'features') setFeatures(Array.isArray(item.value) ? item.value : []);
           if (item.key === 'site_colors') setColors(item.value);
           if (item.key === 'skd_packages') setPackages(item.value);
+          if (item.key === 'landing_sections') setSections(mergeLandingSections(item.value));
         });
       }
     } catch (err) {
@@ -175,24 +178,26 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
         <HeroSection 
           hero={hero} 
           colors={colors} 
+          copy={sections.hero}
           onEnter={onRegister}
           onLogin={onLogin}
           containerVariants={containerVariants} 
           itemVariants={itemVariants} 
         />
 
-        <FeaturesSection features={features} />
+        <FeaturesSection features={features} copy={sections.features} />
         {(realPackages.length > 0 || activePackages.length > 0) && (
           <PricingSection
             packages={realPackages.length > 0 ? realPackages : activePackages}
             isRealPackages={realPackages.length > 0}
+            copy={sections.pricing}
             onEnter={onRegister}
             onPackageSelect={handlePackageSelect}
           />
         )}
-        <TestimonialsSection testimonials={_testimonials} />
-        <FAQSection faqs={faqs} />
-        <Footer onLegalClick={handleLegalClick} />
+        <TestimonialsSection testimonials={_testimonials} copy={sections.plan} />
+        <FAQSection faqs={faqs} copy={sections.faq} />
+        <Footer onLegalClick={handleLegalClick} copy={sections.footer} />
       </div>
 
       <LegalModal 

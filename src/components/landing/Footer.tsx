@@ -1,11 +1,14 @@
 import { memo } from "react";
 import { Mail, MessageCircle, MapPin, Phone, ArrowRight } from "lucide-react";
+import { DEFAULT_LANDING_SECTIONS, type LandingSections } from "@/lib/landingSections";
 
 interface FooterProps {
   onLegalClick: (type: 'terms' | 'privacy') => void;
+  copy?: LandingSections["footer"];
 }
 
-export const Footer = memo(function Footer({ onLegalClick }: FooterProps) {
+export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) {
+  const footerCopy = copy ?? DEFAULT_LANDING_SECTIONS.footer;
   return (
     <footer className="bg-[#091b38] text-blue-100 border-t border-blue-300/20">
       {/* CTA strip */}
@@ -14,17 +17,17 @@ export const Footer = memo(function Footer({ onLegalClick }: FooterProps) {
           <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
               <h3 className="text-[20px] lg:text-[24px] font-bold text-white tracking-tight leading-tight">
-                Siapkan langkahmu menuju sekolah kedinasan.
+                {footerCopy.ctaTitle}
               </h3>
               <p className="text-[13px] lg:text-[14px] text-blue-100 mt-2 max-w-md leading-relaxed">
-                Mulai persiapan masuk sekolah kedinasan dengan latihan dan tinjauan belajar yang terarah.
+                {footerCopy.ctaText}
               </p>
             </div>
             <a
               href="#paket"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-blue-800 font-semibold text-[14px] hover:bg-blue-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white shrink-0"
             >
-              Mulai Sekarang
+              {footerCopy.ctaButton}
               <ArrowRight className="w-4 h-4" />
             </a>
           </div>
@@ -45,7 +48,7 @@ export const Footer = memo(function Footer({ onLegalClick }: FooterProps) {
               </span>
             </div>
             <p className="text-[13.5px] text-blue-100 leading-relaxed">
-              Platform pendamping persiapan sekolah kedinasan dengan latihan seleksi, tryout, hasil, dan pembahasan.
+              {footerCopy.description}
             </p>
             <div className="flex items-center gap-2.5">
               <a

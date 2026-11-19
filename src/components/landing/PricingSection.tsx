@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Check, ChevronDown, BookOpen, Zap, FileText, ArrowRight } from "lucide-react";
 import { productTypeLabel } from "@/lib/packages";
 import { trackOnce } from "@/lib/analytics";
+import { DEFAULT_LANDING_SECTIONS, type LandingSections } from "@/lib/landingSections";
 
 interface CMSPackage {
   name: string;
@@ -26,6 +27,7 @@ interface RealPackage {
 interface PricingSectionProps {
   packages: CMSPackage[] | RealPackage[];
   isRealPackages?: boolean;
+  copy?: LandingSections["pricing"];
   onEnter: () => void;
   onPackageSelect?: (packageId: string) => void;
 }
@@ -67,8 +69,9 @@ function DescChecklist({ text }: { text: string }) {
   );
 }
 
-export const PricingSection = memo(function PricingSection({ packages, isRealPackages = false, onEnter, onPackageSelect }: PricingSectionProps) {
+export const PricingSection = memo(function PricingSection({ packages, isRealPackages = false, copy, onEnter, onPackageSelect }: PricingSectionProps) {
   const reduceMotion = useReducedMotion();
+  const heading = copy ?? DEFAULT_LANDING_SECTIONS.pricing;
   // Catat saat daftar harga benar-benar terlihat (bukan sekadar dirender).
   const sectionRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -99,13 +102,13 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
         {/* Section header */}
         <div className="max-w-2xl mb-12 lg:mb-16 text-center mx-auto">
           <div className="flex items-center justify-center gap-3 mb-5">
-            <span className="text-[11px] font-bold text-sky-200 tracking-[0.16em] uppercase">Pilihan Paket</span>
+            <span className="text-[11px] font-bold text-sky-200 tracking-[0.16em] uppercase">{heading.eyebrow}</span>
           </div>
           <h2 className="text-[28px] lg:text-[40px] font-bold text-white tracking-[-0.04em] leading-[1.12]">
-            Pilih dukungan belajar untuk tujuan kedinasanmu.
+            {heading.title}
           </h2>
           <p className="text-[15px] lg:text-[16px] text-blue-100 mt-4 leading-relaxed">
-            Temukan paket belajar atau latihan yang sesuai dengan tahap persiapanmu.
+            {heading.description}
           </p>
         </div>
 
@@ -220,7 +223,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
         </div>
 
         <p className="text-center text-[13px] text-blue-100 mt-8">
-          Detail akses dan langkah pemesanan tersedia di halaman katalog paket.
+          {heading.note}
         </p>
       </div>
     </section>

@@ -2,6 +2,7 @@ import { memo } from "react";
 import { useReducedMotion } from "framer-motion";
 import { motion } from "framer-motion";
 import { BookOpenCheck, ClipboardList, Target } from "lucide-react";
+import { DEFAULT_LANDING_SECTIONS, type LandingSections } from "@/lib/landingSections";
 
 interface TestimonialsSectionProps {
   testimonials: Array<{
@@ -9,29 +10,34 @@ interface TestimonialsSectionProps {
     text: string;
     school: string;
   }>;
+  copy?: LandingSections["plan"];
 }
 
-export const TestimonialsSection = memo(function TestimonialsSection({ testimonials }: TestimonialsSectionProps) {
+const stepIcons = [Target, ClipboardList, BookOpenCheck];
+
+export const TestimonialsSection = memo(function TestimonialsSection({ testimonials, copy }: TestimonialsSectionProps) {
   const reduceMotion = useReducedMotion();
+  const plan = copy ?? DEFAULT_LANDING_SECTIONS.plan;
   if (testimonials.length === 0) {
-    const steps = [
-      { number: "01", title: "Tentukan tujuan", text: "Kenali sekolah kedinasan dan tahapan seleksi yang ingin kamu persiapkan.", icon: Target },
-      { number: "02", title: "Susun rutinitas", text: "Pilih materi dan latihan yang tersedia, termasuk tryout SKD TWK, TIU, dan TKP.", icon: ClipboardList },
-      { number: "03", title: "Tinjau progres", text: "Tinjau hasil latihan dan gunakan pembahasan yang tersedia untuk merencanakan langkah berikutnya.", icon: BookOpenCheck },
-    ];
+    const steps = plan.steps.map((step, index) => ({
+      number: `0${index + 1}`,
+      title: step.title,
+      text: step.text,
+      icon: stepIcons[index % stepIcons.length],
+    }));
 
     return (
       <section id="testimoni" className="relative py-20 lg:py-28 border-t border-blue-200 overflow-hidden bg-white">
         <div className="max-w-6xl mx-auto px-5 sm:px-6">
           <div className="grid lg:grid-cols-[0.72fr_1.28fr] gap-10 lg:gap-20 mb-12 lg:mb-16">
             <div>
-              <p className="text-[11px] font-bold text-blue-800 tracking-[0.16em] uppercase mb-4">Rencana Belajar</p>
+              <p className="text-[11px] font-bold text-blue-800 tracking-[0.16em] uppercase mb-4">{plan.eyebrow}</p>
               <h2 className="text-[30px] lg:text-[42px] font-bold text-[#102b54] tracking-[-0.04em] leading-[1.08]">
-              Dari latihan ke tinjauan hasil.
+              {plan.title}
               </h2>
             </div>
             <p className="text-[15px] text-blue-950/80 leading-[1.75] lg:pt-8 max-w-xl">
-              Pilih latihan, kerjakan soal, lalu gunakan hasilnya untuk menentukan fokus belajar berikutnya.
+              {plan.description}
             </p>
           </div>
 

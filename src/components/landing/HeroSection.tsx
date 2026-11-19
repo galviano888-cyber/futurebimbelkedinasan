@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { DEFAULT_LANDING_SECTIONS, type LandingSections } from "@/lib/landingSections";
 
 interface HeroSectionProps {
   hero: {
@@ -13,6 +14,7 @@ interface HeroSectionProps {
     badge: string;
     cta: string;
   };
+  copy?: LandingSections["hero"];
   onEnter: () => void;
   onLogin: () => void;
   containerVariants: Variants;
@@ -21,12 +23,15 @@ interface HeroSectionProps {
 
 export const HeroSection = memo(function HeroSection({
   hero,
+  copy,
   onEnter,
   onLogin,
   containerVariants,
   itemVariants
 }: HeroSectionProps) {
   const reduceMotion = useReducedMotion();
+  const heroCopy = copy ?? DEFAULT_LANDING_SECTIONS.hero;
+  const heroImage = heroCopy.image || DEFAULT_LANDING_SECTIONS.hero.image;
 
   return (
     <section className="relative pt-16 sm:pt-20 lg:pt-24 pb-4 lg:pb-6 overflow-hidden bg-white">
@@ -76,7 +81,7 @@ export const HeroSection = memo(function HeroSection({
               className="lg:hidden relative mb-8 max-w-[440px] mx-auto -mx-3 sm:mx-auto"
             >
               <div className="relative aspect-[1.35] overflow-hidden bg-white">
-                <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="absolute inset-0 w-full h-full object-contain" loading="eager" />
+                <img src={heroImage} alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="absolute inset-0 w-full h-full object-contain" loading="eager" />
               </div>
             </motion.div>
 
@@ -93,7 +98,7 @@ export const HeroSection = memo(function HeroSection({
                 href="#paket"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 text-[15px] font-semibold text-blue-800 hover:text-blue-950 rounded-lg border border-blue-300 hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
               >
-                Lihat Paket
+                {heroCopy.secondaryCta}
               </a>
             </motion.div>
 
@@ -102,11 +107,7 @@ export const HeroSection = memo(function HeroSection({
               variants={reduceMotion ? undefined : itemVariants}
               className="flex flex-wrap items-center gap-x-7 gap-y-3 justify-center lg:justify-start mt-8 pt-6 border-t border-blue-200"
             >
-              {[
-                { label: "Fokus", value: "Seleksi kedinasan" },
-                { label: "Latihan", value: "Tryout & simulasi" },
-                { label: "Tinjauan", value: "Skor & pembahasan" },
-              ].map((item) => (
+              {heroCopy.signals.map((item) => (
                 <div key={item.label} className="flex items-center gap-2">
                   <div className="text-left">
                     <p className="text-[10px] font-semibold text-blue-700 uppercase tracking-[0.12em] mb-1">{item.label}</p>
@@ -120,7 +121,7 @@ export const HeroSection = memo(function HeroSection({
               onClick={onLogin}
               className="mt-5 text-[12px] font-medium text-blue-800 underline underline-offset-4 decoration-blue-400 hover:text-blue-950 transition-colors"
             >
-              Sudah punya akun? Masuk
+              {heroCopy.loginHint}
             </button>
           </motion.div>
 
@@ -132,7 +133,7 @@ export const HeroSection = memo(function HeroSection({
             className="hidden lg:block relative self-stretch min-h-[610px]"
           >
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-              <img src="/hero-squad-blue.webp" alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="w-full h-full object-contain object-center" loading="eager" />
+              <img src={heroImage} alt="Tiga siswa sekolah kedinasan Future Bimbel Kedinasan" className="w-full h-full object-contain object-center" loading="eager" />
             </div>
           </motion.div>
 

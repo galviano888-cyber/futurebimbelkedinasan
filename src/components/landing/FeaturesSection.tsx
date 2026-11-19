@@ -2,26 +2,29 @@ import { memo } from "react";
 import { useReducedMotion } from "framer-motion";
 import { motion } from "framer-motion";
 import { BookOpenCheck, ClipboardList, Target, Trophy, BarChart2 } from "lucide-react";
+import { DEFAULT_LANDING_SECTIONS, type LandingSections } from "@/lib/landingSections";
 
 interface FeaturesSectionProps {
   features: Array<{ title: string; desc: string; }>;
+  copy?: LandingSections["features"];
 }
 
 const icons = [Target, ClipboardList, BookOpenCheck, BarChart2, Trophy, ClipboardList];
 
-export const FeaturesSection = memo(function FeaturesSection({ features }: FeaturesSectionProps) {
+export const FeaturesSection = memo(function FeaturesSection({ features, copy }: FeaturesSectionProps) {
   const reduceMotion = useReducedMotion();
+  const heading = copy ?? DEFAULT_LANDING_SECTIONS.features;
   return (
     <section id="fitur" className="relative py-20 lg:py-28 bg-[#163b73] text-white border-t border-blue-300/20">
       <div className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="grid lg:grid-cols-[0.72fr_1.28fr] gap-10 lg:gap-20">
           <div className="lg:sticky lg:top-28 lg:self-start">
-            <p className="text-[11px] font-bold text-sky-200 tracking-[0.16em] uppercase mb-4">Fitur Belajar</p>
+            <p className="text-[11px] font-bold text-sky-200 tracking-[0.16em] uppercase mb-4">{heading.eyebrow}</p>
             <h2 className="text-[30px] lg:text-[42px] font-bold tracking-[-0.04em] leading-[1.08] mb-4 text-white">
-              Persiapan menuju sekolah kedinasan.
+              {heading.title}
             </h2>
             <p className="text-[15px] text-blue-50 leading-[1.75]">
-              Bangun rutinitas belajar, berlatih untuk seleksi, dan tinjau perkembanganmu secara berkala.
+              {heading.description}
             </p>
           </div>
 

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Save, Plus, Trash2, Layout, HelpCircle, Loader2, Phone, CreditCard, Zap } from "lucide-react";
+import { Save, Plus, Trash2, Layout, HelpCircle, Loader2, Phone, CreditCard, Zap, Type } from "lucide-react";
 import { toast } from "sonner";
+import { DEFAULT_LANDING_SECTIONS, mergeLandingSections, type LandingSections } from "@/lib/landingSections";
 
 export function AdminLandingPageEditorView() {
   const [loading, setLoading] = useState(true);
@@ -37,6 +38,7 @@ export function AdminLandingPageEditorView() {
     { name: "Paket Platinum", price: "Rp 299.000", originalPrice: "Rp 999.000", benefits: ["Semua Fitur Premium", "Bimbingan Live Zoom", "Prediksi Soal Akurat", "Sertifikat Kelulusan"], isRecommended: false }
   ]);
   const [waTemplate, setWaTemplate] = useState("Halo Admin, saya ingin pesan paket {paket} seharga {harga}. Berikut bukti transfernya.");
+  const [sections, setSections] = useState<LandingSections>(DEFAULT_LANDING_SECTIONS);
 
   useEffect(() => {
     fetchSettings();
@@ -58,6 +60,7 @@ export function AdminLandingPageEditorView() {
           if (item.key === 'official_contacts') setContacts(item.value);
           if (item.key === 'bank_details') setBank(item.value);
           if (item.key === 'whatsapp_template') setWaTemplate(item.value);
+          if (item.key === 'landing_sections') setSections(mergeLandingSections(item.value));
         });
       }
     } catch (err) {
@@ -109,6 +112,10 @@ export function AdminLandingPageEditorView() {
     }
   };
 
+  function updateSection<K extends keyof LandingSections>(key: K, patch: Partial<LandingSections[K]>) {
+    setSections(prev => ({ ...prev, [key]: { ...prev[key], ...patch } }));
+  }
+
   const inputClass = "w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white font-bold text-sm placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10 transition-all";
   const textareaClass = `${inputClass} resize-none`;
   const sectionClass = "bg-[#0d0d14] border border-white/5 rounded-2xl p-7 space-y-6";
@@ -138,6 +145,12 @@ export function AdminLandingPageEditorView() {
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300 pb-20">
 
+      <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl px-4 py-3">
+        <p className="text-[11px] text-slate-400 leading-relaxed">
+          Perubahan langsung tampil di landing page setelah disimpan. Kosongkan sebuah kolom untuk memakai teks bawaan.
+        </p>
+      </div>
+
       {/* HERO */}
       <section className={sectionClass}>
         <div className={sectionHeaderClass}>
@@ -152,7 +165,7 @@ export function AdminLandingPageEditorView() {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-4">
-            {[{label:'Label Badge', key:'badge', ph:'#1 Platform Kedinasan'},{label:'Judul Utama (H1)', key:'title', ph:'Wujudkan Mimpi...'},{label:'Teks Tombol CTA', key:'cta', ph:'Masuk Sekarang'},{label:'URL Gambar Hero', key:'image', ph:'https://...'}].map(({label,key,ph}) => (
+            {[{label:'Label Badge', key:'badge', ph:'Persiapan Masuk Sekolah Kedinasan'},{label:'Judul Utama (H1)', key:'title', ph:'Langkahmu menuju | sekolah kedinasan.'},{label:'Teks Tombol CTA', key:'cta', ph:'Lihat pilihan persiapan'}].map(({label,key,ph}) => (
               <div key={key}>
                 <label className={labelClass}>{label}</label>
                 <input value={(hero as any)[key]} onChange={e => setHero({...hero,[key]:e.target.value})} className={inputClass} placeholder={ph} />
@@ -184,6 +197,211 @@ export function AdminLandingPageEditorView() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TEKS BAGIAN LANDING */}
+      <section className={sectionClass}>
+        <div className={sectionHeaderClass}>
+          <div className="flex items-center gap-3">
+            <div className={iconBoxClass}><Type className="w-4 h-4 text-blue-400" /></div>
+            <div>
+              <h2 className="text-[15px] font-semibold text-white">Teks Bagian Landing</h2>
+              <p className="text-[10px] text-slate-600 font-bold">Penanda hero, judul tiap section, alur belajar, dan footer</p>
+            </div>
+          </div>
+          {saveBtn(() => handleSave('landing_sections', sections), 'Simpan Teks')}
+        </div>
+
+        {/* HERO */}
+        <div className="space-y-4">
+          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Hero</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>URL Gambar Hero</label>
+              <input value={sections.hero.image} onChange={e => updateSection('hero', { image: e.target.value })} className={inputClass} placeholder="/hero-squad-blue.webp" />
+            </div>
+            <div>
+              <label className={labelClass}>Tombol Kedua (lihat paket)</label>
+              <input value={sections.hero.secondaryCta} onChange={e => updateSection('hero', { secondaryCta: e.target.value })} className={inputClass} placeholder="Lihat Paket" />
+            </div>
+            <div>
+              <label className={labelClass}>Teks Tautan Masuk</label>
+              <input value={sections.hero.loginHint} onChange={e => updateSection('hero', { loginHint: e.target.value })} className={inputClass} placeholder="Sudah punya akun? Masuk" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {sections.hero.signals.map((signal, i) => (
+              <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-3">
+                <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Penanda {i + 1}</span>
+                <div>
+                  <label className={labelClass}>Label</label>
+                  <input
+                    value={signal.label}
+                    onChange={e => {
+                      const signals = sections.hero.signals.map((item, index) =>
+                        index === i ? { ...item, label: e.target.value } : item
+                      );
+                      updateSection('hero', { signals });
+                    }}
+                    className={inputClass}
+                    placeholder="Fokus"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Isi</label>
+                  <input
+                    value={signal.value}
+                    onChange={e => {
+                      const signals = sections.hero.signals.map((item, index) =>
+                        index === i ? { ...item, value: e.target.value } : item
+                      );
+                      updateSection('hero', { signals });
+                    }}
+                    className={inputClass}
+                    placeholder="Seleksi kedinasan"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FITUR */}
+        <div className="space-y-4 pt-6 border-t border-white/5">
+          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Section Fitur</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Label Kecil</label>
+              <input value={sections.features.eyebrow} onChange={e => updateSection('features', { eyebrow: e.target.value })} className={inputClass} placeholder="Fitur Belajar" />
+            </div>
+            <div>
+              <label className={labelClass}>Judul</label>
+              <input value={sections.features.title} onChange={e => updateSection('features', { title: e.target.value })} className={inputClass} />
+            </div>
+          </div>
+          <div>
+            <label className={labelClass}>Deskripsi</label>
+            <textarea value={sections.features.description} onChange={e => updateSection('features', { description: e.target.value })} className={textareaClass} rows={2} />
+          </div>
+        </div>
+
+        {/* RENCANA BELAJAR */}
+        <div className="space-y-4 pt-6 border-t border-white/5">
+          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Section Rencana Belajar</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Label Kecil</label>
+              <input value={sections.plan.eyebrow} onChange={e => updateSection('plan', { eyebrow: e.target.value })} className={inputClass} placeholder="Rencana Belajar" />
+            </div>
+            <div>
+              <label className={labelClass}>Judul</label>
+              <input value={sections.plan.title} onChange={e => updateSection('plan', { title: e.target.value })} className={inputClass} />
+            </div>
+          </div>
+          <div>
+            <label className={labelClass}>Deskripsi</label>
+            <textarea value={sections.plan.description} onChange={e => updateSection('plan', { description: e.target.value })} className={textareaClass} rows={2} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {sections.plan.steps.map((step, i) => (
+              <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-3">
+                <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Langkah {i + 1}</span>
+                <div>
+                  <label className={labelClass}>Judul Langkah</label>
+                  <input
+                    value={step.title}
+                    onChange={e => {
+                      const steps = sections.plan.steps.map((item, index) =>
+                        index === i ? { ...item, title: e.target.value } : item
+                      );
+                      updateSection('plan', { steps });
+                    }}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Penjelasan</label>
+                  <textarea
+                    value={step.text}
+                    onChange={e => {
+                      const steps = sections.plan.steps.map((item, index) =>
+                        index === i ? { ...item, text: e.target.value } : item
+                      );
+                      updateSection('plan', { steps });
+                    }}
+                    className={textareaClass}
+                    rows={3}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* PAKET */}
+        <div className="space-y-4 pt-6 border-t border-white/5">
+          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Section Paket</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Label Kecil</label>
+              <input value={sections.pricing.eyebrow} onChange={e => updateSection('pricing', { eyebrow: e.target.value })} className={inputClass} placeholder="Pilihan Paket" />
+            </div>
+            <div>
+              <label className={labelClass}>Judul</label>
+              <input value={sections.pricing.title} onChange={e => updateSection('pricing', { title: e.target.value })} className={inputClass} />
+            </div>
+          </div>
+          <div>
+            <label className={labelClass}>Deskripsi</label>
+            <textarea value={sections.pricing.description} onChange={e => updateSection('pricing', { description: e.target.value })} className={textareaClass} rows={2} />
+          </div>
+          <div>
+            <label className={labelClass}>Catatan Bawah</label>
+            <input value={sections.pricing.note} onChange={e => updateSection('pricing', { note: e.target.value })} className={inputClass} />
+          </div>
+        </div>
+
+        {/* FAQ */}
+        <div className="space-y-4 pt-6 border-t border-white/5">
+          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Section FAQ</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Label Kecil</label>
+              <input value={sections.faq.eyebrow} onChange={e => updateSection('faq', { eyebrow: e.target.value })} className={inputClass} placeholder="Pertanyaan Umum" />
+            </div>
+            <div>
+              <label className={labelClass}>Judul</label>
+              <input value={sections.faq.title} onChange={e => updateSection('faq', { title: e.target.value })} className={inputClass} />
+            </div>
+          </div>
+          <div>
+            <label className={labelClass}>Deskripsi</label>
+            <textarea value={sections.faq.description} onChange={e => updateSection('faq', { description: e.target.value })} className={textareaClass} rows={2} />
+          </div>
+        </div>
+
+        {/* FOOTER */}
+        <div className="space-y-4 pt-6 border-t border-white/5">
+          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Footer</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Judul Ajakan</label>
+              <input value={sections.footer.ctaTitle} onChange={e => updateSection('footer', { ctaTitle: e.target.value })} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Teks Tombol</label>
+              <input value={sections.footer.ctaButton} onChange={e => updateSection('footer', { ctaButton: e.target.value })} className={inputClass} />
+            </div>
+          </div>
+          <div>
+            <label className={labelClass}>Penjelasan Ajakan</label>
+            <textarea value={sections.footer.ctaText} onChange={e => updateSection('footer', { ctaText: e.target.value })} className={textareaClass} rows={2} />
+          </div>
+          <div>
+            <label className={labelClass}>Deskripsi Brand</label>
+            <textarea value={sections.footer.description} onChange={e => updateSection('footer', { description: e.target.value })} className={textareaClass} rows={2} />
           </div>
         </div>
       </section>
@@ -305,7 +523,7 @@ export function AdminLandingPageEditorView() {
             <div className={iconBoxClass}><CreditCard className="w-4 h-4 text-blue-400" /></div>
             <div>
               <h2 className="text-[15px] font-semibold text-white">Daftar Paket SKD</h2>
-              <p className="text-[10px] text-slate-600 font-bold">Atur paket & harga di landing page</p>
+              <p className="text-[10px] text-slate-600 font-bold">Cadangan tampilan jika katalog produk kosong</p>
             </div>
           </div>
           {saveBtn(() => handleSave('skd_packages', packages), 'Simpan Paket')}
