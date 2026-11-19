@@ -32,11 +32,6 @@ export function AdminLandingPageEditorView() {
     cta: "#2563eb"
   });
   const [bank, setBank] = useState({ name: "BRI", number: "0356 0108 9005 505", owner: "Galih Oktaviano" });
-  const [packages, setPackages] = useState<any[]>([
-    { name: "Paket Mandiri", price: "Gratis", originalPrice: "", benefits: ["Akses 1 Tryout SKD", "Hasil Skor Instan", "Pembahasan Soal"], isRecommended: false },
-    { name: "Paket Premium", price: "Rp 149.000", originalPrice: "Rp 499.000", benefits: ["Akses Semua Tryout", "Ranking Nasional", "Materi Eksklusif", "Grup Konsultasi"], isRecommended: true },
-    { name: "Paket Platinum", price: "Rp 299.000", originalPrice: "Rp 999.000", benefits: ["Semua Fitur Premium", "Bimbingan Live Zoom", "Prediksi Soal Akurat", "Sertifikat Kelulusan"], isRecommended: false }
-  ]);
   const [waTemplate, setWaTemplate] = useState("Halo Admin, saya ingin pesan paket {paket} seharga {harga}. Berikut bukti transfernya.");
   const [sections, setSections] = useState<LandingSections>(DEFAULT_LANDING_SECTIONS);
   const [catalogProducts, setCatalogProducts] = useState<any[]>([]);
@@ -63,7 +58,6 @@ export function AdminLandingPageEditorView() {
           if (item.key === 'testimonials') setTestimonials(item.value);
           if (item.key === 'faqs') setFaqs(item.value);
           if (item.key === 'site_colors') setColors(item.value);
-          if (item.key === 'skd_packages') setPackages(item.value);
           if (item.key === 'official_contacts') setContacts(item.value);
           if (item.key === 'bank_details') setBank(item.value);
           if (item.key === 'whatsapp_template') setWaTemplate(item.value);
@@ -84,14 +78,6 @@ export function AdminLandingPageEditorView() {
     try {
       let finalValue = value;
       
-      // Sanitize benefits before saving packages
-      if (key === 'skd_packages' && Array.isArray(value)) {
-        finalValue = value.map(pkg => ({
-          ...pkg,
-          benefits: pkg.benefits.map((b: string) => b.trim()).filter((b: string) => b !== "")
-        }));
-      }
-
       const { error } = await supabase
         .from('site_settings')
         .upsert(
@@ -559,43 +545,6 @@ export function AdminLandingPageEditorView() {
             </div>
           ))}
           {faqs.length === 0 && <p className="text-slate-700 text-xs text-center py-6">Belum ada FAQ. Klik Tambah untuk menambahkan.</p>}
-        </div>
-      </section>
-
-      {/* PAKET SKD */}
-      <section className={sectionClass}>
-        <div className={sectionHeaderClass}>
-          <div className="flex items-center gap-3">
-            <div className={iconBoxClass}><CreditCard className="w-4 h-4 text-blue-400" /></div>
-            <div>
-              <h2 className="text-[15px] font-semibold text-white">Daftar Paket SKD</h2>
-              <p className="text-[10px] text-slate-600 font-bold">Cadangan tampilan jika katalog produk kosong</p>
-            </div>
-          </div>
-          {saveBtn(() => handleSave('skd_packages', packages), 'Simpan Paket')}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {packages.map((p,i) => (
-            <div key={i} className={`bg-white/[0.02] border rounded-xl p-5 space-y-4 ${p.isRecommended ? 'border-blue-500/30' : 'border-white/5'}`}>
-              <div className="flex items-center justify-between">
-                <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Paket {i+1}</span>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={p.isRecommended} onChange={e => { const n=[...packages]; n[i].isRecommended=e.target.checked; setPackages(n); }} className="w-3.5 h-3.5 rounded accent-blue-500" />
-                  <span className="text-[9px] font-bold text-slate-500 uppercase">Rekomendasi</span>
-                </label>
-              </div>
-              {[{label:'Nama Paket',key:'name'},{label:'Harga Tampil',key:'price'},{label:'Harga Asli (Coret)',key:'originalPrice'}].map(({label,key}) => (
-                <div key={key}>
-                  <label className={labelClass}>{label}</label>
-                  <input value={(p as any)[key]} onChange={e => { const n=[...packages]; (n[i] as any)[key]=e.target.value; setPackages(n); }} className={inputClass} />
-                </div>
-              ))}
-              <div>
-                <label className={labelClass}>Keunggulan (pisah dengan koma)</label>
-                <textarea value={p.benefits.join(', ')} onChange={e => { const n=[...packages]; n[i].benefits=e.target.value.split(','); setPackages(n); }} className={textareaClass} rows={3} placeholder="Benefit 1, Benefit 2, ..." />
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 
