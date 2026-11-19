@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { motion } from "framer-motion";
-import { Check, ChevronDown, BookOpen, Zap, FileText, ArrowRight } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, ChevronRight, BookOpen, Zap, FileText, ArrowRight } from "lucide-react";
 import { productTypeLabel } from "@/lib/packages";
 import { trackOnce } from "@/lib/analytics";
 import { DEFAULT_LANDING_SECTIONS, type LandingSections } from "@/lib/landingSections";
@@ -71,7 +71,15 @@ function DescChecklist({ text }: { text: string }) {
 
 export const PricingSection = memo(function PricingSection({ packages, isRealPackages = false, copy, onEnter, onPackageSelect }: PricingSectionProps) {
   const reduceMotion = useReducedMotion();
+  const packageTrackRef = useRef<HTMLDivElement>(null);
   const heading = copy ?? DEFAULT_LANDING_SECTIONS.pricing;
+  const scrollPackages = (direction: -1 | 1) => {
+    const track = packageTrackRef.current;
+    if (!track) return;
+    const card = track.querySelector<HTMLElement>("[data-package-card]");
+    const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0;
+    track.scrollBy({ left: direction * ((card?.offsetWidth ?? track.clientWidth * 0.8) + gap), behavior: "smooth" });
+  };
   // Catat saat daftar harga benar-benar terlihat (bukan sekadar dirender).
   const sectionRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -112,8 +120,30 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
           </p>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 border-y border-white/20">
+        <div className="flex justify-end gap-2 mb-3">
+          <button
+            type="button"
+            onClick={() => scrollPackages(-1)}
+            aria-label="Geser paket ke kiri"
+            className="w-10 h-10 flex items-center justify-center border border-white/30 text-white hover:bg-white/10 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollPackages(1)}
+            aria-label="Geser paket ke kanan"
+            className="w-10 h-10 flex items-center justify-center border border-white/30 text-white hover:bg-white/10 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Paket satu baris; dapat digeser dengan swipe, trackpad, atau tombol panah. */}
+        <div
+          ref={packageTrackRef}
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth border-y border-white/20 py-4 [scrollbar-width:thin] [scrollbar-color:rgba(191,219,254,0.55)_transparent]"
+        >
           {isRealPackages
             ? (packages as RealPackage[]).map((pkg) => {
                 const Icon = TYPE_ICON[pkg.product_type] || BookOpen;
@@ -125,7 +155,8 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                     whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-60px" }}
                       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                    className="relative flex flex-col border-b sm:border-r sm:last:border-r-0 border-blue-200 bg-white transition-colors hover:bg-blue-50"
+                    data-package-card
+                    className="relative flex flex-col w-[86%] sm:w-[48%] lg:w-[32%] shrink-0 snap-start border border-blue-200 bg-white transition-colors hover:bg-blue-50"
                   >
                     {/* Cover image */}
                     {pkg.cover_image_url && (
@@ -181,7 +212,8 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                   whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  className={`relative flex flex-col border-b sm:border-r sm:last:border-r-0 border-blue-200 transition-colors ${p.isRecommended ? 'bg-blue-100' : 'bg-white hover:bg-blue-50'}`}
+                  data-package-card
+                  className={`relative flex flex-col w-[86%] sm:w-[48%] lg:w-[32%] shrink-0 snap-start border border-blue-200 transition-colors ${p.isRecommended ? 'bg-blue-100' : 'bg-white hover:bg-blue-50'}`}
                 >
                   {p.isRecommended && (
                     <div className="absolute top-0 right-5 -translate-y-1/2 px-3 py-1 bg-blue-800 text-white text-[10px] font-semibold tracking-wide">
