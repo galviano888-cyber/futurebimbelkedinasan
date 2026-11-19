@@ -17,7 +17,7 @@ export const Footer = memo(function Footer({ onLegalClick }: FooterProps) {
                 Siapkan langkahmu menuju sekolah kedinasan.
               </h3>
               <p className="text-[13px] lg:text-[14px] text-blue-100 mt-2 max-w-md leading-relaxed">
-                Mulai persiapan masuk sekolah kedinasan dengan latihan dan evaluasi belajar yang terarah.
+                Mulai persiapan masuk sekolah kedinasan dengan latihan dan tinjauan belajar yang terarah.
               </p>
             </div>
             <a

@@ -11,14 +11,14 @@ export function AdminLandingPageEditorView() {
   const [hero, setHero] = useState({ 
     badge: "Persiapan Masuk Sekolah Kedinasan",
     title: "Langkahmu menuju | sekolah kedinasan.",
-    subtitle: "Temani persiapanmu dengan latihan terarah, simulasi seleksi, dan evaluasi belajar di satu platform.",
+    subtitle: "Temani persiapanmu dengan latihan terarah, simulasi seleksi, dan tinjauan hasil belajar di satu platform.",
     cta: "Lihat pilihan persiapan",
     image: "https://images.unsplash.com/photo-1523240715632-d984bb4b990a?q=80&w=2070&auto=format&fit=crop"
   });
   const [features, setFeatures] = useState<any[]>([
     { title: "Persiapan seleksi kedinasan", desc: "Gunakan latihan dan tryout yang tersedia untuk membangun rutinitas persiapan masuk sekolah kedinasan." },
-    { title: "Latihan SKD terarah", desc: "Pilih latihan TWK, TIU, atau TKP sesuai materi yang ingin kamu pelajari." },
-    { title: "Simulasi dan evaluasi", desc: "Kerjakan tryout dengan batas waktu, lalu tinjau skor dan pembahasan yang tersedia." }
+    { title: "Latihan terarah", desc: "Mulai dari latihan SKD seperti TWK, TIU, dan TKP sesuai materi yang ingin kamu pelajari." },
+    { title: "Simulasi dan tinjauan hasil", desc: "Kerjakan tryout dengan batas waktu, lalu tinjau skor dan pembahasan yang tersedia." }
   ]);
   const [_testimonials, setTestimonials] = useState<any[]>([]);
   const [faqs, setFaqs] = useState<any[]>([]);

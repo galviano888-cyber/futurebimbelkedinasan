@@ -32,7 +32,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   const [hero, setHero] = useState({ 
     badge: "Persiapan Masuk Sekolah Kedinasan",
     title: "Langkahmu menuju | sekolah kedinasan.",
-    subtitle: "Temani persiapanmu dengan latihan terarah, simulasi seleksi, dan evaluasi belajar di satu platform.",
+    subtitle: "Temani persiapanmu dengan latihan terarah, simulasi seleksi, dan tinjauan hasil belajar di satu platform.",
     cta: "Lihat pilihan persiapan",
     image: "https://images.unsplash.com/photo-1523240715632-d984bb4b990a?q=80&w=2070&auto=format&fit=crop"
   });
@@ -46,9 +46,9 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
   ]);
   const [features, setFeatures] = useState<any[]>([
     { title: "Persiapan seleksi kedinasan", desc: "Gunakan latihan dan tryout yang tersedia untuk membangun rutinitas persiapan masuk sekolah kedinasan." },
-    { title: "Latihan SKD terarah", desc: "Pilih latihan TWK, TIU, atau TKP sesuai materi yang ingin kamu pelajari." },
-    { title: "Simulasi dan evaluasi", desc: "Kerjakan tryout dengan batas waktu, lalu tinjau skor dan pembahasan yang tersedia." },
-    { title: "Pantau Hasil Tryout", desc: "Lihat skor tiap bagian sebagai salah satu cara mengevaluasi progres latihanmu." },
+    { title: "Latihan terarah", desc: "Mulai dari latihan SKD seperti TWK, TIU, dan TKP sesuai materi yang ingin kamu pelajari." },
+    { title: "Simulasi dan tinjauan hasil", desc: "Kerjakan tryout dengan batas waktu, lalu tinjau skor dan pembahasan yang tersedia." },
+    { title: "Pantau Hasil Tryout", desc: "Lihat skor tiap bagian sebagai salah satu cara melihat perkembangan latihanmu." },
     { title: "Leaderboard Tryout", desc: "Bandingkan hasil pada tryout yang menyediakan leaderboard." },
     { title: "Akses dari Berbagai Perangkat", desc: "Buka platform melalui browser di ponsel, tablet, atau komputer." }
   ]);
@@ -162,7 +162,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
     <div className="min-h-[100dvh] bg-[#0f2750] text-white font-sans selection:bg-blue-400/40 overflow-x-hidden">
       <SEO
         title="Future Bimbel Kedinasan | Persiapan Sekolah Kedinasan"
-        description="Persiapkan langkahmu menuju sekolah kedinasan bersama Future Bimbel Kedinasan. Temukan latihan seleksi, tryout SKD, evaluasi, dan pembahasan belajar dalam satu platform."
+        description="Persiapkan langkahmu menuju sekolah kedinasan bersama Future Bimbel Kedinasan. Temukan latihan seleksi, tryout SKD, tinjauan hasil, dan pembahasan belajar dalam satu platform."
         keywords="bimbel kedinasan, tryout skd online, simulasi cat bkn, soal twk tiu tkp, stmkg, ipdn, stan, stis, poltekip, poltekim, passing grade skd 2025 2026, bimbel online kedinasan, persiapan cpns kedinasan, ranking skd nasional"
         url="https://www.futurebimbelkedinasan.com"
         type="website"

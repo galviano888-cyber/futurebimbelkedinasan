@@ -103,9 +103,9 @@ export const HeroSection = memo(function HeroSection({
               className="flex flex-wrap items-center gap-x-7 gap-y-3 justify-center lg:justify-start mt-8 pt-6 border-t border-blue-200"
             >
               {[
-                { label: "Materi", value: "TWK · TIU · TKP" },
-                { label: "Latihan", value: "Tryout SKD" },
-                { label: "Evaluasi", value: "Hasil & pembahasan" },
+                { label: "Fokus", value: "Seleksi kedinasan" },
+                { label: "Latihan", value: "Tryout & simulasi" },
+                { label: "Tinjauan", value: "Skor & pembahasan" },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-2">
                   <div className="text-left">

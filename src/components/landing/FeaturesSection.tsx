@@ -21,7 +21,7 @@ export const FeaturesSection = memo(function FeaturesSection({ features }: Featu
               Persiapan menuju sekolah kedinasan.
             </h2>
             <p className="text-[15px] text-blue-50 leading-[1.75]">
-              Bangun rutinitas belajar, berlatih untuk seleksi, dan evaluasi progresmu secara berkala.
+              Bangun rutinitas belajar, berlatih untuk seleksi, dan tinjau perkembanganmu secara berkala.
             </p>
           </div>
 
