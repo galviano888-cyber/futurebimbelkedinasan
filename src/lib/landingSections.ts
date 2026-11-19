@@ -22,6 +22,7 @@ export interface LandingSections {
     steps: Array<{ title: string; text: string }>;
   };
   pricing: {
+    packageIds: string[] | null;
     eyebrow: string;
     title: string;
     description: string;
@@ -78,6 +79,7 @@ export const DEFAULT_LANDING_SECTIONS: LandingSections = {
     ],
   },
   pricing: {
+    packageIds: null,
     eyebrow: "Pilihan Paket",
     title: "Pilih dukungan belajar untuk tujuan kedinasanmu.",
     description: "Temukan paket belajar atau latihan yang sesuai dengan tahap persiapanmu.",
@@ -148,6 +150,9 @@ export function mergeLandingSections(value: unknown): LandingSections {
       steps,
     },
     pricing: {
+      packageIds: Array.isArray(raw?.pricing?.packageIds)
+        ? raw.pricing.packageIds.filter((id: unknown): id is string => typeof id === "string")
+        : base.pricing.packageIds,
       eyebrow: text(raw?.pricing?.eyebrow, base.pricing.eyebrow),
       title: text(raw?.pricing?.title, base.pricing.title),
       description: text(raw?.pricing?.description, base.pricing.description),

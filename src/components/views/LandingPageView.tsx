@@ -186,15 +186,23 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
         />
 
         <FeaturesSection features={features} copy={sections.features} />
-        {(realPackages.length > 0 || activePackages.length > 0) && (
-          <PricingSection
-            packages={realPackages.length > 0 ? realPackages : activePackages}
-            isRealPackages={realPackages.length > 0}
-            copy={sections.pricing}
-            onEnter={onRegister}
-            onPackageSelect={handlePackageSelect}
-          />
-        )}
+        {(realPackages.length > 0 || activePackages.length > 0) && (() => {
+          const hasRealPackages = realPackages.length > 0;
+          const sourcePackages = hasRealPackages ? realPackages : activePackages;
+          const selectedIds = sections.pricing.packageIds;
+          const visiblePackages = hasRealPackages && selectedIds !== null
+            ? sourcePackages.filter(pkg => selectedIds.includes(pkg.id))
+            : sourcePackages;
+          return visiblePackages.length > 0 ? (
+            <PricingSection
+              packages={visiblePackages}
+              isRealPackages={hasRealPackages}
+              copy={sections.pricing}
+              onEnter={onRegister}
+              onPackageSelect={handlePackageSelect}
+            />
+          ) : null;
+        })()}
         <TestimonialsSection testimonials={_testimonials} copy={sections.plan} />
         <FAQSection faqs={faqs} copy={sections.faq} />
         <Footer onLegalClick={handleLegalClick} copy={sections.footer} />

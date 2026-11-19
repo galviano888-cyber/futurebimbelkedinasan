@@ -39,6 +39,7 @@ export function AdminLandingPageEditorView() {
   ]);
   const [waTemplate, setWaTemplate] = useState("Halo Admin, saya ingin pesan paket {paket} seharga {harga}. Berikut bukti transfernya.");
   const [sections, setSections] = useState<LandingSections>(DEFAULT_LANDING_SECTIONS);
+  const [catalogProducts, setCatalogProducts] = useState<any[]>([]);
 
   useEffect(() => {
     fetchSettings();
@@ -49,6 +50,12 @@ export function AdminLandingPageEditorView() {
     setLoading(true);
     try {
       const { data } = await supabase.from('site_settings').select('*');
+      const { data: products } = await supabase
+        .from('packages')
+        .select('id, title, price, product_type, sales_status, is_active')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      setCatalogProducts(products ?? []);
       if (data) {
         data.forEach(item => {
           if (item.key === 'hero_content') setHero(item.value);
@@ -115,6 +122,14 @@ export function AdminLandingPageEditorView() {
   function updateSection<K extends keyof LandingSections>(key: K, patch: Partial<LandingSections[K]>) {
     setSections(prev => ({ ...prev, [key]: { ...prev[key], ...patch } }));
   }
+
+  const selectedLandingPackageIds = sections.pricing.packageIds ?? catalogProducts.map(product => product.id);
+  const setLandingPackageVisible = (packageId: string, visible: boolean) => {
+    const selected = new Set(selectedLandingPackageIds);
+    if (visible) selected.add(packageId);
+    else selected.delete(packageId);
+    updateSection('pricing', { packageIds: Array.from(selected) });
+  };
 
   const inputClass = "w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white font-bold text-sm placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/10 transition-all";
   const textareaClass = `${inputClass} resize-none`;
@@ -343,6 +358,37 @@ export function AdminLandingPageEditorView() {
         {/* PAKET */}
         <div className="space-y-4 pt-6 border-t border-white/5">
           <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Section Paket</p>
+          <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.02] p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-white">Paket yang tampil di Landing Page</p>
+                <p className="mt-1 text-xs leading-relaxed text-slate-400">Pengaturan ini hanya mengatur promosi di landing. Paket yang tidak dicentang tetap ada di katalog dan status jualnya tidak berubah.</p>
+              </div>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => updateSection('pricing', { packageIds: catalogProducts.map(product => product.id) })} className="border border-blue-400/30 px-3 py-2 text-[11px] font-semibold text-blue-200 hover:bg-blue-500/10">Pilih semua</button>
+                <button type="button" onClick={() => updateSection('pricing', { packageIds: [] })} className="border border-white/15 px-3 py-2 text-[11px] font-semibold text-slate-300 hover:bg-white/5">Kosongkan</button>
+              </div>
+            </div>
+            {catalogProducts.length === 0 ? (
+              <p className="border-t border-white/10 pt-3 text-xs text-slate-500">Belum ada produk aktif di katalog.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 border-t border-white/10 pt-3">
+                {catalogProducts.map(product => {
+                  const checked = selectedLandingPackageIds.includes(product.id);
+                  return (
+                    <label key={product.id} className={`flex cursor-pointer items-start gap-3 border p-3 transition-colors ${checked ? 'border-blue-400/40 bg-blue-500/10' : 'border-white/10 hover:bg-white/[0.03]'}`}>
+                      <input type="checkbox" checked={checked} onChange={event => setLandingPackageVisible(product.id, event.target.checked)} className="mt-0.5 h-4 w-4 accent-blue-500" />
+                      <span className="min-w-0">
+                        <span className="block text-xs font-semibold text-white">{product.title}</span>
+                        <span className="mt-1 block text-[10px] text-slate-400">{product.product_type} · {product.price === 0 ? 'Gratis' : `Rp ${Number(product.price).toLocaleString('id-ID')}`}{product.sales_status === 'CLOSED' ? ' · Pendaftaran ditutup' : ''}</span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+            <p className="text-[10px] text-blue-200/70">Dipilih: {selectedLandingPackageIds.filter(id => catalogProducts.some(product => product.id === id)).length} dari {catalogProducts.length} produk aktif.</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Label Kecil</label>
