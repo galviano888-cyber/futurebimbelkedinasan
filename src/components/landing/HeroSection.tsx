@@ -52,7 +52,7 @@ export const HeroSection = memo(function HeroSection({
             {/* Headline */}
             <motion.h1
               variants={reduceMotion ? undefined : itemVariants}
-              className="text-[2.2rem] sm:text-[3rem] lg:text-[3.65rem] font-bold tracking-[-0.04em] leading-[1.03] text-[#102b54] mb-5"
+              className="text-[1.9rem] sm:text-[2.6rem] lg:text-[3.2rem] font-bold tracking-[-0.04em] leading-[1.03] text-[#102b54] mb-5"
             >
               {hero.title.includes("|") ? (
                 <>
