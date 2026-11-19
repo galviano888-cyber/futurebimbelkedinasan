@@ -138,6 +138,21 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
     }
     setSaving(true);
     try {
+      if (!packageId && !editingProduct) {
+        const { data: existing, error: duplicateCheckError } = await supabase
+          .from('packages')
+          .select('id, title')
+          .ilike('title', title.trim());
+        if (duplicateCheckError) throw duplicateCheckError;
+        if (existing?.length) {
+          toast.error('Nama produk sudah digunakan', {
+            description: 'Produk baru tidak disimpan. Periksa katalog agar paket lama tidak teredit tanpa sengaja.',
+          });
+          setSaving(false);
+          return;
+        }
+      }
+
       const payload = {
         title,
         description,
@@ -191,7 +206,9 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
         if (contentsError) throw contentsError;
       }
 
-      toast.success("Produk berhasil disimpan!");
+      toast.success("Produk berhasil disimpan!", {
+        description: "Kembali ke katalog. Untuk menambah produk lain, pilih Tambah Produk lagi.",
+      });
       onBack();
     } catch (err: any) {
       console.error("Error saving product:", err);
@@ -334,7 +351,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
             <ArrowLeft className="w-4 h-4" /> Kembali ke Pemilihan Tipe
           </button>
           <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-            {editingProduct ? "Edit" : "Buat"} {productTypeLabel(productType)}
+            {editingProduct ? `Edit: ${title || productTypeLabel(productType)}` : `Buat ${productTypeLabel(productType)} Baru`}
           </h2>
         </div>
         <Button 
