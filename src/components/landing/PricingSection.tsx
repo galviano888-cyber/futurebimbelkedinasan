@@ -120,25 +120,6 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
           </p>
         </div>
 
-        <div className="flex justify-end gap-2 mb-3">
-          <button
-            type="button"
-            onClick={() => scrollPackages(-1)}
-            aria-label="Geser paket ke kiri"
-            className="w-10 h-10 flex items-center justify-center border border-white/30 text-white hover:bg-white/10 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollPackages(1)}
-            aria-label="Geser paket ke kanan"
-            className="w-10 h-10 flex items-center justify-center border border-white/30 text-white hover:bg-white/10 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-
         {/* Paket satu baris; dapat digeser dengan swipe, trackpad, atau tombol panah. */}
         <div
           ref={packageTrackRef}
@@ -252,6 +233,26 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                 </motion.div>
               ))
           }
+        </div>
+
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <button
+            type="button"
+            onClick={() => scrollPackages(-1)}
+            aria-label="Geser paket ke kiri"
+            className="group w-10 h-10 rounded-full border border-blue-200/70 bg-white/5 text-blue-100 flex items-center justify-center transition-all hover:bg-blue-500 hover:border-blue-400 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            <ChevronLeft className="w-[18px] h-[18px] transition-transform group-hover:-translate-x-0.5" />
+          </button>
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-300/70" aria-hidden="true" />
+          <button
+            type="button"
+            onClick={() => scrollPackages(1)}
+            aria-label="Geser paket ke kanan"
+            className="group w-10 h-10 rounded-full border border-blue-200/70 bg-white/5 text-blue-100 flex items-center justify-center transition-all hover:bg-blue-500 hover:border-blue-400 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            <ChevronRight className="w-[18px] h-[18px] transition-transform group-hover:translate-x-0.5" />
+          </button>
         </div>
 
         <p className="text-center text-[13px] text-blue-100 mt-8">
