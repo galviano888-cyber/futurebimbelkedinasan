@@ -6,12 +6,11 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 interface NavbarProps {
   onLogin: () => void;
   onRegister: () => void;
-  hasPackages?: boolean;
   onOpenGuide?: () => void;
   onOpenCatalog?: () => void;
 }
 
-export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages, onOpenGuide, onOpenCatalog }: NavbarProps) {
+export const Navbar = memo(function Navbar({ onLogin, onRegister, onOpenGuide, onOpenCatalog }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const reduceMotion = useReducedMotion();
@@ -25,7 +24,6 @@ export const Navbar = memo(function Navbar({ onLogin, onRegister, hasPackages, o
   const navLinks = [
     { name: "Fitur", href: "#fitur" },
     { name: "Rencana Belajar", href: "#testimoni" },
-    ...(hasPackages !== false ? [{ name: "Paket SKD", href: "#paket" }] : []),
     { name: "FAQ", href: "#faq" },
   ];
 

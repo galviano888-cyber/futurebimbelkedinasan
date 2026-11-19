@@ -3,10 +3,9 @@ import { Mail, MessageCircle, MapPin, Phone, ArrowRight } from "lucide-react";
 
 interface FooterProps {
   onLegalClick: (type: 'terms' | 'privacy') => void;
-  hasPackages?: boolean;
 }
 
-export const Footer = memo(function Footer({ onLegalClick, hasPackages }: FooterProps) {
+export const Footer = memo(function Footer({ onLegalClick }: FooterProps) {
   return (
     <footer className="bg-[#091b38] text-blue-100 border-t border-blue-300/20">
       {/* CTA strip */}
@@ -73,7 +72,6 @@ export const Footer = memo(function Footer({ onLegalClick, hasPackages }: Footer
               <ul className="space-y-3">
                 {[
                   { name: 'Persiapan', id: 'fitur' },
-                  ...(hasPackages !== false ? [{ name: 'Paket SKD', id: 'paket' }] : []),
                   { name: 'FAQ', id: 'faq' }
                 ].map((link) => (
                   <li key={link.name}>
