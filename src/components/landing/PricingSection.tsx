@@ -120,7 +120,16 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
           </p>
         </div>
 
-        {/* Paket satu baris; dapat digeser dengan swipe, trackpad, atau tombol panah. */}
+        {/* Paket satu baris; dapat digeser dengan swipe, trackpad, atau tombol di sisi. */}
+        <div className="relative px-0 sm:px-12">
+        <button
+          type="button"
+          onClick={() => scrollPackages(-1)}
+          aria-label="Geser paket ke kiri"
+          className="group hidden sm:flex absolute z-20 left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-blue-200/70 bg-[#102b54] text-blue-100 items-center justify-center shadow-lg shadow-blue-950/20 transition-colors hover:bg-blue-600 hover:border-blue-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        >
+          <ChevronLeft className="w-[18px] h-[18px] transition-transform group-hover:-translate-x-0.5" />
+        </button>
         <div
           ref={packageTrackRef}
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth border-y border-white/20 py-4 [scrollbar-width:thin] [scrollbar-color:rgba(191,219,254,0.55)_transparent]"
@@ -235,24 +244,19 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
           }
         </div>
 
-        <div className="mt-6 flex items-center justify-center gap-4">
-          <button
-            type="button"
-            onClick={() => scrollPackages(-1)}
-            aria-label="Geser paket ke kiri"
-            className="group w-10 h-10 rounded-full border border-blue-200/70 bg-white/5 text-blue-100 flex items-center justify-center transition-all hover:bg-blue-500 hover:border-blue-400 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          >
-            <ChevronLeft className="w-[18px] h-[18px] transition-transform group-hover:-translate-x-0.5" />
-          </button>
+        <button
+          type="button"
+          onClick={() => scrollPackages(1)}
+          aria-label="Geser paket ke kanan"
+          className="group hidden sm:flex absolute z-20 right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-blue-200/70 bg-[#102b54] text-blue-100 items-center justify-center shadow-lg shadow-blue-950/20 transition-colors hover:bg-blue-600 hover:border-blue-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        >
+          <ChevronRight className="w-[18px] h-[18px] transition-transform group-hover:translate-x-0.5" />
+        </button>
+        </div>
+        <div className="mt-4 flex sm:hidden items-center justify-center gap-4">
+          <button type="button" onClick={() => scrollPackages(-1)} aria-label="Geser paket ke kiri" className="w-10 h-10 rounded-full border border-blue-200/70 bg-[#102b54] text-blue-100 flex items-center justify-center hover:bg-blue-600 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"><ChevronLeft className="w-[18px] h-[18px]" /></button>
           <span className="w-1.5 h-1.5 rounded-full bg-blue-300/70" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => scrollPackages(1)}
-            aria-label="Geser paket ke kanan"
-            className="group w-10 h-10 rounded-full border border-blue-200/70 bg-white/5 text-blue-100 flex items-center justify-center transition-all hover:bg-blue-500 hover:border-blue-400 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          >
-            <ChevronRight className="w-[18px] h-[18px] transition-transform group-hover:translate-x-0.5" />
-          </button>
+          <button type="button" onClick={() => scrollPackages(1)} aria-label="Geser paket ke kanan" className="w-10 h-10 rounded-full border border-blue-200/70 bg-[#102b54] text-blue-100 flex items-center justify-center hover:bg-blue-600 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"><ChevronRight className="w-[18px] h-[18px]" /></button>
         </div>
 
         <p className="text-center text-[13px] text-blue-100 mt-8">
