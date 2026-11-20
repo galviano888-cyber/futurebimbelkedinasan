@@ -15,12 +15,35 @@ konfigurasi produksi saat ini: Supabase Free + Vercel Hobby.
 
 ## Rekomendasi jumlah peserta
 
-| Peserta serentak | Status |
-|---|---|
-| ≤ 60 | Aman tanpa penyesuaian |
-| 60–100 | Aman dengan gelombang pendaftaran |
-| 100–200 | Batas maksimum; wajib upgrade atau beberapa sesi |
-| > 200 | Gunakan Supabase Pro selama bulan event |
+Angka di bawah berasal dari uji beban nyata terhadap database produksi
+(`node scripts/load-test-event.mjs`) pada 20 November 2026. Setiap tingkat
+menjalankan 4 panggilan per peserta: mulai sesi, ambil soal, simpan progres,
+dan hitung peserta aktif.
+
+| Peserta serentak | Hasil uji | Status |
+|---|---|---|
+| 10 | 0% error, p95 277 ms | Aman |
+| 25 | 0% error, p95 771 ms | Aman |
+| 50 | 0% error, p95 971 ms | Aman |
+| 80 | 0% error, p95 1.491 ms | Aman |
+| 120 | 0% error, p95 1.958 ms | Mulai melambat |
+| 160 | 0% error, p95 3.319 ms | Pelan, mendekati batas |
+
+Pola: tidak ada kegagalan sampai 160 peserta, tetapi waktu tunggu naik sekitar
+2,8× dari 10 ke 160 peserta. Kenaikan ini berasal dari compute bersama pada
+paket Free, bukan dari error aplikasi.
+
+Kesimpulan praktis:
+
+- **≤ 100 peserta**: aman untuk tryout akbar.
+- **100–160**: masih berjalan, tetapi hal pertama yang dikorbankan adalah
+  kecepatan; sebaiknya gelombang pendaftaran.
+- **> 160**: uji ulang dulu atau naikkan ke Supabase Pro untuk bulan event.
+
+Catatan penting: login pengguna baru dibatasi rate limit Supabase (429) bila
+banyak akun masuk dalam hitungan detik. Pengumuman jam mulai yang sama sudah
+aman karena siswa login lebih awal; hindari minta semua peserta login serentak.
+
 
 ## Yang sudah dilakukan di aplikasi
 

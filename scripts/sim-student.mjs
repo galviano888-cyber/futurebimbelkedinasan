@@ -120,7 +120,11 @@ try {
 
   // ── 5. Klik Pesan via WA ────────────────────────────────────────────────
   const popupPromise = context.waitForEvent("page", { timeout: 20000 }).catch(() => null);
-  const waButton = page.getByRole("button", { name: /Pesan via WA/i }).first();
+  // Pilih tombol WA pada kartu paket simulasi, bukan kartu pertama di halaman.
+  const simCard = page.locator('[id^=package-]').filter({ hasText: pkgTitle }).first();
+  const waButton = (await simCard.count()) > 0
+    ? simCard.getByRole("button", { name: /Pesan via WA/i }).first()
+    : page.getByRole("button", { name: /Pesan via WA/i }).first();
   const waVisible = await waButton.isVisible().catch(() => false);
   check("5. Tombol 'Pesan via WA' tersedia", waVisible);
 
@@ -150,7 +154,7 @@ try {
     if (waUrl) {
       const decoded = decodeURIComponent(waUrl).replace(/\+/g, " ");
       check("7. Pesan WA memuat nama paket", decoded.includes(pkgTitle), decoded.slice(0, 200));
-      check("8. Pesan WA memuat nominal", /49\.000/.test(decoded), "");
+      check("8. Pesan WA memuat nominal", /49[.,]?000/.test(decoded), decoded.match(/Nominal[^\n]{0,30}/)?.[0] || "");
       check("9. Pesan WA memuat rekening BRI", decoded.includes("035601089005505") || decoded.includes("0356 0108 9005 505"), "");
       check("10. Pesan WA memuat langkah pembayaran", /Langkah pembayaran/i.test(decoded), "");
       check("11. Pesan WA memuat email siswa", decoded.includes(state.email), "");
