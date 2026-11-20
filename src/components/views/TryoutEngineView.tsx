@@ -91,6 +91,9 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
   const [hydrated, setHydrated] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cheatAttempts, setCheatAttempts] = useState(0);
+  // Jumlah peserta yang sedang mengerjakan tryout yang sama. Dipakai untuk
+  // melonggarkan jeda autosave saat event ramai.
+  const [participantsOnline, setParticipantsOnline] = useState(0);
   const [cheatWarning, setCheatWarning] = useState<{ msg: string; count: number } | null>(null);
   const lastViolationTime = useRef<number>(0);
   const mountTime = useRef<number>(Date.now());
@@ -294,6 +297,15 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           setCheatAttempts((prev) => Math.max(prev, serverCheatAttempts));
         }
 
+        // Cek keramaian sekali di awal. Kalau gagal, biarkan 0 (jeda normal).
+        try {
+          const { data: online } = await supabase
+            .rpc('count_active_tryout_participants', { p_tryout_id: questionsId });
+          setParticipantsOnline(Number(online) || 0);
+        } catch {
+          /* abaikan, pakai jeda normal */
+        }
+
         const savedAnswers = user ? localStorage.getItem(`to_answers_${user.id}_${questionsId}`) : null;
         let localAnswers: Record<string, string> = {};
         if (savedAnswers) {
@@ -494,6 +506,11 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
 
     // Simpan juga posisi soal ke server, supaya siswa yang pindah soal tanpa
     // menjawab tetap kembali ke tempat yang sama setelah koneksi putus.
+    //
+    // Saat peserta tryout sedang ramai (misalnya tryout akbar), jeda server
+    // diperpanjang agar beban tulis tetap wajar. Posisi soal sudah tersimpan
+    // seketika di perangkat, jadi refresh mendadak tetap aman.
+    const serverSaveDelay = participantsOnline > 60 ? 8000 : 2500;
     const timer = setTimeout(() => {
       if (!supabase) return;
       supabase
@@ -504,7 +521,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           p_flagged: cheatAttempts,
         })
         .then(() => undefined);
-    }, 2500);
+    }, serverSaveDelay);
 
     return () => clearTimeout(timer);
   }, [answers, userId, questionsId, currentIdx, cheatAttempts, hydrated]);

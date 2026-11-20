@@ -7,7 +7,7 @@
 //
 // Hasil: backups/<tanggal-jam>/<tabel>.json + auth-users.json + _manifest.json
 
-import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { readFileSync, mkdirSync, writeFileSync, readdirSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -42,9 +42,12 @@ const TABLES = [
   "user_packages",
   "site_settings",
   "events",
+  "event_registrations",
   "event_results",
   "notifications",
   "payment_events",
+  "active_tryout_sessions",
+  "analytics_events",
 ];
 
 const PAGE = 1000;
@@ -126,6 +129,22 @@ try {
 }
 
 writeFileSync(resolve(dir, "_manifest.json"), JSON.stringify(manifest, null, 2), "utf8");
+
+// Retensi: simpan N backup terbaru. Ubah dengan `--keep=10`;
+// gunakan `--keep=0` untuk menyimpan semuanya.
+const keepArg = process.argv.find((arg) => arg.startsWith("--keep="));
+const keep = keepArg ? Number.parseInt(keepArg.split("=")[1], 10) : 7;
+if (Number.isFinite(keep) && keep > 0) {
+  const all = readdirSync(resolve(ROOT, "backups"), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && /^\d{4}-\d{2}-\d{2}T/.test(entry.name))
+    .map((entry) => entry.name)
+    .sort()
+    .reverse();
+  for (const old of all.slice(keep)) {
+    rmSync(resolve(ROOT, "backups", old), { recursive: true, force: true });
+    console.log(`Hapus backup lama: ${old}`);
+  }
+}
 
 const failed = Object.entries(manifest.tables).filter(([, v]) => v.status !== "ok");
 console.log(`\nBackup: ${dir}`);

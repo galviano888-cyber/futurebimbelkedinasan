@@ -78,7 +78,9 @@ const TYPE_COLOR: Record<string, string> = {
         Lihat Katalog
       </button>
     </div>
-  );  if (selectedPkg) {
+  );
+
+  if (selectedPkg) {
     const liveCC = selectedPkg.contents.filter(c => c.type === "video");
     const matC = selectedPkg.contents.filter(c => c.type === "file");
     const toC = selectedPkg.contents.filter(c => c.type === "tryout");
