@@ -13,6 +13,7 @@ interface Event {
   id: string;
   title: string;
   description: string;
+  header_image_url: string | null;
   package_id: string | null;
   is_active: boolean;
   start_date: string | null;
@@ -33,6 +34,7 @@ interface TryoutPackage {
 const EMPTY_FORM = {
   title: "",
   description: "",
+  header_image_url: "",
   package_id: "",
   is_active: false,
   start_date: "",
@@ -118,6 +120,7 @@ export function AdminEventManagerView() {
     setForm({
       title: ev.title,
       description: ev.description,
+      header_image_url: ev.header_image_url || "",
       package_id: ev.package_id || "",
       is_active: ev.is_active,
       start_date: ev.start_date ? ev.start_date.slice(0, 16) : "",
@@ -142,6 +145,7 @@ export function AdminEventManagerView() {
       const payload = {
         title: form.title.trim(),
         description: form.description.trim(),
+        header_image_url: form.header_image_url.trim() || null,
         package_id: form.package_id,
         is_active: form.is_active,
         start_date: form.start_date ? new Date(form.start_date).toISOString() : null,
@@ -252,6 +256,22 @@ export function AdminEventManagerView() {
               rows={3}
               className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all resize-none"
             />
+          </div>
+
+          {/* Gambar header */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">URL Gambar Header</label>
+            <input
+              type="url"
+              value={form.header_image_url}
+              onChange={e => setForm(f => ({ ...f, header_image_url: e.target.value }))}
+              placeholder="https://... (opsional)"
+              className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
+            />
+            <p className="text-[11px] text-slate-600">Gunakan gambar landscape. Unggah gambar ke storage terlebih dahulu, lalu tempel URL publiknya.</p>
+            {form.header_image_url && (
+              <img src={form.header_image_url} alt="Pratinjau gambar event" className="mt-2 h-36 w-full object-cover border border-white/10" onError={e => { e.currentTarget.style.display = 'none'; }} />
+            )}
           </div>
 
           {/* Paket Soal */}

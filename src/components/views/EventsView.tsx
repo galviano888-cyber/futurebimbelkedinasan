@@ -14,6 +14,7 @@ interface FBKEvent {
   id: string;
   title: string;
   description: string;
+  header_image_url: string | null;
   package_id: string | null;
   is_active: boolean;
   start_date: string | null;
@@ -256,6 +257,19 @@ function EventCard({
   return (
     <div className="bg-white dark:bg-[#0d1929] border-y border-slate-200 dark:border-white/10 overflow-hidden flex flex-col transition-colors hover:bg-slate-50 dark:hover:bg-white/[0.02]">
       {/* Header */}
+      {event.header_image_url && (
+        <div className="relative h-36 sm:h-44 overflow-hidden border-b border-slate-200 dark:border-white/10 bg-blue-100 dark:bg-blue-950/40">
+          <img
+            src={event.header_image_url}
+            alt={`Header ${event.title}`}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            onError={e => { e.currentTarget.parentElement?.classList.add('hidden'); }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0c1d36]/70 via-transparent to-transparent pointer-events-none" />
+          <span className="absolute bottom-3 left-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/90">Tryout Akbar</span>
+        </div>
+      )}
       <div className="p-5 border-b border-slate-100 dark:border-white/5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2 flex-wrap">
