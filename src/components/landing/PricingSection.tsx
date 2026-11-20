@@ -149,13 +149,14 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                     viewport={{ once: true, margin: "-60px" }}
                       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                     data-package-card
-                    className="relative flex flex-col w-[86%] sm:w-[48%] lg:w-[32%] shrink-0 snap-start border border-blue-200 bg-white transition-colors hover:bg-blue-50"
+                    className="relative flex flex-col w-[86%] sm:w-[48%] lg:w-[32%] shrink-0 snap-start border border-blue-200 bg-white shadow-sm shadow-blue-950/[0.05] transition-all hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-950/10"
                   >
                     {/* Cover image */}
                     {pkg.cover_image_url && (
                       <div className="relative h-40 overflow-hidden shrink-0 bg-blue-100">
                         <img src={pkg.cover_image_url} alt={`Sampul ${pkg.title}`} className="w-full h-full object-cover" loading="lazy" onError={(e) => { const parent = (e.target as HTMLImageElement).parentElement; if (parent) parent.style.display='none'; }} />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0b1d36]/5 to-[#0b1d36]/45" />
+                        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-b from-transparent to-white" />
                       </div>
                     )}
 
@@ -213,7 +214,7 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   data-package-card
-                  className={`relative flex flex-col w-[86%] sm:w-[48%] lg:w-[32%] shrink-0 snap-start border border-blue-200 transition-colors ${p.isRecommended ? 'bg-blue-100' : 'bg-white hover:bg-blue-50'}`}
+                  className={`relative flex flex-col w-[86%] sm:w-[48%] lg:w-[32%] shrink-0 snap-start border border-blue-200 shadow-sm shadow-blue-950/[0.05] transition-all hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-950/10 ${p.isRecommended ? 'bg-blue-100' : 'bg-white hover:bg-blue-50'}`}
                 >
                   {p.isRecommended && (
                     <div className="absolute top-0 right-5 -translate-y-1/2 px-3 py-1 bg-blue-800 text-white text-[10px] font-semibold tracking-wide">

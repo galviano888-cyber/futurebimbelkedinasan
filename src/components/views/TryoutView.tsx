@@ -318,7 +318,7 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-y border-slate-200 dark:border-white/10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-5">
         {packages.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/5 rounded-2xl text-center px-6">
             <div className="w-14 h-14 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 rounded-2xl flex items-center justify-center mb-4">
@@ -345,11 +345,12 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
             const closed = pkg.sales_status === 'CLOSED';
             const comingSoon = pkg.sales_status === 'COMING_SOON';
             return (
-              <div key={pkg.id} id={`package-${pkg.id}`} className={`scroll-mt-24 bg-white dark:bg-[#0d1929] border-b sm:border-r sm:last:border-r-0 border-slate-200 dark:border-white/10 overflow-hidden flex flex-col transition-colors ${selectedPackageId === pkg.id ? "ring-2 ring-inset ring-blue-600 bg-blue-50/40 dark:bg-blue-500/5" : "hover:bg-slate-50 dark:hover:bg-white/[0.02]"}`}>
+              <div key={pkg.id} id={`package-${pkg.id}`} className={`scroll-mt-24 bg-white dark:bg-[#0d1929] border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col shadow-sm shadow-blue-950/[0.04] transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-950/[0.08] ${selectedPackageId === pkg.id ? "ring-2 ring-blue-600 bg-blue-50/40 dark:bg-blue-500/5" : ""}`}>
                 {pkg.cover_image_url ? (
-                  <div className="relative h-40 overflow-hidden shrink-0 bg-slate-100 dark:bg-white/5">
+                  <div className="relative h-40 overflow-hidden shrink-0 bg-blue-100 dark:bg-[#11223c]">
                     <img src={pkg.cover_image_url} alt={`Sampul ${pkg.title}`} className="w-full h-full object-cover transition-transform duration-500" onError={(e) => { const parent = (e.target as HTMLImageElement).parentElement; if (parent) parent.style.display = 'none'; }} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0b1d36]/5 to-[#0b1d36]/45" />
+                    <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-b from-transparent to-white dark:to-[#0d1929]" />
                   </div>
                 ) : null}
                 <div className="p-5 sm:p-6 flex-1 flex flex-col">
@@ -394,7 +395,7 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
                   </div>
                 </div>
 
-                <div className="px-5 sm:px-6 py-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between gap-3">
+                <div className="px-5 sm:px-6 py-4 border-t border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-white/[0.02] flex items-center justify-between gap-3">
                   <div>
                     <p className="text-[9px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-wide mb-0.5">Harga</p>
                     <div className="flex items-center gap-2">

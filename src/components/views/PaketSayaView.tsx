@@ -218,17 +218,18 @@ const TYPE_COLOR: Record<string, string> = {
         <h1 className="text-[28px] font-bold text-slate-900 dark:text-white tracking-[-0.03em]">Ruang belajar</h1>
         <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">Paket yang aktif di akunmu: {packages.length}</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0 border-y border-slate-200 dark:border-white/10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-5">
         {packages.map((pkg) => {
           const tryoutCount = pkg.contents.filter(c => c.type === "tryout").length;
           const materiCount = pkg.contents.filter(c => c.type === "file").length;
           const liveCount = pkg.contents.filter(c => c.type === "video").length;
           return (
-            <div key={pkg.id} className="bg-white dark:bg-[#181818] border-b sm:border-r sm:last:border-r-0 border-slate-200 dark:border-white/[0.07] overflow-hidden flex flex-col hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
+            <div key={pkg.id} className="bg-white dark:bg-[#181818] border border-slate-200 dark:border-white/[0.09] overflow-hidden flex flex-col shadow-sm shadow-blue-950/[0.04] hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-lg transition-all group">
               {pkg.cover_image_url ? (
-                <div className="relative h-40 overflow-hidden shrink-0">
+                <div className="relative h-40 overflow-hidden shrink-0 bg-blue-100 dark:bg-[#11223c]">
                   <img src={pkg.cover_image_url} alt={`Sampul ${pkg.title}`} className="w-full h-full object-cover transition-transform duration-500" onError={(e) => { const parent = (e.target as HTMLImageElement).parentElement; if (parent) parent.style.display="none"; }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0b1d36]/5 to-[#0b1d36]/45" />
+                  <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-b from-transparent to-white dark:to-[#181818]" />
                 </div>
               ) : null}
               <div className="p-5 flex-1 flex flex-col">
