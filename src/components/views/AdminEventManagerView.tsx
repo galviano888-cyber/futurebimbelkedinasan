@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Plus, Trash2, Edit2, Loader2, Calendar,
   Clock, ToggleLeft, ToggleRight, ChevronLeft, AlertTriangle,
-  Users
+  Users, ImagePlus, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
@@ -51,8 +51,41 @@ export function AdminEventManagerView() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [saving, setSaving] = useState(false);
+  const [uploadingHeader, setUploadingHeader] = useState(false);
+  const headerInputRef = useRef<HTMLInputElement>(null);
   const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; id: string; title: string }>({ open: false, id: "", title: "" });
   const [participantCounts, setParticipantCounts] = useState<Record<string, number>>({});
+
+  const handleHeaderUpload = async (file: File) => {
+    if (!supabase) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("File harus berupa gambar (JPG, PNG, atau WebP).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Ukuran gambar maksimal 5 MB.");
+      return;
+    }
+
+    setUploadingHeader(true);
+    try {
+      const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `event-headers/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
+      const { error } = await supabase.storage.from("media").upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+      if (error) throw error;
+      const { data } = supabase.storage.from("media").getPublicUrl(path);
+      setForm(current => ({ ...current, header_image_url: data.publicUrl }));
+      toast.success("Gambar header event berhasil diunggah.");
+    } catch (error: any) {
+      toast.error("Gagal mengunggah gambar", { description: error.message || "Coba lagi." });
+    } finally {
+      setUploadingHeader(false);
+      if (headerInputRef.current) headerInputRef.current.value = "";
+    }
+  };
 
   useEffect(() => {
     fetchEvents();
@@ -260,17 +293,23 @@ export function AdminEventManagerView() {
 
           {/* Gambar header */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">URL Gambar Header</label>
-            <input
-              type="url"
-              value={form.header_image_url}
-              onChange={e => setForm(f => ({ ...f, header_image_url: e.target.value }))}
-              placeholder="https://... (opsional)"
-              className="w-full px-4 py-3 bg-white/5 border border-white/8 rounded-xl text-white text-sm placeholder:text-slate-600 outline-none focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/20 transition-all"
-            />
-            <p className="text-[11px] text-slate-600">Gunakan gambar landscape. Unggah gambar ke storage terlebih dahulu, lalu tempel URL publiknya.</p>
-            {form.header_image_url && (
-              <img src={form.header_image_url} alt="Pratinjau gambar event" className="mt-2 h-36 w-full object-cover border border-white/10" onError={e => { e.currentTarget.style.display = 'none'; }} />
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Gambar Header (opsional)</label>
+            <input ref={headerInputRef} type="file" accept="image/*" className="hidden" onChange={e => { const file = e.target.files?.[0]; if (file) void handleHeaderUpload(file); }} />
+            {form.header_image_url ? (
+              <div className="relative mt-2 h-40 overflow-hidden border border-white/10 bg-white/5">
+                <img src={form.header_image_url} alt="Pratinjau gambar event" className="h-full w-full object-cover" onError={e => { e.currentTarget.style.display = 'none'; }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent pointer-events-none" />
+                <div className="absolute bottom-2 right-2 flex gap-2">
+                  <button type="button" onClick={() => headerInputRef.current?.click()} disabled={uploadingHeader} className="inline-flex items-center gap-1.5 bg-white px-3 py-2 text-xs font-semibold text-slate-800 disabled:opacity-50"><ImagePlus className="h-3.5 w-3.5" /> Ganti</button>
+                  <button type="button" onClick={() => setForm(current => ({ ...current, header_image_url: "" }))} className="inline-flex items-center gap-1.5 bg-white px-3 py-2 text-xs font-semibold text-red-700"><X className="h-3.5 w-3.5" /> Hapus</button>
+                </div>
+              </div>
+            ) : (
+              <button type="button" onClick={() => headerInputRef.current?.click()} disabled={uploadingHeader} className="flex h-32 w-full flex-col items-center justify-center gap-2 border border-dashed border-white/20 bg-white/[0.02] text-slate-300 transition-colors hover:border-blue-400 hover:bg-blue-500/5 disabled:opacity-50">
+                {uploadingHeader ? <Loader2 className="h-5 w-5 animate-spin text-blue-400" /> : <ImagePlus className="h-5 w-5 text-blue-300" />}
+                <span className="text-xs font-medium">{uploadingHeader ? "Mengunggah gambar..." : "Pilih gambar header event"}</span>
+                <span className="text-[10px] text-slate-500">JPG, PNG, atau WebP · Maks. 5 MB</span>
+              </button>
             )}
           </div>
 
