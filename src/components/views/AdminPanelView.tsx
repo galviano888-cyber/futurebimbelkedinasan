@@ -406,10 +406,13 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
                 </div>
               )}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Email</label>
+                <label htmlFor="admin-email" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Email</label>
                 <input
+                  id="admin-email"
+                  name="email"
                   type="email"
                   required
+                  autoComplete="username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 px-4 py-3 text-white text-sm font-medium placeholder:text-slate-500 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-colors"
@@ -417,10 +420,13 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Password</label>
+                <label htmlFor="admin-password" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Password</label>
                 <input
+                  id="admin-password"
+                  name="password"
                   type="password"
                   required
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 px-4 py-3 text-white text-sm font-medium placeholder:text-slate-500 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-colors"

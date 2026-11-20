@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { AlertCircle, Clock, FileText, Target, BookOpen, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
@@ -11,14 +12,20 @@ interface TryoutPreViewProps {
 }
 
 export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: TryoutPreViewProps) {
+  // ID di URL dipakai sebagai cadangan agar halaman tetap benar setelah refresh
+  // atau saat tautan dibuka langsung.
+  const params = useParams<{ pId?: string; qId?: string }>();
+  const resolvedPackageId = packageId || params.pId || null;
+  const resolvedQuestionsId = questionsId || params.qId || null;
   const [pkg, setPkg] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPackage() {
-      if (!packageId || !supabase) {
+      if (!resolvedPackageId || !supabase) {
         setLoading(false);
+        setError("Data paket tidak tersedia. Silakan pilih ulang paket dari katalog.");
         return;
       }
 
@@ -30,18 +37,18 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
         const { data: mainPkg, error: pkgError } = await supabase
           .from('packages')
           .select('*')
-          .eq('id', packageId)
+          .eq('id', resolvedPackageId)
           .maybeSingle();
 
         if (pkgError) throw pkgError;
 
         // 2. Ambil info teknis (durasi, passing grade) dari tryout_packages
         let techData = null;
-        if (questionsId) {
+        if (resolvedQuestionsId) {
           const { data: tech, error: techError } = await supabase
             .from('tryout_packages')
             .select('*')
-            .eq('id', questionsId)
+            .eq('id', resolvedQuestionsId)
             .maybeSingle();
 
           if (techError) {
@@ -52,11 +59,11 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
 
         // 3. Hitung jumlah soal dari tryout_questions
         let questionCount = 0;
-        if (questionsId) {
+        if (resolvedQuestionsId) {
           const { count } = await supabase
             .from('tryout_questions')
             .select('id', { count: 'exact', head: true })
-            .eq('package_id', questionsId);
+            .eq('package_id', resolvedQuestionsId);
           questionCount = count ?? 0;
         }
 
@@ -72,7 +79,7 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
             question_count: questionCount
           });
         } else {
-          setError(`Paket dengan ID ${packageId.slice(0, 8)}... tidak ditemukan di sistem.`);
+          setError(`Paket dengan ID ${resolvedPackageId.slice(0, 8)}... tidak ditemukan di sistem.`);
         }
       } catch (err: any) {
         console.error("Fetch package error:", err);
@@ -82,7 +89,7 @@ export function TryoutPreView({ packageId, questionsId, onStart, onCancel }: Try
       }
     }
     fetchPackage();
-  }, [packageId, questionsId]);
+  }, [resolvedPackageId, resolvedQuestionsId]);
 
   if (loading) {
     return (
