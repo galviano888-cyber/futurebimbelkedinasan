@@ -421,7 +421,7 @@ export function AdminUserManager() {
                     <option key={pkg.id} value={pkg.id} disabled={packageIsFull(pkg)} className="bg-slate-900">
                       {pkg.title} ({pkg.product_type})
                       {packageSeatLabel(pkg) ? ` — ${packageSeatLabel(pkg)}` : ''}
-                      {pkg.sales_status === 'CLOSED' ? ' — ditutup' : ''}
+                      {pkg.sales_status === 'CLOSED' ? ' — ditutup' : pkg.sales_status === 'COMING_SOON' ? ' — segera dibuka' : ''}
                       {packageIsFull(pkg) ? ' — PENUH' : ''}
                     </option>
                   ))}

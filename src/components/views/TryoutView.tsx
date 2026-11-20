@@ -29,7 +29,7 @@ interface Package {
   original_price?: number | null;
   product_type: 'SATUAN' | 'BUNDLE' | 'INTENSIF' | 'KELAS' | 'PRIVAT_SATUAN' | 'PRIVAT_PAKET';
   is_active: boolean;
-  sales_status?: 'OPEN' | 'CLOSED' | 'HIDDEN' | null;
+  sales_status?: 'OPEN' | 'CLOSED' | 'COMING_SOON' | 'HIDDEN' | null;
   cover_image_url?: string | null;
   quota?: number | null;
   seats_taken?: number | null;
@@ -170,6 +170,12 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
     if (packageIsFull(pkg)) {
       toast.error("Kelas sudah penuh", {
         description: "Semua kursi untuk kelas ini sudah terisi. Silakan pilih kelas lain.",
+      });
+      return;
+    }
+    if (pkg.sales_status === 'COMING_SOON') {
+      toast.error("Segera dibuka", {
+        description: "Paket ini belum bisa dipesan. Pantau halaman ini untuk tanggal pembukaannya.",
       });
       return;
     }
@@ -337,6 +343,7 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
             const full = packageIsFull(pkg);
             // Paket yang pendaftarannya ditutup tetap tampil, tapi tidak bisa dibeli.
             const closed = pkg.sales_status === 'CLOSED';
+            const comingSoon = pkg.sales_status === 'COMING_SOON';
             return (
               <div key={pkg.id} id={`package-${pkg.id}`} className={`scroll-mt-24 bg-white dark:bg-[#0d1929] border-b sm:border-r sm:last:border-r-0 border-slate-200 dark:border-white/10 overflow-hidden flex flex-col transition-colors ${selectedPackageId === pkg.id ? "ring-2 ring-inset ring-blue-600 bg-blue-50/40 dark:bg-blue-500/5" : "hover:bg-slate-50 dark:hover:bg-white/[0.02]"}`}>
                 {pkg.cover_image_url ? (
@@ -346,6 +353,14 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
                   </div>
                 ) : null}
                 <div className="p-5 sm:p-6 flex-1 flex flex-col">
+                  {comingSoon && (
+                    <div className="mb-3 inline-flex items-center gap-1.5 self-start rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-2.5 py-1">
+                      <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300">
+                        Segera Dibuka
+                      </span>
+                    </div>
+                  )}
                   {closed && (
                     <div className="mb-3 inline-flex items-center gap-1.5 self-start rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 px-2.5 py-1">
                       <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
@@ -417,6 +432,16 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
                     >
                       <Users className="w-3.5 h-3.5" />
                       Kuota Penuh ({pkg.seats_taken ?? 0}/{pkg.quota})
+                    </button>
+                  ) : comingSoon ? (
+                    <button
+                      type="button"
+                      disabled
+                      title="Paket ini segera dibuka"
+                      className="flex items-center gap-2 px-3 py-2.5 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-300 font-semibold text-xs cursor-not-allowed"
+                    >
+                      <Clock className="w-3.5 h-3.5" />
+                      Segera Dibuka
                     </button>
                   ) : closed ? (
                     <button

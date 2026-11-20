@@ -363,10 +363,10 @@ export function AdminLandingPageEditorView() {
                   const checked = selectedLandingPackageIds.includes(product.id);
                   return (
                     <label key={product.id} className={`flex cursor-pointer items-start gap-3 border p-3 transition-colors ${checked ? 'border-blue-400/40 bg-blue-500/10' : 'border-white/10 hover:bg-white/[0.03]'}`}>
-                      <input type="checkbox" checked={checked} onChange={event => setLandingPackageVisible(product.id, event.target.checked)} className="mt-0.5 h-4 w-4 accent-blue-500" />
+                        <input type="checkbox" checked={checked} disabled={product.sales_status === 'COMING_SOON' || product.sales_status === 'HIDDEN'} onChange={event => setLandingPackageVisible(product.id, event.target.checked)} className="mt-0.5 h-4 w-4 accent-blue-500 disabled:cursor-not-allowed disabled:opacity-40" />
                       <span className="min-w-0">
                         <span className="block text-xs font-semibold text-white">{product.title}</span>
-                        <span className="mt-1 block text-[10px] text-slate-400">{product.product_type} · {product.price === 0 ? 'Gratis' : `Rp ${Number(product.price).toLocaleString('id-ID')}`}{product.sales_status === 'CLOSED' ? ' · Pendaftaran ditutup' : ''}</span>
+                        <span className="mt-1 block text-[10px] text-slate-400">{product.product_type} · {product.price === 0 ? 'Gratis' : `Rp ${Number(product.price).toLocaleString('id-ID')}`}{product.sales_status === 'CLOSED' ? ' · Pendaftaran ditutup' : product.sales_status === 'COMING_SOON' ? ' · Segera dibuka (belum dipromosikan)' : product.sales_status === 'HIDDEN' ? ' · Nonaktif' : ''}</span>
                       </span>
                     </label>
                   );

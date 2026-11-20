@@ -74,7 +74,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
     try {
       const { data } = await supabase
         .from('packages')
-        .select('id, title, description, price, original_price, product_type, cover_image_url')
+        .select('id, title, description, price, original_price, product_type, cover_image_url, sales_status')
         .eq('is_active', true)
         .order('price', { ascending: true });
       if (data && data.length > 0) setRealPackages(data);
@@ -188,10 +188,12 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
         <FeaturesSection features={features} copy={sections.features} />
         {(realPackages.length > 0 || activePackages.length > 0) && (() => {
           const hasRealPackages = realPackages.length > 0;
-          const sourcePackages = hasRealPackages ? realPackages : activePackages;
+          const sourcePackages = hasRealPackages
+            ? realPackages.filter(pkg => pkg.sales_status !== 'COMING_SOON' && pkg.sales_status !== 'HIDDEN')
+            : activePackages;
           const selectedIds = sections.pricing.packageIds;
           const visiblePackages = hasRealPackages && selectedIds !== null
-            ? sourcePackages.filter(pkg => selectedIds.includes(pkg.id))
+            ? sourcePackages.filter(pkg => selectedIds.includes(pkg.id) && pkg.sales_status !== 'COMING_SOON' && pkg.sales_status !== 'HIDDEN')
             : sourcePackages;
           return visiblePackages.length > 0 ? (
             <PricingSection

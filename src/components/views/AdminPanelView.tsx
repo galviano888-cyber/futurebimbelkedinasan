@@ -227,15 +227,21 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
     }
   };
 
-  // Ubah status penjualan paket: OPEN (bisa dibeli), CLOSED (tampil tapi
-  // tidak bisa dibeli), HIDDEN (disembunyikan dari katalog siswa).
-  const updatePackageStatus = async (pkg: any, status: 'OPEN' | 'CLOSED' | 'HIDDEN') => {
+  // Ubah status penjualan paket tanpa mengubah isi atau hak akses yang sudah ada.
+  const updatePackageStatus = async (pkg: any, status: 'OPEN' | 'CLOSED' | 'COMING_SOON' | 'HIDDEN') => {
     if (!supabase) return;
     if ((pkg.sales_status ?? 'OPEN') === status) return;
 
     if (status === 'CLOSED') {
       const ok = window.confirm(
         `Tutup pendaftaran "${pkg.title}"?\n\nPaket tetap tampil di katalog siswa, tetapi tidak bisa dibeli. Siswa yang sudah punya akses tetap bisa membukanya.`
+      );
+      if (!ok) return;
+    }
+
+    if (status === 'COMING_SOON') {
+      const ok = window.confirm(
+        `Tandai "${pkg.title}" sebagai Segera Dibuka?\n\nPaket akan tetap terlihat, tetapi siswa belum bisa memesan atau mengklaimnya.`
       );
       if (!ok) return;
     }
@@ -262,16 +268,20 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
       toast.success(
         status === 'OPEN'
           ? 'Paket dibuka kembali'
-          : status === 'CLOSED'
-            ? 'Pendaftaran ditutup'
-            : 'Paket disembunyikan',
+            : status === 'CLOSED'
+              ? 'Pendaftaran ditutup'
+              : status === 'COMING_SOON'
+                ? 'Paket ditandai segera dibuka'
+                : 'Paket disembunyikan',
         {
           description:
             status === 'OPEN'
               ? 'Siswa bisa melihat dan membeli paket ini lagi.'
               : status === 'CLOSED'
                 ? 'Paket masih tampil di katalog, tapi tombol beli dinonaktifkan.'
-                : 'Paket tidak tampil di katalog. Data dan akses siswa tetap utuh.',
+                : status === 'COMING_SOON'
+                  ? 'Paket tampil dengan label Segera Dibuka. Pemesanan di katalog dan landing dinonaktifkan.'
+                  : 'Paket tidak tampil di katalog. Data dan akses siswa tetap utuh.',
         }
       );
     } catch (err: any) {
@@ -867,9 +877,11 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
                                   ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                   : pkg.sales_status === 'CLOSED'
                                     ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                                    : 'bg-slate-500/10 text-slate-500 border-slate-500/20'
+                                    : pkg.sales_status === 'COMING_SOON'
+                                      ? 'bg-blue-500/10 text-blue-300 border-blue-500/20'
+                                      : 'bg-slate-500/10 text-slate-500 border-slate-500/20'
                               )}>
-                                {pkg.sales_status === 'OPEN' ? 'Aktif' : pkg.sales_status === 'CLOSED' ? 'Ditutup' : 'Nonaktif'}
+                                {pkg.sales_status === 'OPEN' ? 'Aktif' : pkg.sales_status === 'CLOSED' ? 'Ditutup' : pkg.sales_status === 'COMING_SOON' ? 'Segera Dibuka' : 'Nonaktif'}
                               </span>
                               <button
                                 onClick={() => { setSelectedProductId(pkg.id); setCurrentView('edit-product'); }}
@@ -880,10 +892,11 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
                             </div>
 
                             {/* Pilihan status penjualan */}
-                            <div className="grid grid-cols-3 gap-1">
+                            <div className="grid grid-cols-2 gap-1">
                               {([
                                 { value: 'OPEN', label: 'Buka', title: 'Tampil di katalog dan bisa dibeli' },
                                 { value: 'CLOSED', label: 'Tutup', title: 'Tetap tampil, tapi tidak bisa dibeli' },
+                                { value: 'COMING_SOON', label: 'Segera', title: 'Tampil sebagai segera dibuka, belum bisa dipesan' },
                                 { value: 'HIDDEN', label: 'Sembunyi', title: 'Disembunyikan dari katalog siswa' },
                               ] as const).map((opt) => (
                                 <button
@@ -896,9 +909,11 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
                                     (pkg.sales_status ?? 'OPEN') === opt.value
                                       ? opt.value === 'OPEN'
                                         ? 'bg-emerald-600 text-white'
-                                        : opt.value === 'CLOSED'
-                                          ? 'bg-amber-600 text-white'
-                                          : 'bg-slate-600 text-white'
+                                          : opt.value === 'CLOSED'
+                                            ? 'bg-amber-600 text-white'
+                                            : opt.value === 'COMING_SOON'
+                                              ? 'bg-blue-600 text-white'
+                                              : 'bg-slate-600 text-white'
                                       : 'bg-white/5 text-slate-500 hover:bg-white/10 hover:text-slate-300'
                                   )}
                                 >

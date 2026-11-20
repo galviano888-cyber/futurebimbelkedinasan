@@ -24,7 +24,7 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [uploadingCover, setUploadingCover] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
-  const [salesStatus, setSalesStatus] = useState<'OPEN' | 'CLOSED' | 'HIDDEN'>('OPEN');
+  const [salesStatus, setSalesStatus] = useState<'OPEN' | 'CLOSED' | 'COMING_SOON' | 'HIDDEN'>('OPEN');
   const [contents, setContents] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -472,10 +472,11 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
 
               <div className="mt-4 space-y-2">
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Status Penjualan</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {([
                     { value: 'OPEN', label: 'Aktif', desc: 'Tampil & bisa dibeli', color: 'emerald' },
                     { value: 'CLOSED', label: 'Ditutup', desc: 'Tampil, tidak bisa dibeli', color: 'amber' },
+                    { value: 'COMING_SOON', label: 'Segera Dibuka', desc: 'Tampil, belum bisa dibeli', color: 'blue' },
                     { value: 'HIDDEN', label: 'Nonaktif', desc: 'Disembunyikan', color: 'slate' },
                   ] as const).map((opt) => (
                     <button
@@ -489,7 +490,9 @@ export function AdminProductEditorView({ onBack, packageId = null, editingProduc
                             ? 'border-emerald-500 bg-emerald-50'
                             : opt.value === 'CLOSED'
                               ? 'border-amber-500 bg-amber-50'
-                              : 'border-slate-400 bg-slate-100'
+                              : opt.value === 'COMING_SOON'
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-slate-400 bg-slate-100'
                           : 'border-slate-200 bg-white hover:border-slate-300'
                       )}
                     >

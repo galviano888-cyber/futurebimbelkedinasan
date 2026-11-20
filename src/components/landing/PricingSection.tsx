@@ -21,6 +21,7 @@ interface RealPackage {
   price: number;
   original_price?: number | null;
   product_type: 'SATUAN' | 'BUNDLE' | 'INTENSIF' | 'KELAS' | 'PRIVAT_SATUAN' | 'PRIVAT_PAKET';
+  sales_status?: 'OPEN' | 'CLOSED' | 'COMING_SOON' | 'HIDDEN' | null;
   cover_image_url?: string | null;
 }
 
@@ -135,9 +136,11 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth border-y border-white/20 py-4 [scrollbar-width:thin] [scrollbar-color:rgba(191,219,254,0.55)_transparent]"
         >
           {isRealPackages
-            ? (packages as RealPackage[]).map((pkg) => {
+              ? (packages as RealPackage[]).map((pkg) => {
                 const Icon = TYPE_ICON[pkg.product_type] || BookOpen;
                 const isFree = pkg.price === 0;
+                const comingSoon = pkg.sales_status === 'COMING_SOON';
+                const closed = pkg.sales_status === 'CLOSED';
                 return (
                   <motion.div
                     key={pkg.id}
@@ -157,6 +160,11 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
                     )}
 
                     <div className="p-5 flex-1">
+                      {(comingSoon || closed) && (
+                        <span className="mb-3 inline-flex items-center gap-1.5 border border-blue-200 bg-blue-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-blue-800">
+                          {comingSoon ? 'Segera Dibuka' : 'Pendaftaran Ditutup'}
+                        </span>
+                      )}
                         <div className="flex items-center gap-2 mb-4">
                         <div className="w-8 h-8 border border-blue-200 bg-blue-50 flex items-center justify-center shrink-0">
                           <Icon className="w-4 h-4 text-blue-700" />
@@ -185,11 +193,13 @@ export const PricingSection = memo(function PricingSection({ packages, isRealPac
 
                     <div className="px-5 pb-5">
                       <button
-                        onClick={() => onPackageSelect ? onPackageSelect(pkg.id) : onEnter()}
-                        className="group w-full min-h-11 flex items-center justify-between px-4 border border-blue-800 bg-blue-800 font-semibold text-[13px] text-white transition-colors hover:bg-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+                        onClick={() => !(comingSoon || closed) && (onPackageSelect ? onPackageSelect(pkg.id) : onEnter())}
+                        disabled={comingSoon || closed}
+                        aria-disabled={comingSoon || closed}
+                        className={`group w-full min-h-11 flex items-center justify-between px-4 border font-semibold text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 ${comingSoon || closed ? 'border-blue-200 bg-blue-50 text-blue-700 cursor-not-allowed' : 'border-blue-800 bg-blue-800 text-white hover:bg-blue-900'}`}
                       >
-                        <span>{isFree ? 'Mulai gratis' : 'Daftar untuk melihat paket'}</span>
-                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        <span>{comingSoon ? 'Segera Dibuka' : closed ? 'Pendaftaran Ditutup' : isFree ? 'Mulai gratis' : 'Daftar untuk melihat paket'}</span>
+                        {!(comingSoon || closed) && <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />}
                       </button>
                     </div>
                   </motion.div>
