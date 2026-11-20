@@ -110,13 +110,24 @@ export function TryoutView({ isAuthenticated, onLoginClick }: TryoutViewProps) {
 
       if (!pkgError && allPackages) {
         const countMap = new Map((counts || []).map((c: any) => [c.package_id, c.content_count]));
+        const statusPriority: Record<string, number> = {
+          OPEN: 0,
+          COMING_SOON: 1,
+          CLOSED: 2,
+          HIDDEN: 3,
+        };
         const filtered = allPackages
           .filter((p: any) => p.id !== '11111111-1111-1111-1111-111111111111' && !ownedPackageIds.includes(p.id))
           .map((p: any) => ({
             ...p,
             content_count: countMap.get(p.id) ?? 0,
             contents: [],
-          }));
+          }))
+          .sort((a: any, b: any) => {
+            const priorityA = statusPriority[a.sales_status ?? 'OPEN'] ?? 0;
+            const priorityB = statusPriority[b.sales_status ?? 'OPEN'] ?? 0;
+            return priorityA - priorityB || a.price - b.price;
+          });
         setPackages(filtered as Package[]);
       }
     } catch (error) {
