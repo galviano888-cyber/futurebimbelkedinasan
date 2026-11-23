@@ -55,9 +55,7 @@ export function Sidebar({ isOpen, onClose, activePage = "Dashboard", onPageChang
           collapsed && "px-0 justify-center"
         )}>
           <div className={cn("flex items-center gap-2.5", collapsed && "justify-center w-full")}>
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-[12px] tracking-tight shrink-0 shadow-sm shadow-blue-600/25">
-              FBK
-            </div>
+            <img src="/logo-mark-light.png" alt="Logo Future Bimbel Kedinasan" width={36} height={36} className="h-9 w-9 shrink-0 object-contain" />
             {!collapsed && (
               <div>
                 <p className="text-[13px] font-semibold text-white leading-none">Future Bimbel</p>

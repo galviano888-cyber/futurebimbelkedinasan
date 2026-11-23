@@ -783,7 +783,7 @@ export function TryoutEngineView({ packageId, questionsId, onFinish, onExit }: T
           </button>
           <div className="hidden xs:block h-5 w-px bg-white/20" />
           <div className="hidden xs:flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center text-white font-bold text-[9px] shrink-0">FBK</div>
+            <img src="/logo-mark-light.png" alt="Logo Future Bimbel Kedinasan" width={24} height={24} className="h-6 w-6 shrink-0 object-contain" />
             <h1 className="text-[13px] font-semibold text-white">Tryout SKD</h1>
           </div>
         </div>

@@ -12,10 +12,15 @@ export function FBKLoader({ text, dark = false }: { text?: string; dark?: boolea
             : 'border-blue-500/20 border-t-blue-500'
         }`} />
         {/* Logo FBK di tengah */}
-        <div className={`absolute inset-0 flex items-center justify-center text-[9px] font-bold tracking-tight ${
-          dark ? 'text-blue-300' : 'text-blue-600'
-        }`}>
-          FBK
+        <div className="absolute inset-0 flex items-center justify-center">
+          <img
+            src={dark ? "/logo-mark-light.png" : "/logo-mark.png"}
+            alt=""
+            aria-hidden="true"
+            width={24}
+            height={24}
+            className="h-6 w-6 object-contain"
+          />
         </div>
       </div>
       {text && (

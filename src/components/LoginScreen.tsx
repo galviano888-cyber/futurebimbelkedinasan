@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GraduationCap } from "lucide-react";
 
 interface LoginScreenProps {
   onLogin: (email: string) => void;
@@ -26,17 +25,15 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
     <div className="min-h-screen bg-gradient-to-br from-[#0a192f] to-blue-900 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-lg shadow-xl p-8">
-          <div className="flex items-center justify-center mb-8">
-            <div className="bg-blue-500 rounded-lg p-3">
-              <GraduationCap className="w-8 h-8 text-white" />
-            </div>
+          <div className="flex items-center justify-center mb-6">
+            <img src="/logo-mark.png" alt="Logo Future Bimbel Kedinasan" width={72} height={72} className="h-16 w-16 object-contain" />
           </div>
 
           <h1 className="text-3xl font-bold text-center text-slate-900 mb-2">
-            FBK
+            Future Bimbel Kedinasan
           </h1>
           <p className="text-center text-slate-500 text-sm mb-8">
-            Future Bimbel Kedinasan
+            Masuk ke akun belajarmu
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">

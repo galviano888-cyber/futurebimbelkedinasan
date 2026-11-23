@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Lock, LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, LayoutDashboard, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle, Calendar, CheckCircle2, BarChart3, Menu } from "lucide-react";
+import { LogOut, Upload, Database, Users, FileJson, ShoppingCart, Edit2, Search, Filter, SortAsc, Plus, Trash2, Check, X, Loader2, Bell, ChevronRight, Package, CreditCard, BookOpen, Download, Info, Copy, CheckCheck, Eye, EyeOff, ChevronLeft, AlertTriangle, Calendar, CheckCircle2, BarChart3, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { AdminQuestionEditorView } from "./AdminQuestionEditorView";
@@ -390,9 +390,7 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
         <div className="w-full max-w-sm relative z-10">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 bg-blue-800 flex items-center justify-center mb-4">
-              <Lock className="w-6 h-6 text-white" />
-            </div>
+            <img src="/logo-mark-light.png" alt="Logo Future Bimbel Kedinasan" width={56} height={56} className="h-14 w-14 object-contain mb-4" />
             <h1 className="text-2xl font-bold text-white tracking-tight">FBK Admin</h1>
             <p className="text-sm text-slate-500 mt-1 font-medium">Control Center</p>
           </div>
@@ -459,9 +457,7 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
         {/* Brand */}
         <div className="px-6 py-6 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-800 flex items-center justify-center shrink-0">
-              <LayoutDashboard className="w-4 h-4 text-white" />
-            </div>
+            <img src="/logo-mark-light.png" alt="Logo Future Bimbel Kedinasan" width={36} height={36} className="h-9 w-9 shrink-0 object-contain" />
             <div>
               <p className="text-sm font-bold text-white leading-none">FBK Admin</p>
               <p className="text-[10px] text-blue-400 font-bold mt-0.5">Control Center</p>
@@ -550,7 +546,7 @@ const [currentView, setCurrentView] = useState<'dashboard' | 'import' | 'manual'
             <aside className="w-[min(19rem,85vw)] h-full bg-[#15202d] border-r border-white/10 flex flex-col" onClick={e => e.stopPropagation()}>
               <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-blue-800 flex items-center justify-center"><LayoutDashboard className="w-4 h-4 text-white" /></div>
+                  <img src="/logo-mark-light.png" alt="Logo Future Bimbel Kedinasan" width={36} height={36} className="h-9 w-9 shrink-0 object-contain" />
                   <div><p className="text-sm font-bold text-white">FBK Admin</p><p className="text-[10px] text-slate-400">Navigasi</p></div>
                 </div>
                 <button onClick={() => setMobileNavOpen(false)} aria-label="Tutup navigasi" className="w-9 h-9 border border-white/10 text-slate-300 flex items-center justify-center"><X className="w-4 h-4" /></button>
