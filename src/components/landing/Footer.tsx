@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Mail, MessageCircle, MapPin, Phone, ArrowRight } from "lucide-react";
+import { MessageCircle, MapPin, ArrowRight } from "lucide-react";
 import { DEFAULT_LANDING_SECTIONS, type LandingSections } from "@/lib/landingSections";
 
 interface FooterProps {
@@ -57,13 +57,6 @@ export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) 
                 aria-label="WhatsApp"
               >
                 <MessageCircle className="w-4 h-4" />
-              </a>
-              <a
-                href="mailto:support@futurebimbelkedinasan.com"
-                className="w-9 h-9 rounded-xl bg-blue-800/60 border border-blue-300/30 flex items-center justify-center text-blue-100 hover:text-white hover:bg-blue-600 hover:border-blue-400 transition-all duration-200"
-                aria-label="Email"
-              >
-                <Mail className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -124,14 +117,10 @@ export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) 
                   </span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <Mail className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                  <span className="text-[13px] text-blue-100">
-                    support@futurebimbelkedinasan.com
-                  </span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <Phone className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                  <span className="text-[13px] text-blue-100">0877-5364-6617</span>
+                  <MessageCircle className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                  <a href="https://wa.me/6287753646617" className="text-[13px] text-blue-100 hover:text-white transition-colors">
+                    0877-5364-6617 (WhatsApp)
+                  </a>
                 </div>
               </div>
             </div>

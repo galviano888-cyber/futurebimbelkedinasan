@@ -23,7 +23,7 @@ export function AdminLandingPageEditorView() {
   ]);
   const [_testimonials, setTestimonials] = useState<any[]>([]);
   const [faqs, setFaqs] = useState<any[]>([]);
-  const [contacts, setContacts] = useState({ whatsapp: "6287753646617", instagram: "futurebimbelkedinasan", tiktok: "futurebimbelkedinasan" });
+  const [contacts, setContacts] = useState({ whatsapp: "6287753646617" });
   const [colors, setColors] = useState({
     badge: "#3b82f6",
     title: "#ffffff",
@@ -58,7 +58,7 @@ export function AdminLandingPageEditorView() {
           if (item.key === 'testimonials') setTestimonials(item.value);
           if (item.key === 'faqs') setFaqs(item.value);
           if (item.key === 'site_colors') setColors(item.value);
-          if (item.key === 'official_contacts') setContacts(item.value);
+          if (item.key === 'official_contacts') setContacts({ whatsapp: item.value?.whatsapp ?? "6287753646617" });
           if (item.key === 'bank_details') setBank(item.value);
           if (item.key === 'whatsapp_template') setWaTemplate(item.value);
           if (item.key === 'landing_sections') setSections(mergeLandingSections(item.value));
@@ -502,13 +502,13 @@ export function AdminLandingPageEditorView() {
             <div className={iconBoxClass}><Phone className="w-4 h-4 text-blue-400" /></div>
             <div>
               <h2 className="text-sm font-bold text-white">Kontak Resmi</h2>
-              <p className="text-[10px] text-slate-600 font-bold">WhatsApp, Instagram, TikTok</p>
+              <p className="text-[10px] text-slate-600 font-bold">Nomor WhatsApp admin</p>
             </div>
           </div>
           {saveBtn(() => handleSave('official_contacts', contacts), 'Simpan Kontak')}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[{label:'WhatsApp (628xxx)',key:'whatsapp'},{label:'Instagram (username)',key:'instagram'},{label:'TikTok (username)',key:'tiktok'}].map(({label,key}) => (
+          {[{label:'WhatsApp (628xxx)',key:'whatsapp'}].map(({label,key}) => (
             <div key={key}>
               <label className={labelClass}>{label}</label>
               <input value={(contacts as any)[key]} onChange={e => setContacts({...contacts,[key]:e.target.value})} className={inputClass} />
