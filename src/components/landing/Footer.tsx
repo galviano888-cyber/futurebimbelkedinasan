@@ -2,6 +2,16 @@ import { memo } from "react";
 import { MessageCircle, MapPin, ArrowRight } from "lucide-react";
 import { DEFAULT_LANDING_SECTIONS, type LandingSections } from "@/lib/landingSections";
 
+const TELEGRAM_URL = "https://t.me/futurebimbelkedinasan";
+
+function TelegramIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+      <path d="M21.94 4.6a1.2 1.2 0 0 0-1.2-.2L3.3 11.05c-.9.35-.88 1.63.02 1.95l4.1 1.44 1.57 4.9c.2.63 1 .82 1.47.35l2.3-2.3 4.2 3.1c.62.45 1.5.12 1.66-.63l3.4-14.1c.08-.35-.02-.72-.28-.96ZM9.6 14.2l8.2-6.1-6.6 6.9-.3 3.1-1.3-3.9Z" />
+    </svg>
+  );
+}
+
 interface FooterProps {
   onLegalClick: (type: 'terms' | 'privacy') => void;
   copy?: LandingSections["footer"];
@@ -57,6 +67,15 @@ export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) 
                 aria-label="WhatsApp"
               >
                 <MessageCircle className="w-4 h-4" />
+              </a>
+              <a
+                href={TELEGRAM_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="w-9 h-9 rounded-xl bg-blue-800/60 border border-blue-300/30 flex items-center justify-center text-blue-100 hover:text-white hover:bg-blue-600 hover:border-blue-400 transition-all duration-200"
+                aria-label="Grup Telegram Pejuang Kedinasan"
+              >
+                <TelegramIcon className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -120,6 +139,12 @@ export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) 
                   <MessageCircle className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                   <a href="https://wa.me/6287753646617" className="text-[13px] text-blue-100 hover:text-white transition-colors">
                     0877-5364-6617 (WhatsApp)
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <TelegramIcon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                  <a href={TELEGRAM_URL} target="_blank" rel="noreferrer" className="text-[13px] text-blue-100 hover:text-white transition-colors">
+                    Grup Pejuang Kedinasan (Telegram)
                   </a>
                 </div>
               </div>
