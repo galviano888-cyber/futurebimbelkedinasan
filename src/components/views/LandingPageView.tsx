@@ -10,6 +10,7 @@ import { HeroSection } from "../landing/HeroSection";
 import { FeaturesSection } from "../landing/FeaturesSection";
 
 import { TestimonialsSection } from "../landing/TestimonialsSection";
+import { CommunitySection } from "../landing/CommunitySection";
 import { PricingSection } from "../landing/PricingSection";
 import { FAQSection } from "../landing/FAQSection";
 import { Footer } from "../landing/Footer";
@@ -207,6 +208,7 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
         })()}
         <TestimonialsSection testimonials={_testimonials} copy={sections.plan} />
         <FAQSection faqs={faqs} copy={sections.faq} />
+        <CommunitySection />
         <Footer onLegalClick={handleLegalClick} copy={sections.footer} />
       </div>
 
