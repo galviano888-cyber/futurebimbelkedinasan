@@ -36,7 +36,7 @@ export const AccordionItem = memo(function AccordionItem({ question, answer }: A
             transition={{ duration: reduceMotion ? 0 : 0.25, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <p className="pb-5 pr-10 text-[14px] text-blue-50 leading-relaxed">
+            <p className="pb-5 pr-10 text-[14px] text-blue-50 leading-relaxed text-justify">
               {answer}
             </p>
           </motion.div>

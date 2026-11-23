@@ -2,6 +2,7 @@ import { memo } from "react";
 import { MessageCircle, ArrowRight, MessagesSquare } from "lucide-react";
 import { TelegramIcon, TikTokIcon, InstagramIcon } from "./TelegramIcon";
 
+const WA_GROUP_URL = "https://chat.whatsapp.com/FDPTBAAlm1oEOLkR4EmO7R";
 const TELEGRAM_URL = "https://t.me/futurebimbelkedinasan";
 const INSTAGRAM_URL = "https://instagram.com/futurebimbelkedinasan";
 const TIKTOK_URL = "https://tiktok.com/@futurebimbelkedinasan";
@@ -10,25 +11,21 @@ interface Channel {
   icon: React.ElementType;
   title: string;
   description: string;
-  href?: string;
-  cta?: string;
+  href: string;
+  cta: string;
 }
 
-/**
- * Kanal komunitas yang tampil di landing page.
- *
- * Kanal tanpa `href` sengaja ditampilkan sebagai "Segera" agar tidak
- * mengarahkan siswa ke tautan yang belum aktif.
- */
 const CHANNELS: Channel[] = [
   {
     icon: MessageCircle,
-    title: "Grup WhatsApp Interaktif",
-    description: "Grup untuk berdiskusi dan berbagi pengalaman.",
+    title: "Grup Pejuang Kedinasan (WhatsApp)",
+    description: "Grup untuk berdiskusi dan berbagi pengalaman sesama pejuang kedinasan.",
+    href: WA_GROUP_URL,
+    cta: "Gabung",
   },
   {
     icon: TelegramIcon,
-    title: "Grup Pejuang Kedinasan",
+    title: "Grup Pejuang Kedinasan (Telegram)",
     description: "Diskusi bersama calon abdi negara di Telegram.",
     href: TELEGRAM_URL,
     cta: "Gabung",
@@ -79,21 +76,15 @@ export const CommunitySection = memo(function CommunitySection() {
                   </div>
                 </div>
 
-                {href ? (
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group inline-flex min-h-10 items-center justify-center gap-1.5 self-start sm:self-auto rounded-full bg-sky-500 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                  >
-                    {cta ?? "Buka"}
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                  </a>
-                ) : (
-                  <span className="inline-flex min-h-10 items-center justify-center self-start sm:self-auto rounded-full border border-white/25 px-6 py-2.5 text-[13px] font-semibold text-blue-100/70">
-                    Segera
-                  </span>
-                )}
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group inline-flex min-h-10 items-center justify-center gap-1.5 self-start sm:self-auto rounded-full bg-sky-500 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  {cta}
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                </a>
               </div>
             ))}
           </div>
@@ -102,3 +93,4 @@ export const CommunitySection = memo(function CommunitySection() {
     </section>
   );
 });
+

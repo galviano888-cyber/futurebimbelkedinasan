@@ -207,8 +207,8 @@ export function LandingPageView({ onLogin, onRegister }: LandingPageViewProps) {
           ) : null;
         })()}
         <TestimonialsSection testimonials={_testimonials} copy={sections.plan} />
-        <FAQSection faqs={faqs} copy={sections.faq} />
         <CommunitySection />
+        <FAQSection faqs={faqs} copy={sections.faq} />
         <Footer onLegalClick={handleLegalClick} copy={sections.footer} />
       </div>
 

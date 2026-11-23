@@ -23,7 +23,7 @@ export const FeaturesSection = memo(function FeaturesSection({ features, copy }:
             <h2 className="text-[30px] lg:text-[42px] font-bold tracking-[-0.04em] leading-[1.08] mb-4 text-white">
               {heading.title}
             </h2>
-            <p className="text-[15px] text-blue-50 leading-[1.75]">
+            <p className="text-[15px] text-blue-50 leading-[1.75] text-justify">
               {heading.description}
             </p>
           </div>

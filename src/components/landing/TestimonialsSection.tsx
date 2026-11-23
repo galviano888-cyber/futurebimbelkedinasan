@@ -36,7 +36,7 @@ export const TestimonialsSection = memo(function TestimonialsSection({ testimoni
               {plan.title}
               </h2>
             </div>
-            <p className="text-[15px] text-blue-950/80 leading-[1.75] lg:pt-8 max-w-xl">
+            <p className="text-[15px] text-blue-950/80 leading-[1.75] lg:pt-8 max-w-xl text-justify">
               {plan.description}
             </p>
           </div>

@@ -52,7 +52,7 @@ export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) 
                 Future Bimbel Kedinasan
               </span>
             </div>
-            <p className="text-[13.5px] text-blue-100 leading-relaxed">
+            <p className="text-[13.5px] text-blue-100 leading-relaxed text-justify">
               {footerCopy.description}
             </p>
             <div className="flex items-center gap-2.5">
@@ -152,12 +152,6 @@ export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) 
                   <MessageCircle className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                   <a href="https://wa.me/6287753646617" className="text-[13px] text-blue-100 hover:text-white transition-colors">
                     0877-5364-6617 (WhatsApp)
-                  </a>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <TelegramIcon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                  <a href={TELEGRAM_URL} target="_blank" rel="noreferrer" className="text-[13px] text-blue-100 hover:text-white transition-colors">
-                    Grup Pejuang Kedinasan (Telegram)
                   </a>
                 </div>
                 <div className="flex items-center gap-2.5">

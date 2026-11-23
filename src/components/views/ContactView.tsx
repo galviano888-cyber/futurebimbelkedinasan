@@ -54,7 +54,7 @@ export function ContactView() {
           <h1 className="text-[30px] sm:text-[34px] font-bold text-slate-900 dark:text-white tracking-[-0.04em]">
             Ada yang bisa kami bantu?
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-xl leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-xl leading-relaxed text-justify">
             Tanyakan soal akun, paket belajar, pembayaran, atau kendala saat menggunakan platform.
           </p>
         </div>
@@ -85,7 +85,7 @@ export function ContactView() {
             <h2 className="text-[25px] sm:text-[31px] font-bold tracking-[-0.035em] leading-tight">
               Hubungi kami lewat WhatsApp
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-blue-100/85">
+            <p className="mt-3 text-sm leading-relaxed text-blue-100/85 text-justify">
               Semua pertanyaan seputar akun, pembayaran, paket belajar, dan kendala teknis
               dilayani melalui WhatsApp. Kami balas pada jam layanan admin.
             </p>
