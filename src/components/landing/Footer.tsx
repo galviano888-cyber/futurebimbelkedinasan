@@ -125,12 +125,12 @@ export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) 
                   </button>
                 </li>
                 <li>
-                  <button
-                    onClick={() => onLegalClick('privacy')}
+                  <a
+                    href="/privacy-policy"
                     className="text-[13.5px] text-blue-100 hover:text-white transition-colors"
                   >
                     Kebijakan Privasi
-                  </button>
+                  </a>
                 </li>
               </ul>
             </div>

@@ -13,6 +13,7 @@ const DashboardView = lazy(() => import("@/components/views/DashboardView").then
 const TryoutView = lazy(() => import("@/components/views/TryoutView").then(m => ({ default: m.TryoutView })));
 const PaketSayaView = lazy(() => import("@/components/views/PaketSayaView").then(m => ({ default: m.PaketSayaView })));
 const ContactView = lazy(() => import("@/components/views/ContactView").then(m => ({ default: m.ContactView })));
+const PrivacyPolicyView = lazy(() => import("@/components/views/PrivacyPolicyView").then(m => ({ default: m.PrivacyPolicyView })));
 import { AuthModal } from "@/components/AuthModal";
 import { supabase } from "@/lib/supabaseClient";
 import { Mail, RefreshCcw } from "lucide-react";
@@ -475,6 +476,7 @@ export default function App() {
         <Route path="/login" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/paket" replace />} />
         <Route path="/register" element={!isAuthenticated ? <LandingPageView onLogin={() => { setAuthMode('login'); setIsLoginOpen(true); }} onRegister={() => { setAuthMode('register'); setIsLoginOpen(true); }} /> : <Navigate to="/paket" replace />} />
         <Route path="/reset-password" element={<ResetPasswordView />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyView />} />
         
         {/* Admin — requires authenticated session; AdminPanelView enforces role check internally */}
         <Route path="/x7k2m9qp4n8vw3js" element={<AdminPanelView />} />
@@ -538,7 +540,7 @@ export default function App() {
                            location.pathname === '/reset-password';
 
   // Only authenticated/private screens are excluded from search indexes.
-  const PUBLIC_PATHS = ['/', '/login', '/register', '/help'];
+   const PUBLIC_PATHS = ['/', '/login', '/register', '/help', '/privacy-policy'];
   const isPrivatePage = !PUBLIC_PATHS.includes(location.pathname);
 
   if (isFullScreenPage) {
