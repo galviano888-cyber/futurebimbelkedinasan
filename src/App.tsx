@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Toaster, toast } from "sonner";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { Header } from "@/components/Header";
@@ -59,6 +59,7 @@ export default function App() {
   const [session, setSession] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [data, setData] = useState<TryoutRecord[]>([]);
+  const fetchedUserId = useRef<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [tryoutResult, setTryoutResult] = useState<any>(() => {
     try {
@@ -122,7 +123,7 @@ export default function App() {
 
     // Simpan nama dari Google metadata kalau belum ada di profiles
 
-    const { data: prof } = await supabase.from('profiles').select('full_name').eq('id', s.user.id).single();
+    const { data: prof } = await supabase.from('profiles').select('full_name').eq('id', s.user.id).maybeSingle();
     if (!prof?.full_name) {
       const googleName = s.user.user_metadata?.full_name ||
         s.user.user_metadata?.name ||
@@ -149,23 +150,23 @@ export default function App() {
 
     checkVerification(user);
     try {
-      const { data: pData } = await supabase
-        .from('profiles')
-        .select('id, full_name, email, phone, created_at')
-        .eq('id', user.id)
-        .single();
-      if (signal?.aborted) return;
-      if (pData) setProfile(pData);
+      const [profileResult, resultResult] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('id, full_name, email, phone, created_at')
+          .eq('id', user.id)
+          .maybeSingle(),
+        supabase
+          .from("tryout_results")
+          .select('id, user_id, package_id, tryout_id, date, package_name, twk, tiu, tkp, total, answers, score_details')
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+      ]);
 
-      const { data: results, error } = await supabase
-        .from("tryout_results")
-        .select('id, user_id, package_id, tryout_id, date, package_name, twk, tiu, tkp, total, answers, score_details')
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
       if (signal?.aborted) return;
-      if (!error && Array.isArray(results)) {
-        const normalized = results.map((row: any) => ({
+      if (profileResult.data) setProfile(profileResult.data);
+      if (!resultResult.error && Array.isArray(resultResult.data)) {
+        const normalized = resultResult.data.map((row: any) => ({
           id: String(row.id),
           packageId: row.package_id,
           tryoutId: row.tryout_id,
@@ -196,9 +197,22 @@ export default function App() {
 
     // AbortController untuk cancel fetchAllData jika komponen unmount atau user ganti session
     let abortController = new AbortController();
+    let disposed = false;
+
+    const fetchForUserOnce = (user: AuthUser) => {
+      if (fetchedUserId.current === user.id) return;
+      fetchedUserId.current = user.id;
+      void fetchAllData(user, abortController.signal);
+      // Query profil dijalankan setelah callback auth selesai agar tidak
+      // menahan lock internal Supabase Auth.
+      setTimeout(() => {
+        if (!disposed) void handleGoogleCallback({ user });
+      }, 0);
+    };
 
     // Ambil session awal — penting untuk SSR/refresh dan Google OAuth callback
     supabase.auth.getSession().then(({ data: { session: s } }) => {
+      if (disposed) return;
       // Jangan ganggu admin panel sama sekali
       if (window.location.pathname === '/x7k2m9qp4n8vw3js') {
         setLoading(false);
@@ -206,25 +220,26 @@ export default function App() {
       }
       setSession(s);
       if (s) {
-        fetchAllData(s.user, abortController.signal);
-        // Handle Google OAuth callback saat pertama load
-        handleGoogleCallback(s);
+        fetchForUserOnce(s.user);
       } else {
         setLoading(false);
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
       // Jangan ganggu admin panel sama sekali — pakai window.location agar tidak stale
       if (window.location.pathname === '/x7k2m9qp4n8vw3js') return;
 
       setSession(s);
       if (s) {
         if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+          if (fetchedUserId.current !== s.user.id) {
           // Cancel fetch sebelumnya lalu buat controller baru
           abortController.abort();
           abortController = new AbortController();
-          fetchAllData(s.user, abortController.signal);
+          fetchedUserId.current = null;
+          fetchForUserOnce(s.user);
+          }
 
           if (event === 'SIGNED_IN') {
             // Setelah login (email/password maupun Google), arahkan ke katalog
@@ -236,11 +251,11 @@ export default function App() {
               sessionStorage.removeItem('fbk_selected_package');
               navigate(selectedPackage ? `/paket?selected=${encodeURIComponent(selectedPackage)}` : '/paket', { replace: true });
             }
-            handleGoogleCallback(s);
           }
         }
       } else {
         abortController.abort();
+        fetchedUserId.current = null;
         setProfile(null);
         setData([]);
         setLoading(false);
@@ -257,6 +272,7 @@ export default function App() {
     });
 
     return () => {
+      disposed = true;
       abortController.abort();
       subscription.unsubscribe();
     };
