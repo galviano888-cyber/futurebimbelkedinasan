@@ -45,9 +45,7 @@ export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) 
           {/* Brand Column */}
           <div className="max-w-sm space-y-5">
             <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl bg-blue-600 text-white font-bold text-[12px] flex items-center justify-center shadow-lg shadow-blue-600/25">
-                FBK
-              </div>
+              <img src="/logo-mark-light.png" alt="Logo Future Bimbel Kedinasan" width={36} height={36} className="h-9 w-9 shrink-0 object-contain" />
               <span className="text-[15px] font-semibold text-white tracking-tight">
                 Future Bimbel Kedinasan
               </span>

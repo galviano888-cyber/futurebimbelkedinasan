@@ -36,9 +36,7 @@ export const Navbar = memo(function Navbar({ onLogin, onRegister, onOpenGuide, o
        <div className="max-w-7xl mx-auto px-5 sm:px-6 h-[72px] flex items-center justify-between">
         {/* Logo */}
         <a href="#" className="flex items-center gap-2.5 group">
-           <div className="h-9 w-9 bg-blue-500 flex items-center justify-center text-white font-bold text-[12px] tracking-tight shrink-0 group-hover:bg-blue-400 transition-colors">
-            FBK
-          </div>
+           <img src="/logo-mark-light.png" alt="Logo Future Bimbel Kedinasan" width={36} height={36} className="h-9 w-9 shrink-0 object-contain" />
            <span className="text-[15px] font-medium text-white tracking-tight">
             Future Bimbel Kedinasan
           </span>
