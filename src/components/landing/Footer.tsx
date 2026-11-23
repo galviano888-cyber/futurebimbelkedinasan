@@ -1,9 +1,11 @@
 import { memo } from "react";
 import { MessageCircle, MapPin, ArrowRight } from "lucide-react";
 import { DEFAULT_LANDING_SECTIONS, type LandingSections } from "@/lib/landingSections";
-import { TelegramIcon } from "./TelegramIcon";
+import { TelegramIcon, TikTokIcon, InstagramIcon } from "./TelegramIcon";
 
 const TELEGRAM_URL = "https://t.me/futurebimbelkedinasan";
+const INSTAGRAM_URL = "https://instagram.com/futurebimbelkedinasan";
+const TIKTOK_URL = "https://tiktok.com/@futurebimbelkedinasan";
 
 interface FooterProps {
   onLegalClick: (type: 'terms' | 'privacy') => void;
@@ -69,6 +71,24 @@ export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) 
                 aria-label="Grup Telegram Pejuang Kedinasan"
               >
                 <TelegramIcon className="w-4 h-4" />
+              </a>
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="w-9 h-9 rounded-xl bg-blue-800/60 border border-blue-300/30 flex items-center justify-center text-blue-100 hover:text-white hover:bg-blue-600 hover:border-blue-400 transition-all duration-200"
+                aria-label="Instagram @futurebimbelkedinasan"
+              >
+                <InstagramIcon className="w-4 h-4" />
+              </a>
+              <a
+                href={TIKTOK_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="w-9 h-9 rounded-xl bg-blue-800/60 border border-blue-300/30 flex items-center justify-center text-blue-100 hover:text-white hover:bg-blue-600 hover:border-blue-400 transition-all duration-200"
+                aria-label="TikTok @futurebimbelkedinasan"
+              >
+                <TikTokIcon className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -138,6 +158,18 @@ export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) 
                   <TelegramIcon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                   <a href={TELEGRAM_URL} target="_blank" rel="noreferrer" className="text-[13px] text-blue-100 hover:text-white transition-colors">
                     Grup Pejuang Kedinasan (Telegram)
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <InstagramIcon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                  <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="text-[13px] text-blue-100 hover:text-white transition-colors">
+                    @futurebimbelkedinasan (Instagram)
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <TikTokIcon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                  <a href={TIKTOK_URL} target="_blank" rel="noreferrer" className="text-[13px] text-blue-100 hover:text-white transition-colors">
+                    @futurebimbelkedinasan (TikTok)
                   </a>
                 </div>
               </div>

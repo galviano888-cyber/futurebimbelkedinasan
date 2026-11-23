@@ -1,14 +1,17 @@
 import { memo } from "react";
-import { MessageCircle, ArrowRight, MessagesSquare, Info } from "lucide-react";
-import { TelegramIcon } from "./TelegramIcon";
+import { MessageCircle, ArrowRight, MessagesSquare } from "lucide-react";
+import { TelegramIcon, TikTokIcon, InstagramIcon } from "./TelegramIcon";
 
 const TELEGRAM_URL = "https://t.me/futurebimbelkedinasan";
+const INSTAGRAM_URL = "https://instagram.com/futurebimbelkedinasan";
+const TIKTOK_URL = "https://tiktok.com/@futurebimbelkedinasan";
 
 interface Channel {
   icon: React.ElementType;
   title: string;
   description: string;
   href?: string;
+  cta?: string;
 }
 
 /**
@@ -28,11 +31,21 @@ const CHANNELS: Channel[] = [
     title: "Grup Pejuang Kedinasan",
     description: "Diskusi bersama calon abdi negara di Telegram.",
     href: TELEGRAM_URL,
+    cta: "Gabung",
   },
   {
-    icon: Info,
-    title: "Portal Informasi Terupdate",
-    description: "Dapatkan berita terbaru setiap harinya.",
+    icon: InstagramIcon,
+    title: "Instagram @futurebimbelkedinasan",
+    description: "Tips belajar, info seleksi, dan keseharian pejuang kedinasan.",
+    href: INSTAGRAM_URL,
+    cta: "Ikuti",
+  },
+  {
+    icon: TikTokIcon,
+    title: "TikTok @futurebimbelkedinasan",
+    description: "Konten singkat seputar persiapan sekolah kedinasan.",
+    href: TIKTOK_URL,
+    cta: "Ikuti",
   },
 ];
 
@@ -54,7 +67,7 @@ export const CommunitySection = memo(function CommunitySection() {
 
           {/* Kanal */}
           <div className="divide-y divide-white/10 border-t border-white/10">
-            {CHANNELS.map(({ icon: Icon, title, description, href }) => (
+            {CHANNELS.map(({ icon: Icon, title, description, href, cta }) => (
               <div key={title} className="flex flex-col sm:flex-row sm:items-center gap-4 py-5">
                 <div className="flex items-center gap-4 flex-1 min-w-0">
                   <div className="w-11 h-11 rounded-full bg-sky-500 flex items-center justify-center shrink-0">
@@ -73,7 +86,7 @@ export const CommunitySection = memo(function CommunitySection() {
                     rel="noreferrer"
                     className="group inline-flex min-h-10 items-center justify-center gap-1.5 self-start sm:self-auto rounded-full bg-sky-500 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                   >
-                    Gabung
+                    {cta ?? "Buka"}
                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                   </a>
                 ) : (
