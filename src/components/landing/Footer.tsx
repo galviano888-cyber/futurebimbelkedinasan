@@ -154,18 +154,6 @@ export const Footer = memo(function Footer({ onLegalClick, copy }: FooterProps) 
                     0877-5364-6617 (WhatsApp)
                   </a>
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <InstagramIcon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                  <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="text-[13px] text-blue-100 hover:text-white transition-colors">
-                    @futurebimbelkedinasan (Instagram)
-                  </a>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <TikTokIcon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                  <a href={TIKTOK_URL} target="_blank" rel="noreferrer" className="text-[13px] text-blue-100 hover:text-white transition-colors">
-                    @futurebimbelkedinasan (TikTok)
-                  </a>
-                </div>
               </div>
             </div>
           </div>
