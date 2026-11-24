@@ -61,7 +61,7 @@ export const HeroSection = memo(function HeroSection({
             >
               {hero.title.includes("|") ? (
                 <>
-                  <span className="block">{hero.title.split("|")[0].trim()}</span>
+                  <span className="block">{hero.title.split("|")[0].trim()}</span>{" "}
                   <span className="block text-blue-700">{hero.title.split("|").slice(1).join("|").trim()}</span>
                 </>
               ) : hero.title}
